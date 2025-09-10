@@ -10,7 +10,12 @@ const APIPage = () => {
       specUrl="/v1/openapi.json"
       options={{
         hideHostname: true,
-        // nativeScrollbars: true,
+        scrollYOffset: () => {
+          const header = document.querySelector('.rspress-nav') as HTMLElement;
+          return header ? header.offsetHeight : 60;
+        },
+        untrustedSpec: false,
+        nativeScrollbars: true,
         theme: { colors: { primary: { main: '#dd5522' } } },
       }}
     />
