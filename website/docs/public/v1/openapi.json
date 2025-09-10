@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "FastAPI",
-    "description": "\n- Browser\n    - VNC: [/vnc/index.html](/vnc/index.html)\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Terminal\n    - UI: [/terminal](/terminal)\n    - WebSocket: [/v1/shell/ws](/v1/shell/ws), The data format follows [xterm.js](https://xtermjs.org/)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.107"
+    "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Terminal\n    - UI: [/terminal](/terminal)\n    - WebSocket: [/v1/shell/ws](/v1/shell/ws), The data format follows [xterm.js](https://xtermjs.org/)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
+    "version": "1.0.0.112"
   },
   "paths": {
     "/v1/sandbox": {
@@ -13,14 +13,14 @@
         ],
         "summary": "Get Sandbox Context",
         "description": "Get sandbox environment information",
-        "operationId": "sandbox_get_sandbox_context",
+        "operationId": "get_sandbox_context",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/SandboxResponse"
                 }
               }
             }
@@ -35,7 +35,7 @@
         ],
         "summary": "Python Packages",
         "description": "Get installed packages by language",
-        "operationId": "sandbox_python_packages",
+        "operationId": "python_packages",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -57,7 +57,7 @@
         ],
         "summary": "Nodejs Packages",
         "description": "Get installed packages by language",
-        "operationId": "sandbox_nodejs_packages",
+        "operationId": "nodejs_packages",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -79,7 +79,7 @@
         ],
         "summary": "Exec Command",
         "description": "Execute command in the specified shell session\nSupports SSE streaming if Accept header contains 'text/event-stream'",
-        "operationId": "sandbox_exec_command",
+        "operationId": "exec_command",
         "requestBody": {
           "content": {
             "application/json": {
@@ -95,7 +95,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Response_ShellCommandResult_"
+                }
               }
             }
           },
@@ -119,7 +121,7 @@
         ],
         "summary": "View Shell",
         "description": "View output of the specified shell session\nSupports SSE streaming if Accept header contains 'text/event-stream'",
-        "operationId": "sandbox_view_shell",
+        "operationId": "view_shell",
         "requestBody": {
           "content": {
             "application/json": {
@@ -135,7 +137,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Response_ShellViewResult_"
+                }
               }
             }
           },
@@ -159,7 +163,7 @@
         ],
         "summary": "Wait For Process",
         "description": "Wait for the process in the specified shell session to return",
-        "operationId": "sandbox_wait_for_process",
+        "operationId": "wait_for_process",
         "requestBody": {
           "content": {
             "application/json": {
@@ -176,7 +180,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_ShellWaitResult_"
                 }
               }
             }
@@ -201,7 +205,7 @@
         ],
         "summary": "Write To Process",
         "description": "Write input to the process in the specified shell session",
-        "operationId": "sandbox_write_to_process",
+        "operationId": "write_to_process",
         "requestBody": {
           "content": {
             "application/json": {
@@ -218,7 +222,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_ShellWriteResult_"
                 }
               }
             }
@@ -243,7 +247,7 @@
         ],
         "summary": "Kill Process",
         "description": "Terminate the process in the specified shell session",
-        "operationId": "sandbox_kill_process",
+        "operationId": "kill_process",
         "requestBody": {
           "content": {
             "application/json": {
@@ -260,7 +264,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_ShellKillResult_"
                 }
               }
             }
@@ -285,7 +289,7 @@
         ],
         "summary": "Read File",
         "description": "Read file content",
-        "operationId": "sandbox_read_file",
+        "operationId": "read_file",
         "requestBody": {
           "content": {
             "application/json": {
@@ -302,7 +306,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_FileReadResult_"
                 }
               }
             }
@@ -326,8 +330,8 @@
           "file"
         ],
         "summary": "Write File",
-        "description": "Write file content",
-        "operationId": "sandbox_write_file",
+        "description": "Write file content (supports both text and binary files)\n\nFor binary files, set encoding to 'base64' and provide base64-encoded content.\nFor text files, use default 'utf-8' encoding.",
+        "operationId": "write_file",
         "requestBody": {
           "content": {
             "application/json": {
@@ -344,7 +348,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_FileWriteResult_"
                 }
               }
             }
@@ -369,7 +373,7 @@
         ],
         "summary": "Replace In File",
         "description": "Replace string in file",
-        "operationId": "sandbox_replace_in_file",
+        "operationId": "replace_in_file",
         "requestBody": {
           "content": {
             "application/json": {
@@ -386,7 +390,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_FileReplaceResult_"
                 }
               }
             }
@@ -411,7 +415,7 @@
         ],
         "summary": "Search In File",
         "description": "Search in file content",
-        "operationId": "sandbox_search_in_file",
+        "operationId": "search_in_file",
         "requestBody": {
           "content": {
             "application/json": {
@@ -428,7 +432,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_FileSearchResult_"
                 }
               }
             }
@@ -453,7 +457,7 @@
         ],
         "summary": "Find Files",
         "description": "Find files by name pattern",
-        "operationId": "sandbox_find_files",
+        "operationId": "find_files",
         "requestBody": {
           "content": {
             "application/json": {
@@ -470,7 +474,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_FileFindResult_"
                 }
               }
             }
@@ -495,12 +499,12 @@
         ],
         "summary": "Upload File",
         "description": "Upload file using streaming",
-        "operationId": "sandbox_upload_file",
+        "operationId": "upload_file",
         "requestBody": {
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/Body_sandbox_upload_file"
+                "$ref": "#/components/schemas/Body_upload_file"
               }
             }
           },
@@ -511,7 +515,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Response_FileUploadResult_"
+                }
               }
             }
           },
@@ -535,7 +541,7 @@
         ],
         "summary": "Download File",
         "description": "Download file using FileResponse",
-        "operationId": "sandbox_download_file",
+        "operationId": "download_file",
         "parameters": [
           {
             "name": "path",
@@ -576,7 +582,7 @@
         ],
         "summary": "List Path",
         "description": "List path contents with flexible options",
-        "operationId": "sandbox_list_path",
+        "operationId": "list_path",
         "requestBody": {
           "content": {
             "application/json": {
@@ -593,7 +599,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_FileListResult_"
                 }
               }
             }
@@ -618,7 +624,7 @@
         ],
         "summary": "Str Replace Editor",
         "description": "An filesystem editor tool that allows the agent to\n- view\n- create\n- navigate\n- edit files\nThe tool parameters are defined by Anthropic and are not editable.",
-        "operationId": "sandbox_str_replace_editor",
+        "operationId": "str_replace_editor",
         "requestBody": {
           "content": {
             "application/json": {
@@ -635,7 +641,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_StrReplaceEditorResult_"
                 }
               }
             }
@@ -660,7 +666,7 @@
         ],
         "summary": "Execute Jupyter Code",
         "description": "Execute Python code using Jupyter kernel with session persistence\n\nThis endpoint allows you to execute Python code and get results back.\nYou can optionally specify a kernel_name (defaults to 'python3').\nUse session_id to maintain variable state across multiple requests.\nSessions automatically expire after 30 minutes of inactivity.",
-        "operationId": "sandbox_execute_jupyter_code",
+        "operationId": "execute_jupyter_code",
         "requestBody": {
           "content": {
             "application/json": {
@@ -702,7 +708,7 @@
         ],
         "summary": "Jupyter Info",
         "description": "Get information about available Jupyter kernels",
-        "operationId": "sandbox_jupyter_info",
+        "operationId": "jupyter_info",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -724,7 +730,7 @@
         ],
         "summary": "List Sessions",
         "description": "List all active Jupyter sessions",
-        "operationId": "sandbox_list_sessions",
+        "operationId": "list_sessions",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -744,7 +750,7 @@
         ],
         "summary": "Cleanup All Sessions",
         "description": "Cleanup all active sessions",
-        "operationId": "sandbox_cleanup_all_sessions",
+        "operationId": "cleanup_all_sessions",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -766,7 +772,7 @@
         ],
         "summary": "Cleanup Session",
         "description": "Manually cleanup a specific session",
-        "operationId": "sandbox_cleanup_session",
+        "operationId": "cleanup_session",
         "parameters": [
           {
             "name": "session_id",
@@ -809,7 +815,7 @@
         ],
         "summary": "Execute Nodejs Code",
         "description": "Execute JavaScript code using Node.js\n\nThis endpoint allows you to execute JavaScript code and get results back.\nEach request creates a fresh execution environment that's cleaned up automatically.",
-        "operationId": "sandbox_execute_nodejs_code",
+        "operationId": "execute_nodejs_code",
         "requestBody": {
           "content": {
             "application/json": {
@@ -851,7 +857,7 @@
         ],
         "summary": "Nodejs Info",
         "description": "Get information about Node.js runtime and available languages",
-        "operationId": "sandbox_nodejs_info",
+        "operationId": "nodejs_info",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -874,7 +880,7 @@
         ],
         "summary": "List Mcp Tools",
         "description": "List all available tools from the specified MCP server\n\nArgs:\n    server_name: The name of the MCP server as defined in mcp-servers.json\n\nReturns:\n    Response containing the list of available tools with their descriptions and parameters",
-        "operationId": "sandbox_list_mcp_tools",
+        "operationId": "list_mcp_tools",
         "parameters": [
           {
             "name": "server_name",
@@ -920,7 +926,7 @@
         ],
         "summary": "Execute Mcp Tool",
         "description": "Execute a specific tool on the specified MCP server\n\nArgs:\n    server_name: The name of the MCP server as defined in mcp-servers.json\n    tool_name: The name of the tool to execute\n    arguments: Tool arguments dictionary\n\nReturns:\n    Response containing the tool execution results",
-        "operationId": "sandbox_execute_mcp_tool",
+        "operationId": "execute_mcp_tool",
         "parameters": [
           {
             "name": "server_name",
@@ -989,7 +995,7 @@
         ],
         "summary": "List Mcp Servers",
         "description": "List all configured MCP servers\n\nReturns:\n    Response containing the list of configured and filtered MCP servers",
-        "operationId": "sandbox_list_mcp_servers",
+        "operationId": "list_mcp_servers",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -997,6 +1003,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Response_List_str__"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/browser/info": {
+      "get": {
+        "tags": [
+          "browser"
+        ],
+        "summary": "Get Browser Info",
+        "description": "Get information about browser, like cdp url, viewport size, etc.",
+        "operationId": "get_browser_info",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_BrowserInfoResult_"
                 }
               }
             }
@@ -1024,15 +1052,13 @@
     "/v1/browser/screenshot": {
       "get": {
         "summary": "Take Screenshot",
-        "description": "Take a screenshot of the current display.",
-        "operationId": "take_screenshot_screenshot_get",
+        "description": "Take a screenshot of the current display.\n\nReturns:\n    StreamingResponse: PNG image data with proper headers",
+        "operationId": "take_screenshot",
         "responses": {
           "200": {
-            "description": "Successful Response",
+            "description": "Screenshot image",
             "content": {
-              "application/json": {
-                "schema": {}
-              }
+              "image/png": {}
             }
           }
         },
@@ -1045,7 +1071,7 @@
       "post": {
         "summary": "Execute Action",
         "description": "Execute a validated action on the current display.",
-        "operationId": "execute_action_actions_post",
+        "operationId": "execute_action",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1121,11 +1147,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object",
-                  "title": "Response Execute Action Actions Post"
+                  "$ref": "#/components/schemas/ActionResponse"
                 }
               }
             }
@@ -1235,6 +1257,18 @@
         "title": "AudioContent",
         "description": "Audio content for a message."
       },
+      "BashCommandStatus": {
+        "type": "string",
+        "enum": [
+          "running",
+          "completed",
+          "no_change_timeout",
+          "hard_timeout",
+          "terminated"
+        ],
+        "title": "BashCommandStatus",
+        "description": "Shell command execution status (compatible with OpenHands)"
+      },
       "BlobResourceContents": {
         "properties": {
           "uri": {
@@ -1280,7 +1314,7 @@
         "title": "BlobResourceContents",
         "description": "Binary contents of a resource."
       },
-      "Body_sandbox_upload_file": {
+      "Body_upload_file": {
         "properties": {
           "file": {
             "type": "string",
@@ -1296,7 +1330,59 @@
         "required": [
           "file"
         ],
-        "title": "Body_sandbox_upload_file"
+        "title": "Body_upload_file"
+      },
+      "BrowserInfoResult": {
+        "properties": {
+          "user_agent": {
+            "type": "string",
+            "title": "User Agent",
+            "description": "User agent"
+          },
+          "cdp_url": {
+            "type": "string",
+            "title": "Cdp Url",
+            "description": "Browser CDP URL"
+          },
+          "vnc_url": {
+            "type": "string",
+            "title": "Vnc Url",
+            "description": "VNC URL"
+          },
+          "viewport": {
+            "$ref": "#/components/schemas/BrowserViewport",
+            "description": "Viewport size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_agent",
+          "cdp_url",
+          "vnc_url",
+          "viewport"
+        ],
+        "title": "BrowserInfoResult",
+        "description": "Browser Info result"
+      },
+      "BrowserViewport": {
+        "properties": {
+          "width": {
+            "type": "integer",
+            "title": "Width",
+            "description": "Viewport width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height",
+            "description": "Viewport height"
+          }
+        },
+        "type": "object",
+        "required": [
+          "width",
+          "height"
+        ],
+        "title": "BrowserViewport"
       },
       "CallToolResult": {
         "properties": {
@@ -1361,6 +1447,33 @@
         "title": "CallToolResult",
         "description": "The server's response to a tool call."
       },
+      "ConsoleRecord": {
+        "properties": {
+          "ps1": {
+            "type": "string",
+            "title": "Ps1",
+            "description": "Command prompt"
+          },
+          "command": {
+            "type": "string",
+            "title": "Command",
+            "description": "Executed command"
+          },
+          "output": {
+            "type": "string",
+            "title": "Output",
+            "description": "Command output",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "ps1",
+          "command"
+        ],
+        "title": "ConsoleRecord",
+        "description": "Shell command console record model"
+      },
       "EmbeddedResource": {
         "properties": {
           "type": {
@@ -1411,6 +1524,16 @@
         "title": "EmbeddedResource",
         "description": "The contents of a resource, embedded into a prompt or tool call result.\n\nIt is up to the client how best to render embedded resources for the benefit\nof the LLM and/or the user."
       },
+      "FileContentEncoding": {
+        "type": "string",
+        "enum": [
+          "utf-8",
+          "base64",
+          "raw"
+        ],
+        "title": "FileContentEncoding",
+        "description": "File content encoding type"
+      },
       "FileFindRequest": {
         "properties": {
           "path": {
@@ -1431,6 +1554,105 @@
         ],
         "title": "FileFindRequest",
         "description": "File find request"
+      },
+      "FileFindResult": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Path of the search directory"
+          },
+          "files": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Files",
+            "description": "List of found files",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "title": "FileFindResult",
+        "description": "File find result"
+      },
+      "FileInfo": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "File name"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Full file path"
+          },
+          "is_directory": {
+            "type": "boolean",
+            "title": "Is Directory",
+            "description": "Whether it's a directory"
+          },
+          "size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size",
+            "description": "File size in bytes"
+          },
+          "modified_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modified Time",
+            "description": "Last modified time (ISO format)"
+          },
+          "permissions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Permissions",
+            "description": "File permissions"
+          },
+          "extension": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extension",
+            "description": "File extension"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "path",
+          "is_directory"
+        ],
+        "title": "FileInfo",
+        "description": "File information"
       },
       "FileListRequest": {
         "properties": {
@@ -1552,6 +1774,48 @@
         "title": "FileListRequest",
         "description": "File list request"
       },
+      "FileListResult": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Listed directory path"
+          },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/FileInfo"
+            },
+            "type": "array",
+            "title": "Files",
+            "description": "List of files and directories",
+            "default": []
+          },
+          "total_count": {
+            "type": "integer",
+            "title": "Total Count",
+            "description": "Total number of items",
+            "default": 0
+          },
+          "directory_count": {
+            "type": "integer",
+            "title": "Directory Count",
+            "description": "Number of directories",
+            "default": 0
+          },
+          "file_count": {
+            "type": "integer",
+            "title": "File Count",
+            "description": "Number of files",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "title": "FileListResult",
+        "description": "File list result"
+      },
       "FileReadRequest": {
         "properties": {
           "file": {
@@ -1604,6 +1868,27 @@
         "title": "FileReadRequest",
         "description": "File read request"
       },
+      "FileReadResult": {
+        "properties": {
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "description": "File content"
+          },
+          "file": {
+            "type": "string",
+            "title": "File",
+            "description": "Path of the read file"
+          }
+        },
+        "type": "object",
+        "required": [
+          "content",
+          "file"
+        ],
+        "title": "FileReadResult",
+        "description": "File read result"
+      },
       "FileReplaceRequest": {
         "properties": {
           "file": {
@@ -1644,6 +1929,27 @@
         "title": "FileReplaceRequest",
         "description": "File content replacement request"
       },
+      "FileReplaceResult": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "title": "File",
+            "description": "Path of the operated file"
+          },
+          "replaced_count": {
+            "type": "integer",
+            "title": "Replaced Count",
+            "description": "Number of replacements",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "FileReplaceResult",
+        "description": "File content replacement result"
+      },
       "FileSearchRequest": {
         "properties": {
           "file": {
@@ -1678,6 +1984,66 @@
         "title": "FileSearchRequest",
         "description": "File content search request"
       },
+      "FileSearchResult": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "title": "File",
+            "description": "Path of the searched file"
+          },
+          "matches": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Matches",
+            "description": "List of matched content",
+            "default": []
+          },
+          "line_numbers": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Line Numbers",
+            "description": "List of matched line numbers",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "FileSearchResult",
+        "description": "File content search result"
+      },
+      "FileUploadResult": {
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "title": "File Path",
+            "description": "Path of the uploaded file"
+          },
+          "file_size": {
+            "type": "integer",
+            "title": "File Size",
+            "description": "Size of the uploaded file in bytes"
+          },
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether upload was successful"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_path",
+          "file_size",
+          "success"
+        ],
+        "title": "FileUploadResult",
+        "description": "File upload result"
+      },
       "FileWriteRequest": {
         "properties": {
           "file": {
@@ -1688,7 +2054,19 @@
           "content": {
             "type": "string",
             "title": "Content",
-            "description": "Content to write"
+            "description": "Content to write (text or base64 encoded for binary)"
+          },
+          "encoding": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FileContentEncoding"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Content encoding: utf-8 for text, base64 for binary data",
+            "default": "utf-8"
           },
           "append": {
             "anyOf": [
@@ -1713,7 +2091,7 @@
               }
             ],
             "title": "Leading Newline",
-            "description": "Whether to add leading newline",
+            "description": "Whether to add leading newline (only for text mode)",
             "default": false
           },
           "trailing_newline": {
@@ -1726,7 +2104,7 @@
               }
             ],
             "title": "Trailing Newline",
-            "description": "Whether to add trailing newline",
+            "description": "Whether to add trailing newline (only for text mode)",
             "default": false
           },
           "sudo": {
@@ -1749,7 +2127,34 @@
           "content"
         ],
         "title": "FileWriteRequest",
-        "description": "File write request"
+        "description": "File write request - supports both text and binary content"
+      },
+      "FileWriteResult": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "title": "File",
+            "description": "Path of the written file"
+          },
+          "bytes_written": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bytes Written",
+            "description": "Number of bytes written"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "FileWriteResult",
+        "description": "File write result"
       },
       "HTTPValidationError": {
         "properties": {
@@ -2094,6 +2499,42 @@
         "title": "Response",
         "description": "Generic response model for API interface return results"
       },
+      "Response_BrowserInfoResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BrowserInfoResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[BrowserInfoResult]"
+      },
       "Response_CallToolResult_": {
         "properties": {
           "success": {
@@ -2129,6 +2570,258 @@
         },
         "type": "object",
         "title": "Response[CallToolResult]"
+      },
+      "Response_FileFindResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FileFindResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[FileFindResult]"
+      },
+      "Response_FileListResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FileListResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[FileListResult]"
+      },
+      "Response_FileReadResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FileReadResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[FileReadResult]"
+      },
+      "Response_FileReplaceResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FileReplaceResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[FileReplaceResult]"
+      },
+      "Response_FileSearchResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FileSearchResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[FileSearchResult]"
+      },
+      "Response_FileUploadResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FileUploadResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[FileUploadResult]"
+      },
+      "Response_FileWriteResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FileWriteResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[FileWriteResult]"
       },
       "Response_ListToolsResult_": {
         "properties": {
@@ -2206,6 +2899,334 @@
         "type": "object",
         "title": "Response[List[str]]"
       },
+      "Response_ShellCommandResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ShellCommandResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[ShellCommandResult]"
+      },
+      "Response_ShellKillResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ShellKillResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[ShellKillResult]"
+      },
+      "Response_ShellViewResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ShellViewResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[ShellViewResult]"
+      },
+      "Response_ShellWaitResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ShellWaitResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[ShellWaitResult]"
+      },
+      "Response_ShellWriteResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ShellWriteResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[ShellWriteResult]"
+      },
+      "Response_StrReplaceEditorResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StrReplaceEditorResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[StrReplaceEditorResult]"
+      },
+      "SandboxResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "Data returned from the operation"
+          },
+          "home_dir": {
+            "type": "string",
+            "title": "Home Dir"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "home_dir",
+          "version"
+        ],
+        "title": "SandboxResponse"
+      },
+      "ShellCommandResult": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Shell session ID"
+          },
+          "command": {
+            "type": "string",
+            "title": "Command",
+            "description": "Executed command"
+          },
+          "status": {
+            "$ref": "#/components/schemas/BashCommandStatus",
+            "description": "Command execution status"
+          },
+          "output": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output",
+            "description": "Command execution output, only has value when status is completed"
+          },
+          "console": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ConsoleRecord"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Console",
+            "description": "Console command records"
+          },
+          "exit_code": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exit Code",
+            "description": "Command execution exit code, only has value when status is completed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "command",
+          "status"
+        ],
+        "title": "ShellCommandResult",
+        "description": "Shell command execution result model"
+      },
       "ShellExecRequest": {
         "properties": {
           "id": {
@@ -2266,6 +3287,26 @@
         "title": "ShellKillProcessRequest",
         "description": "Request model for terminating a running process"
       },
+      "ShellKillResult": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/BashCommandStatus",
+            "description": "Process status"
+          },
+          "returncode": {
+            "type": "integer",
+            "title": "Returncode",
+            "description": "Process return code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "returncode"
+        ],
+        "title": "ShellKillResult",
+        "description": "Process termination result model"
+      },
       "ShellViewRequest": {
         "properties": {
           "id": {
@@ -2280,6 +3321,71 @@
         ],
         "title": "ShellViewRequest",
         "description": "Shell session content view request model"
+      },
+      "ShellViewResult": {
+        "properties": {
+          "output": {
+            "type": "string",
+            "title": "Output",
+            "description": "Shell session output content"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Shell session ID"
+          },
+          "console": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ConsoleRecord"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Console",
+            "description": "Console command records"
+          },
+          "status": {
+            "$ref": "#/components/schemas/BashCommandStatus",
+            "description": "Shell session status"
+          },
+          "command": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Command",
+            "description": "Last executed or currently executing command"
+          },
+          "exit_code": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exit Code",
+            "description": "Command execution exit code, only has value when status is completed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "output",
+          "session_id",
+          "status"
+        ],
+        "title": "ShellViewResult",
+        "description": "Shell session content view result model"
       },
       "ShellWaitRequest": {
         "properties": {
@@ -2307,6 +3413,34 @@
         ],
         "title": "ShellWaitRequest",
         "description": "Shell process wait request model"
+      },
+      "ShellWaitResult": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/BashCommandStatus",
+            "description": "Process status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "ShellWaitResult",
+        "description": "Process wait result model"
+      },
+      "ShellWriteResult": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/BashCommandStatus",
+            "description": "Write status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "ShellWriteResult",
+        "description": "Process input write result model"
       },
       "ShellWriteToProcessRequest": {
         "properties": {
@@ -2426,6 +3560,69 @@
         ],
         "title": "StrReplaceEditorRequest",
         "description": "String replace editor request based on openhands_aci"
+      },
+      "StrReplaceEditorResult": {
+        "properties": {
+          "output": {
+            "type": "string",
+            "title": "Output",
+            "description": "Command execution output"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if any"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "File path that was operated on"
+          },
+          "prev_exist": {
+            "type": "boolean",
+            "title": "Prev Exist",
+            "description": "Whether the file existed before operation"
+          },
+          "old_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Old Content",
+            "description": "Previous file content"
+          },
+          "new_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Content",
+            "description": "New file content after operation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "output",
+          "path",
+          "prev_exist"
+        ],
+        "title": "StrReplaceEditorResult",
+        "description": "String replace editor result based on openhands_aci CLIResult"
       },
       "TextContent": {
         "properties": {
@@ -2687,6 +3884,25 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "ActionResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status"
+          },
+          "action_performed": {
+            "type": "string",
+            "title": "Action Performed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "action_performed"
+        ],
+        "title": "ActionResponse"
       },
       "ClickAction": {
         "properties": {
@@ -3060,6 +4276,19 @@
             "type": "string",
             "minLength": 1,
             "title": "Text"
+          },
+          "use_clipboard": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Use Clipboard",
+            "description": "Use clipboard for better character support (recommended for special/ASCII characters)",
+            "default": true
           }
         },
         "type": "object",
