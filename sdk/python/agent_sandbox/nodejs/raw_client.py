@@ -10,7 +10,8 @@ from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.http_validation_error import HttpValidationError
-from ..types.response import Response
+from ..types.response_node_js_execute_response import ResponseNodeJsExecuteResponse
+from ..types.response_node_js_runtime_info import ResponseNodeJsRuntimeInfo
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -28,7 +29,7 @@ class RawNodejsClient:
         stdin: typing.Optional[str] = OMIT,
         files: typing.Optional[typing.Dict[str, typing.Optional[str]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[Response]:
+    ) -> HttpResponse[ResponseNodeJsExecuteResponse]:
         """
         Execute JavaScript code using Node.js
 
@@ -54,7 +55,7 @@ class RawNodejsClient:
 
         Returns
         -------
-        HttpResponse[Response]
+        HttpResponse[ResponseNodeJsExecuteResponse]
             Successful Response
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -75,9 +76,9 @@ class RawNodejsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    ResponseNodeJsExecuteResponse,
                     parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=ResponseNodeJsExecuteResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -98,7 +99,9 @@ class RawNodejsClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
+    def info(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[ResponseNodeJsRuntimeInfo]:
         """
         Get information about Node.js runtime and available languages
 
@@ -109,7 +112,7 @@ class RawNodejsClient:
 
         Returns
         -------
-        HttpResponse[Response]
+        HttpResponse[ResponseNodeJsRuntimeInfo]
             Successful Response
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -120,9 +123,9 @@ class RawNodejsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    ResponseNodeJsRuntimeInfo,
                     parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=ResponseNodeJsRuntimeInfo,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -145,7 +148,7 @@ class AsyncRawNodejsClient:
         stdin: typing.Optional[str] = OMIT,
         files: typing.Optional[typing.Dict[str, typing.Optional[str]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[Response]:
+    ) -> AsyncHttpResponse[ResponseNodeJsExecuteResponse]:
         """
         Execute JavaScript code using Node.js
 
@@ -171,7 +174,7 @@ class AsyncRawNodejsClient:
 
         Returns
         -------
-        AsyncHttpResponse[Response]
+        AsyncHttpResponse[ResponseNodeJsExecuteResponse]
             Successful Response
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -192,9 +195,9 @@ class AsyncRawNodejsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    ResponseNodeJsExecuteResponse,
                     parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=ResponseNodeJsExecuteResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -215,7 +218,9 @@ class AsyncRawNodejsClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> AsyncHttpResponse[Response]:
+    async def info(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[ResponseNodeJsRuntimeInfo]:
         """
         Get information about Node.js runtime and available languages
 
@@ -226,7 +231,7 @@ class AsyncRawNodejsClient:
 
         Returns
         -------
-        AsyncHttpResponse[Response]
+        AsyncHttpResponse[ResponseNodeJsRuntimeInfo]
             Successful Response
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -237,9 +242,9 @@ class AsyncRawNodejsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    ResponseNodeJsRuntimeInfo,
                     parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=ResponseNodeJsRuntimeInfo,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

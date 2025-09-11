@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Terminal\n    - UI: [/terminal](/terminal)\n    - WebSocket: [/v1/shell/ws](/v1/shell/ws), The data format follows [xterm.js](https://xtermjs.org/)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.112"
+    "version": "1.0.0.113"
   },
   "paths": {
     "/v1/sandbox": {
@@ -683,7 +683,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_JupyterExecuteResponse_"
                 }
               }
             }
@@ -715,7 +715,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_JupyterInfoResponse_"
                 }
               }
             }
@@ -737,7 +737,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_ActiveSessionsResult_"
                 }
               }
             }
@@ -832,7 +832,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_NodeJSExecuteResponse_"
                 }
               }
             }
@@ -864,7 +864,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response"
+                  "$ref": "#/components/schemas/Response_NodeJSRuntimeInfo_"
                 }
               }
             }
@@ -1171,6 +1171,24 @@
   },
   "components": {
     "schemas": {
+      "ActiveSessionsResult": {
+        "properties": {
+          "sessions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SessionInfo"
+            },
+            "type": "object",
+            "title": "Sessions",
+            "description": "Map of session ID to session info"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessions"
+        ],
+        "title": "ActiveSessionsResult",
+        "description": "Active sessions result"
+      },
       "Annotations": {
         "properties": {
           "audience": {
@@ -2272,6 +2290,242 @@
         "title": "JupyterExecuteRequest",
         "description": "Jupyter code execution request model"
       },
+      "JupyterExecuteResponse": {
+        "properties": {
+          "kernel_name": {
+            "type": "string",
+            "title": "Kernel Name",
+            "description": "Name of the kernel used for execution"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Session ID for this kernel instance"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Execution status: ok, error, or timeout"
+          },
+          "execution_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Count",
+            "description": "Execution count from the kernel"
+          },
+          "outputs": {
+            "items": {
+              "$ref": "#/components/schemas/JupyterOutput"
+            },
+            "type": "array",
+            "title": "Outputs",
+            "description": "List of execution outputs"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "The executed code"
+          },
+          "msg_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Msg Id",
+            "description": "Message ID from Jupyter kernel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kernel_name",
+          "session_id",
+          "status",
+          "outputs",
+          "code"
+        ],
+        "title": "JupyterExecuteResponse",
+        "description": "Jupyter code execution response model"
+      },
+      "JupyterInfoResponse": {
+        "properties": {
+          "default_kernel": {
+            "type": "string",
+            "title": "Default Kernel",
+            "description": "Default kernel name"
+          },
+          "available_kernels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Available Kernels",
+            "description": "List of available kernel names"
+          },
+          "active_sessions": {
+            "type": "integer",
+            "title": "Active Sessions",
+            "description": "Number of active sessions"
+          },
+          "session_timeout_seconds": {
+            "type": "integer",
+            "title": "Session Timeout Seconds",
+            "description": "Session timeout in seconds"
+          },
+          "max_sessions": {
+            "type": "integer",
+            "title": "Max Sessions",
+            "description": "Maximum number of concurrent sessions"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Service description"
+          },
+          "kernel_detection": {
+            "type": "string",
+            "title": "Kernel Detection",
+            "description": "Kernel detection strategy"
+          }
+        },
+        "type": "object",
+        "required": [
+          "default_kernel",
+          "available_kernels",
+          "active_sessions",
+          "session_timeout_seconds",
+          "max_sessions",
+          "description",
+          "kernel_detection"
+        ],
+        "title": "JupyterInfoResponse",
+        "description": "Jupyter service information response model"
+      },
+      "JupyterOutput": {
+        "properties": {
+          "output_type": {
+            "type": "string",
+            "title": "Output Type",
+            "description": "Type of output: stream, execute_result, display_data, or error"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Stream name (stdout/stderr) for stream outputs"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "Text content for stream outputs"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "Output data for execute_result/display_data"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "Output metadata"
+          },
+          "execution_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Count",
+            "description": "Execution count for execute_result"
+          },
+          "ename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ename",
+            "description": "Error name for error outputs"
+          },
+          "evalue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evalue",
+            "description": "Error value for error outputs"
+          },
+          "traceback": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Traceback",
+            "description": "Error traceback for error outputs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "output_type"
+        ],
+        "title": "JupyterOutput",
+        "description": "Jupyter execution output model"
+      },
       "ListToolsResult": {
         "properties": {
           "_meta": {
@@ -2368,6 +2622,235 @@
           "code"
         ],
         "title": "NodeJSExecuteRequest"
+      },
+      "NodeJSExecuteResponse": {
+        "properties": {
+          "language": {
+            "type": "string",
+            "const": "javascript",
+            "title": "Language",
+            "description": "Language that was executed (always 'javascript')"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Execution status: ok, error, or timeout"
+          },
+          "execution_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Count",
+            "description": "Execution count"
+          },
+          "outputs": {
+            "items": {
+              "$ref": "#/components/schemas/NodeJSOutput"
+            },
+            "type": "array",
+            "title": "Outputs",
+            "description": "List of execution outputs",
+            "default": []
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Code that was executed"
+          },
+          "stdout": {
+            "type": "string",
+            "title": "Stdout",
+            "description": "Standard output",
+            "default": ""
+          },
+          "stderr": {
+            "type": "string",
+            "title": "Stderr",
+            "description": "Standard error",
+            "default": ""
+          },
+          "exit_code": {
+            "type": "integer",
+            "title": "Exit Code",
+            "description": "Process exit code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "language",
+          "status",
+          "code",
+          "exit_code"
+        ],
+        "title": "NodeJSExecuteResponse"
+      },
+      "NodeJSOutput": {
+        "properties": {
+          "output_type": {
+            "type": "string",
+            "title": "Output Type",
+            "description": "Type of output: stream, error, or execute_result"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Stream name (stdout/stderr) for stream outputs"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "Text content for stream outputs"
+          },
+          "ename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ename",
+            "description": "Error name for error outputs"
+          },
+          "evalue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evalue",
+            "description": "Error value for error outputs"
+          },
+          "traceback": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Traceback",
+            "description": "Error traceback for error outputs"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "Data for execute_result outputs"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "Metadata for outputs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "output_type"
+        ],
+        "title": "NodeJSOutput"
+      },
+      "NodeJSRuntimeInfo": {
+        "properties": {
+          "node_version": {
+            "type": "string",
+            "title": "Node Version",
+            "description": "Node.js version"
+          },
+          "npm_version": {
+            "type": "string",
+            "title": "Npm Version",
+            "description": "npm version"
+          },
+          "supported_languages": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supported Languages",
+            "description": "List of supported languages"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Service description"
+          },
+          "runtime_directory": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runtime Directory",
+            "description": "Runtime directory path"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if runtime info retrieval failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_version",
+          "npm_version",
+          "supported_languages",
+          "description"
+        ],
+        "title": "NodeJSRuntimeInfo",
+        "description": "NodeJS runtime information model"
       },
       "ResourceLink": {
         "properties": {
@@ -2498,6 +2981,42 @@
         "type": "object",
         "title": "Response",
         "description": "Generic response model for API interface return results"
+      },
+      "Response_ActiveSessionsResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActiveSessionsResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[ActiveSessionsResult]"
       },
       "Response_BrowserInfoResult_": {
         "properties": {
@@ -2823,6 +3342,78 @@
         "type": "object",
         "title": "Response[FileWriteResult]"
       },
+      "Response_JupyterExecuteResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JupyterExecuteResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[JupyterExecuteResponse]"
+      },
+      "Response_JupyterInfoResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JupyterInfoResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[JupyterInfoResponse]"
+      },
       "Response_ListToolsResult_": {
         "properties": {
           "success": {
@@ -2898,6 +3489,78 @@
         },
         "type": "object",
         "title": "Response[List[str]]"
+      },
+      "Response_NodeJSExecuteResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NodeJSExecuteResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[NodeJSExecuteResponse]"
+      },
+      "Response_NodeJSRuntimeInfo_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NodeJSRuntimeInfo"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[NodeJSRuntimeInfo]"
       },
       "Response_ShellCommandResult_": {
         "properties": {
@@ -3161,6 +3824,33 @@
           "version"
         ],
         "title": "SandboxResponse"
+      },
+      "SessionInfo": {
+        "properties": {
+          "kernel_name": {
+            "type": "string",
+            "title": "Kernel Name",
+            "description": "Kernel name"
+          },
+          "last_used": {
+            "type": "number",
+            "title": "Last Used",
+            "description": "Last used timestamp"
+          },
+          "age_seconds": {
+            "type": "integer",
+            "title": "Age Seconds",
+            "description": "Age of session in seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kernel_name",
+          "last_used",
+          "age_seconds"
+        ],
+        "title": "SessionInfo",
+        "description": "Active session information"
       },
       "ShellCommandResult": {
         "properties": {

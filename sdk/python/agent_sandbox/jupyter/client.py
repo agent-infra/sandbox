@@ -5,6 +5,9 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
 from ..types.response import Response
+from ..types.response_active_sessions_result import ResponseActiveSessionsResult
+from ..types.response_jupyter_execute_response import ResponseJupyterExecuteResponse
+from ..types.response_jupyter_info_response import ResponseJupyterInfoResponse
 from .raw_client import AsyncRawJupyterClient, RawJupyterClient
 
 # this is used as the default value for optional parameters
@@ -34,7 +37,7 @@ class JupyterClient:
         kernel_name: typing.Optional[str] = OMIT,
         session_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Response:
+    ) -> ResponseJupyterExecuteResponse:
         """
         Execute Python code using Jupyter kernel with session persistence
 
@@ -62,7 +65,7 @@ class JupyterClient:
 
         Returns
         -------
-        Response
+        ResponseJupyterExecuteResponse
             Successful Response
 
         Examples
@@ -81,7 +84,7 @@ class JupyterClient:
         )
         return _response.data
 
-    def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseJupyterInfoResponse:
         """
         Get information about available Jupyter kernels
 
@@ -92,7 +95,7 @@ class JupyterClient:
 
         Returns
         -------
-        Response
+        ResponseJupyterInfoResponse
             Successful Response
 
         Examples
@@ -107,7 +110,7 @@ class JupyterClient:
         _response = self._raw_client.info(request_options=request_options)
         return _response.data
 
-    def list_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    def list_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseActiveSessionsResult:
         """
         List all active Jupyter sessions
 
@@ -118,7 +121,7 @@ class JupyterClient:
 
         Returns
         -------
-        Response
+        ResponseActiveSessionsResult
             Successful Response
 
         Examples
@@ -213,7 +216,7 @@ class AsyncJupyterClient:
         kernel_name: typing.Optional[str] = OMIT,
         session_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Response:
+    ) -> ResponseJupyterExecuteResponse:
         """
         Execute Python code using Jupyter kernel with session persistence
 
@@ -241,7 +244,7 @@ class AsyncJupyterClient:
 
         Returns
         -------
-        Response
+        ResponseJupyterExecuteResponse
             Successful Response
 
         Examples
@@ -268,7 +271,7 @@ class AsyncJupyterClient:
         )
         return _response.data
 
-    async def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    async def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseJupyterInfoResponse:
         """
         Get information about available Jupyter kernels
 
@@ -279,7 +282,7 @@ class AsyncJupyterClient:
 
         Returns
         -------
-        Response
+        ResponseJupyterInfoResponse
             Successful Response
 
         Examples
@@ -302,7 +305,9 @@ class AsyncJupyterClient:
         _response = await self._raw_client.info(request_options=request_options)
         return _response.data
 
-    async def list_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    async def list_sessions(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseActiveSessionsResult:
         """
         List all active Jupyter sessions
 
@@ -313,7 +318,7 @@ class AsyncJupyterClient:
 
         Returns
         -------
-        Response
+        ResponseActiveSessionsResult
             Successful Response
 
         Examples

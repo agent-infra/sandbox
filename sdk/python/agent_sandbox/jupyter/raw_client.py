@@ -12,6 +12,9 @@ from ..core.request_options import RequestOptions
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.http_validation_error import HttpValidationError
 from ..types.response import Response
+from ..types.response_active_sessions_result import ResponseActiveSessionsResult
+from ..types.response_jupyter_execute_response import ResponseJupyterExecuteResponse
+from ..types.response_jupyter_info_response import ResponseJupyterInfoResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -29,7 +32,7 @@ class RawJupyterClient:
         kernel_name: typing.Optional[str] = OMIT,
         session_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[Response]:
+    ) -> HttpResponse[ResponseJupyterExecuteResponse]:
         """
         Execute Python code using Jupyter kernel with session persistence
 
@@ -57,7 +60,7 @@ class RawJupyterClient:
 
         Returns
         -------
-        HttpResponse[Response]
+        HttpResponse[ResponseJupyterExecuteResponse]
             Successful Response
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -78,9 +81,9 @@ class RawJupyterClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    ResponseJupyterExecuteResponse,
                     parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=ResponseJupyterExecuteResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -101,7 +104,9 @@ class RawJupyterClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
+    def info(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[ResponseJupyterInfoResponse]:
         """
         Get information about available Jupyter kernels
 
@@ -112,7 +117,7 @@ class RawJupyterClient:
 
         Returns
         -------
-        HttpResponse[Response]
+        HttpResponse[ResponseJupyterInfoResponse]
             Successful Response
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -123,9 +128,9 @@ class RawJupyterClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    ResponseJupyterInfoResponse,
                     parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=ResponseJupyterInfoResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -135,7 +140,9 @@ class RawJupyterClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def list_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
+    def list_sessions(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[ResponseActiveSessionsResult]:
         """
         List all active Jupyter sessions
 
@@ -146,7 +153,7 @@ class RawJupyterClient:
 
         Returns
         -------
-        HttpResponse[Response]
+        HttpResponse[ResponseActiveSessionsResult]
             Successful Response
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -157,9 +164,9 @@ class RawJupyterClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    ResponseActiveSessionsResult,
                     parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=ResponseActiveSessionsResult,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -267,7 +274,7 @@ class AsyncRawJupyterClient:
         kernel_name: typing.Optional[str] = OMIT,
         session_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[Response]:
+    ) -> AsyncHttpResponse[ResponseJupyterExecuteResponse]:
         """
         Execute Python code using Jupyter kernel with session persistence
 
@@ -295,7 +302,7 @@ class AsyncRawJupyterClient:
 
         Returns
         -------
-        AsyncHttpResponse[Response]
+        AsyncHttpResponse[ResponseJupyterExecuteResponse]
             Successful Response
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -316,9 +323,9 @@ class AsyncRawJupyterClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    ResponseJupyterExecuteResponse,
                     parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=ResponseJupyterExecuteResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -339,7 +346,9 @@ class AsyncRawJupyterClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> AsyncHttpResponse[Response]:
+    async def info(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[ResponseJupyterInfoResponse]:
         """
         Get information about available Jupyter kernels
 
@@ -350,7 +359,7 @@ class AsyncRawJupyterClient:
 
         Returns
         -------
-        AsyncHttpResponse[Response]
+        AsyncHttpResponse[ResponseJupyterInfoResponse]
             Successful Response
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -361,9 +370,9 @@ class AsyncRawJupyterClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    ResponseJupyterInfoResponse,
                     parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=ResponseJupyterInfoResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -375,7 +384,7 @@ class AsyncRawJupyterClient:
 
     async def list_sessions(
         self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[Response]:
+    ) -> AsyncHttpResponse[ResponseActiveSessionsResult]:
         """
         List all active Jupyter sessions
 
@@ -386,7 +395,7 @@ class AsyncRawJupyterClient:
 
         Returns
         -------
-        AsyncHttpResponse[Response]
+        AsyncHttpResponse[ResponseActiveSessionsResult]
             Successful Response
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -397,9 +406,9 @@ class AsyncRawJupyterClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    ResponseActiveSessionsResult,
                     parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=ResponseActiveSessionsResult,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

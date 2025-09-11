@@ -7,6 +7,7 @@ from importlib import import_module
 
 if typing.TYPE_CHECKING:
     from .action_response import ActionResponse
+    from .active_sessions_result import ActiveSessionsResult
     from .annotations import Annotations
     from .annotations_audience_item import AnnotationsAudienceItem
     from .audio_content import AudioContent
@@ -41,18 +42,25 @@ if typing.TYPE_CHECKING:
     from .hotkey_action import HotkeyAction
     from .http_validation_error import HttpValidationError
     from .image_content import ImageContent
+    from .jupyter_execute_response import JupyterExecuteResponse
+    from .jupyter_info_response import JupyterInfoResponse
+    from .jupyter_output import JupyterOutput
     from .key_down_action import KeyDownAction
     from .key_up_action import KeyUpAction
     from .list_tools_result import ListToolsResult
     from .mouse_down_action import MouseDownAction
     from .mouse_up_action import MouseUpAction
     from .move_to_action import MoveToAction
+    from .node_js_execute_response import NodeJsExecuteResponse
+    from .node_js_output import NodeJsOutput
+    from .node_js_runtime_info import NodeJsRuntimeInfo
     from .ping_body import PingBody
     from .press_action import PressAction
     from .resolution import Resolution
     from .resource import Resource
     from .resource_link import ResourceLink
     from .response import Response
+    from .response_active_sessions_result import ResponseActiveSessionsResult
     from .response_browser_info_result import ResponseBrowserInfoResult
     from .response_call_tool_result import ResponseCallToolResult
     from .response_file_find_result import ResponseFileFindResult
@@ -62,8 +70,12 @@ if typing.TYPE_CHECKING:
     from .response_file_search_result import ResponseFileSearchResult
     from .response_file_upload_result import ResponseFileUploadResult
     from .response_file_write_result import ResponseFileWriteResult
+    from .response_jupyter_execute_response import ResponseJupyterExecuteResponse
+    from .response_jupyter_info_response import ResponseJupyterInfoResponse
     from .response_list_str import ResponseListStr
     from .response_list_tools_result import ResponseListToolsResult
+    from .response_node_js_execute_response import ResponseNodeJsExecuteResponse
+    from .response_node_js_runtime_info import ResponseNodeJsRuntimeInfo
     from .response_shell_command_result import ResponseShellCommandResult
     from .response_shell_kill_result import ResponseShellKillResult
     from .response_shell_view_result import ResponseShellViewResult
@@ -73,6 +85,7 @@ if typing.TYPE_CHECKING:
     from .right_click_action import RightClickAction
     from .sandbox_response import SandboxResponse
     from .scroll_action import ScrollAction
+    from .session_info import SessionInfo
     from .shell_command_result import ShellCommandResult
     from .shell_kill_result import ShellKillResult
     from .shell_view_result import ShellViewResult
@@ -88,6 +101,7 @@ if typing.TYPE_CHECKING:
     from .validation_error_loc_item import ValidationErrorLocItem
 _dynamic_imports: typing.Dict[str, str] = {
     "ActionResponse": ".action_response",
+    "ActiveSessionsResult": ".active_sessions_result",
     "Annotations": ".annotations",
     "AnnotationsAudienceItem": ".annotations_audience_item",
     "AudioContent": ".audio_content",
@@ -120,18 +134,25 @@ _dynamic_imports: typing.Dict[str, str] = {
     "HotkeyAction": ".hotkey_action",
     "HttpValidationError": ".http_validation_error",
     "ImageContent": ".image_content",
+    "JupyterExecuteResponse": ".jupyter_execute_response",
+    "JupyterInfoResponse": ".jupyter_info_response",
+    "JupyterOutput": ".jupyter_output",
     "KeyDownAction": ".key_down_action",
     "KeyUpAction": ".key_up_action",
     "ListToolsResult": ".list_tools_result",
     "MouseDownAction": ".mouse_down_action",
     "MouseUpAction": ".mouse_up_action",
     "MoveToAction": ".move_to_action",
+    "NodeJsExecuteResponse": ".node_js_execute_response",
+    "NodeJsOutput": ".node_js_output",
+    "NodeJsRuntimeInfo": ".node_js_runtime_info",
     "PingBody": ".ping_body",
     "PressAction": ".press_action",
     "Resolution": ".resolution",
     "Resource": ".resource",
     "ResourceLink": ".resource_link",
     "Response": ".response",
+    "ResponseActiveSessionsResult": ".response_active_sessions_result",
     "ResponseBrowserInfoResult": ".response_browser_info_result",
     "ResponseCallToolResult": ".response_call_tool_result",
     "ResponseFileFindResult": ".response_file_find_result",
@@ -141,8 +162,12 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseFileSearchResult": ".response_file_search_result",
     "ResponseFileUploadResult": ".response_file_upload_result",
     "ResponseFileWriteResult": ".response_file_write_result",
+    "ResponseJupyterExecuteResponse": ".response_jupyter_execute_response",
+    "ResponseJupyterInfoResponse": ".response_jupyter_info_response",
     "ResponseListStr": ".response_list_str",
     "ResponseListToolsResult": ".response_list_tools_result",
+    "ResponseNodeJsExecuteResponse": ".response_node_js_execute_response",
+    "ResponseNodeJsRuntimeInfo": ".response_node_js_runtime_info",
     "ResponseShellCommandResult": ".response_shell_command_result",
     "ResponseShellKillResult": ".response_shell_kill_result",
     "ResponseShellViewResult": ".response_shell_view_result",
@@ -152,6 +177,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "RightClickAction": ".right_click_action",
     "SandboxResponse": ".sandbox_response",
     "ScrollAction": ".scroll_action",
+    "SessionInfo": ".session_info",
     "ShellCommandResult": ".shell_command_result",
     "ShellKillResult": ".shell_kill_result",
     "ShellViewResult": ".shell_view_result",
@@ -189,6 +215,7 @@ def __dir__():
 
 __all__ = [
     "ActionResponse",
+    "ActiveSessionsResult",
     "Annotations",
     "AnnotationsAudienceItem",
     "AudioContent",
@@ -221,18 +248,25 @@ __all__ = [
     "HotkeyAction",
     "HttpValidationError",
     "ImageContent",
+    "JupyterExecuteResponse",
+    "JupyterInfoResponse",
+    "JupyterOutput",
     "KeyDownAction",
     "KeyUpAction",
     "ListToolsResult",
     "MouseDownAction",
     "MouseUpAction",
     "MoveToAction",
+    "NodeJsExecuteResponse",
+    "NodeJsOutput",
+    "NodeJsRuntimeInfo",
     "PingBody",
     "PressAction",
     "Resolution",
     "Resource",
     "ResourceLink",
     "Response",
+    "ResponseActiveSessionsResult",
     "ResponseBrowserInfoResult",
     "ResponseCallToolResult",
     "ResponseFileFindResult",
@@ -242,8 +276,12 @@ __all__ = [
     "ResponseFileSearchResult",
     "ResponseFileUploadResult",
     "ResponseFileWriteResult",
+    "ResponseJupyterExecuteResponse",
+    "ResponseJupyterInfoResponse",
     "ResponseListStr",
     "ResponseListToolsResult",
+    "ResponseNodeJsExecuteResponse",
+    "ResponseNodeJsRuntimeInfo",
     "ResponseShellCommandResult",
     "ResponseShellKillResult",
     "ResponseShellViewResult",
@@ -253,6 +291,7 @@ __all__ = [
     "RightClickAction",
     "SandboxResponse",
     "ScrollAction",
+    "SessionInfo",
     "ShellCommandResult",
     "ShellKillResult",
     "ShellViewResult",

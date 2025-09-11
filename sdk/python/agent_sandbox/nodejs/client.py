@@ -4,7 +4,8 @@ import typing
 
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
-from ..types.response import Response
+from ..types.response_node_js_execute_response import ResponseNodeJsExecuteResponse
+from ..types.response_node_js_runtime_info import ResponseNodeJsRuntimeInfo
 from .raw_client import AsyncRawNodejsClient, RawNodejsClient
 
 # this is used as the default value for optional parameters
@@ -34,7 +35,7 @@ class NodejsClient:
         stdin: typing.Optional[str] = OMIT,
         files: typing.Optional[typing.Dict[str, typing.Optional[str]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Response:
+    ) -> ResponseNodeJsExecuteResponse:
         """
         Execute JavaScript code using Node.js
 
@@ -60,7 +61,7 @@ class NodejsClient:
 
         Returns
         -------
-        Response
+        ResponseNodeJsExecuteResponse
             Successful Response
 
         Examples
@@ -79,7 +80,7 @@ class NodejsClient:
         )
         return _response.data
 
-    def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseNodeJsRuntimeInfo:
         """
         Get information about Node.js runtime and available languages
 
@@ -90,7 +91,7 @@ class NodejsClient:
 
         Returns
         -------
-        Response
+        ResponseNodeJsRuntimeInfo
             Successful Response
 
         Examples
@@ -129,7 +130,7 @@ class AsyncNodejsClient:
         stdin: typing.Optional[str] = OMIT,
         files: typing.Optional[typing.Dict[str, typing.Optional[str]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Response:
+    ) -> ResponseNodeJsExecuteResponse:
         """
         Execute JavaScript code using Node.js
 
@@ -155,7 +156,7 @@ class AsyncNodejsClient:
 
         Returns
         -------
-        Response
+        ResponseNodeJsExecuteResponse
             Successful Response
 
         Examples
@@ -182,7 +183,7 @@ class AsyncNodejsClient:
         )
         return _response.data
 
-    async def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    async def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseNodeJsRuntimeInfo:
         """
         Get information about Node.js runtime and available languages
 
@@ -193,7 +194,7 @@ class AsyncNodejsClient:
 
         Returns
         -------
-        Response
+        ResponseNodeJsRuntimeInfo
             Successful Response
 
         Examples
