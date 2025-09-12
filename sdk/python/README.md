@@ -43,6 +43,53 @@ async def main():
 asyncio.run(main())
 ```
 
+## Cloud Providers
+
+### Volcengine
+
+Create a sandbox instance using the Volcengine provider. For more details, please refer to [examples/provider_volcengine.py](examples/provider_volcengine.py).
+
+```
+from __future__ import print_function
+
+import os
+import sys
+
+# Add the parent directory to Python path so we can import agent_sandbox
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from agent_sandbox.providers import VolcengineProvider
+
+
+def main():
+    """
+    Main function demonstrating Volcengine provider usage.
+    """
+    # Configuration - replace with your actual credentials
+    access_key = os.getenv("VOLC_ACCESSKEY")
+    secret_key = os.getenv("VOLC_SECRETKEY")
+    region = os.getenv("VOLCENGINE_REGION", "cn-beijing")
+    
+    # Initialize the Volcengine provider
+    provider = VolcengineProvider(
+        access_key=access_key,
+        secret_key=secret_key,
+        region=region
+    )
+    
+    print("=== Volcengine Sandbox Provider Example ===\n")
+    
+    function_id = "yatoczqh"
+    
+    print("1. Creating a sandbox...")
+    sandbox_id = provider.create_sandbox(function_id=function_id)
+    print(f"Create response: {sandbox_id}")
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ## Features
 
 - **Sandbox**: Access sandbox environment information and installed packages

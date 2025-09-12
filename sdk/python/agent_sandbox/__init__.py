@@ -208,6 +208,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "jupyter": ".",
     "mcp": ".",
     "nodejs": ".",
+    "providers": ".",
     "sandbox": ".",
     "shell": ".",
 }
@@ -219,6 +220,11 @@ def __getattr__(attr_name: str) -> typing.Any:
         raise AttributeError(f"No {attr_name} found in _dynamic_imports for module name -> {__name__}")
     try:
         module = import_module(module_name, __package__)
+        # If the module_name is ".", it means we're importing a submodule
+        # In that case, return the module itself, not an attribute from it
+        if module_name == ".":
+            return module
+        # Otherwise, try to get the attribute from the module
         result = getattr(module, attr_name)
         return result
     except ImportError as e:
@@ -334,6 +340,7 @@ __all__ = [
     "jupyter",
     "mcp",
     "nodejs",
+    "providers",
     "sandbox",
     "shell",
 ]
