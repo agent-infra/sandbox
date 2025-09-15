@@ -16,6 +16,11 @@
   },
   {
     "type": "file",
+    "name": "code-execution",
+    "label": "Code Execution"
+  },
+  {
+    "type": "file",
     "name": "file",
     "label": "File"
   },
