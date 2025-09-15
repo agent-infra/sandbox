@@ -1,0 +1,208 @@
+# Browser & VNC
+
+import { Tab, Tabs } from 'rspress/theme';
+
+AIO Sandbox provides a full browser environment with VNC (Virtual Network Computing) access, enabling visual interaction with web applications and GUI-based workflows.
+
+![](/images/browser.png)
+
+## Connection
+
+### CDP(Chrome DevTools Protocol)
+
+Chrome DevTools Protocol (CDP) is a low‑level, language‑agnostic protocol that allows external programs to instrument, inspect, and control Chrome or Chromium‑based browsers.
+
+<Tabs>
+  <Tab label="1. /v1/browser/info">
+
+```bash
+curl -X 'GET' \
+  'http://127.0.0.1:8080/v1/browser/info' \
+  -H 'accept: application/json' \
+  | jq '.data.cdp_url'
+```
+
+  </Tab>
+  <Tab label="2. /json/version">
+
+```bash
+curl http://localhost:8080/json/version | jq '.webSocketDebuggerUrl'
+```
+
+  </Tab>
+</Tabs>
+
+## Browser Automation
+
+### Chrome DevTools Protocol (CDP)
+
+AIO Sandbox exposes CDP for programmatic browser control:
+
+```bash
+# Get CDP endpoint
+curl http://localhost:8080/cdp/json/version
+# Or Get Browser Info (response data.cdp_url)
+curl http://localhost:8080/v1/browser/info
+```
+
+Response includes `webSocketDebuggerUrl` for connecting automation tools.
+
+### Browser Use Integration
+
+Example with the `browser_use` Python library:
+
+```python
+import requests
+from agent_sandbox import Sandbox
+from browser_use.browser.browser import BrowserSession, BrowserProfile
+
+# Get CDP URL
+client = Sandbox(base_url="http://localhost:8080")
+cdp_url = client.browser.get_browser_info().cdp_url
+
+# Configure browser profile
+profile = {
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+    "ignore_https_errors": True,
+    "viewport": {"width": 1920, "height": 1080},
+}
+
+# Create session
+browser_session = BrowserSession(
+    browser_profile=BrowserProfile(**profile),
+    cdp_url=cdp_url
+)
+
+await browser_session.start()
+page = await browser_session.browser_context.new_page()
+await page.goto("https://example.com")
+```
+
+### Playwright Integration
+
+Works with Playwright for cross-browser testing:
+
+```python
+from playwright.async_api import async_playwright
+
+async with async_playwright() as p:
+    browser_info = client.browser.get_browser_info()
+    cdp_url = browser_info.data.cdp_url
+
+    browser = await p.chromium.connect_over_cdp(cdp_url)
+    page = await browser.new_page()
+    await page.goto("https://example.com")
+    await page.screenshot(path="screenshot.png")
+```
+
+## GUI Actions
+
+Provide UI screenshots with Browser tabs and GUI interactions.
+
+Unlike browser automation, GUI operations use pure visual screenshots and interactions with the browser; in some strict risk-control scenarios, GUI actions can have an advantage.
+
+### Screenshot
+
+<Tabs>
+  <Tab label="Python">
+
+```python
+screenshot = client.browser.screenshot()
+print(screenshot)
+```
+
+  </Tab>
+  <Tab label="Curl">
+
+```bash
+curl -X 'GET' \
+  'http://127.0.0.1:8080/v1/browser/screenshot' \
+  -H 'accept: image/png'
+```
+
+  </Tab>
+</Tabs>
+
+Return an image in the format `image/png`:
+
+![](/images/browser-screenshot.png)
+
+
+### GUI Actions
+
+<Tabs>
+  <Tab label="Python">
+
+```python
+action_res = client.browser.execute_action_actions_post(
+    request=Action_MoveTo(x=100, y=100)
+)
+print(action_res)
+```
+
+  </Tab>
+  <Tab label="Curl">
+
+```bash
+curl -X 'POST' \
+  'http://127.0.0.1:8080/v1/browser/actions' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "action_type": "MOVE_TO",
+  "x": 100,
+  "y": 100
+}'
+```
+
+  </Tab>
+</Tabs>
+
+`action_type` includes:
+
+| action\_type | Description | Required | Optional |
+| --- | --- | --- | --- |
+| `MOVE_TO` | Move the mouse to the specified position. | `x`, `y` | \- |
+| `CLICK` | Click to operate | \- | `x`, `y`, `button`, `num_clicks` |
+| `MOUSE_DOWN` | Press the mouse button | \- | `button` |
+| `MOUSE_UP` | Release the mouse button | \- | `button` |
+| `RIGHT_CLICK` | Right-click | \- | `x`, `y` |
+| `DOUBLE_CLICK` | Double-click | \- | `x`, `y` |
+| `DRAG_TO` | Drag to the specified location | `x`, `y` | \- |
+| `SCROLL` | Rolling operation | \- | `dx`, `dy` |
+| `TYPING` | Input text | `text` | \- |
+| `PRESS` | Button | `key` | \- |
+| `KEY_DOWN` | Press the keyboard key | `key` | \- |
+| `KEY_UP` | Release keyboard key | `key` | \- |
+| `HOTKEY` | Key combination | `keys`(Array) | \- |\
+||||\
+||| - example: `["ctrl", "c"]` |
+
+
+## Take Over
+
+If you want to achieve Human-in-the-loop for browser use, there are two ways:
+
+### 1. VNC Access
+
+Access the VNC interface at or embed it directly into the application using an iframe:
+
+```bash
+http://localhost:8080/vnc/index.html?autoconnect=true
+```
+
+The VNC server provides:
+- Full desktop environment
+- Pre-installed Chrome browser
+- Mouse and keyboard interaction
+- Screen sharing capabilities
+
+> See []() for more custom parameters.
+
+### 2. CDP Access
+
+You can use the [@agent-infra/browser-ui](https://www.npmjs.com/package/@agent-infra/browser-ui) React component library to connect to a CDP address for takeover. Below is a code example:
+
+```typescript
+
+```

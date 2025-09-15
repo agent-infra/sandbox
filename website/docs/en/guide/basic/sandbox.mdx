@@ -1,5 +1,7 @@
 # Sandbox Info
 
+import { Tab, Tabs } from 'rspress/theme';
+
 ![](/images/sandbox.png)
 
 ## Overview
@@ -8,10 +10,33 @@ The Sandbox API provides a comprehensive environment for executing code, managin
 
 ## Sandbox Context
 
+### /llms.txt
+
+`llms.txt` is an usage manual for Agents. Through this manual, the Agent can better use the sandbox.
+
+![](/images/sandbox_llms.png)
+
 ### Get Sandbox Context
-```http
-GET /v1/sandbox
+
+<Tabs>
+  <Tab label="Python">
+
+```python
+ctx = client.sandbox.get_sandbox_context()
+print(ctx)
 ```
+
+  </Tab>
+  <Tab label="Curl">
+
+```bash
+curl -X 'GET' \
+  'http://127.0.0.1:8080/v1/sandbox' \
+  -H 'accept: application/json'
+```
+
+  </Tab>
+</Tabs>
 
 Retrieves sandbox environment information including system configuration and available resources.
 
@@ -51,21 +76,57 @@ Available Tools:
 ## Package Management
 
 ### Python Packages
-```http
-GET /v1/sandbox/packages/python
-```
+
 
 Lists all installed Python packages in the sandbox environment.
+
+<Tabs>
+  <Tab label="Python">
+
+```python
+python_packages = client.sandbox.python_packages()
+print(python_packages.data) # [{ "name": "requests", "version": "2.32.5" }]
+```
+
+  </Tab>
+  <Tab label="Curl">
+
+```bash
+curl -X 'GET' \
+  'http://127.0.0.1:8080/v1/sandbox/packages/python' \
+  -H 'accept: application/json'
+```
+
+  </Tab>
+</Tabs>
 
 **Response**: `Response`
 - Returns a list of installed Python packages with their versions
 
 ### Node.js Packages
-```http
-GET /v1/sandbox/packages/nodejs
-```
 
 Lists all installed Node.js packages in the sandbox environment.
+
+<Tabs>
+  <Tab label="Python">
+
+```python
+nodejs_packages = client.sandbox.nodejs_packages()
+print(nodejs_packages.data)
+```
+
+  </Tab>
+  <Tab label="Curl">
+
+```bash
+curl -X 'GET' \
+  'http://127.0.0.1:8080/v1/sandbox/packages/nodejs' \
+  -H 'accept: application/json'
+```
+
+  </Tab>
+</Tabs>
+
 
 **Response**: `Response`
 - Returns a list of installed npm packages with their versions

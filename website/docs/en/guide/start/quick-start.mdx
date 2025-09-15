@@ -101,6 +101,19 @@ print(shell_res.data.output) # /home/gem
 ```
 
   </Tab>
+  <Tab label="Curl">
+
+```bash
+curl -X 'POST' \
+  'http://127.0.0.1:8080/v1/shell/exec' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "command": "ls -la"
+}'
+```
+
+  </Tab>
 </Tabs>
 
 ### File
@@ -111,6 +124,19 @@ print(shell_res.data.output) # /home/gem
 ```python
 file_res = client.file.read_file(file="/home/gem/.bashrc")
 print(file_res.data.content) # export TERM=xterm-256color
+```
+
+  </Tab>
+  <Tab label="Curl">
+
+```bash
+curl -X 'POST' \
+  'http://127.0.0.1:8080/v1/file/read' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "file": "/home/gem/.bashrc"
+}'
 ```
 
   </Tab>
@@ -129,6 +155,15 @@ print(screenshot)
 ```
 
   </Tab>
+  <Tab label="Curl">
+
+```bash
+curl -X 'GET' \
+  'http://127.0.0.1:8080/v1/browser/screenshot' \
+  -H 'accept: image/png'
+```
+
+  </Tab>
 </Tabs>
 
 #### GUI Actions
@@ -144,29 +179,24 @@ print(action_res)
 ```
 
   </Tab>
+  <Tab label="Curl">
+
+```bash
+curl -X 'POST' \
+  'http://127.0.0.1:8080/v1/browser/actions' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "action_type": "MOVE_TO",
+  "x": 100,
+  "y": 100
+}'
+```
+
+  </Tab>
 </Tabs>
 
-
-`action_type` includes:
-
-| action\_type | Description | Required | Optional |
-| --- | --- | --- | --- |
-| `MOVE_TO` | Move the mouse to the specified position. | `x`, `y` | \- |
-| `CLICK` | Click to operate | \- | `x`, `y`, `button`, `num_clicks` |
-| `MOUSE_DOWN` | Press the mouse button | \- | `button` |
-| `MOUSE_UP` | Release the mouse button | \- | `button` |
-| `RIGHT_CLICK` | Right-click | \- | `x`, `y` |
-| `DOUBLE_CLICK` | Double-click | \- | `x`, `y` |
-| `DRAG_TO` | Drag to the specified location | `x`, `y` | \- |
-| `SCROLL` | Rolling operation | \- | `dx`, `dy` |
-| `TYPING` | Input text | `text` | \- |
-| `PRESS` | Button | `key` | \- |
-| `KEY_DOWN` | Press the keyboard key | `key` | \- |
-| `KEY_UP` | Release keyboard key | `key` | \- |
-| `HOTKEY` | Key combination | `keys`(Array) | \- |\
-||||\
-||| - example: `["ctrl", "c"]` |
-
+> More `action_type` details can be found in this [Browser](/guide/basic/browser).
 
 #### Connect to the browser with CDP
 
@@ -180,6 +210,15 @@ browser_info = client.browser.get_browser_info()
 cdp_url = browser_info.data.cdp_url
 playwright = sync_playwright().start()
 browser = playwright.chromium.connect_over_cdp(cdp_url)
+```
+
+  </Tab>
+  <Tab label="Curl">
+
+```bash
+curl -X 'GET' \
+  'http://127.0.0.1:8080/v1/browser/info' \
+  -H 'accept: application/json'
 ```
 
   </Tab>

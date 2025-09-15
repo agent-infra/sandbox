@@ -1,5 +1,7 @@
 # File Operations
 
+import { Tab, Tabs } from 'rspress/theme';
+
 AIO Sandbox provides a comprehensive REST API for file system operations, enabling programmatic file management across the entire sandbox environment.
 
 ## API Endpoints
@@ -10,8 +12,24 @@ All file operations are available through RESTful endpoints at `/v1/file/*`.
 
 Read file contents with optional line range:
 
+
+<Tabs>
+  <Tab label="Python">
+
+```python
+file_res = client.file.read_file(
+  file="/home/gem/.bashrc",
+  start_line=0,
+  end_line=10,
+  sudo=False,
+)
+```
+
+  </Tab>
+  <Tab label="Curl">
+
 ```bash
-curl -X POST http://localhost:8080/v1/file/read \
+curl -X POST http://127.0.0.1:8080/v1/file/read \
   -H "Content-Type: application/json" \
   -d '{
     "file": "/path/to/file.txt",
@@ -20,6 +38,9 @@ curl -X POST http://localhost:8080/v1/file/read \
     "sudo": false
   }'
 ```
+
+  </Tab>
+</Tabs>
 
 **Response:**
 ```json
