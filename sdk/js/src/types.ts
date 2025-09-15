@@ -22,7 +22,7 @@ export interface ShellExecResponse {
   session_id: string;
   command: string;
   status: string;
-  returncode: number | null;
+  exit_code: number | null;
   output: string | null;
   console: Array<{
     ps1: string;

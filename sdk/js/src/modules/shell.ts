@@ -118,7 +118,7 @@ export class ShellModule {
               session_id: sessionId,
               command: params.command,
               status: viewResult?.data?.status ?? "unknow",
-              returncode: 0, // Assume success if we have output
+              exit_code: 0, // Assume success if we have output
               output: viewResult.data.output,
               console: consoleData,
             },

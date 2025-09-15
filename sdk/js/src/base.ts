@@ -124,7 +124,7 @@ export class BaseClient {
 
     for (let attempt = 0; attempt <= this.retries; attempt++) {
       try {
-        this.logger.debug(`Attempt ${attempt + 1} for ${path}`);
+        this.logger.debug(`Attempt ${attempt + 1} for ${url}`);
 
         const response = await this.fetchWithTimeout(url, options || {});
 
@@ -146,14 +146,14 @@ export class BaseClient {
         }
 
         const result = (await response.json()) as ApiResponse<T>;
-        this.logger.debug(`Success for ${path}`, options);
+        this.logger.debug(`Success for ${url}`, options);
         return result;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
 
         attempt > 0 &&
           this.logger.error(
-            `Attempt ${attempt + 1} failed for ${path}:`,
+            `Attempt ${attempt + 1} failed for ${url}:`,
             lastError.stack || lastError.message
           );
 
@@ -163,7 +163,7 @@ export class BaseClient {
       }
     }
 
-    this.logger.error(`All attempts failed for ${path}:`, lastError!);
+    this.logger.error(`All attempts failed for ${url}:`, lastError!);
     throw lastError!;
   }
 }
