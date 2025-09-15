@@ -7,10 +7,10 @@ export default defineConfig({
   title: 'AIO Sandbox',
   description:
     'All-in-One Agent Sandbox Environment - Browser, Shell, File, VSCode Server, and MCP Hub in One Container',
-  icon: '/aio-light-logo.png',
+  icon: '/aio-icon.png',
   logo: {
-    dark: '/aio-dark-logo.png',
-    light: '/aio-light-logo.png',
+    dark: '/aio-icon.png',
+    light: '/aio-icon.png',
   },
   route: {
     cleanUrls: true,
