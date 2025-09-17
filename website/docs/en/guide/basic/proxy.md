@@ -62,6 +62,6 @@ npm start
 
 ## Next Steps
 
-- **Terminal Integration**: Control services via shell → [Shell API](/api/shell)
-- **File Operations**: Manage application files → [File API](/api/file)
-- **Browser Automation**: Test applications → [Browser Guide](/guide/browser)
+- **Terminal Integration**: Control services via shell → [Shell API](/api/)
+- **File Operations**: Manage application files → [File API](/api/)
+- **Browser Automation**: Test applications → [Browser Guide](/guide/basic/browser)

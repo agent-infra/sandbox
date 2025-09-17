@@ -11,10 +11,12 @@
     "deploy": "npm run build && npm run preview"
   },
   "dependencies": {
+    "@rspress/core": "2.0.0-beta.32",
+    "@rspress/plugin-llms": "2.0.0-beta.32",
+    "@rspress/theme-default": "2.0.0-beta.32",
     "core-js": "^3.45.1",
     "mobx": "^6.13.7",
     "redoc": "^2.5.0",
-    "rspress": "^1.40.2",
     "styled-components": "^6.1.19"
   },
   "devDependencies": {

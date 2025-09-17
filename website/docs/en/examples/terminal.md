@@ -758,4 +758,4 @@ export default AIOTerminal;
 
 - **[Browser Examples](/examples/browser)** - Learn browser automation
 - **[Agent Integration](/examples/agent)** - Build AI workflows  
-- **[API Reference](/api/shell)** - Detailed WebSocket API docs
+- **[API Reference](/api/)** - Detailed WebSocket API docs

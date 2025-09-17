@@ -342,4 +342,4 @@ rm -rf /tmp/shell_sessions/
 - Implement output filtering
 - Monitor memory usage
 
-Ready to integrate shell functionality? Check our [API documentation](/api/shell) for complete endpoint details.
+Ready to integrate shell functionality? Check our [API documentation](/api/) for complete endpoint details.

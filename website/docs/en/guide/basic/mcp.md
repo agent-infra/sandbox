@@ -406,6 +406,6 @@ async def logged_mcp_call(tool_name, **kwargs):
 
 ## Next Steps
 
-- **[Browser Integration](/guide/browser)** - Learn about browser automation capabilities
+- **[Browser Integration](/guide/basic/browser)** - Learn about browser automation capabilities
 - **[API Reference](/api/)** - Detailed API documentation
 - **[Examples](/examples/agent)** - Real-world agent integration examples

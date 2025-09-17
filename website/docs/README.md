@@ -46,16 +46,12 @@ When AIO Sandbox is running, access the interactive Swagger UI at:
 ## 📖 Key Sections
 
 ### For Users
-- **[Quick Start](/guide/quick-start)** - Get up and running in minutes
-- **[Features Guide](/guide/features)** - Explore all capabilities
-- **[Examples](/examples/)** - Real-world use cases
+- **[Quick Start](/en/guide/start/quick-start)** - Get up and running in minutes
+- **[Features Guide](/en/guide/start/introduction)** - Explore all capabilities
+- **[Examples](/en/examples/)** - Real-world use cases
 
 ### For Developers
-- **[API Reference](/api/)** - Complete API documentation
-- **[Interactive API](/api/swagger)** - Test APIs with Swagger UI
-- **[File API](/api/file)** - File management operations
-- **[Shell API](/api/shell)** - Terminal and command execution
-- **[Browser API](/api/browser)** - Browser automation
+- **[API Reference](/en/api/)** - Complete API documentation with interactive Swagger UI
 
 ## 🛠️ API Integration
 

@@ -1,5 +1,6 @@
 import * as path from 'node:path';
-import { defineConfig } from 'rspress/config';
+import { pluginLlms } from '@rspress/plugin-llms';
+import { defineConfig } from '@rspress/core';
 
 export default defineConfig({
   lang: 'en',
@@ -15,6 +16,7 @@ export default defineConfig({
   route: {
     cleanUrls: true,
   },
+  plugins: [pluginLlms()],
   base: process.env.BASE_URL ?? '/',
   outDir: 'doc_build',
   builderConfig: {},

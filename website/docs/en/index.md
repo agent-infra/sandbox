@@ -83,4 +83,4 @@ docker run --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefa
 
 Ready to revolutionize your AI development workflow?
 
-🚀 [**Get Started Now →**](/guide/) | 📚 [**View Examples →**](/examples/) | 🔧 [**API Docs →**](/api/)
+🚀 [**Get Started Now →**](/guide/start/introduction) | 📚 [**View Examples →**](/examples/) | 🔧 [**API Docs →**](/api/)

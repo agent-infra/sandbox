@@ -423,5 +423,4 @@ Ready to implement these patterns? Choose your path:
 
 For additional support:
 - Check the [API documentation](/api/) for detailed specifications
-- Review [troubleshooting guides](/guide/troubleshooting) for common issues
 - Explore the [GitHub repository](https://github.com/agent-infra/sandbox) for latest updates
