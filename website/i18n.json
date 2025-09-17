@@ -1,4 +1,8 @@
 {
+  "oneLineCommand": {
+    "zh": "docker run --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest",
+    "en": "docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:v1"
+  },
   "gettingStarted": {
     "zh": "开始",
     "en": "Getting Started"
