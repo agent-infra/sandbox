@@ -20,7 +20,11 @@ export default defineConfig({
   plugins: [pluginLlms()],
   base: process.env.BASE_URL ?? '/',
   outDir: 'doc_build',
-  builderConfig: {},
+  builderConfig: {
+    html: {
+      template: 'public/index.html',
+    },
+  },
   locales: [
     {
       lang: 'en',
