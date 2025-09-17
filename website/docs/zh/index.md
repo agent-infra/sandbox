@@ -3,84 +3,38 @@ pageType: home
 
 hero:
   name: AIO Sandbox
-  text: All-in-One Sandbox for AI Agents
+  text: 面向 AI Agents 的一体化安全开发沙盒
   tagline: |
-    🌐 Browser | 💻 Terminal | 📁 File
+    🌐 浏览器 | 💻 终端 | 📁 文件
     🔧 VSCode | 📊 Jupyter | 🤖 MCP
   actions:
     - theme: brand
-      text: Get Started
+      text: 快速开始
       link: /guide/start/introduction
     - theme: alt
-      text: View on GitHub
+      text: GitHub
       link: https://github.com/agent-infra/sandbox
   image:
     src: /aio-icon.png
     alt: AIO Sandbox Logo
 
 features:
-  - title: Unified Environment
-    details: One Docker container, shared filesystem. Browser downloads instantly available in Terminal and Code.
+  - title: 统一环境
+    details: 单一 Docker 容器，统一文件系统。浏览器下载的文件可立即在终端和 VSCode 中访问。
     icon: 🌐
-  - title: Instant Development
-    details: VNC browser, VSCode, Jupyter, Terminal. Access via ${port}-${domain} or /proxy paths.
+  - title: 开箱即用
+    details: 内置 VNC 浏览器、VSCode、Jupyter、文件和终端，通过 API/SDK 直接使用。
     icon: ⚡
-  - title: Secure Execution
-    details: Isolated Python and Node.js sandboxes. Safe code execution without system risks.
+  - title: 代码执行
+    details: 完全隔离的 Python 与 Node.js 沙盒，安全运行代码。
     icon: 🔐
   - title: Agent-Ready
-    details: MCP Hub at /mcp with Browser, File, Terminal, Markitdown, Arxiv. Plug and play for AI agents.
+    details: 预配置 MCP Server，集成 Browser、File、Terminal、Markdown 和 Arxiv。即插即用，开箱即用支持 AI Agents。
     icon: 🤖
-  - title: Developer Friendly
-    details: Cloud VSCode, persistent terminals, smart port forwarding, frontend/backend preview.
+  - title: 开发者友好
+    details: 云端 VSCode，持久化终端，服务端口转发（`${Port}-${domain}/` 或 `/proxy/${Port}），支持前端与后端应用即时预览。
     icon: 🔧
-  - title: Production Ready
-    details: Enterprise-grade Docker deployment. Lightweight, scalable, battle-tested.
+  - title: 面向生产环境
+    details: 企业级 Docker 部署。轻量、可扩展。
     icon: 🚀
 ---
-
-## Quick Start
-
-Get AIO Sandbox running in under 30 seconds:
-
-```bash
-# 🚀 Start the sandbox (International)
-docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:v1
-
-# 🇨🇳 For users in mainland China
-docker run --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:v1
-```
-
-**Access your sandbox environment:**
-- 📖 **Documentation**: http://localhost:8080/v1/docs
-- 🌐 **VNC Browser**: http://localhost:8080/vnc/index.html?autoconnect=true
-- 💻 **VSCode Server**: http://localhost:8080/code-server/
-- 🤖 **MCP Services**: http://localhost:8080/mcp
-
-## Why Choose AIO Sandbox?
-
-**Perfect for AI agents, developers, and automation workflows:**
-
-✅ **Unified File System** - Files downloaded in browser are instantly available in Shell/File operations
-✅ **Multiple Interfaces** - VNC, VSCode, Jupyter, and Terminal in one unified environment
-✅ **Secure Execution** - Sandboxed Python and Node.js execution with safety guarantees
-✅ **Zero Configuration** - Pre-configured MCP servers and development tools ready to use
-✅ **Flexible Deployment** - Single Docker container, cloud-native, scales with your needs
-
-## What's Inside
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    🌐 Browser + VNC                        │
-├─────────────────────────────────────────────────────────────┤
-│  💻 VSCode Server  │  🐚 Shell Terminal  │  📁 File Ops   │
-├─────────────────────────────────────────────────────────────┤
-│              🔗 MCP Hub + 🔒 Sandbox Fusion               │
-├─────────────────────────────────────────────────────────────┤
-│         🚀 Preview Proxy + 📊 Service Monitoring          │
-└─────────────────────────────────────────────────────────────┘
-```
-
-Ready to revolutionize your AI development workflow?
-
-🚀 [**Get Started Now →**](/en/guide/start/introduction) | 📚 [**View Examples →**](/en/examples/) | 🔧 [**API Docs →**](/en/api/)

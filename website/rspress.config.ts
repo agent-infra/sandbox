@@ -44,7 +44,7 @@ export default defineConfig({
       },
     ],
     footer: {
-      message: 'Built with ❤️ for AI Agent Development · AIO Sandbox © 2025',
+      message: 'Built with ❤️ for AI Agents · AIO Sandbox © 2025',
     },
     locales: [
       {
