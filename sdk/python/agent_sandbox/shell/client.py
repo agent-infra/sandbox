@@ -4,7 +4,10 @@ import typing
 
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..types.response import Response
+from ..types.response_active_shell_sessions_result import ResponseActiveShellSessionsResult
 from ..types.response_shell_command_result import ResponseShellCommandResult
+from ..types.response_shell_create_session_response import ResponseShellCreateSessionResponse
 from ..types.response_shell_kill_result import ResponseShellKillResult
 from ..types.response_shell_view_result import ResponseShellViewResult
 from ..types.response_shell_wait_result import ResponseShellWaitResult
@@ -225,6 +228,120 @@ class ShellClient:
         )
         """
         _response = self._raw_client.kill_process(id=id, request_options=request_options)
+        return _response.data
+
+    def create_session(
+        self, *, exec_dir: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseShellCreateSessionResponse:
+        """
+        Create a new shell session and return its ID
+
+        Parameters
+        ----------
+        exec_dir : typing.Optional[str]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseShellCreateSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.shell.create_session()
+        """
+        _response = self._raw_client.create_session(exec_dir=exec_dir, request_options=request_options)
+        return _response.data
+
+    def list_sessions(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseActiveShellSessionsResult:
+        """
+        List all active shell sessions
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseActiveShellSessionsResult
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.shell.list_sessions()
+        """
+        _response = self._raw_client.list_sessions(request_options=request_options)
+        return _response.data
+
+    def cleanup_all_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+        """
+        Cleanup all active shell sessions
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.shell.cleanup_all_sessions()
+        """
+        _response = self._raw_client.cleanup_all_sessions(request_options=request_options)
+        return _response.data
+
+    def cleanup_session(self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+        """
+        Manually cleanup a specific shell session
+
+        Parameters
+        ----------
+        session_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.shell.cleanup_session(
+            session_id="session_id",
+        )
+        """
+        _response = self._raw_client.cleanup_session(session_id, request_options=request_options)
         return _response.data
 
 
@@ -478,4 +595,152 @@ class AsyncShellClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.kill_process(id=id, request_options=request_options)
+        return _response.data
+
+    async def create_session(
+        self, *, exec_dir: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseShellCreateSessionResponse:
+        """
+        Create a new shell session and return its ID
+
+        Parameters
+        ----------
+        exec_dir : typing.Optional[str]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseShellCreateSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.shell.create_session()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.create_session(exec_dir=exec_dir, request_options=request_options)
+        return _response.data
+
+    async def list_sessions(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseActiveShellSessionsResult:
+        """
+        List all active shell sessions
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseActiveShellSessionsResult
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.shell.list_sessions()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.list_sessions(request_options=request_options)
+        return _response.data
+
+    async def cleanup_all_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+        """
+        Cleanup all active shell sessions
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.shell.cleanup_all_sessions()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.cleanup_all_sessions(request_options=request_options)
+        return _response.data
+
+    async def cleanup_session(
+        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> Response:
+        """
+        Manually cleanup a specific shell session
+
+        Parameters
+        ----------
+        session_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.shell.cleanup_session(
+                session_id="session_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.cleanup_session(session_id, request_options=request_options)
         return _response.data

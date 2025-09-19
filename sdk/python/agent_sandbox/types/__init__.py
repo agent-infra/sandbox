@@ -8,6 +8,7 @@ from importlib import import_module
 if typing.TYPE_CHECKING:
     from .action_response import ActionResponse
     from .active_sessions_result import ActiveSessionsResult
+    from .active_shell_sessions_result import ActiveShellSessionsResult
     from .annotations import Annotations
     from .annotations_audience_item import AnnotationsAudienceItem
     from .audio_content import AudioContent
@@ -61,6 +62,7 @@ if typing.TYPE_CHECKING:
     from .resource_link import ResourceLink
     from .response import Response
     from .response_active_sessions_result import ResponseActiveSessionsResult
+    from .response_active_shell_sessions_result import ResponseActiveShellSessionsResult
     from .response_browser_info_result import ResponseBrowserInfoResult
     from .response_call_tool_result import ResponseCallToolResult
     from .response_file_find_result import ResponseFileFindResult
@@ -77,6 +79,7 @@ if typing.TYPE_CHECKING:
     from .response_node_js_execute_response import ResponseNodeJsExecuteResponse
     from .response_node_js_runtime_info import ResponseNodeJsRuntimeInfo
     from .response_shell_command_result import ResponseShellCommandResult
+    from .response_shell_create_session_response import ResponseShellCreateSessionResponse
     from .response_shell_kill_result import ResponseShellKillResult
     from .response_shell_view_result import ResponseShellViewResult
     from .response_shell_wait_result import ResponseShellWaitResult
@@ -87,7 +90,9 @@ if typing.TYPE_CHECKING:
     from .scroll_action import ScrollAction
     from .session_info import SessionInfo
     from .shell_command_result import ShellCommandResult
+    from .shell_create_session_response import ShellCreateSessionResponse
     from .shell_kill_result import ShellKillResult
+    from .shell_session_info import ShellSessionInfo
     from .shell_view_result import ShellViewResult
     from .shell_wait_result import ShellWaitResult
     from .shell_write_result import ShellWriteResult
@@ -102,6 +107,7 @@ if typing.TYPE_CHECKING:
 _dynamic_imports: typing.Dict[str, str] = {
     "ActionResponse": ".action_response",
     "ActiveSessionsResult": ".active_sessions_result",
+    "ActiveShellSessionsResult": ".active_shell_sessions_result",
     "Annotations": ".annotations",
     "AnnotationsAudienceItem": ".annotations_audience_item",
     "AudioContent": ".audio_content",
@@ -153,6 +159,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResourceLink": ".resource_link",
     "Response": ".response",
     "ResponseActiveSessionsResult": ".response_active_sessions_result",
+    "ResponseActiveShellSessionsResult": ".response_active_shell_sessions_result",
     "ResponseBrowserInfoResult": ".response_browser_info_result",
     "ResponseCallToolResult": ".response_call_tool_result",
     "ResponseFileFindResult": ".response_file_find_result",
@@ -169,6 +176,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseNodeJsExecuteResponse": ".response_node_js_execute_response",
     "ResponseNodeJsRuntimeInfo": ".response_node_js_runtime_info",
     "ResponseShellCommandResult": ".response_shell_command_result",
+    "ResponseShellCreateSessionResponse": ".response_shell_create_session_response",
     "ResponseShellKillResult": ".response_shell_kill_result",
     "ResponseShellViewResult": ".response_shell_view_result",
     "ResponseShellWaitResult": ".response_shell_wait_result",
@@ -179,7 +187,9 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ScrollAction": ".scroll_action",
     "SessionInfo": ".session_info",
     "ShellCommandResult": ".shell_command_result",
+    "ShellCreateSessionResponse": ".shell_create_session_response",
     "ShellKillResult": ".shell_kill_result",
+    "ShellSessionInfo": ".shell_session_info",
     "ShellViewResult": ".shell_view_result",
     "ShellWaitResult": ".shell_wait_result",
     "ShellWriteResult": ".shell_write_result",
@@ -216,6 +226,7 @@ def __dir__():
 __all__ = [
     "ActionResponse",
     "ActiveSessionsResult",
+    "ActiveShellSessionsResult",
     "Annotations",
     "AnnotationsAudienceItem",
     "AudioContent",
@@ -267,6 +278,7 @@ __all__ = [
     "ResourceLink",
     "Response",
     "ResponseActiveSessionsResult",
+    "ResponseActiveShellSessionsResult",
     "ResponseBrowserInfoResult",
     "ResponseCallToolResult",
     "ResponseFileFindResult",
@@ -283,6 +295,7 @@ __all__ = [
     "ResponseNodeJsExecuteResponse",
     "ResponseNodeJsRuntimeInfo",
     "ResponseShellCommandResult",
+    "ResponseShellCreateSessionResponse",
     "ResponseShellKillResult",
     "ResponseShellViewResult",
     "ResponseShellWaitResult",
@@ -293,7 +306,9 @@ __all__ = [
     "ScrollAction",
     "SessionInfo",
     "ShellCommandResult",
+    "ShellCreateSessionResponse",
     "ShellKillResult",
+    "ShellSessionInfo",
     "ShellViewResult",
     "ShellWaitResult",
     "ShellWriteResult",

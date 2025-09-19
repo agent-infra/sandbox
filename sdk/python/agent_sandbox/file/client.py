@@ -15,7 +15,6 @@ from ..types.response_file_upload_result import ResponseFileUploadResult
 from ..types.response_file_write_result import ResponseFileWriteResult
 from ..types.response_str_replace_editor_result import ResponseStrReplaceEditorResult
 from .raw_client import AsyncRawFileClient, RawFileClient
-from .types.command import Command
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -444,8 +443,8 @@ class FileClient:
     def str_replace_editor(
         self,
         *,
-        command: Command,
         path: str,
+        command: typing.Optional[typing.Any] = OMIT,
         file_text: typing.Optional[str] = OMIT,
         old_str: typing.Optional[str] = OMIT,
         new_str: typing.Optional[str] = OMIT,
@@ -463,11 +462,10 @@ class FileClient:
 
         Parameters
         ----------
-        command : Command
-            The commands to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.
-
         path : str
             Absolute path to file or directory, e.g. `/workspace/file.py` or `/workspace`.
+
+        command : typing.Optional[typing.Any]
 
         file_text : typing.Optional[str]
             Required parameter of `create` command, with the content of the file to be created.
@@ -500,13 +498,13 @@ class FileClient:
             base_url="https://yourhost.com/path/to/api",
         )
         client.file.str_replace_editor(
-            command="view",
+            command={"key": "value"},
             path="path",
         )
         """
         _response = self._raw_client.str_replace_editor(
-            command=command,
             path=path,
+            command=command,
             file_text=file_text,
             old_str=old_str,
             new_str=new_str,
@@ -1006,8 +1004,8 @@ class AsyncFileClient:
     async def str_replace_editor(
         self,
         *,
-        command: Command,
         path: str,
+        command: typing.Optional[typing.Any] = OMIT,
         file_text: typing.Optional[str] = OMIT,
         old_str: typing.Optional[str] = OMIT,
         new_str: typing.Optional[str] = OMIT,
@@ -1025,11 +1023,10 @@ class AsyncFileClient:
 
         Parameters
         ----------
-        command : Command
-            The commands to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.
-
         path : str
             Absolute path to file or directory, e.g. `/workspace/file.py` or `/workspace`.
+
+        command : typing.Optional[typing.Any]
 
         file_text : typing.Optional[str]
             Required parameter of `create` command, with the content of the file to be created.
@@ -1067,7 +1064,7 @@ class AsyncFileClient:
 
         async def main() -> None:
             await client.file.str_replace_editor(
-                command="view",
+                command={"key": "value"},
                 path="path",
             )
 
@@ -1075,8 +1072,8 @@ class AsyncFileClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.str_replace_editor(
-            command=command,
             path=path,
+            command=command,
             file_text=file_text,
             old_str=old_str,
             new_str=new_str,

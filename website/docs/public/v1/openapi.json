@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Terminal\n    - UI: [/terminal](/terminal)\n    - WebSocket: [/v1/shell/ws](/v1/shell/ws), The data format follows [xterm.js](https://xtermjs.org/)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.113"
+    "version": "1.0.0.118"
   },
   "paths": {
     "/v1/sandbox": {
@@ -265,6 +265,141 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Response_ShellKillResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/shell/sessions/create": {
+      "post": {
+        "tags": [
+          "shell"
+        ],
+        "summary": "Create Session",
+        "description": "Create a new shell session and return its ID",
+        "operationId": "create_session",
+        "parameters": [
+          {
+            "name": "exec_dir",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Exec Dir"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_ShellCreateSessionResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/shell/sessions": {
+      "get": {
+        "tags": [
+          "shell"
+        ],
+        "summary": "List Sessions",
+        "description": "List all active shell sessions",
+        "operationId": "list_sessions",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_ActiveShellSessionsResult_"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "shell"
+        ],
+        "summary": "Cleanup All Sessions",
+        "description": "Cleanup all active shell sessions",
+        "operationId": "cleanup_all_sessions",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/shell/sessions/{session_id}": {
+      "delete": {
+        "tags": [
+          "shell"
+        ],
+        "summary": "Cleanup Session",
+        "description": "Manually cleanup a specific shell session",
+        "operationId": "cleanup_session",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
                 }
               }
             }
@@ -1049,6 +1184,26 @@
         }
       }
     },
+    "/llms.txt": {
+      "get": {
+        "tags": [
+          "api_only"
+        ],
+        "summary": "Serve Llms Txt",
+        "description": "Serve auto-generated llms.txt from OpenAPI schema for LLM context",
+        "operationId": "serve_llms_txt_llms_txt_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/browser/screenshot": {
       "get": {
         "summary": "Take Screenshot",
@@ -1188,6 +1343,24 @@
         ],
         "title": "ActiveSessionsResult",
         "description": "Active sessions result"
+      },
+      "ActiveShellSessionsResult": {
+        "properties": {
+          "sessions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ShellSessionInfo"
+            },
+            "type": "object",
+            "title": "Sessions",
+            "description": "Map of session ID to session info"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessions"
+        ],
+        "title": "ActiveShellSessionsResult",
+        "description": "Active shell sessions result"
       },
       "Annotations": {
         "properties": {
@@ -3018,6 +3191,42 @@
         "type": "object",
         "title": "Response[ActiveSessionsResult]"
       },
+      "Response_ActiveShellSessionsResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActiveShellSessionsResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[ActiveShellSessionsResult]"
+      },
       "Response_BrowserInfoResult_": {
         "properties": {
           "success": {
@@ -3598,6 +3807,42 @@
         "type": "object",
         "title": "Response[ShellCommandResult]"
       },
+      "Response_ShellCreateSessionResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ShellCreateSessionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[ShellCreateSessionResponse]"
+      },
       "Response_ShellKillResult_": {
         "properties": {
           "success": {
@@ -3917,6 +4162,27 @@
         "title": "ShellCommandResult",
         "description": "Shell command execution result model"
       },
+      "ShellCreateSessionResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Unique identifier of the created shell session"
+          },
+          "working_dir": {
+            "type": "string",
+            "title": "Working Dir",
+            "description": "Working directory of the created session"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "working_dir"
+        ],
+        "title": "ShellCreateSessionResponse",
+        "description": "Shell session creation response model"
+      },
       "ShellExecRequest": {
         "properties": {
           "id": {
@@ -3996,6 +4262,59 @@
         ],
         "title": "ShellKillResult",
         "description": "Process termination result model"
+      },
+      "ShellSessionInfo": {
+        "properties": {
+          "working_dir": {
+            "type": "string",
+            "title": "Working Dir",
+            "description": "Working directory"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Creation timestamp"
+          },
+          "last_used_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Used At",
+            "description": "Last used timestamp"
+          },
+          "age_seconds": {
+            "type": "integer",
+            "title": "Age Seconds",
+            "description": "Age of session in seconds"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Session status"
+          },
+          "current_command": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Command",
+            "description": "Currently executing command"
+          }
+        },
+        "type": "object",
+        "required": [
+          "working_dir",
+          "created_at",
+          "last_used_at",
+          "age_seconds",
+          "status"
+        ],
+        "title": "ShellSessionInfo",
+        "description": "Shell session information"
       },
       "ShellViewRequest": {
         "properties": {
@@ -4162,14 +4481,6 @@
       "StrReplaceEditorRequest": {
         "properties": {
           "command": {
-            "type": "string",
-            "enum": [
-              "view",
-              "create",
-              "str_replace",
-              "insert",
-              "undo_edit"
-            ],
             "title": "Command",
             "description": "The commands to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`."
           },

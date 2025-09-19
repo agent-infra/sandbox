@@ -10,6 +10,7 @@ from .core.request_options import RequestOptions
 from .raw_client import AsyncRawSandbox, RawSandbox
 
 if typing.TYPE_CHECKING:
+    from .api_only.client import ApiOnlyClient, AsyncApiOnlyClient
     from .browser.client import AsyncBrowserClient, BrowserClient
     from .file.client import AsyncFileClient, FileClient
     from .jupyter.client import AsyncJupyterClient, JupyterClient
@@ -79,6 +80,7 @@ class Sandbox:
         self._nodejs: typing.Optional[NodejsClient] = None
         self._mcp: typing.Optional[McpClient] = None
         self._browser: typing.Optional[BrowserClient] = None
+        self._api_only: typing.Optional[ApiOnlyClient] = None
 
     @property
     def with_raw_response(self) -> RawSandbox:
@@ -175,6 +177,14 @@ class Sandbox:
             self._browser = BrowserClient(client_wrapper=self._client_wrapper)
         return self._browser
 
+    @property
+    def api_only(self):
+        if self._api_only is None:
+            from .api_only.client import ApiOnlyClient  # noqa: E402
+
+            self._api_only = ApiOnlyClient(client_wrapper=self._client_wrapper)
+        return self._api_only
+
 
 class AsyncSandbox:
     """
@@ -236,6 +246,7 @@ class AsyncSandbox:
         self._nodejs: typing.Optional[AsyncNodejsClient] = None
         self._mcp: typing.Optional[AsyncMcpClient] = None
         self._browser: typing.Optional[AsyncBrowserClient] = None
+        self._api_only: typing.Optional[AsyncApiOnlyClient] = None
 
     @property
     def with_raw_response(self) -> AsyncRawSandbox:
@@ -339,3 +350,11 @@ class AsyncSandbox:
 
             self._browser = AsyncBrowserClient(client_wrapper=self._client_wrapper)
         return self._browser
+
+    @property
+    def api_only(self):
+        if self._api_only is None:
+            from .api_only.client import AsyncApiOnlyClient  # noqa: E402
+
+            self._api_only = AsyncApiOnlyClient(client_wrapper=self._client_wrapper)
+        return self._api_only
