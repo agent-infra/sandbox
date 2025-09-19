@@ -105,7 +105,7 @@ if typing.TYPE_CHECKING:
         ValidationErrorLocItem,
     )
     from .errors import UnprocessableEntityError
-    from . import api_only, browser, file, jupyter, mcp, nodejs, sandbox, shell
+    from . import browser, file, jupyter, mcp, nodejs, sandbox, shell
     from .browser import (
         Action,
         Action_Click,
@@ -123,6 +123,7 @@ if typing.TYPE_CHECKING:
         Action_Typing,
     )
     from .client import AsyncSandbox, Sandbox
+    from .file import Command
 _dynamic_imports: typing.Dict[str, str] = {
     "Action": ".browser",
     "ActionResponse": ".types",
@@ -158,6 +159,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "CallToolResultContentItem_ResourceLink": ".types",
     "CallToolResultContentItem_Text": ".types",
     "ClickAction": ".types",
+    "Command": ".file",
     "ConsoleRecord": ".types",
     "DoubleClickAction": ".types",
     "DragToAction": ".types",
@@ -237,7 +239,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "UnprocessableEntityError": ".errors",
     "ValidationError": ".types",
     "ValidationErrorLocItem": ".types",
-    "api_only": ".",
     "browser": ".",
     "file": ".",
     "jupyter": ".",
@@ -302,6 +303,7 @@ __all__ = [
     "CallToolResultContentItem_ResourceLink",
     "CallToolResultContentItem_Text",
     "ClickAction",
+    "Command",
     "ConsoleRecord",
     "DoubleClickAction",
     "DragToAction",
@@ -381,7 +383,6 @@ __all__ = [
     "UnprocessableEntityError",
     "ValidationError",
     "ValidationErrorLocItem",
-    "api_only",
     "browser",
     "file",
     "jupyter",

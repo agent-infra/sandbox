@@ -6,8 +6,8 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .types import Command
-_dynamic_imports: typing.Dict[str, str] = {"Command": ".types"}
+    from .command import Command
+_dynamic_imports: typing.Dict[str, str] = {"Command": ".command"}
 
 
 def __getattr__(attr_name: str) -> typing.Any:

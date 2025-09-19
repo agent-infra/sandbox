@@ -1011,7 +1011,7 @@
       "get": {
         "tags": [
           "mcp",
-          "api_only"
+          "mcp"
         ],
         "summary": "List Mcp Tools",
         "description": "List all available tools from the specified MCP server\n\nArgs:\n    server_name: The name of the MCP server as defined in mcp-servers.json\n\nReturns:\n    Response containing the list of available tools with their descriptions and parameters",
@@ -1057,7 +1057,7 @@
       "post": {
         "tags": [
           "mcp",
-          "api_only"
+          "mcp"
         ],
         "summary": "Execute Mcp Tool",
         "description": "Execute a specific tool on the specified MCP server\n\nArgs:\n    server_name: The name of the MCP server as defined in mcp-servers.json\n    tool_name: The name of the tool to execute\n    arguments: Tool arguments dictionary\n\nReturns:\n    Response containing the tool execution results",
@@ -1126,7 +1126,7 @@
       "get": {
         "tags": [
           "mcp",
-          "api_only"
+          "mcp"
         ],
         "summary": "List Mcp Servers",
         "description": "List all configured MCP servers\n\nReturns:\n    Response containing the list of configured and filtered MCP servers",
@@ -1172,26 +1172,6 @@
         "summary": "Serve Terminal",
         "description": "Serve the terminal HTML page",
         "operationId": "serve_terminal_terminal_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/llms.txt": {
-      "get": {
-        "tags": [
-          "api_only"
-        ],
-        "summary": "Serve Llms Txt",
-        "description": "Serve auto-generated llms.txt from OpenAPI schema for LLM context",
-        "operationId": "serve_llms_txt_llms_txt_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -4481,6 +4461,14 @@
       "StrReplaceEditorRequest": {
         "properties": {
           "command": {
+            "type": "string",
+            "enum": [
+              "view",
+              "create",
+              "str_replace",
+              "insert",
+              "undo_edit"
+            ],
             "title": "Command",
             "description": "The commands to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`."
           },
