@@ -40,6 +40,7 @@ def main():
     print("1. Creating a sandbox...")
     sandbox_id = provider.create_sandbox(function_id=function_id)
     print(f"Create response: {sandbox_id}")
+    print("\n")
   
     
     # Example 2: List all sandboxes for the function
@@ -47,15 +48,19 @@ def main():
     list_response = provider.list_sandboxes(function_id=function_id)
     
     print(f"Number of sandboxes: {len(list_response)}")
-    
+    print(f"list_response: {list_response}")
+    print("\n")
+
     print(f"3. Get sandbox details {sandbox_id}")
     get_response = provider.get_sandbox(function_id=function_id, sandbox_id=sandbox_id)
     print(f"Get response: {get_response}")
-    
+    print("\n")
+
     # Example 4: Delete the sandbox
     print(f"4. Deleting sandbox '{sandbox_id}'...")
     delete_response = provider.delete_sandbox(function_id=function_id, sandbox_id=sandbox_id)
     print(f"Delete response: {delete_response}")
+    print("\n")
     
     print("=== Example completed ===")
 
