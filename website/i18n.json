@@ -26,5 +26,9 @@
   "config": {
     "zh": "配置",
     "en": "Config"
+  },
+  "loadingApiReference": {
+    "zh": "正在加载 API 文档...",
+    "en": "Loading API Reference..."
   }
 }
