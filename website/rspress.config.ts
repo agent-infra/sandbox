@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import { pluginLlms } from '@rspress/plugin-llms';
 import { defineConfig } from '@rspress/core';
+import { ProvidePlugin } from '@rspack/core';
 
 export default defineConfig({
   lang: 'en',

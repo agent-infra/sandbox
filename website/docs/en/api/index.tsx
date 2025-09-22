@@ -2,23 +2,41 @@ export const frontmatter = {
   pageType: 'custom',
 };
 
-import { RedocStandalone } from 'redoc';
+import { NoSSR } from '@rspress/core/runtime';
+import { useDark } from '@rspress/core/runtime';
+import { Suspense, lazy } from 'react';
+
+const ApiReferenceReact = lazy(() =>
+  import('@scalar/api-reference-react').then((mod) => ({
+    default: mod.ApiReferenceReact,
+  })),
+);
+
+import '@scalar/api-reference-react/style.css';
 
 const APIPage = () => {
+  const dark = useDark();
+
   return (
-    <RedocStandalone
-      specUrl="/v1/openapi.json"
-      options={{
-        hideHostname: true,
-        scrollYOffset: () => {
-          const header = document.querySelector('.rspress-nav') as HTMLElement;
-          return header ? header.offsetHeight : 60;
-        },
-        untrustedSpec: false,
-        nativeScrollbars: true,
-        theme: { colors: { primary: { main: '#dd5522' } } },
-      }}
-    />
+    <NoSSR>
+      <Suspense fallback={<div>Loading API reference…</div>}>
+        <ApiReferenceReact
+          key={dark ? 'dark' : 'light'}
+          configuration={{
+            url: '/v1/openapi.json',
+            darkMode: dark,
+            forceDarkModeState: dark ? 'dark' : 'light',
+            hideTestRequestButton: true,
+            hideDownloadButton: true,
+            hideDarkModeToggle: true,
+            hideClientButton: true,
+            hideModels: true,
+            telemetry: false,
+            documentDownloadType: 'json',
+          }}
+        />
+      </Suspense>
+    </NoSSR>
   );
 };
 

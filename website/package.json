@@ -14,9 +14,9 @@
     "@rspress/core": "2.0.0-beta.32",
     "@rspress/plugin-llms": "2.0.0-beta.32",
     "@rspress/theme-default": "2.0.0-beta.32",
+    "@scalar/api-reference-react": "^0.7.50",
     "core-js": "^3.45.1",
     "mobx": "^6.13.7",
-    "redoc": "^2.5.0",
     "styled-components": "^6.1.19"
   },
   "devDependencies": {
