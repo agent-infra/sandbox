@@ -6,6 +6,9 @@ import datetime
 import json
 import datetime
 import json
+import logging
+import random
+import string
 
 
 import volcenginesdkvefaas
@@ -14,6 +17,9 @@ import volcenginesdkcore
 from .base import BaseProvider
 from ..types.sandbox_response import SandboxResponse
 from .sign import request
+
+logger = logging.getLogger(__name__)
+
 
 class VolcengineProvider(BaseProvider):
     """
@@ -334,4 +340,150 @@ class VolcengineProvider(BaseProvider):
             return self._get_apig_domains(upstream_id)
         return []
 
+    def _create_application(self, name: str, gateway_name: str, **kwargs):
+        """
+        Create an application using Volcengine VEFAAS.
+        
+        Parameters
+        ----------
+        **kwargs
+            Additional parameters for application creation
+            
+        Returns
+        -------
+        SandboxResponse
+            The response containing application creation details
+        """
 
+        function_name = f"{name}-function"
+
+        sid = "".join(random.choices(string.digits, k=7))
+
+        body = {
+            "Name": name,
+            "Config": {
+                "region": "cn-beijing",
+                "functionName": function_name,
+                "gatewayName": gateway_name,
+                "sid": sid,
+            },
+            "TemplateId": "68ad2fb0443cb8000843cbbe",
+        }
+
+        now = datetime.datetime.utcnow()
+        try:
+            response = request(
+                "POST",
+                now,
+                {},
+                {},
+                self.access_key,
+                self.secret_key,
+                "",
+                "CreateApplication",
+                json.dumps(body),
+            )
+        except Exception:
+            logger.exception("CreateApplication request failed")
+            return None
+
+        if not isinstance(response, dict):
+            logger.error("CreateApplication returned non-dict response: %s", response)
+            return None
+
+        result = response.get("Result")
+        if not isinstance(result, dict):
+            logger.error("CreateApplication response missing Result: %s", response)
+            return None
+
+        application_id = result.get("Id")
+        if not application_id:
+            logger.error("CreateApplication response missing Result.Id: %s", response)
+            return None
+
+        return application_id
+    
+    def _release_application(self, id: str, **kwargs):
+        """
+        Delete an application using Volcengine VEFAAS.
+        """
+        body = {"Id":id}
+        now = datetime.datetime.utcnow()
+        response = request("POST", now, {}, {}, self.access_key, self.secret_key, "", "ReleaseApplication", json.dumps(body))
+        return response
+
+    def create_application(self, name: str, gateway_name: str, **kwargs):
+        """
+        Create an application using Volcengine VEFAAS.
+        """
+        if not name:
+            raise ValueError("name is required to create an application")
+        if not gateway_name:
+            raise ValueError("gateway_name is required to create an application")
+
+        application_id = self._create_application(name, gateway_name, **kwargs)
+        if not application_id:
+            return None
+
+        try:
+            self._release_application(application_id, **kwargs)
+        except Exception:
+            logger.exception("ReleaseApplication request failed for id %s", application_id)
+
+        return application_id
+
+    def get_application_readiness(self, id: str, **kwargs) -> tuple[bool, typing.Optional[str]]:
+        """Return readiness flag and function ID when available."""
+
+        body = {"Id": id}
+        now = datetime.datetime.utcnow()
+        try:
+            response = request(
+                "POST",
+                now,
+                {},
+                {},
+                self.access_key,
+                self.secret_key,
+                "",
+                "GetApplication",
+                json.dumps(body),
+            )
+        except Exception:
+            logger.exception("GetApplication request failed for id %s", id)
+            return False, None
+
+        if not isinstance(response, dict):
+            logger.error("GetApplication returned non-dict response: %s", response)
+            return False, None
+
+        result = response.get("Result")
+        if not isinstance(result, dict):
+            logger.error("GetApplication response missing Result: %s", response)
+            return False, None
+
+        function_id: typing.Optional[str] = None
+        cloud_resource_raw = result.get("CloudResource")
+        if isinstance(cloud_resource_raw, str):
+            try:
+                cloud_resource = json.loads(cloud_resource_raw)
+            except json.JSONDecodeError:
+                logger.exception("Failed to decode CloudResource for application %s", id)
+            else:
+                if isinstance(cloud_resource, dict):
+                    function_id = cloud_resource.get("function_id")
+                    if not function_id:
+                        sandbox_info = cloud_resource.get("sandbox")
+                        if isinstance(sandbox_info, dict):
+                            function_id = sandbox_info.get("function_id")
+        elif isinstance(cloud_resource_raw, dict):
+            function_id = cloud_resource_raw.get("function_id")
+
+        status = result.get("Status")
+        is_ready = status == "deploy_success"
+        if not is_ready:
+            logger.info("Application %s not ready. Status: %s", id, status)
+            return False, function_id
+
+        return True, function_id
+        

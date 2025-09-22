@@ -95,7 +95,8 @@ def request(method, date, query, header, ak, sk, token, action, body, region = N
         credential["session_token"] = token
 
     if action in ['CodeUploadCallback', 'CreateDependencyInstallTask', 'GetDependencyInstallTaskStatus',
-                  'GetDependencyInstallTaskLogDownloadURI', 'ListTriggers']:
+                  'GetDependencyInstallTaskLogDownloadURI', 'ListTriggers', 'CreateApplication', 'ReleaseApplication',
+                  'GetApplication']:
         credential["service"] = "vefaas"
 
     content_type = ContentType
