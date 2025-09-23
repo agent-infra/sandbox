@@ -3,9 +3,12 @@ pageType: home
 
 hero:
   name: AIO Sandbox
-  text: 面向 AI Agents 的一体化安全开发沙盒
+  text: |
+    面向 AI Agents 的
+    一体化沙盒环境
   tagline: |
     🌐 浏览器 | 💻 终端 | 📁 文件
+
     🔧 VSCode | 📊 Jupyter | 🤖 MCP
   actions:
     - theme: brand

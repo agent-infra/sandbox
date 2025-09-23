@@ -3,9 +3,12 @@ pageType: home
 
 hero:
   name: AIO Sandbox
-  text: All-in-One Sandbox for AI Agents
+  text: |
+    All-in-One Environment
+    for AI Agents
   tagline: |
     🌐 Browser | 💻 Terminal | 📁 File
+
     🔧 VSCode | 📊 Jupyter | 🤖 MCP
   actions:
     - theme: brand
