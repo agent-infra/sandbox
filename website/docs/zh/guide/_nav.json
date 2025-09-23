@@ -1,0 +1,12 @@
+[
+  {
+    "type": "dir",
+    "label": "Getting Started",
+    "name": "start"
+  },
+  {
+    "type": "dir",
+    "label": "Basic Features",
+    "name": "basic"
+  }
+]

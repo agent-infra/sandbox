@@ -1,0 +1,21 @@
+[
+  {
+    "text": "指南",
+    "link": "/zh/guide/start/introduction",
+    "activeMatch": "/zh/guide/"
+  },
+  {
+    "text": "API",
+    "link": "/zh/api",
+    "activeMatch": "/zh/api"
+  },
+  {
+    "text": "Version",
+    "items": [
+      {
+        "text": "更新日志",
+        "link": "https://github.com/agent-infra/sandbox/releases"
+      }
+    ]
+  }
+]
