@@ -84,6 +84,7 @@ if typing.TYPE_CHECKING:
     from .response_shell_view_result import ResponseShellViewResult
     from .response_shell_wait_result import ResponseShellWaitResult
     from .response_shell_write_result import ResponseShellWriteResult
+    from .response_str import ResponseStr
     from .response_str_replace_editor_result import ResponseStrReplaceEditorResult
     from .right_click_action import RightClickAction
     from .sandbox_response import SandboxResponse
@@ -181,6 +182,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseShellViewResult": ".response_shell_view_result",
     "ResponseShellWaitResult": ".response_shell_wait_result",
     "ResponseShellWriteResult": ".response_shell_write_result",
+    "ResponseStr": ".response_str",
     "ResponseStrReplaceEditorResult": ".response_str_replace_editor_result",
     "RightClickAction": ".right_click_action",
     "SandboxResponse": ".sandbox_response",
@@ -300,6 +302,7 @@ __all__ = [
     "ResponseShellViewResult",
     "ResponseShellWaitResult",
     "ResponseShellWriteResult",
+    "ResponseStr",
     "ResponseStrReplaceEditorResult",
     "RightClickAction",
     "SandboxResponse",

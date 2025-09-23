@@ -12,6 +12,7 @@ from ..types.response_shell_kill_result import ResponseShellKillResult
 from ..types.response_shell_view_result import ResponseShellViewResult
 from ..types.response_shell_wait_result import ResponseShellWaitResult
 from ..types.response_shell_write_result import ResponseShellWriteResult
+from ..types.response_str import ResponseStr
 from .raw_client import AsyncRawShellClient, RawShellClient
 
 # this is used as the default value for optional parameters
@@ -231,7 +232,7 @@ class ShellClient:
         return _response.data
 
     def create_session(
-        self, *, exec_dir: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+        self, *, exec_dir: typing.Optional[str] = OMIT, request_options: typing.Optional[RequestOptions] = None
     ) -> ResponseShellCreateSessionResponse:
         """
         Create a new shell session and return its ID
@@ -239,6 +240,7 @@ class ShellClient:
         Parameters
         ----------
         exec_dir : typing.Optional[str]
+            Working directory for the new session (must use absolute path)
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -258,6 +260,32 @@ class ShellClient:
         client.shell.create_session()
         """
         _response = self._raw_client.create_session(exec_dir=exec_dir, request_options=request_options)
+        return _response.data
+
+    def get_terminal_url(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseStr:
+        """
+        Create a new shell session and return the terminal URL
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseStr
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.shell.get_terminal_url()
+        """
+        _response = self._raw_client.get_terminal_url(request_options=request_options)
         return _response.data
 
     def list_sessions(
@@ -598,7 +626,7 @@ class AsyncShellClient:
         return _response.data
 
     async def create_session(
-        self, *, exec_dir: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+        self, *, exec_dir: typing.Optional[str] = OMIT, request_options: typing.Optional[RequestOptions] = None
     ) -> ResponseShellCreateSessionResponse:
         """
         Create a new shell session and return its ID
@@ -606,6 +634,7 @@ class AsyncShellClient:
         Parameters
         ----------
         exec_dir : typing.Optional[str]
+            Working directory for the new session (must use absolute path)
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -633,6 +662,40 @@ class AsyncShellClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.create_session(exec_dir=exec_dir, request_options=request_options)
+        return _response.data
+
+    async def get_terminal_url(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseStr:
+        """
+        Create a new shell session and return the terminal URL
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseStr
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.shell.get_terminal_url()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.get_terminal_url(request_options=request_options)
         return _response.data
 
     async def list_sessions(

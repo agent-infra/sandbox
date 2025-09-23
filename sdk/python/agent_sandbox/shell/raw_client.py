@@ -19,6 +19,7 @@ from ..types.response_shell_kill_result import ResponseShellKillResult
 from ..types.response_shell_view_result import ResponseShellViewResult
 from ..types.response_shell_wait_result import ResponseShellWaitResult
 from ..types.response_shell_write_result import ResponseShellWriteResult
+from ..types.response_str import ResponseStr
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -346,7 +347,7 @@ class RawShellClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create_session(
-        self, *, exec_dir: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+        self, *, exec_dir: typing.Optional[str] = OMIT, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResponseShellCreateSessionResponse]:
         """
         Create a new shell session and return its ID
@@ -354,6 +355,7 @@ class RawShellClient:
         Parameters
         ----------
         exec_dir : typing.Optional[str]
+            Working directory for the new session (must use absolute path)
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -366,10 +368,14 @@ class RawShellClient:
         _response = self._client_wrapper.httpx_client.request(
             "v1/shell/sessions/create",
             method="POST",
-            params={
+            json={
                 "exec_dir": exec_dir,
             },
+            headers={
+                "content-type": "application/json",
+            },
             request_options=request_options,
+            omit=OMIT,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -392,6 +398,40 @@ class RawShellClient:
                         ),
                     ),
                 )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def get_terminal_url(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[ResponseStr]:
+        """
+        Create a new shell session and return the terminal URL
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseStr]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/shell/terminal-url",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseStr,
+                    parse_obj_as(
+                        type_=ResponseStr,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -841,7 +881,7 @@ class AsyncRawShellClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create_session(
-        self, *, exec_dir: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+        self, *, exec_dir: typing.Optional[str] = OMIT, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResponseShellCreateSessionResponse]:
         """
         Create a new shell session and return its ID
@@ -849,6 +889,7 @@ class AsyncRawShellClient:
         Parameters
         ----------
         exec_dir : typing.Optional[str]
+            Working directory for the new session (must use absolute path)
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -861,10 +902,14 @@ class AsyncRawShellClient:
         _response = await self._client_wrapper.httpx_client.request(
             "v1/shell/sessions/create",
             method="POST",
-            params={
+            json={
                 "exec_dir": exec_dir,
             },
+            headers={
+                "content-type": "application/json",
+            },
             request_options=request_options,
+            omit=OMIT,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -887,6 +932,42 @@ class AsyncRawShellClient:
                         ),
                     ),
                 )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def get_terminal_url(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[ResponseStr]:
+        """
+        Create a new shell session and return the terminal URL
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseStr]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/shell/terminal-url",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseStr,
+                    parse_obj_as(
+                        type_=ResponseStr,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)

@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "FastAPI",
-    "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Terminal\n    - UI: [/terminal](/terminal)\n    - WebSocket: [/v1/shell/ws](/v1/shell/ws), The data format follows [xterm.js](https://xtermjs.org/)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.118"
+    "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
+    "version": "1.0.0.121"
   },
   "paths": {
     "/v1/sandbox": {
@@ -290,24 +290,16 @@
         "summary": "Create Session",
         "description": "Create a new shell session and return its ID",
         "operationId": "create_session",
-        "parameters": [
-          {
-            "name": "exec_dir",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Exec Dir"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShellCreateSessionRequest"
+              }
             }
-          }
-        ],
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -325,6 +317,28 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/shell/terminal-url": {
+      "get": {
+        "tags": [
+          "shell"
+        ],
+        "summary": "Get Terminal Url",
+        "description": "Create a new shell session and return the terminal URL",
+        "operationId": "get_terminal_url",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_str_"
                 }
               }
             }
@@ -1010,7 +1024,6 @@
     "/v1/mcp/{server_name}/tools": {
       "get": {
         "tags": [
-          "mcp",
           "mcp"
         ],
         "summary": "List Mcp Tools",
@@ -1056,7 +1069,6 @@
     "/v1/mcp/{server_name}/tools/{tool_name}": {
       "post": {
         "tags": [
-          "mcp",
           "mcp"
         ],
         "summary": "Execute Mcp Tool",
@@ -1125,7 +1137,6 @@
     "/v1/mcp/servers": {
       "get": {
         "tags": [
-          "mcp",
           "mcp"
         ],
         "summary": "List Mcp Servers",
@@ -4003,6 +4014,43 @@
         "type": "object",
         "title": "Response[StrReplaceEditorResult]"
       },
+      "Response_str_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[str]"
+      },
       "SandboxResponse": {
         "properties": {
           "success": {
@@ -4141,6 +4189,25 @@
         ],
         "title": "ShellCommandResult",
         "description": "Shell command execution result model"
+      },
+      "ShellCreateSessionRequest": {
+        "properties": {
+          "exec_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exec Dir",
+            "description": "Working directory for the new session (must use absolute path)"
+          }
+        },
+        "type": "object",
+        "title": "ShellCreateSessionRequest",
+        "description": "Shell session creation request model"
       },
       "ShellCreateSessionResponse": {
         "properties": {
