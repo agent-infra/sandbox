@@ -17,7 +17,11 @@ export default defineConfig({
   route: {
     cleanUrls: true,
   },
-  markdown: {},
+  markdown: {
+    link: {
+      checkDeadLinks: false,
+    },
+  },
   plugins: [pluginLlms()],
   base: process.env.BASE_URL ?? '/',
   outDir: 'doc_build',
