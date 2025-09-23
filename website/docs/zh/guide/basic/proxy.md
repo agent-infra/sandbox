@@ -62,6 +62,6 @@ npm start
 
 ## 下一步
 
-- **终端集成**：通过 Shell 控制服务 → [Shell API](/api/)
-- **文件操作**：管理应用程序文件 → [文件 API](/api/)
-- **浏览器自动化**：测试应用程序 → [浏览器指南](/guide/basic/browser)
+- **终端集成**：通过 Shell 控制服务 → [Shell API](/zh/api/)
+- **文件操作**：管理应用程序文件 → [文件 API](/zh/api/)
+- **浏览器自动化**：测试应用程序 → [浏览器指南](/zh/guide/basic/browser)

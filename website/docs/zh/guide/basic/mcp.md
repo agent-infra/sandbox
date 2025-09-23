@@ -407,5 +407,4 @@ async def logged_mcp_call(tool_name, **kwargs):
 ## 下一步
 
 - **[浏览器集成](/guide/basic/browser)** - 了解浏览器自动化功能
-- **[API 参考](/api/)** - 详细的 API 文档
-- **[示例](/examples/agent)** - 真实世界的代理集成示例
+- **[API 参考](/zh/api/)** - 详细的 API 文档
