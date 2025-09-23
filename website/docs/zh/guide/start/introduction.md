@@ -87,6 +87,6 @@ API 和 MCP 服务器支持相互调用，实现不同服务层之间的无缝�
 
 ## 开始使用
 
-准备好开始了吗？查看我们的[快速开始指南](/guide/start/quick-start)，几分钟内即可运行您的 AIO Sandbox。
+准备好开始了吗？查看我们的[快速开始指南](/zh/guide/start/quick-start)，几分钟内即可运行您的 AIO Sandbox。
 
 有关特定组件的详细信息，请探索侧边栏导航中的指南。
