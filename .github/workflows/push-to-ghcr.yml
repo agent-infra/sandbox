@@ -1,6 +1,14 @@
 name: Push Docker Image to GHCR
 
 on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - '.github/workflows/push-to-ghcr.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - '.github/workflows/push-to-ghcr.yml'
   workflow_dispatch:
 
 env:
