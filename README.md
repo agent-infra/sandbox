@@ -337,7 +337,7 @@ def run_code(code, lang="python"):
     return sandbox.nodejs.execute_nodejs_code(code=code).data
 
 
-# 使用 OpenAI
+# Use OpenAI
 response = client.chat.completions.create(
     model="gpt-4",
     messages=[{"role": "user", "content": "calculate 1+1"}],
