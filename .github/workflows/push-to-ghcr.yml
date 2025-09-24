@@ -47,9 +47,9 @@ jobs:
 
       - name: Tag image for GHCR
         run: |
-          # target image: ghcr.io/agent-infra/sandbox:latest
+          # target image: ghcr.io/agent-infra/sandbox:v1
           docker tag enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1
           docker tag enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
