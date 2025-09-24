@@ -1,7 +1,7 @@
 # AIO Sandbox - All-in-One Agent Sandbox Environment
 
 <p align="center">
-  <img src="website/docs/public/aio-icon.png" alt="AIO Sandbox Logo" width="200"/>
+  <img src="./website/docs/public/aio-icon.png" alt="logo" width="200"/>
 </p>
 
 <p align="center">
