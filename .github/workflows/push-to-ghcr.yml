@@ -2,6 +2,8 @@ name: Push Docker Image to GHCR
 
 on:
   workflow_dispatch:
+  release:
+    types: [published]
 
 env:
   REGISTRY: ghcr.io
@@ -34,18 +36,42 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Pull source image
+        id: pull
         run: |
-          docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+          # For releases, use the version tag; otherwise use latest
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            # Remove 'v' prefix from tag name (e.g., v1.0.0.1 -> 1.0.0.1)
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"
+            docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:${VERSION}
+            echo "source_tag=${VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+            echo "source_tag=latest" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Tag image for GHCR
         run: |
-          # target image: ghcr.io/agent-infra/sandbox:v1
-          docker tag enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest \
+          # Always tag as v1
+          docker tag enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:${{ steps.pull.outputs.source_tag }} \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1
-          docker tag enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+          # For releases, also tag with the version number
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"
+            docker tag enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:${{ steps.pull.outputs.source_tag }} \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION}
+          fi
 
       - name: Push image to GHCR
         run: |
+          # Always push v1 tag
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+          # For releases, push the version tag
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"
+            docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION}
+          fi
