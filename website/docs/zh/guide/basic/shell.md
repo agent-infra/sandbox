@@ -237,7 +237,7 @@ cd repo && npm install
 # 启动开发服务器
 npm run dev
 
-# 服务器可通过代理访问
+# 服务器可通过 Agent 访问
 # http://localhost:8080/proxy/3000/
 ```
 

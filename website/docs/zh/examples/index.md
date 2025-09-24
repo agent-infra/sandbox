@@ -15,9 +15,9 @@
 - [Playwright 集成](/examples/browser#playwright) - 高级浏览器控制
 - [Web 抓取示例](/examples/browser#scraping) - 数据提取模式
 
-### 代理集成
-使用 AIO Sandbox 构建 AI 代理：
-- [基本代理设置](/examples/agent) - 将代理连接到沙盒
+### Agent 集成
+使用 AIO Sandbox 构建 AI Agent：
+- [基本 Agent 设置](/examples/agent) - 将 Agent 连接到沙盒
 - [MCP 集成](/examples/agent#mcp) - 使用模型上下文协议
 - [多工具工作流](/examples/agent#workflows) - 组合多个 API
 
@@ -419,7 +419,7 @@ if (jupyterResponse.success) {
 
 - **[终端示例](/examples/terminal)** - 从终端集成开始
 - **[浏览器示例](/examples/browser)** - 探索浏览器自动化
-- **[代理集成](/examples/agent)** - 构建 AI 驱动的工作流
+- **[Agent 集成](/examples/agent)** - 构建 AI 驱动的工作流
 
 如需其他支持：
 - 查看 [API 文档](/api/) 了解详细规范

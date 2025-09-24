@@ -757,5 +757,5 @@ export default AIOTerminal;
 ## 下一步
 
 - **[浏览器示例](/examples/browser)** - 学习浏览器自动化
-- **[代理集成](/examples/agent)** - 构建 AI 工作流
+- **[Agent 集成](/examples/agent)** - 构建 AI 工作流
 - **[API 参考](/api/)** - 详细的 WebSocket API 文档

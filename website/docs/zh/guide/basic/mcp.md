@@ -1,12 +1,12 @@
 # MCP 集成
 
-AIO Sandbox 中的模型上下文协议（MCP）Hub 为 AI 代理提供了一个集中式接口，通过单个端点访问多个服务。
+AIO Sandbox 中的模型上下文协议（MCP）Hub 为 AI Agent 提供了一个集中式接口，通过单个端点访问多个服务。
 
 ![](/images/mcp.png)
 
 ## 什么是 MCP？
 
-MCP（模型上下文协议）是 AI 代理与外部工具和服务交互的标准化方式。AIO Sandbox 包含一个预配置的 MCP Hub，聚合了多个有用的服务器。
+MCP（模型上下文协议）是 AI Agent 与外部工具和服务交互的标准化方式。AIO Sandbox 包含一个预配置的 MCP Hub，聚合了多个有用的服务器。
 
 ## 可用的 MCP 服务器
 
@@ -124,9 +124,9 @@ const result = await callMCPTool('file_read', {
 - `arxiv_download` - 下载论文
 - `arxiv_summary` - 获取论文摘要
 
-## 代理集成模式
+## Agent 集成模式
 
-### 基本代理设置
+### 基本 Agent 设置
 
 ```python
 import asyncio

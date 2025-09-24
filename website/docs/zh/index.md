@@ -31,8 +31,8 @@ features:
   - title: 安全执行
     details: 隔离的 Python 和 Node.js 沙盒。安全执行代码，无系统风险。
     icon: 🔐
-  - title: AI 代理就绪
-    details: 预配置 MCP 服务器，包含浏览器、文件、终端、Markdown 和 Arxiv。为 AI 代理准备就绪。
+  - title: AI Agent 就绪
+    details: 预配置 MCP 服务器，包含浏览器、文件、终端、Markdown 和 Arxiv。为 AI Agent 准备就绪。
     icon: 🤖
   - title: 开发者友好
     details: 基于云的 VSCode，具有持久终端、智能端口转发（通过 `${Port}-${domain}/` 或 `/proxy`）和即时前端/后端预览。

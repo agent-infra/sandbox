@@ -1,12 +1,12 @@
-# 代理集成
+# Agent 集成
 
-本指南展示如何将 AI 代理与 AIO Sandbox 集成，利用模型上下文协议（MCP）和 REST API 实现强大的代理工作流。
+本指南展示如何将 AI Agent 与 AIO Sandbox 集成，利用模型上下文协议（MCP）和 REST API 实现强大的 Agent 工作流。
 
 ## 快速开始
 
-### 基本代理设置
+### 基本 Agent 设置
 
-通过 MCP 接口连接代理到 AIO Sandbox 的最简单方法：
+通过 MCP 接口连接 Agent 到 AIO Sandbox 的最简单方法：
 
 ```python
 import asyncio
@@ -58,7 +58,7 @@ async def main():
         print(f"Python 版本：{result}")
 
         # 创建并读取文件
-        await agent.write_file("/tmp/hello.py", "print('来自代理的问候！')")
+        await agent.write_file("/tmp/hello.py", "print('来自 Agent 的问候！')")
         await agent.execute_shell("python /tmp/hello.py")
 
 if __name__ == "__main__":
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
 ### MCP 集成
 
-AIO Sandbox 提供内置 MCP 服务器，实现无缝代理集成：
+AIO Sandbox 提供内置 MCP 服务器，实现无缝 Agent 集成：
 
 ```python
 import json
@@ -145,9 +145,9 @@ async def mcp_example():
 
 ## 高级工作流
 
-### 多工具代理工作流
+### 多工具 Agent 工作流
 
-这是一个结合浏览器自动化、文件操作和代码执行的复杂代理示例：
+这是一个结合浏览器自动化、文件操作和代码执行的复杂 Agent 示例：
 
 ```python
 class WebScrapingAgent(AIOSandboxAgent):
@@ -211,7 +211,7 @@ print(f"找到的图片：{len(soup.find_all('img'))}")
 
 ### 会话管理
 
-对于长时间运行的代理工作流，有效管理 Shell 会话：
+对于长时间运行的 Agent 工作流，有效管理 Shell 会话：
 
 ```python
 class SessionManagedAgent(AIOSandboxAgent):
@@ -267,7 +267,7 @@ async def persistent_session_example():
 
 ### LangChain 集成
 
-将 AIO Sandbox 与 LangChain 集成，实现高级代理工作流：
+将 AIO Sandbox 与 LangChain 集成，实现高级 Agent 工作流：
 
 ```python
 from langchain.tools import BaseTool
@@ -317,7 +317,7 @@ class SandboxFileTool(BaseTool):
         else:
             return f"错误：{result.get('message', '未知错误')}"
 
-# 使用沙盒工具创建 LangChain 代理
+# 使用沙盒工具创建 LangChain Agent
 async def create_sandbox_agent():
     sandbox_agent = AIOSandboxAgent()
     await sandbox_agent.__aenter__()
@@ -333,7 +333,7 @@ async def create_sandbox_agent():
         ("assistant", "{agent_scratchpad}")
     ])
 
-    # 创建并返回代理（需要 LLM 配置）
+    # 创建并返回 Agent（需要 LLM 配置）
     # agent = create_openai_functions_agent(llm, tools, prompt)
     # return AgentExecutor(agent=agent, tools=tools)
 ```
@@ -527,7 +527,7 @@ if __name__ == "__main__":
 
 ## 生产部署
 
-### 代理 + 沙盒的 Docker Compose
+### Agent + 沙盒的 Docker Compose
 
 ```yaml
 version: '3.8'
@@ -613,9 +613,9 @@ spec:
 
 ## 下一步
 
-准备构建您自己的 AI 代理？以下是一些推荐路径：
+准备构建您自己的 AI Agent？以下是一些推荐路径：
 
-1. **从简单开始**：从基本代理设置开始，逐步增加复杂性
+1. **从简单开始**：从基本 Agent 设置开始，逐步增加复杂性
 2. **选择您的框架**：选择 LangChain、OpenAI 助手或构建自定义解决方案
 3. **彻底测试**：使用提供的测试策略确保可靠性
 4. **监控性能**：为生产部署实施日志记录和指标
