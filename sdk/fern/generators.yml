@@ -19,3 +19,12 @@ groups:
         output:
           location: local-file-system
           path: ../python/agent_sandbox
+  sdk-go:
+    generators:
+      - name: fernapi/fern-go-sdk
+        version: 1.12.4
+        output:
+          location: local-file-system
+          path: ./sdk-go
+        config:
+          module: github.com/agent-infra/sandbox-sdk-go
