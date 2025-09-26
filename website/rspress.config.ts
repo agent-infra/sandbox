@@ -1,7 +1,12 @@
 import * as path from 'node:path';
 import { pluginLlms } from '@rspress/plugin-llms';
+import {
+  transformerNotationDiff,
+  transformerNotationErrorLevel,
+  transformerNotationFocus,
+  transformerNotationHighlight,
+} from '@shikijs/transformers';
 import { defineConfig } from '@rspress/core';
-import { ProvidePlugin } from '@rspack/core';
 
 export default defineConfig({
   lang: 'en',
@@ -18,6 +23,14 @@ export default defineConfig({
     cleanUrls: true,
   },
   markdown: {
+    shiki: {
+      transformers: [
+        transformerNotationDiff(),
+        transformerNotationErrorLevel(),
+        transformerNotationHighlight(),
+        transformerNotationFocus(),
+      ],
+    },
     link: {
       checkDeadLinks: false,
     },

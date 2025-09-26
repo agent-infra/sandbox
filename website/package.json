@@ -11,9 +11,9 @@
     "deploy": "npm run build && npm run preview"
   },
   "dependencies": {
-    "@rspress/core": "2.0.0-beta.33",
-    "@rspress/plugin-llms": "2.0.0-beta.33",
-    "@rspress/theme-default": "2.0.0-beta.33",
+    "@rspress/core": "2.0.0-beta.34",
+    "@rspress/plugin-llms": "2.0.0-beta.34",
+    "@rspress/theme-default": "2.0.0-beta.34",
     "@scalar/api-reference-react": "^0.7.50",
     "core-js": "^3.45.1",
     "mobx": "^6.13.7",
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@shikijs/transformers": "^3.13.0",
     "@types/node": "^18.11.17",
     "prettier": "^3.4.2"
   }
