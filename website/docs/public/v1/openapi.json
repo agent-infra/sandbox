@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.121"
+    "version": "1.0.0.126"
   },
   "paths": {
     "/v1/sandbox": {
@@ -288,7 +288,7 @@
           "shell"
         ],
         "summary": "Create Session",
-        "description": "Create a new shell session and return its ID",
+        "description": "Create a new shell session and return its ID\nIf id already exists, return the existing session",
         "operationId": "create_session",
         "requestBody": {
           "content": {
@@ -1198,11 +1198,37 @@
     "/v1/browser/screenshot": {
       "get": {
         "summary": "Take Screenshot",
-        "description": "Take a screenshot of the current display.\n\nReturns:\n    StreamingResponse: PNG image data with proper headers",
+        "description": "Take a screenshot of the current display.\n\nReturns:\n    StreamingResponse: PNG image data with proper headers including display and screenshot dimensions",
         "operationId": "take_screenshot",
         "responses": {
           "200": {
             "description": "Screenshot image",
+            "headers": {
+              "x-screen-width": {
+                "description": "Screen width",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-screen-height": {
+                "description": "Screen height",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-image-width": {
+                "description": "Image width",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-image-height": {
+                "description": "Image height",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "image/png": {}
             }
@@ -1227,6 +1253,9 @@
                     "$ref": "#/components/schemas/MoveToAction"
                   },
                   {
+                    "$ref": "#/components/schemas/MoveRelAction"
+                  },
+                  {
                     "$ref": "#/components/schemas/ClickAction"
                   },
                   {
@@ -1245,6 +1274,9 @@
                     "$ref": "#/components/schemas/DragToAction"
                   },
                   {
+                    "$ref": "#/components/schemas/DragRelAction"
+                  },
+                  {
                     "$ref": "#/components/schemas/ScrollAction"
                   },
                   {
@@ -1261,6 +1293,9 @@
                   },
                   {
                     "$ref": "#/components/schemas/HotkeyAction"
+                  },
+                  {
+                    "$ref": "#/components/schemas/WaitAction"
                   }
                 ],
                 "title": "Action",
@@ -1268,18 +1303,21 @@
                   "propertyName": "action_type",
                   "mapping": {
                     "MOVE_TO": "#/components/schemas/MoveToAction",
+                    "MOVE_REL": "#/components/schemas/MoveRelAction",
                     "CLICK": "#/components/schemas/ClickAction",
                     "MOUSE_DOWN": "#/components/schemas/MouseDownAction",
                     "MOUSE_UP": "#/components/schemas/MouseUpAction",
                     "RIGHT_CLICK": "#/components/schemas/RightClickAction",
                     "DOUBLE_CLICK": "#/components/schemas/DoubleClickAction",
                     "DRAG_TO": "#/components/schemas/DragToAction",
+                    "DRAG_REL": "#/components/schemas/DragRelAction",
                     "SCROLL": "#/components/schemas/ScrollAction",
                     "TYPING": "#/components/schemas/TypingAction",
                     "PRESS": "#/components/schemas/PressAction",
                     "KEY_DOWN": "#/components/schemas/KeyDownAction",
                     "KEY_UP": "#/components/schemas/KeyUpAction",
-                    "HOTKEY": "#/components/schemas/HotkeyAction"
+                    "HOTKEY": "#/components/schemas/HotkeyAction",
+                    "WAIT": "#/components/schemas/WaitAction"
                   }
                 }
               }
@@ -2351,6 +2389,43 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "Icon": {
+        "properties": {
+          "src": {
+            "type": "string",
+            "title": "Src"
+          },
+          "mimeType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mimetype"
+          },
+          "sizes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sizes"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "src"
+        ],
+        "title": "Icon",
+        "description": "An icon for display in user interfaces."
+      },
       "ImageContent": {
         "properties": {
           "type": {
@@ -3071,6 +3146,20 @@
               }
             ],
             "title": "Size"
+          },
+          "icons": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Icon"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icons"
           },
           "annotations": {
             "anyOf": [
@@ -4192,6 +4281,11 @@
       },
       "ShellCreateSessionRequest": {
         "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique identifier for the shell session, auto-generated if not provided"
+          },
           "exec_dir": {
             "anyOf": [
               {
@@ -4813,6 +4907,20 @@
             ],
             "title": "Outputschema"
           },
+          "icons": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Icon"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icons"
+          },
           "annotations": {
             "anyOf": [
               {
@@ -5048,6 +5156,32 @@
         "type": "object",
         "title": "DoubleClickAction"
       },
+      "DragRelAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "DRAG_REL",
+            "title": "Action Type",
+            "default": "DRAG_REL"
+          },
+          "x_offset": {
+            "type": "number",
+            "title": "X Offset",
+            "description": "Relative current position x-axis drag movement"
+          },
+          "y_offset": {
+            "type": "number",
+            "title": "Y Offset",
+            "description": "Relative current position y-axis drag movement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "x_offset",
+          "y_offset"
+        ],
+        "title": "DragRelAction"
+      },
       "DragToAction": {
         "properties": {
           "action_type": {
@@ -5178,6 +5312,32 @@
         },
         "type": "object",
         "title": "MouseUpAction"
+      },
+      "MoveRelAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "MOVE_REL",
+            "title": "Action Type",
+            "default": "MOVE_REL"
+          },
+          "x_offset": {
+            "type": "number",
+            "title": "X Offset",
+            "description": "Relative current position x-axis movement"
+          },
+          "y_offset": {
+            "type": "number",
+            "title": "Y Offset",
+            "description": "Relative current position y-axis movement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "x_offset",
+          "y_offset"
+        ],
+        "title": "MoveRelAction"
       },
       "MoveToAction": {
         "properties": {
@@ -5352,6 +5512,27 @@
           "text"
         ],
         "title": "TypingAction"
+      },
+      "WaitAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "WAIT",
+            "title": "Action Type",
+            "default": "WAIT"
+          },
+          "duration": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration",
+            "description": "Duration to wait in seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "duration"
+        ],
+        "title": "WaitAction"
       }
     }
   }
