@@ -6,6 +6,7 @@ import pydantic
 import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ..core.serialization import FieldMetadata
+from .icon import Icon
 from .tool_annotations import ToolAnnotations
 
 
@@ -23,6 +24,7 @@ class Tool(UniversalBaseModel):
     output_schema: typing_extensions.Annotated[
         typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]], FieldMetadata(alias="outputSchema")
     ] = None
+    icons: typing.Optional[typing.List[Icon]] = None
     annotations: typing.Optional[ToolAnnotations] = None
     meta: typing_extensions.Annotated[
         typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]], FieldMetadata(alias="_meta")

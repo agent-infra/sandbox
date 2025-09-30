@@ -29,6 +29,7 @@ if typing.TYPE_CHECKING:
     from .click_action import ClickAction
     from .console_record import ConsoleRecord
     from .double_click_action import DoubleClickAction
+    from .drag_rel_action import DragRelAction
     from .drag_to_action import DragToAction
     from .embedded_resource import EmbeddedResource
     from .file_content_encoding import FileContentEncoding
@@ -42,6 +43,7 @@ if typing.TYPE_CHECKING:
     from .file_write_result import FileWriteResult
     from .hotkey_action import HotkeyAction
     from .http_validation_error import HttpValidationError
+    from .icon import Icon
     from .image_content import ImageContent
     from .jupyter_execute_response import JupyterExecuteResponse
     from .jupyter_info_response import JupyterInfoResponse
@@ -51,6 +53,7 @@ if typing.TYPE_CHECKING:
     from .list_tools_result import ListToolsResult
     from .mouse_down_action import MouseDownAction
     from .mouse_up_action import MouseUpAction
+    from .move_rel_action import MoveRelAction
     from .move_to_action import MoveToAction
     from .node_js_execute_response import NodeJsExecuteResponse
     from .node_js_output import NodeJsOutput
@@ -105,6 +108,7 @@ if typing.TYPE_CHECKING:
     from .typing_action import TypingAction
     from .validation_error import ValidationError
     from .validation_error_loc_item import ValidationErrorLocItem
+    from .wait_action import WaitAction
 _dynamic_imports: typing.Dict[str, str] = {
     "ActionResponse": ".action_response",
     "ActiveSessionsResult": ".active_sessions_result",
@@ -127,6 +131,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ClickAction": ".click_action",
     "ConsoleRecord": ".console_record",
     "DoubleClickAction": ".double_click_action",
+    "DragRelAction": ".drag_rel_action",
     "DragToAction": ".drag_to_action",
     "EmbeddedResource": ".embedded_resource",
     "FileContentEncoding": ".file_content_encoding",
@@ -140,6 +145,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "FileWriteResult": ".file_write_result",
     "HotkeyAction": ".hotkey_action",
     "HttpValidationError": ".http_validation_error",
+    "Icon": ".icon",
     "ImageContent": ".image_content",
     "JupyterExecuteResponse": ".jupyter_execute_response",
     "JupyterInfoResponse": ".jupyter_info_response",
@@ -149,6 +155,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ListToolsResult": ".list_tools_result",
     "MouseDownAction": ".mouse_down_action",
     "MouseUpAction": ".mouse_up_action",
+    "MoveRelAction": ".move_rel_action",
     "MoveToAction": ".move_to_action",
     "NodeJsExecuteResponse": ".node_js_execute_response",
     "NodeJsOutput": ".node_js_output",
@@ -203,6 +210,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "TypingAction": ".typing_action",
     "ValidationError": ".validation_error",
     "ValidationErrorLocItem": ".validation_error_loc_item",
+    "WaitAction": ".wait_action",
 }
 
 
@@ -247,6 +255,7 @@ __all__ = [
     "ClickAction",
     "ConsoleRecord",
     "DoubleClickAction",
+    "DragRelAction",
     "DragToAction",
     "EmbeddedResource",
     "FileContentEncoding",
@@ -260,6 +269,7 @@ __all__ = [
     "FileWriteResult",
     "HotkeyAction",
     "HttpValidationError",
+    "Icon",
     "ImageContent",
     "JupyterExecuteResponse",
     "JupyterInfoResponse",
@@ -269,6 +279,7 @@ __all__ = [
     "ListToolsResult",
     "MouseDownAction",
     "MouseUpAction",
+    "MoveRelAction",
     "MoveToAction",
     "NodeJsExecuteResponse",
     "NodeJsOutput",
@@ -323,4 +334,5 @@ __all__ = [
     "TypingAction",
     "ValidationError",
     "ValidationErrorLocItem",
+    "WaitAction",
 ]

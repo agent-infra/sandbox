@@ -24,6 +24,21 @@ class Action_MoveTo(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
+class Action_MoveRel(UniversalBaseModel):
+    action_type: typing.Literal["MOVE_REL"] = "MOVE_REL"
+    x_offset: float
+    y_offset: float
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
 class Action_Click(UniversalBaseModel):
     action_type: typing.Literal["CLICK"] = "CLICK"
     x: typing.Optional[float] = None
@@ -103,6 +118,21 @@ class Action_DragTo(UniversalBaseModel):
     action_type: typing.Literal["DRAG_TO"] = "DRAG_TO"
     x: float
     y: float
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
+class Action_DragRel(UniversalBaseModel):
+    action_type: typing.Literal["DRAG_REL"] = "DRAG_REL"
+    x_offset: float
+    y_offset: float
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
@@ -200,18 +230,35 @@ class Action_Hotkey(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
+class Action_Wait(UniversalBaseModel):
+    action_type: typing.Literal["WAIT"] = "WAIT"
+    duration: float
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
 Action = typing.Union[
     Action_MoveTo,
+    Action_MoveRel,
     Action_Click,
     Action_MouseDown,
     Action_MouseUp,
     Action_RightClick,
     Action_DoubleClick,
     Action_DragTo,
+    Action_DragRel,
     Action_Scroll,
     Action_Typing,
     Action_Press,
     Action_KeyDown,
     Action_KeyUp,
     Action_Hotkey,
+    Action_Wait,
 ]

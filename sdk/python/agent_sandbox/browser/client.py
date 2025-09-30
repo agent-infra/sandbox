@@ -59,7 +59,7 @@ class BrowserClient:
         Take a screenshot of the current display.
 
         Returns:
-            StreamingResponse: PNG image data with proper headers
+            StreamingResponse: PNG image data with proper headers including display and screenshot dimensions
 
         Parameters
         ----------
@@ -169,7 +169,7 @@ class AsyncBrowserClient:
         Take a screenshot of the current display.
 
         Returns:
-            StreamingResponse: PNG image data with proper headers
+            StreamingResponse: PNG image data with proper headers including display and screenshot dimensions
 
         Parameters
         ----------

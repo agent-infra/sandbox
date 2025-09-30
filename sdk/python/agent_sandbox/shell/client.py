@@ -232,13 +232,21 @@ class ShellClient:
         return _response.data
 
     def create_session(
-        self, *, exec_dir: typing.Optional[str] = OMIT, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        id: typing.Optional[str] = OMIT,
+        exec_dir: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellCreateSessionResponse:
         """
         Create a new shell session and return its ID
+        If id already exists, return the existing session
 
         Parameters
         ----------
+        id : typing.Optional[str]
+            Unique identifier for the shell session, auto-generated if not provided
+
         exec_dir : typing.Optional[str]
             Working directory for the new session (must use absolute path)
 
@@ -259,7 +267,7 @@ class ShellClient:
         )
         client.shell.create_session()
         """
-        _response = self._raw_client.create_session(exec_dir=exec_dir, request_options=request_options)
+        _response = self._raw_client.create_session(id=id, exec_dir=exec_dir, request_options=request_options)
         return _response.data
 
     def get_terminal_url(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseStr:
@@ -626,13 +634,21 @@ class AsyncShellClient:
         return _response.data
 
     async def create_session(
-        self, *, exec_dir: typing.Optional[str] = OMIT, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        id: typing.Optional[str] = OMIT,
+        exec_dir: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellCreateSessionResponse:
         """
         Create a new shell session and return its ID
+        If id already exists, return the existing session
 
         Parameters
         ----------
+        id : typing.Optional[str]
+            Unique identifier for the shell session, auto-generated if not provided
+
         exec_dir : typing.Optional[str]
             Working directory for the new session (must use absolute path)
 
@@ -661,7 +677,7 @@ class AsyncShellClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.create_session(exec_dir=exec_dir, request_options=request_options)
+        _response = await self._raw_client.create_session(id=id, exec_dir=exec_dir, request_options=request_options)
         return _response.data
 
     async def get_terminal_url(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseStr:

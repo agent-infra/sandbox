@@ -347,13 +347,21 @@ class RawShellClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create_session(
-        self, *, exec_dir: typing.Optional[str] = OMIT, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        id: typing.Optional[str] = OMIT,
+        exec_dir: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseShellCreateSessionResponse]:
         """
         Create a new shell session and return its ID
+        If id already exists, return the existing session
 
         Parameters
         ----------
+        id : typing.Optional[str]
+            Unique identifier for the shell session, auto-generated if not provided
+
         exec_dir : typing.Optional[str]
             Working directory for the new session (must use absolute path)
 
@@ -369,6 +377,7 @@ class RawShellClient:
             "v1/shell/sessions/create",
             method="POST",
             json={
+                "id": id,
                 "exec_dir": exec_dir,
             },
             headers={
@@ -881,13 +890,21 @@ class AsyncRawShellClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create_session(
-        self, *, exec_dir: typing.Optional[str] = OMIT, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        id: typing.Optional[str] = OMIT,
+        exec_dir: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseShellCreateSessionResponse]:
         """
         Create a new shell session and return its ID
+        If id already exists, return the existing session
 
         Parameters
         ----------
+        id : typing.Optional[str]
+            Unique identifier for the shell session, auto-generated if not provided
+
         exec_dir : typing.Optional[str]
             Working directory for the new session (must use absolute path)
 
@@ -903,6 +920,7 @@ class AsyncRawShellClient:
             "v1/shell/sessions/create",
             method="POST",
             json={
+                "id": id,
                 "exec_dir": exec_dir,
             },
             headers={

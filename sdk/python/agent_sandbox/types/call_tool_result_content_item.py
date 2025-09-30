@@ -9,6 +9,7 @@ import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ..core.serialization import FieldMetadata
 from .annotations import Annotations
+from .icon import Icon
 from .resource import Resource
 
 
@@ -76,6 +77,7 @@ class CallToolResultContentItem_ResourceLink(UniversalBaseModel):
     description: typing.Optional[str] = None
     mime_type: typing_extensions.Annotated[typing.Optional[str], FieldMetadata(alias="mimeType")] = None
     size: typing.Optional[int] = None
+    icons: typing.Optional[typing.List[Icon]] = None
     annotations: typing.Optional[Annotations] = None
     meta: typing_extensions.Annotated[
         typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]], FieldMetadata(alias="_meta")

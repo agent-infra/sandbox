@@ -283,16 +283,28 @@ if __name__ == "__main__":
 ```yaml
 version: '3.8'
 services:
-  aio-sandbox:
+  sandbox:
+    container_name: aio-sandbox
     image: ghcr.io/agent-infra/sandbox:latest
-    ports:
-      - "8080:8080"
     volumes:
-      - sandbox_data:/workspace
+      - /tmp/gem/vite-project:/home/gem/vite-project
+    security_opt:
+      - seccomp:unconfined
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: "unless-stopped"
+    shm_size: "2gb"
+    ports:
+      - "${HOST_PORT:-8080}:8080"
     environment:
-      - SANDBOX_MEMORY_LIMIT=2g
-      - SANDBOX_CPU_LIMIT=1000m
-    restart: unless-stopped
+      PROXY_SERVER: ${PROXY_SERVER:-host.docker.internal:7890}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:-}
+      DNS_OVER_HTTPS_TEMPLATES: ${DNS_OVER_HTTPS_TEMPLATES:-}
+      WORKSPACE: ${WORKSPACE:-"/home/gem"}
+      HOMEPAGE: ${HOMEPAGE:-}
+      BROWSER_EXTRA_ARGS: ${BROWSER_EXTRA_ARGS:-}
+      TZ: ${TZ:-Asia/Singapore}
+      WAIT_PORTS: ${WAIT_PORTS:-}
 ```
 
 ### Kubernetes
