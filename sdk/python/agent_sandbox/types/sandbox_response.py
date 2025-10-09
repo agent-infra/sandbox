@@ -17,7 +17,11 @@ class SandboxResponse(UniversalBaseModel):
     Operation result message
     """
 
-    data: typing.Optional[typing.Optional[typing.Any]] = None
+    data: typing.Optional[typing.Optional[typing.Any]] = pydantic.Field(default=None)
+    """
+    Data returned from the operation
+    """
+
     home_dir: str
     version: str
 

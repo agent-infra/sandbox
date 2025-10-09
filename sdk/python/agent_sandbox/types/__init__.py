@@ -27,6 +27,9 @@ if typing.TYPE_CHECKING:
         CallToolResultContentItem_Text,
     )
     from .click_action import ClickAction
+    from .code_execute_response import CodeExecuteResponse
+    from .code_info_response import CodeInfoResponse
+    from .code_language_info import CodeLanguageInfo
     from .console_record import ConsoleRecord
     from .double_click_action import DoubleClickAction
     from .drag_rel_action import DragRelAction
@@ -50,6 +53,7 @@ if typing.TYPE_CHECKING:
     from .jupyter_output import JupyterOutput
     from .key_down_action import KeyDownAction
     from .key_up_action import KeyUpAction
+    from .language import Language
     from .list_tools_result import ListToolsResult
     from .mouse_down_action import MouseDownAction
     from .mouse_up_action import MouseUpAction
@@ -58,9 +62,7 @@ if typing.TYPE_CHECKING:
     from .node_js_execute_response import NodeJsExecuteResponse
     from .node_js_output import NodeJsOutput
     from .node_js_runtime_info import NodeJsRuntimeInfo
-    from .ping_body import PingBody
     from .press_action import PressAction
-    from .resolution import Resolution
     from .resource import Resource
     from .resource_link import ResourceLink
     from .response import Response
@@ -68,6 +70,8 @@ if typing.TYPE_CHECKING:
     from .response_active_shell_sessions_result import ResponseActiveShellSessionsResult
     from .response_browser_info_result import ResponseBrowserInfoResult
     from .response_call_tool_result import ResponseCallToolResult
+    from .response_code_execute_response import ResponseCodeExecuteResponse
+    from .response_code_info_response import ResponseCodeInfoResponse
     from .response_file_find_result import ResponseFileFindResult
     from .response_file_list_result import ResponseFileListResult
     from .response_file_read_result import ResponseFileReadResult
@@ -129,6 +133,9 @@ _dynamic_imports: typing.Dict[str, str] = {
     "CallToolResultContentItem_ResourceLink": ".call_tool_result_content_item",
     "CallToolResultContentItem_Text": ".call_tool_result_content_item",
     "ClickAction": ".click_action",
+    "CodeExecuteResponse": ".code_execute_response",
+    "CodeInfoResponse": ".code_info_response",
+    "CodeLanguageInfo": ".code_language_info",
     "ConsoleRecord": ".console_record",
     "DoubleClickAction": ".double_click_action",
     "DragRelAction": ".drag_rel_action",
@@ -152,6 +159,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "JupyterOutput": ".jupyter_output",
     "KeyDownAction": ".key_down_action",
     "KeyUpAction": ".key_up_action",
+    "Language": ".language",
     "ListToolsResult": ".list_tools_result",
     "MouseDownAction": ".mouse_down_action",
     "MouseUpAction": ".mouse_up_action",
@@ -160,9 +168,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "NodeJsExecuteResponse": ".node_js_execute_response",
     "NodeJsOutput": ".node_js_output",
     "NodeJsRuntimeInfo": ".node_js_runtime_info",
-    "PingBody": ".ping_body",
     "PressAction": ".press_action",
-    "Resolution": ".resolution",
     "Resource": ".resource",
     "ResourceLink": ".resource_link",
     "Response": ".response",
@@ -170,6 +176,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseActiveShellSessionsResult": ".response_active_shell_sessions_result",
     "ResponseBrowserInfoResult": ".response_browser_info_result",
     "ResponseCallToolResult": ".response_call_tool_result",
+    "ResponseCodeExecuteResponse": ".response_code_execute_response",
+    "ResponseCodeInfoResponse": ".response_code_info_response",
     "ResponseFileFindResult": ".response_file_find_result",
     "ResponseFileListResult": ".response_file_list_result",
     "ResponseFileReadResult": ".response_file_read_result",
@@ -253,6 +261,9 @@ __all__ = [
     "CallToolResultContentItem_ResourceLink",
     "CallToolResultContentItem_Text",
     "ClickAction",
+    "CodeExecuteResponse",
+    "CodeInfoResponse",
+    "CodeLanguageInfo",
     "ConsoleRecord",
     "DoubleClickAction",
     "DragRelAction",
@@ -276,6 +287,7 @@ __all__ = [
     "JupyterOutput",
     "KeyDownAction",
     "KeyUpAction",
+    "Language",
     "ListToolsResult",
     "MouseDownAction",
     "MouseUpAction",
@@ -284,9 +296,7 @@ __all__ = [
     "NodeJsExecuteResponse",
     "NodeJsOutput",
     "NodeJsRuntimeInfo",
-    "PingBody",
     "PressAction",
-    "Resolution",
     "Resource",
     "ResourceLink",
     "Response",
@@ -294,6 +304,8 @@ __all__ = [
     "ResponseActiveShellSessionsResult",
     "ResponseBrowserInfoResult",
     "ResponseCallToolResult",
+    "ResponseCodeExecuteResponse",
+    "ResponseCodeInfoResponse",
     "ResponseFileFindResult",
     "ResponseFileListResult",
     "ResponseFileReadResult",

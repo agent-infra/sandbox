@@ -4,17 +4,23 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .resolution import Resolution
+from .code_info_response import CodeInfoResponse
 
 
-class PingBody(UniversalBaseModel):
+class ResponseCodeInfoResponse(UniversalBaseModel):
+    success: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Represents the body of a ping request to the server.
+    Whether the operation was successful
     """
 
-    resolution: typing.Optional[Resolution] = pydantic.Field(default=None)
+    message: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The desired screen resolution.
+    Operation result message
+    """
+
+    data: typing.Optional[CodeInfoResponse] = pydantic.Field(default=None)
+    """
+    Data returned from the operation
     """
 
     if IS_PYDANTIC_V2:

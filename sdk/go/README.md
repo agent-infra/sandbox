@@ -1,3 +1,3 @@
 # Go SDK
 
-Please refer to [https://github.com/agent-infra/sandbox-go-sdk](https://github.com/agent-infra/sandbox-go-sdk).
+Please refer to [https://github.com/agent-infra/sandbox-sdk-go](https://github.com/agent-infra/sandbox-sdk-go).

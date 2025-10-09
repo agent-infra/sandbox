@@ -3,13 +3,14 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.126"
+    "version": "1.0.0.127"
   },
   "paths": {
     "/v1/sandbox": {
       "get": {
         "tags": [
-          "sandbox"
+          "sandbox",
+          "sandbox_mcp"
         ],
         "summary": "Get Sandbox Context",
         "description": "Get sandbox environment information",
@@ -31,7 +32,8 @@
     "/v1/sandbox/packages/python": {
       "get": {
         "tags": [
-          "sandbox"
+          "sandbox",
+          "sandbox_mcp"
         ],
         "summary": "Python Packages",
         "description": "Get installed packages by language",
@@ -53,7 +55,8 @@
     "/v1/sandbox/packages/nodejs": {
       "get": {
         "tags": [
-          "sandbox"
+          "sandbox",
+          "sandbox_mcp"
         ],
         "summary": "Nodejs Packages",
         "description": "Get installed packages by language",
@@ -75,7 +78,8 @@
     "/v1/shell/exec": {
       "post": {
         "tags": [
-          "shell"
+          "shell",
+          "sandbox_mcp"
         ],
         "summary": "Exec Command",
         "description": "Execute command in the specified shell session\nSupports SSE streaming if Accept header contains 'text/event-stream'",
@@ -117,7 +121,8 @@
     "/v1/shell/view": {
       "post": {
         "tags": [
-          "shell"
+          "shell",
+          "sandbox_mcp"
         ],
         "summary": "View Shell",
         "description": "View output of the specified shell session\nSupports SSE streaming if Accept header contains 'text/event-stream'",
@@ -602,7 +607,8 @@
     "/v1/file/find": {
       "post": {
         "tags": [
-          "file"
+          "file",
+          "sandbox_mcp"
         ],
         "summary": "Find Files",
         "description": "Find files by name pattern",
@@ -727,7 +733,8 @@
     "/v1/file/list": {
       "post": {
         "tags": [
-          "file"
+          "file",
+          "sandbox_mcp"
         ],
         "summary": "List Path",
         "description": "List path contents with flexible options",
@@ -769,7 +776,8 @@
     "/v1/file/str_replace_editor": {
       "post": {
         "tags": [
-          "file"
+          "file",
+          "sandbox_mcp"
         ],
         "summary": "Str Replace Editor",
         "description": "An filesystem editor tool that allows the agent to\n- view\n- create\n- navigate\n- edit files\nThe tool parameters are defined by Anthropic and are not editable.",
@@ -1159,7 +1167,8 @@
     "/v1/browser/info": {
       "get": {
         "tags": [
-          "browser"
+          "browser",
+          "sandbox_mcp"
         ],
         "summary": "Get Browser Info",
         "description": "Get information about browser, like cdp url, viewport size, etc.",
@@ -1178,25 +1187,12 @@
         }
       }
     },
-    "/terminal": {
-      "get": {
-        "summary": "Serve Terminal",
-        "description": "Serve the terminal HTML page",
-        "operationId": "serve_terminal_terminal_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/browser/screenshot": {
       "get": {
+        "tags": [
+          "browser",
+          "sandbox_mcp"
+        ],
         "summary": "Take Screenshot",
         "description": "Take a screenshot of the current display.\n\nReturns:\n    StreamingResponse: PNG image data with proper headers including display and screenshot dimensions",
         "operationId": "take_screenshot",
@@ -1233,14 +1229,15 @@
               "image/png": {}
             }
           }
-        },
-        "tags": [
-          "browser"
-        ]
+        }
       }
     },
     "/v1/browser/actions": {
       "post": {
+        "tags": [
+          "browser",
+          "sandbox_mcp"
+        ],
         "summary": "Execute Action",
         "description": "Execute a validated action on the current display.",
         "operationId": "execute_action",
@@ -1346,15 +1343,114 @@
               }
             }
           }
-        },
+        }
+      }
+    },
+    "/v1/code/execute": {
+      "post": {
         "tags": [
-          "browser"
-        ]
+          "code",
+          "sandbox_mcp"
+        ],
+        "summary": "Execute Code",
+        "description": "Run code through the unified runtime, dispatching to Python, Node.js, or future language executors",
+        "operationId": "execute_code",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CodeExecuteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_CodeExecuteResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/code/info": {
+      "get": {
+        "tags": [
+          "code",
+          "sandbox_mcp"
+        ],
+        "summary": "Code Info",
+        "description": "Return metadata about supported code runtimes",
+        "operationId": "code_info",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_CodeInfoResponse_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/terminal": {
+      "get": {
+        "summary": "Serve Terminal",
+        "description": "Serve the terminal HTML page",
+        "operationId": "serve_terminal_terminal_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
       }
     }
   },
   "components": {
     "schemas": {
+      "ActionResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status"
+          },
+          "action_performed": {
+            "type": "string",
+            "title": "Action Performed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "action_performed"
+        ],
+        "title": "ActionResponse"
+      },
       "ActiveSessionsResult": {
         "properties": {
           "sessions": {
@@ -1667,6 +1763,237 @@
         "title": "CallToolResult",
         "description": "The server's response to a tool call."
       },
+      "ClickAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "CLICK",
+            "title": "Action Type",
+            "default": "CLICK"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Y"
+          },
+          "button": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right",
+              "middle"
+            ],
+            "title": "Button",
+            "default": "left"
+          },
+          "num_clicks": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "title": "Num Clicks",
+            "default": 1
+          }
+        },
+        "type": "object",
+        "title": "ClickAction"
+      },
+      "CodeExecuteRequest": {
+        "properties": {
+          "language": {
+            "$ref": "#/components/schemas/Language",
+            "description": "Target runtime language"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Source code to execute"
+          },
+          "timeout": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 300.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeout",
+            "description": "Execution timeout in seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "language",
+          "code"
+        ],
+        "title": "CodeExecuteRequest",
+        "description": "Unified code execution request model"
+      },
+      "CodeExecuteResponse": {
+        "properties": {
+          "language": {
+            "$ref": "#/components/schemas/Language",
+            "description": "Runtime language that executed the code"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Execution status indicator"
+          },
+          "outputs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Outputs",
+            "description": "Structured execution outputs"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Echo of executed code"
+          },
+          "stdout": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stdout",
+            "description": "Captured standard output stream"
+          },
+          "stderr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stderr",
+            "description": "Captured standard error stream"
+          },
+          "exit_code": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exit Code",
+            "description": "Process exit code when applicable"
+          }
+        },
+        "type": "object",
+        "required": [
+          "language",
+          "status",
+          "code"
+        ],
+        "title": "CodeExecuteResponse",
+        "description": "Unified code execution response model"
+      },
+      "CodeInfoResponse": {
+        "properties": {
+          "languages": {
+            "items": {
+              "$ref": "#/components/schemas/CodeLanguageInfo"
+            },
+            "type": "array",
+            "title": "Languages",
+            "description": "List of supported languages and metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "languages"
+        ],
+        "title": "CodeInfoResponse",
+        "description": "Unified code information response"
+      },
+      "CodeLanguageInfo": {
+        "properties": {
+          "language": {
+            "$ref": "#/components/schemas/Language",
+            "description": "Supported language identifier"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Human readable runtime description"
+          },
+          "runtime_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runtime Version",
+            "description": "Primary runtime version identifier"
+          },
+          "default_timeout": {
+            "type": "integer",
+            "maximum": 300.0,
+            "minimum": 1.0,
+            "title": "Default Timeout",
+            "description": "Default timeout in seconds",
+            "default": 30
+          },
+          "max_timeout": {
+            "type": "integer",
+            "maximum": 300.0,
+            "minimum": 1.0,
+            "title": "Max Timeout",
+            "description": "Maximum allowed timeout in seconds",
+            "default": 300
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details",
+            "description": "Additional runtime specific metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "language",
+          "description"
+        ],
+        "title": "CodeLanguageInfo",
+        "description": "Metadata about a supported code runtime"
+      },
       "ConsoleRecord": {
         "properties": {
           "ps1": {
@@ -1693,6 +2020,92 @@
         ],
         "title": "ConsoleRecord",
         "description": "Shell command console record model"
+      },
+      "DoubleClickAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "DOUBLE_CLICK",
+            "title": "Action Type",
+            "default": "DOUBLE_CLICK"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Y"
+          }
+        },
+        "type": "object",
+        "title": "DoubleClickAction"
+      },
+      "DragRelAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "DRAG_REL",
+            "title": "Action Type",
+            "default": "DRAG_REL"
+          },
+          "x_offset": {
+            "type": "number",
+            "title": "X Offset",
+            "description": "Relative current position x-axis drag movement"
+          },
+          "y_offset": {
+            "type": "number",
+            "title": "Y Offset",
+            "description": "Relative current position y-axis drag movement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "x_offset",
+          "y_offset"
+        ],
+        "title": "DragRelAction"
+      },
+      "DragToAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "DRAG_TO",
+            "title": "Action Type",
+            "default": "DRAG_TO"
+          },
+          "x": {
+            "type": "number",
+            "title": "X",
+            "description": "Target x-coordinate for drag"
+          },
+          "y": {
+            "type": "number",
+            "title": "Y",
+            "description": "Target y-coordinate for drag"
+          }
+        },
+        "type": "object",
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "DragToAction"
       },
       "EmbeddedResource": {
         "properties": {
@@ -2389,6 +2802,29 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HotkeyAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "HOTKEY",
+            "title": "Action Type",
+            "default": "HOTKEY"
+          },
+          "keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Keys"
+          }
+        },
+        "type": "object",
+        "required": [
+          "keys"
+        ],
+        "title": "HotkeyAction"
+      },
       "Icon": {
         "properties": {
           "src": {
@@ -2409,7 +2845,10 @@
           "sizes": {
             "anyOf": [
               {
-                "type": "string"
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
               },
               {
                 "type": "null"
@@ -2765,6 +3204,53 @@
         "title": "JupyterOutput",
         "description": "Jupyter execution output model"
       },
+      "KeyDownAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "KEY_DOWN",
+            "title": "Action Type",
+            "default": "KEY_DOWN"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "title": "KeyDownAction"
+      },
+      "KeyUpAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "KEY_UP",
+            "title": "Action Type",
+            "default": "KEY_UP"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "title": "KeyUpAction"
+      },
+      "Language": {
+        "type": "string",
+        "enum": [
+          "python",
+          "javascript"
+        ],
+        "title": "Language",
+        "description": "Supported programming languages for code execution"
+      },
       "ListToolsResult": {
         "properties": {
           "_meta": {
@@ -2805,6 +3291,102 @@
         ],
         "title": "ListToolsResult",
         "description": "The server's response to a tools/list request from the client."
+      },
+      "MouseDownAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "MOUSE_DOWN",
+            "title": "Action Type",
+            "default": "MOUSE_DOWN"
+          },
+          "button": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right",
+              "middle"
+            ],
+            "title": "Button",
+            "default": "left"
+          }
+        },
+        "type": "object",
+        "title": "MouseDownAction"
+      },
+      "MouseUpAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "MOUSE_UP",
+            "title": "Action Type",
+            "default": "MOUSE_UP"
+          },
+          "button": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right",
+              "middle"
+            ],
+            "title": "Button",
+            "default": "left"
+          }
+        },
+        "type": "object",
+        "title": "MouseUpAction"
+      },
+      "MoveRelAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "MOVE_REL",
+            "title": "Action Type",
+            "default": "MOVE_REL"
+          },
+          "x_offset": {
+            "type": "number",
+            "title": "X Offset",
+            "description": "Relative current position x-axis movement"
+          },
+          "y_offset": {
+            "type": "number",
+            "title": "Y Offset",
+            "description": "Relative current position y-axis movement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "x_offset",
+          "y_offset"
+        ],
+        "title": "MoveRelAction"
+      },
+      "MoveToAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "MOVE_TO",
+            "title": "Action Type",
+            "default": "MOVE_TO"
+          },
+          "x": {
+            "type": "number",
+            "title": "X",
+            "description": "Target x-coordinate"
+          },
+          "y": {
+            "type": "number",
+            "title": "Y",
+            "description": "Target y-coordinate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "MoveToAction"
       },
       "NodeJSExecuteRequest": {
         "properties": {
@@ -3090,6 +3672,25 @@
         ],
         "title": "NodeJSRuntimeInfo",
         "description": "NodeJS runtime information model"
+      },
+      "PressAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "PRESS",
+            "title": "Action Type",
+            "default": "PRESS"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "title": "PressAction"
       },
       "ResourceLink": {
         "properties": {
@@ -3378,6 +3979,78 @@
         },
         "type": "object",
         "title": "Response[CallToolResult]"
+      },
+      "Response_CodeExecuteResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CodeExecuteResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[CodeExecuteResponse]"
+      },
+      "Response_CodeInfoResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CodeInfoResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[CodeInfoResponse]"
       },
       "Response_FileFindResult_": {
         "properties": {
@@ -4140,6 +4813,40 @@
         "type": "object",
         "title": "Response[str]"
       },
+      "RightClickAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "RIGHT_CLICK",
+            "title": "Action Type",
+            "default": "RIGHT_CLICK"
+          },
+          "x": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X"
+          },
+          "y": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Y"
+          }
+        },
+        "type": "object",
+        "title": "RightClickAction"
+      },
       "SandboxResponse": {
         "properties": {
           "success": {
@@ -4186,6 +4893,28 @@
           "version"
         ],
         "title": "SandboxResponse"
+      },
+      "ScrollAction": {
+        "properties": {
+          "action_type": {
+            "type": "string",
+            "const": "SCROLL",
+            "title": "Action Type",
+            "default": "SCROLL"
+          },
+          "dx": {
+            "type": "integer",
+            "title": "Dx",
+            "default": 0
+          },
+          "dy": {
+            "type": "integer",
+            "title": "Dy",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "ScrollAction"
       },
       "SessionInfo": {
         "properties": {
@@ -5016,470 +5745,6 @@
         "title": "ToolAnnotations",
         "description": "Additional properties describing a Tool to clients.\n\nNOTE: all properties in ToolAnnotations are **hints**.\nThey are not guaranteed to provide a faithful description of\ntool behavior (including descriptive properties like `title`).\n\nClients should never make tool use decisions based on ToolAnnotations\nreceived from untrusted servers."
       },
-      "ValidationError": {
-        "properties": {
-          "loc": {
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                }
-              ]
-            },
-            "type": "array",
-            "title": "Location"
-          },
-          "msg": {
-            "type": "string",
-            "title": "Message"
-          },
-          "type": {
-            "type": "string",
-            "title": "Error Type"
-          }
-        },
-        "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
-        "title": "ValidationError"
-      },
-      "ActionResponse": {
-        "properties": {
-          "status": {
-            "type": "string",
-            "const": "success",
-            "title": "Status"
-          },
-          "action_performed": {
-            "type": "string",
-            "title": "Action Performed"
-          }
-        },
-        "type": "object",
-        "required": [
-          "status",
-          "action_performed"
-        ],
-        "title": "ActionResponse"
-      },
-      "ClickAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "CLICK",
-            "title": "Action Type",
-            "default": "CLICK"
-          },
-          "x": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "X"
-          },
-          "y": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Y"
-          },
-          "button": {
-            "type": "string",
-            "enum": [
-              "left",
-              "right",
-              "middle"
-            ],
-            "title": "Button",
-            "default": "left"
-          },
-          "num_clicks": {
-            "type": "integer",
-            "enum": [
-              1,
-              2,
-              3
-            ],
-            "title": "Num Clicks",
-            "default": 1
-          }
-        },
-        "type": "object",
-        "title": "ClickAction"
-      },
-      "DoubleClickAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "DOUBLE_CLICK",
-            "title": "Action Type",
-            "default": "DOUBLE_CLICK"
-          },
-          "x": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "X"
-          },
-          "y": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Y"
-          }
-        },
-        "type": "object",
-        "title": "DoubleClickAction"
-      },
-      "DragRelAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "DRAG_REL",
-            "title": "Action Type",
-            "default": "DRAG_REL"
-          },
-          "x_offset": {
-            "type": "number",
-            "title": "X Offset",
-            "description": "Relative current position x-axis drag movement"
-          },
-          "y_offset": {
-            "type": "number",
-            "title": "Y Offset",
-            "description": "Relative current position y-axis drag movement"
-          }
-        },
-        "type": "object",
-        "required": [
-          "x_offset",
-          "y_offset"
-        ],
-        "title": "DragRelAction"
-      },
-      "DragToAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "DRAG_TO",
-            "title": "Action Type",
-            "default": "DRAG_TO"
-          },
-          "x": {
-            "type": "number",
-            "title": "X",
-            "description": "Target x-coordinate for drag"
-          },
-          "y": {
-            "type": "number",
-            "title": "Y",
-            "description": "Target y-coordinate for drag"
-          }
-        },
-        "type": "object",
-        "required": [
-          "x",
-          "y"
-        ],
-        "title": "DragToAction"
-      },
-      "HotkeyAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "HOTKEY",
-            "title": "Action Type",
-            "default": "HOTKEY"
-          },
-          "keys": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "minItems": 1,
-            "title": "Keys"
-          }
-        },
-        "type": "object",
-        "required": [
-          "keys"
-        ],
-        "title": "HotkeyAction"
-      },
-      "KeyDownAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "KEY_DOWN",
-            "title": "Action Type",
-            "default": "KEY_DOWN"
-          },
-          "key": {
-            "type": "string",
-            "title": "Key"
-          }
-        },
-        "type": "object",
-        "required": [
-          "key"
-        ],
-        "title": "KeyDownAction"
-      },
-      "KeyUpAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "KEY_UP",
-            "title": "Action Type",
-            "default": "KEY_UP"
-          },
-          "key": {
-            "type": "string",
-            "title": "Key"
-          }
-        },
-        "type": "object",
-        "required": [
-          "key"
-        ],
-        "title": "KeyUpAction"
-      },
-      "MouseDownAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "MOUSE_DOWN",
-            "title": "Action Type",
-            "default": "MOUSE_DOWN"
-          },
-          "button": {
-            "type": "string",
-            "enum": [
-              "left",
-              "right",
-              "middle"
-            ],
-            "title": "Button",
-            "default": "left"
-          }
-        },
-        "type": "object",
-        "title": "MouseDownAction"
-      },
-      "MouseUpAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "MOUSE_UP",
-            "title": "Action Type",
-            "default": "MOUSE_UP"
-          },
-          "button": {
-            "type": "string",
-            "enum": [
-              "left",
-              "right",
-              "middle"
-            ],
-            "title": "Button",
-            "default": "left"
-          }
-        },
-        "type": "object",
-        "title": "MouseUpAction"
-      },
-      "MoveRelAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "MOVE_REL",
-            "title": "Action Type",
-            "default": "MOVE_REL"
-          },
-          "x_offset": {
-            "type": "number",
-            "title": "X Offset",
-            "description": "Relative current position x-axis movement"
-          },
-          "y_offset": {
-            "type": "number",
-            "title": "Y Offset",
-            "description": "Relative current position y-axis movement"
-          }
-        },
-        "type": "object",
-        "required": [
-          "x_offset",
-          "y_offset"
-        ],
-        "title": "MoveRelAction"
-      },
-      "MoveToAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "MOVE_TO",
-            "title": "Action Type",
-            "default": "MOVE_TO"
-          },
-          "x": {
-            "type": "number",
-            "title": "X",
-            "description": "Target x-coordinate"
-          },
-          "y": {
-            "type": "number",
-            "title": "Y",
-            "description": "Target y-coordinate"
-          }
-        },
-        "type": "object",
-        "required": [
-          "x",
-          "y"
-        ],
-        "title": "MoveToAction"
-      },
-      "PingBody": {
-        "properties": {
-          "resolution": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/Resolution"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "The desired screen resolution."
-          }
-        },
-        "type": "object",
-        "title": "PingBody",
-        "description": "Represents the body of a ping request to the server."
-      },
-      "PressAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "PRESS",
-            "title": "Action Type",
-            "default": "PRESS"
-          },
-          "key": {
-            "type": "string",
-            "title": "Key"
-          }
-        },
-        "type": "object",
-        "required": [
-          "key"
-        ],
-        "title": "PressAction"
-      },
-      "Resolution": {
-        "properties": {
-          "width": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Width",
-            "description": "Screen width in pixels."
-          },
-          "height": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Height",
-            "description": "Screen height in pixels."
-          }
-        },
-        "type": "object",
-        "required": [
-          "width",
-          "height"
-        ],
-        "title": "Resolution"
-      },
-      "RightClickAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "RIGHT_CLICK",
-            "title": "Action Type",
-            "default": "RIGHT_CLICK"
-          },
-          "x": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "X"
-          },
-          "y": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Y"
-          }
-        },
-        "type": "object",
-        "title": "RightClickAction"
-      },
-      "ScrollAction": {
-        "properties": {
-          "action_type": {
-            "type": "string",
-            "const": "SCROLL",
-            "title": "Action Type",
-            "default": "SCROLL"
-          },
-          "dx": {
-            "type": "integer",
-            "title": "Dx",
-            "default": 0
-          },
-          "dy": {
-            "type": "integer",
-            "title": "Dy",
-            "default": 0
-          }
-        },
-        "type": "object",
-        "title": "ScrollAction"
-      },
       "TypingAction": {
         "properties": {
           "action_type": {
@@ -5512,6 +5777,39 @@
           "text"
         ],
         "title": "TypingAction"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
       },
       "WaitAction": {
         "properties": {

@@ -12,5 +12,6 @@ doc_build/
 .vscode/*
 !.vscode/extensions.json
 .idea
+.history
 
 CLAUDE.md

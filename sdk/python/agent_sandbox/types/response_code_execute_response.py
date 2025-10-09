@@ -4,17 +4,23 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .code_execute_response import CodeExecuteResponse
 
 
-class Resolution(UniversalBaseModel):
-    width: int = pydantic.Field()
+class ResponseCodeExecuteResponse(UniversalBaseModel):
+    success: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Screen width in pixels.
+    Whether the operation was successful
     """
 
-    height: int = pydantic.Field()
+    message: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Screen height in pixels.
+    Operation result message
+    """
+
+    data: typing.Optional[CodeExecuteResponse] = pydantic.Field(default=None)
+    """
+    Data returned from the operation
     """
 
     if IS_PYDANTIC_V2:

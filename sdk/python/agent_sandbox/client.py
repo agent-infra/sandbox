@@ -11,6 +11,7 @@ from .raw_client import AsyncRawSandbox, RawSandbox
 
 if typing.TYPE_CHECKING:
     from .browser.client import AsyncBrowserClient, BrowserClient
+    from .code.client import AsyncCodeClient, CodeClient
     from .file.client import AsyncFileClient, FileClient
     from .jupyter.client import AsyncJupyterClient, JupyterClient
     from .mcp.client import AsyncMcpClient, McpClient
@@ -79,6 +80,7 @@ class Sandbox:
         self._nodejs: typing.Optional[NodejsClient] = None
         self._mcp: typing.Optional[McpClient] = None
         self._browser: typing.Optional[BrowserClient] = None
+        self._code: typing.Optional[CodeClient] = None
 
     @property
     def with_raw_response(self) -> RawSandbox:
@@ -175,6 +177,14 @@ class Sandbox:
             self._browser = BrowserClient(client_wrapper=self._client_wrapper)
         return self._browser
 
+    @property
+    def code(self):
+        if self._code is None:
+            from .code.client import CodeClient  # noqa: E402
+
+            self._code = CodeClient(client_wrapper=self._client_wrapper)
+        return self._code
+
 
 class AsyncSandbox:
     """
@@ -236,6 +246,7 @@ class AsyncSandbox:
         self._nodejs: typing.Optional[AsyncNodejsClient] = None
         self._mcp: typing.Optional[AsyncMcpClient] = None
         self._browser: typing.Optional[AsyncBrowserClient] = None
+        self._code: typing.Optional[AsyncCodeClient] = None
 
     @property
     def with_raw_response(self) -> AsyncRawSandbox:
@@ -339,3 +350,11 @@ class AsyncSandbox:
 
             self._browser = AsyncBrowserClient(client_wrapper=self._client_wrapper)
         return self._browser
+
+    @property
+    def code(self):
+        if self._code is None:
+            from .code.client import AsyncCodeClient  # noqa: E402
+
+            self._code = AsyncCodeClient(client_wrapper=self._client_wrapper)
+        return self._code

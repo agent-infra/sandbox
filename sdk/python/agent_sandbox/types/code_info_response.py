@@ -4,26 +4,17 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .code_language_info import CodeLanguageInfo
 
 
-class Response(UniversalBaseModel):
+class CodeInfoResponse(UniversalBaseModel):
     """
-    Generic response model for API interface return results
-    """
-
-    success: typing.Optional[bool] = pydantic.Field(default=None)
-    """
-    Whether the operation was successful
+    Unified code information response
     """
 
-    message: typing.Optional[str] = pydantic.Field(default=None)
+    languages: typing.List[CodeLanguageInfo] = pydantic.Field()
     """
-    Operation result message
-    """
-
-    data: typing.Optional[typing.Optional[typing.Any]] = pydantic.Field(default=None)
-    """
-    Data returned from the operation
+    List of supported languages and metadata
     """
 
     if IS_PYDANTIC_V2:
