@@ -105,7 +105,7 @@ class RawShellClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def view_shell(
+    def view(
         self, *, id: str, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResponseShellViewResult]:
         """
@@ -648,7 +648,7 @@ class AsyncRawShellClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def view_shell(
+    async def view(
         self, *, id: str, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResponseShellViewResult]:
         """

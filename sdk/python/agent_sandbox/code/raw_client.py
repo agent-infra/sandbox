@@ -92,7 +92,7 @@ class RawCodeClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def info(
+    def get_info(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResponseCodeInfoResponse]:
         """
@@ -203,7 +203,7 @@ class AsyncRawCodeClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def info(
+    async def get_info(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResponseCodeInfoResponse]:
         """

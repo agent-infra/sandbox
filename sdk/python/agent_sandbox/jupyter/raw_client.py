@@ -24,7 +24,7 @@ class RawJupyterClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def execute_jupyter_code(
+    def execute_code(
         self,
         *,
         code: str,
@@ -104,7 +104,7 @@ class RawJupyterClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def info(
+    def get_info(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResponseJupyterInfoResponse]:
         """
@@ -176,9 +176,7 @@ class RawJupyterClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def cleanup_all_sessions(
-        self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[Response]:
+    def delete_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
         """
         Cleanup all active sessions
 
@@ -212,7 +210,7 @@ class RawJupyterClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def cleanup_session(
+    def delete_session(
         self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[Response]:
         """
@@ -266,7 +264,7 @@ class AsyncRawJupyterClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def execute_jupyter_code(
+    async def execute_code(
         self,
         *,
         code: str,
@@ -346,7 +344,7 @@ class AsyncRawJupyterClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def info(
+    async def get_info(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResponseJupyterInfoResponse]:
         """
@@ -418,7 +416,7 @@ class AsyncRawJupyterClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def cleanup_all_sessions(
+    async def delete_sessions(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Response]:
         """
@@ -454,7 +452,7 @@ class AsyncRawJupyterClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def cleanup_session(
+    async def delete_session(
         self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Response]:
         """

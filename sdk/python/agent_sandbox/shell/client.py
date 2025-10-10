@@ -85,9 +85,7 @@ class ShellClient:
         )
         return _response.data
 
-    def view_shell(
-        self, *, id: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> ResponseShellViewResult:
+    def view(self, *, id: str, request_options: typing.Optional[RequestOptions] = None) -> ResponseShellViewResult:
         """
         View output of the specified shell session
         Supports SSE streaming if Accept header contains 'text/event-stream'
@@ -112,11 +110,11 @@ class ShellClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.shell.view_shell(
+        client.shell.view(
             id="id",
         )
         """
-        _response = self._raw_client.view_shell(id=id, request_options=request_options)
+        _response = self._raw_client.view(id=id, request_options=request_options)
         return _response.data
 
     def wait_for_process(
@@ -455,7 +453,7 @@ class AsyncShellClient:
         )
         return _response.data
 
-    async def view_shell(
+    async def view(
         self, *, id: str, request_options: typing.Optional[RequestOptions] = None
     ) -> ResponseShellViewResult:
         """
@@ -487,14 +485,14 @@ class AsyncShellClient:
 
 
         async def main() -> None:
-            await client.shell.view_shell(
+            await client.shell.view(
                 id="id",
             )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.view_shell(id=id, request_options=request_options)
+        _response = await self._raw_client.view(id=id, request_options=request_options)
         return _response.data
 
     async def wait_for_process(

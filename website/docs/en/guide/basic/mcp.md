@@ -30,11 +30,6 @@ MCP (Model Context Protocol) is a standardized way for AI agents to interact wit
 - **Features**: Document conversion, markdown processing
 - **Use Cases**: Documentation generation, content transformation
 
-### Arxiv Server
-- **Endpoint**: Included in `/mcp`
-- **Features**: Academic paper search and retrieval
-- **Use Cases**: Research assistance, literature review
-
 ## Accessing MCP Services
 
 ### HTTP Endpoint
@@ -119,11 +114,6 @@ const result = await callMCPTool('file_read', {
 - `markitdown_convert` - Convert documents to markdown
 - `markitdown_extract` - Extract content from documents
 
-### Research Tools
-- `arxiv_search` - Search academic papers
-- `arxiv_download` - Download papers
-- `arxiv_summary` - Get paper summaries
-
 ## Agent Integration Patterns
 
 ### Basic Agent Setup
@@ -173,47 +163,6 @@ class MCPAgent:
             "content": content,
             "saved_to": "/tmp/content.txt"
         }
-```
-
-### Multi-Tool Workflow
-
-```python
-async def research_workflow(agent, topic):
-    """Research workflow using multiple MCP tools"""
-
-    # 1. Search for academic papers
-    papers = await agent.call_tool("arxiv_search", query=topic, max_results=5)
-
-    # 2. Create research directory
-    await agent.call_tool("terminal_execute",
-                         command=f"mkdir -p /workspace/research/{topic}")
-
-    # 3. Download and process papers
-    for paper in papers["results"]:
-        # Download paper
-        pdf_path = await agent.call_tool("arxiv_download",
-                                       paper_id=paper["id"],
-                                       save_path=f"/workspace/research/{topic}/")
-
-        # Convert to markdown
-        markdown = await agent.call_tool("markitdown_convert",
-                                       file_path=pdf_path)
-
-        # Save markdown version
-        await agent.call_tool("file_write",
-                             path=f"/workspace/research/{topic}/{paper['id']}.md",
-                             content=markdown["content"])
-
-    # 4. Create summary
-    summary_path = f"/workspace/research/{topic}/summary.md"
-    await agent.call_tool("file_write",
-                         path=summary_path,
-                         content=f"# Research Summary: {topic}\n\n...")
-
-    return {
-        "papers_downloaded": len(papers["results"]),
-        "summary_path": summary_path
-    }
 ```
 
 ## Error Handling
@@ -344,7 +293,7 @@ class CachedMCPClient:
 ALLOWED_TOOLS = [
     'browser_navigate', 'browser_extract', 'browser_screenshot',
     'file_read', 'file_write', 'file_list',
-    'markitdown_convert', 'arxiv_search'
+    'markitdown_convert'
 ]
 
 RESTRICTED_TOOLS = [

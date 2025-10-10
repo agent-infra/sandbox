@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.127"
+    "version": "1.0.0.128"
   },
   "paths": {
     "/v1/sandbox": {
@@ -14,7 +14,7 @@
         ],
         "summary": "Get Sandbox Context",
         "description": "Get sandbox environment information",
-        "operationId": "get_sandbox_context",
+        "operationId": "get_context",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -26,7 +26,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "sandbox",
+        "x-fern-sdk-method-name": "get_context"
       }
     },
     "/v1/sandbox/packages/python": {
@@ -37,7 +39,7 @@
         ],
         "summary": "Python Packages",
         "description": "Get installed packages by language",
-        "operationId": "python_packages",
+        "operationId": "get_python_packages",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -49,7 +51,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "sandbox",
+        "x-fern-sdk-method-name": "get_python_packages"
       }
     },
     "/v1/sandbox/packages/nodejs": {
@@ -60,7 +64,7 @@
         ],
         "summary": "Nodejs Packages",
         "description": "Get installed packages by language",
-        "operationId": "nodejs_packages",
+        "operationId": "get_nodejs_packages",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -72,7 +76,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "sandbox",
+        "x-fern-sdk-method-name": "get_nodejs_packages"
       }
     },
     "/v1/shell/exec": {
@@ -115,7 +121,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "exec_command"
       }
     },
     "/v1/shell/view": {
@@ -158,7 +166,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "view"
       }
     },
     "/v1/shell/wait": {
@@ -200,7 +210,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "wait_for_process"
       }
     },
     "/v1/shell/write": {
@@ -242,7 +254,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "write_to_process"
       }
     },
     "/v1/shell/kill": {
@@ -252,7 +266,7 @@
         ],
         "summary": "Kill Process",
         "description": "Terminate the process in the specified shell session",
-        "operationId": "kill_process",
+        "operationId": "kill_shell_process",
         "requestBody": {
           "content": {
             "application/json": {
@@ -284,7 +298,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "kill_process"
       }
     },
     "/v1/shell/sessions/create": {
@@ -294,7 +310,7 @@
         ],
         "summary": "Create Session",
         "description": "Create a new shell session and return its ID\nIf id already exists, return the existing session",
-        "operationId": "create_session",
+        "operationId": "create_shell_session",
         "requestBody": {
           "content": {
             "application/json": {
@@ -326,7 +342,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "create_session"
       }
     },
     "/v1/shell/terminal-url": {
@@ -348,7 +366,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "get_terminal_url"
       }
     },
     "/v1/shell/sessions": {
@@ -358,7 +378,7 @@
         ],
         "summary": "List Sessions",
         "description": "List all active shell sessions",
-        "operationId": "list_sessions",
+        "operationId": "list_shell_sessions",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -370,7 +390,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "list_sessions"
       },
       "delete": {
         "tags": [
@@ -390,7 +412,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "cleanup_all_sessions"
       }
     },
     "/v1/shell/sessions/{session_id}": {
@@ -400,7 +424,7 @@
         ],
         "summary": "Cleanup Session",
         "description": "Manually cleanup a specific shell session",
-        "operationId": "cleanup_session",
+        "operationId": "cleanup_shell_session",
         "parameters": [
           {
             "name": "session_id",
@@ -433,7 +457,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "cleanup_session"
       }
     },
     "/v1/file/read": {
@@ -475,7 +501,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "read_file"
       }
     },
     "/v1/file/write": {
@@ -517,7 +545,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "write_file"
       }
     },
     "/v1/file/replace": {
@@ -559,7 +589,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "replace_in_file"
       }
     },
     "/v1/file/search": {
@@ -601,7 +633,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "search_in_file"
       }
     },
     "/v1/file/find": {
@@ -644,7 +678,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "find_files"
       }
     },
     "/v1/file/upload": {
@@ -686,7 +722,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "upload_file"
       }
     },
     "/v1/file/download": {
@@ -727,7 +765,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "download_file"
       }
     },
     "/v1/file/list": {
@@ -738,7 +778,7 @@
         ],
         "summary": "List Path",
         "description": "List path contents with flexible options",
-        "operationId": "list_path",
+        "operationId": "list_file_path",
         "requestBody": {
           "content": {
             "application/json": {
@@ -770,7 +810,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "list_path"
       }
     },
     "/v1/file/str_replace_editor": {
@@ -813,7 +855,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "str_replace_editor"
       }
     },
     "/v1/jupyter/execute": {
@@ -823,7 +867,7 @@
         ],
         "summary": "Execute Jupyter Code",
         "description": "Execute Python code using Jupyter kernel with session persistence\n\nThis endpoint allows you to execute Python code and get results back.\nYou can optionally specify a kernel_name (defaults to 'python3').\nUse session_id to maintain variable state across multiple requests.\nSessions automatically expire after 30 minutes of inactivity.",
-        "operationId": "execute_jupyter_code",
+        "operationId": "jupyter_execute_code",
         "requestBody": {
           "content": {
             "application/json": {
@@ -855,7 +899,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-method-name": "execute_code",
+        "x-fern-sdk-group-name": "jupyter"
       }
     },
     "/v1/jupyter/info": {
@@ -865,7 +911,7 @@
         ],
         "summary": "Jupyter Info",
         "description": "Get information about available Jupyter kernels",
-        "operationId": "jupyter_info",
+        "operationId": "get_jupyter_info",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -877,7 +923,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "jupyter",
+        "x-fern-sdk-method-name": "get_info"
       }
     },
     "/v1/jupyter/sessions": {
@@ -887,7 +935,7 @@
         ],
         "summary": "List Sessions",
         "description": "List all active Jupyter sessions",
-        "operationId": "list_sessions",
+        "operationId": "list_jupyter_sessions",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -899,7 +947,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "jupyter",
+        "x-fern-sdk-method-name": "list_sessions"
       },
       "delete": {
         "tags": [
@@ -907,7 +957,7 @@
         ],
         "summary": "Cleanup All Sessions",
         "description": "Cleanup all active sessions",
-        "operationId": "cleanup_all_sessions",
+        "operationId": "delete_jupyter_sessions",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -919,7 +969,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "jupyter",
+        "x-fern-sdk-method-name": "delete_sessions"
       }
     },
     "/v1/jupyter/sessions/{session_id}": {
@@ -929,7 +981,7 @@
         ],
         "summary": "Cleanup Session",
         "description": "Manually cleanup a specific session",
-        "operationId": "cleanup_session",
+        "operationId": "delete_jupyter_session",
         "parameters": [
           {
             "name": "session_id",
@@ -962,7 +1014,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "jupyter",
+        "x-fern-sdk-method-name": "delete_session"
       }
     },
     "/v1/nodejs/execute": {
@@ -1004,7 +1058,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "nodejs",
+        "x-fern-sdk-method-name": "execute_code"
       }
     },
     "/v1/nodejs/info": {
@@ -1014,7 +1070,7 @@
         ],
         "summary": "Nodejs Info",
         "description": "Get information about Node.js runtime and available languages",
-        "operationId": "nodejs_info",
+        "operationId": "get_nodejs_info",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1026,7 +1082,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "nodejs",
+        "x-fern-sdk-method-name": "get_info"
       }
     },
     "/v1/mcp/{server_name}/tools": {
@@ -1036,7 +1094,7 @@
         ],
         "summary": "List Mcp Tools",
         "description": "List all available tools from the specified MCP server\n\nArgs:\n    server_name: The name of the MCP server as defined in mcp-servers.json\n\nReturns:\n    Response containing the list of available tools with their descriptions and parameters",
-        "operationId": "list_mcp_tools",
+        "operationId": "list_mcp_tools_v1_mcp__server_name__tools_get",
         "parameters": [
           {
             "name": "server_name",
@@ -1081,7 +1139,7 @@
         ],
         "summary": "Execute Mcp Tool",
         "description": "Execute a specific tool on the specified MCP server\n\nArgs:\n    server_name: The name of the MCP server as defined in mcp-servers.json\n    tool_name: The name of the tool to execute\n    arguments: Tool arguments dictionary\n\nReturns:\n    Response containing the tool execution results",
-        "operationId": "execute_mcp_tool",
+        "operationId": "execute_mcp_tool_v1_mcp__server_name__tools__tool_name__post",
         "parameters": [
           {
             "name": "server_name",
@@ -1149,7 +1207,7 @@
         ],
         "summary": "List Mcp Servers",
         "description": "List all configured MCP servers\n\nReturns:\n    Response containing the list of configured and filtered MCP servers",
-        "operationId": "list_mcp_servers",
+        "operationId": "list_mcp_servers_v1_mcp_servers_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1184,7 +1242,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "browser",
+        "x-fern-sdk-method-name": "get_info"
       }
     },
     "/v1/browser/screenshot": {
@@ -1195,7 +1255,7 @@
         ],
         "summary": "Take Screenshot",
         "description": "Take a screenshot of the current display.\n\nReturns:\n    StreamingResponse: PNG image data with proper headers including display and screenshot dimensions",
-        "operationId": "take_screenshot",
+        "operationId": "browser_screenshot",
         "responses": {
           "200": {
             "description": "Screenshot image",
@@ -1229,7 +1289,9 @@
               "image/png": {}
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "browser",
+        "x-fern-sdk-method-name": "screenshot"
       }
     },
     "/v1/browser/actions": {
@@ -1240,7 +1302,7 @@
         ],
         "summary": "Execute Action",
         "description": "Execute a validated action on the current display.",
-        "operationId": "execute_action",
+        "operationId": "browser_execute_action",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1343,7 +1405,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "browser",
+        "x-fern-sdk-method-name": "execute_action"
       }
     },
     "/v1/code/execute": {
@@ -1386,7 +1450,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "code",
+        "x-fern-sdk-method-name": "execute_code"
       }
     },
     "/v1/code/info": {
@@ -1397,7 +1463,7 @@
         ],
         "summary": "Code Info",
         "description": "Return metadata about supported code runtimes",
-        "operationId": "code_info",
+        "operationId": "get_code_info",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1409,7 +1475,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "code",
+        "x-fern-sdk-method-name": "get_info"
       }
     },
     "/terminal": {

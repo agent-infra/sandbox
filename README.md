@@ -182,7 +182,6 @@ Pre-configured Model Context Protocol servers:
 - **File** - File system operations
 - **Shell** - Command execution
 - **Markitdown** - Document processing
-- **Arxiv** - Research paper access
 
 <p align="center">
   <img src="website/docs/public/images/mcp.png" alt="MCP Integration" width="600"/>
@@ -274,7 +273,6 @@ if __name__ == "__main__":
 | `file` | `read`, `write`, `list`, `search`, `replace` |
 | `shell` | `exec`, `create_session`, `kill` |
 | `markitdown` | `convert`, `extract_text`, `extract_images` |
-| `arxiv` | `search`, `get_paper`, `download_pdf` |
 
 ## 🚢 Deployment
 

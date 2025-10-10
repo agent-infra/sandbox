@@ -55,7 +55,7 @@ Isolated Python and Node.js sandboxes. Safe code execution without system risks.
 Agent-Ready
 -----------
 
-MCP Hub at /mcp with Browser, File, Terminal, Markitdown, Arxiv. Plug and play for AI agents.
+MCP Hub at /mcp with Browser, File, Terminal, Markitdown. Plug and play for AI agents.
 
 🔧
 

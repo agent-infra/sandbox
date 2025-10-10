@@ -27,7 +27,7 @@ class NodejsClient:
         """
         return self._raw_client
 
-    def execute_nodejs_code(
+    def execute_code(
         self,
         *,
         code: str,
@@ -71,16 +71,16 @@ class NodejsClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.nodejs.execute_nodejs_code(
+        client.nodejs.execute_code(
             code="code",
         )
         """
-        _response = self._raw_client.execute_nodejs_code(
+        _response = self._raw_client.execute_code(
             code=code, timeout=timeout, stdin=stdin, files=files, request_options=request_options
         )
         return _response.data
 
-    def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseNodeJsRuntimeInfo:
+    def get_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseNodeJsRuntimeInfo:
         """
         Get information about Node.js runtime and available languages
 
@@ -101,9 +101,9 @@ class NodejsClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.nodejs.info()
+        client.nodejs.get_info()
         """
-        _response = self._raw_client.info(request_options=request_options)
+        _response = self._raw_client.get_info(request_options=request_options)
         return _response.data
 
 
@@ -122,7 +122,7 @@ class AsyncNodejsClient:
         """
         return self._raw_client
 
-    async def execute_nodejs_code(
+    async def execute_code(
         self,
         *,
         code: str,
@@ -171,19 +171,19 @@ class AsyncNodejsClient:
 
 
         async def main() -> None:
-            await client.nodejs.execute_nodejs_code(
+            await client.nodejs.execute_code(
                 code="code",
             )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.execute_nodejs_code(
+        _response = await self._raw_client.execute_code(
             code=code, timeout=timeout, stdin=stdin, files=files, request_options=request_options
         )
         return _response.data
 
-    async def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseNodeJsRuntimeInfo:
+    async def get_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseNodeJsRuntimeInfo:
         """
         Get information about Node.js runtime and available languages
 
@@ -209,10 +209,10 @@ class AsyncNodejsClient:
 
 
         async def main() -> None:
-            await client.nodejs.info()
+            await client.nodejs.get_info()
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.info(request_options=request_options)
+        _response = await self._raw_client.get_info(request_options=request_options)
         return _response.data

@@ -30,11 +30,6 @@ MCP（模型上下文协议）是 AI Agent 与外部工具和服务交互的标�
 - **功能**：文档转换、Markdown 处理
 - **用例**：文档生成、内容转换
 
-### Arxiv 服务器
-- **端点**：包含在 `/mcp` 中
-- **功能**：学术论文搜索和检索
-- **用例**：研究辅助、文献综述
-
 ## 访问 MCP 服务
 
 ### HTTP 端点
@@ -119,11 +114,6 @@ const result = await callMCPTool('file_read', {
 - `markitdown_convert` - 将文档转换为 Markdown
 - `markitdown_extract` - 从文档中提取内容
 
-### 研究工具
-- `arxiv_search` - 搜索学术论文
-- `arxiv_download` - 下载论文
-- `arxiv_summary` - 获取论文摘要
-
 ## Agent 集成模式
 
 ### 基本 Agent 设置
@@ -173,47 +163,6 @@ class MCPAgent:
             "content": content,
             "saved_to": "/tmp/content.txt"
         }
-```
-
-### 多工具工作流
-
-```python
-async def research_workflow(agent, topic):
-    """使用多个 MCP 工具的研究工作流"""
-
-    # 1. 搜索学术论文
-    papers = await agent.call_tool("arxiv_search", query=topic, max_results=5)
-
-    # 2. 创建研究目录
-    await agent.call_tool("terminal_execute",
-                         command=f"mkdir -p /workspace/research/{topic}")
-
-    # 3. 下载并处理论文
-    for paper in papers["results"]:
-        # 下载论文
-        pdf_path = await agent.call_tool("arxiv_download",
-                                       paper_id=paper["id"],
-                                       save_path=f"/workspace/research/{topic}/")
-
-        # 转换为 Markdown
-        markdown = await agent.call_tool("markitdown_convert",
-                                       file_path=pdf_path)
-
-        # 保存 Markdown 版本
-        await agent.call_tool("file_write",
-                             path=f"/workspace/research/{topic}/{paper['id']}.md",
-                             content=markdown["content"])
-
-    # 4. 创建摘要
-    summary_path = f"/workspace/research/{topic}/summary.md"
-    await agent.call_tool("file_write",
-                         path=summary_path,
-                         content=f"# 研究摘要：{topic}\n\n...")
-
-    return {
-        "papers_downloaded": len(papers["results"]),
-        "summary_path": summary_path
-    }
 ```
 
 ## 错误处理
@@ -344,7 +293,7 @@ class CachedMCPClient:
 ALLOWED_TOOLS = [
     'browser_navigate', 'browser_extract', 'browser_screenshot',
     'file_read', 'file_write', 'file_list',
-    'markitdown_convert', 'arxiv_search'
+    'markitdown_convert'
 ]
 
 RESTRICTED_TOOLS = [

@@ -24,7 +24,7 @@ class SandboxClient:
         """
         return self._raw_client
 
-    def get_sandbox_context(self, *, request_options: typing.Optional[RequestOptions] = None) -> SandboxResponse:
+    def get_context(self, *, request_options: typing.Optional[RequestOptions] = None) -> SandboxResponse:
         """
         Get sandbox environment information
 
@@ -45,12 +45,12 @@ class SandboxClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.sandbox.get_sandbox_context()
+        client.sandbox.get_context()
         """
-        _response = self._raw_client.get_sandbox_context(request_options=request_options)
+        _response = self._raw_client.get_context(request_options=request_options)
         return _response.data
 
-    def python_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    def get_python_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
         Get installed packages by language
 
@@ -71,12 +71,12 @@ class SandboxClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.sandbox.python_packages()
+        client.sandbox.get_python_packages()
         """
-        _response = self._raw_client.python_packages(request_options=request_options)
+        _response = self._raw_client.get_python_packages(request_options=request_options)
         return _response.data
 
-    def nodejs_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    def get_nodejs_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
         Get installed packages by language
 
@@ -97,9 +97,9 @@ class SandboxClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.sandbox.nodejs_packages()
+        client.sandbox.get_nodejs_packages()
         """
-        _response = self._raw_client.nodejs_packages(request_options=request_options)
+        _response = self._raw_client.get_nodejs_packages(request_options=request_options)
         return _response.data
 
 
@@ -118,7 +118,7 @@ class AsyncSandboxClient:
         """
         return self._raw_client
 
-    async def get_sandbox_context(self, *, request_options: typing.Optional[RequestOptions] = None) -> SandboxResponse:
+    async def get_context(self, *, request_options: typing.Optional[RequestOptions] = None) -> SandboxResponse:
         """
         Get sandbox environment information
 
@@ -144,15 +144,15 @@ class AsyncSandboxClient:
 
 
         async def main() -> None:
-            await client.sandbox.get_sandbox_context()
+            await client.sandbox.get_context()
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get_sandbox_context(request_options=request_options)
+        _response = await self._raw_client.get_context(request_options=request_options)
         return _response.data
 
-    async def python_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    async def get_python_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
         Get installed packages by language
 
@@ -178,15 +178,15 @@ class AsyncSandboxClient:
 
 
         async def main() -> None:
-            await client.sandbox.python_packages()
+            await client.sandbox.get_python_packages()
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.python_packages(request_options=request_options)
+        _response = await self._raw_client.get_python_packages(request_options=request_options)
         return _response.data
 
-    async def nodejs_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    async def get_nodejs_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
         Get installed packages by language
 
@@ -212,10 +212,10 @@ class AsyncSandboxClient:
 
 
         async def main() -> None:
-            await client.sandbox.nodejs_packages()
+            await client.sandbox.get_nodejs_packages()
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.nodejs_packages(request_options=request_options)
+        _response = await self._raw_client.get_nodejs_packages(request_options=request_options)
         return _response.data

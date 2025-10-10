@@ -37,7 +37,6 @@ APIs and MCP servers support mutual invocation, enabling seamless communication 
 - File system operations
 - Terminal interactions
 - Document processing (Markitdown)
-- Research tools (Arxiv)
 
 ### Development Preview
 Built-in proxy endpoints for testing applications:

@@ -32,7 +32,7 @@ features:
     details: Isolated Python and Node.js sandboxes. Safe code execution without system risks.
     icon: 🔐
   - title: Agent-Ready
-    details: Pre-configured MCP Server with Browser, File, Terminal, Markdown, and Arxiv. Ready-to-use for AI agents.
+    details: Pre-configured MCP Server with Browser, File, Terminal, Markdown, Ready-to-use for AI agents.
     icon: 🤖
   - title: Developer Friendly
     details: Cloud-based VSCode with persistent terminals, intelligent port forwarding(via `${Port}-${domain}/` or `/proxy`), and instant frontend/backend previews.

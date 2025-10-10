@@ -75,7 +75,7 @@ class CodeClient:
         )
         return _response.data
 
-    def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseCodeInfoResponse:
+    def get_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseCodeInfoResponse:
         """
         Return metadata about supported code runtimes
 
@@ -96,9 +96,9 @@ class CodeClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.code.info()
+        client.code.get_info()
         """
-        _response = self._raw_client.info(request_options=request_options)
+        _response = self._raw_client.get_info(request_options=request_options)
         return _response.data
 
 
@@ -172,7 +172,7 @@ class AsyncCodeClient:
         )
         return _response.data
 
-    async def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseCodeInfoResponse:
+    async def get_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseCodeInfoResponse:
         """
         Return metadata about supported code runtimes
 
@@ -198,10 +198,10 @@ class AsyncCodeClient:
 
 
         async def main() -> None:
-            await client.code.info()
+            await client.code.get_info()
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.info(request_options=request_options)
+        _response = await self._raw_client.get_info(request_options=request_options)
         return _response.data

@@ -28,7 +28,7 @@ class BrowserClient:
         """
         return self._raw_client
 
-    def get_browser_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseBrowserInfoResult:
+    def get_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseBrowserInfoResult:
         """
         Get information about browser, like cdp url, viewport size, etc.
 
@@ -49,12 +49,12 @@ class BrowserClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.browser.get_browser_info()
+        client.browser.get_info()
         """
-        _response = self._raw_client.get_browser_info(request_options=request_options)
+        _response = self._raw_client.get_info(request_options=request_options)
         return _response.data
 
-    def take_screenshot(self, *, request_options: typing.Optional[RequestOptions] = None) -> typing.Iterator[bytes]:
+    def screenshot(self, *, request_options: typing.Optional[RequestOptions] = None) -> typing.Iterator[bytes]:
         """
         Take a screenshot of the current display.
 
@@ -71,7 +71,7 @@ class BrowserClient:
         typing.Iterator[bytes]
             Screenshot image
         """
-        with self._raw_client.take_screenshot(request_options=request_options) as r:
+        with self._raw_client.screenshot(request_options=request_options) as r:
             yield from r.data
 
     def execute_action(
@@ -126,9 +126,7 @@ class AsyncBrowserClient:
         """
         return self._raw_client
 
-    async def get_browser_info(
-        self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> ResponseBrowserInfoResult:
+    async def get_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseBrowserInfoResult:
         """
         Get information about browser, like cdp url, viewport size, etc.
 
@@ -154,15 +152,15 @@ class AsyncBrowserClient:
 
 
         async def main() -> None:
-            await client.browser.get_browser_info()
+            await client.browser.get_info()
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get_browser_info(request_options=request_options)
+        _response = await self._raw_client.get_info(request_options=request_options)
         return _response.data
 
-    async def take_screenshot(
+    async def screenshot(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> typing.AsyncIterator[bytes]:
         """
@@ -181,7 +179,7 @@ class AsyncBrowserClient:
         typing.AsyncIterator[bytes]
             Screenshot image
         """
-        async with self._raw_client.take_screenshot(request_options=request_options) as r:
+        async with self._raw_client.screenshot(request_options=request_options) as r:
             async for _chunk in r.data:
                 yield _chunk
 

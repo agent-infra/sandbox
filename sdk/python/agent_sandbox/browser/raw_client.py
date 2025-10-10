@@ -24,7 +24,7 @@ class RawBrowserClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def get_browser_info(
+    def get_info(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResponseBrowserInfoResult]:
         """
@@ -61,7 +61,7 @@ class RawBrowserClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     @contextlib.contextmanager
-    def take_screenshot(
+    def screenshot(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> typing.Iterator[HttpResponse[typing.Iterator[bytes]]]:
         """
@@ -162,7 +162,7 @@ class AsyncRawBrowserClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def get_browser_info(
+    async def get_info(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResponseBrowserInfoResult]:
         """
@@ -199,7 +199,7 @@ class AsyncRawBrowserClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     @contextlib.asynccontextmanager
-    async def take_screenshot(
+    async def screenshot(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[bytes]]]:
         """

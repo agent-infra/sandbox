@@ -16,9 +16,7 @@ class RawSandboxClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def get_sandbox_context(
-        self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[SandboxResponse]:
+    def get_context(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[SandboxResponse]:
         """
         Get sandbox environment information
 
@@ -52,7 +50,7 @@ class RawSandboxClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def python_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
+    def get_python_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
         """
         Get installed packages by language
 
@@ -86,7 +84,7 @@ class RawSandboxClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def nodejs_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
+    def get_nodejs_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
         """
         Get installed packages by language
 
@@ -125,7 +123,7 @@ class AsyncRawSandboxClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def get_sandbox_context(
+    async def get_context(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[SandboxResponse]:
         """
@@ -161,7 +159,7 @@ class AsyncRawSandboxClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def python_packages(
+    async def get_python_packages(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Response]:
         """
@@ -197,7 +195,7 @@ class AsyncRawSandboxClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def nodejs_packages(
+    async def get_nodejs_packages(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Response]:
         """

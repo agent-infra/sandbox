@@ -29,7 +29,7 @@ class JupyterClient:
         """
         return self._raw_client
 
-    def execute_jupyter_code(
+    def execute_code(
         self,
         *,
         code: str,
@@ -75,16 +75,16 @@ class JupyterClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.jupyter.execute_jupyter_code(
+        client.jupyter.execute_code(
             code="code",
         )
         """
-        _response = self._raw_client.execute_jupyter_code(
+        _response = self._raw_client.execute_code(
             code=code, timeout=timeout, kernel_name=kernel_name, session_id=session_id, request_options=request_options
         )
         return _response.data
 
-    def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseJupyterInfoResponse:
+    def get_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseJupyterInfoResponse:
         """
         Get information about available Jupyter kernels
 
@@ -105,9 +105,9 @@ class JupyterClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.jupyter.info()
+        client.jupyter.get_info()
         """
-        _response = self._raw_client.info(request_options=request_options)
+        _response = self._raw_client.get_info(request_options=request_options)
         return _response.data
 
     def list_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseActiveSessionsResult:
@@ -136,7 +136,7 @@ class JupyterClient:
         _response = self._raw_client.list_sessions(request_options=request_options)
         return _response.data
 
-    def cleanup_all_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    def delete_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
         Cleanup all active sessions
 
@@ -157,12 +157,12 @@ class JupyterClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.jupyter.cleanup_all_sessions()
+        client.jupyter.delete_sessions()
         """
-        _response = self._raw_client.cleanup_all_sessions(request_options=request_options)
+        _response = self._raw_client.delete_sessions(request_options=request_options)
         return _response.data
 
-    def cleanup_session(self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    def delete_session(self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
         Manually cleanup a specific session
 
@@ -185,11 +185,11 @@ class JupyterClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.jupyter.cleanup_session(
+        client.jupyter.delete_session(
             session_id="session_id",
         )
         """
-        _response = self._raw_client.cleanup_session(session_id, request_options=request_options)
+        _response = self._raw_client.delete_session(session_id, request_options=request_options)
         return _response.data
 
 
@@ -208,7 +208,7 @@ class AsyncJupyterClient:
         """
         return self._raw_client
 
-    async def execute_jupyter_code(
+    async def execute_code(
         self,
         *,
         code: str,
@@ -259,19 +259,19 @@ class AsyncJupyterClient:
 
 
         async def main() -> None:
-            await client.jupyter.execute_jupyter_code(
+            await client.jupyter.execute_code(
                 code="code",
             )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.execute_jupyter_code(
+        _response = await self._raw_client.execute_code(
             code=code, timeout=timeout, kernel_name=kernel_name, session_id=session_id, request_options=request_options
         )
         return _response.data
 
-    async def info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseJupyterInfoResponse:
+    async def get_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseJupyterInfoResponse:
         """
         Get information about available Jupyter kernels
 
@@ -297,12 +297,12 @@ class AsyncJupyterClient:
 
 
         async def main() -> None:
-            await client.jupyter.info()
+            await client.jupyter.get_info()
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.info(request_options=request_options)
+        _response = await self._raw_client.get_info(request_options=request_options)
         return _response.data
 
     async def list_sessions(
@@ -341,7 +341,7 @@ class AsyncJupyterClient:
         _response = await self._raw_client.list_sessions(request_options=request_options)
         return _response.data
 
-    async def cleanup_all_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+    async def delete_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
         Cleanup all active sessions
 
@@ -367,15 +367,15 @@ class AsyncJupyterClient:
 
 
         async def main() -> None:
-            await client.jupyter.cleanup_all_sessions()
+            await client.jupyter.delete_sessions()
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.cleanup_all_sessions(request_options=request_options)
+        _response = await self._raw_client.delete_sessions(request_options=request_options)
         return _response.data
 
-    async def cleanup_session(
+    async def delete_session(
         self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> Response:
         """
@@ -405,12 +405,12 @@ class AsyncJupyterClient:
 
 
         async def main() -> None:
-            await client.jupyter.cleanup_session(
+            await client.jupyter.delete_session(
                 session_id="session_id",
             )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.cleanup_session(session_id, request_options=request_options)
+        _response = await self._raw_client.delete_session(session_id, request_options=request_options)
         return _response.data

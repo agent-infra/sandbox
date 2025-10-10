@@ -21,7 +21,7 @@ class RawNodejsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def execute_nodejs_code(
+    def execute_code(
         self,
         *,
         code: str,
@@ -99,7 +99,7 @@ class RawNodejsClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def info(
+    def get_info(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResponseNodeJsRuntimeInfo]:
         """
@@ -140,7 +140,7 @@ class AsyncRawNodejsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def execute_nodejs_code(
+    async def execute_code(
         self,
         *,
         code: str,
@@ -218,7 +218,7 @@ class AsyncRawNodejsClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def info(
+    async def get_info(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResponseNodeJsRuntimeInfo]:
         """
