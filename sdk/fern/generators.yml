@@ -4,7 +4,7 @@ api:
     - openapi: ../../website/docs/public/v1/openapi.json
 default-group: python-sdk
 groups:
-  python-sdk:
+  sdk-python:
     generators:
       - name: fernapi/fern-python-sdk
         version: 4.28.0
