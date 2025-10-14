@@ -114,7 +114,7 @@ if typing.TYPE_CHECKING:
         WaitAction,
     )
     from .errors import UnprocessableEntityError
-    from . import browser, code, file, jupyter, mcp, nodejs, sandbox, shell
+    from . import browser, code, file, jupyter, mcp, nodejs, sandbox, shell, util
     from .browser import (
         Action,
         Action_Click,
@@ -271,6 +271,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "nodejs": ".",
     "sandbox": ".",
     "shell": ".",
+    "util": ".",
 }
 
 
@@ -428,4 +429,5 @@ __all__ = [
     "nodejs",
     "sandbox",
     "shell",
+    "util",
 ]

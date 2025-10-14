@@ -3,18 +3,17 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.128"
+    "version": "1.0.0.132"
   },
   "paths": {
     "/v1/sandbox": {
       "get": {
         "tags": [
-          "sandbox",
-          "sandbox_mcp"
+          "sandbox"
         ],
         "summary": "Get Sandbox Context",
         "description": "Get sandbox environment information",
-        "operationId": "get_context",
+        "operationId": "get_sandbox_context_v1_sandbox_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -34,12 +33,11 @@
     "/v1/sandbox/packages/python": {
       "get": {
         "tags": [
-          "sandbox",
-          "sandbox_mcp"
+          "sandbox"
         ],
         "summary": "Python Packages",
         "description": "Get installed packages by language",
-        "operationId": "get_python_packages",
+        "operationId": "python_packages_v1_sandbox_packages_python_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -59,12 +57,11 @@
     "/v1/sandbox/packages/nodejs": {
       "get": {
         "tags": [
-          "sandbox",
-          "sandbox_mcp"
+          "sandbox"
         ],
         "summary": "Nodejs Packages",
         "description": "Get installed packages by language",
-        "operationId": "get_nodejs_packages",
+        "operationId": "nodejs_packages_v1_sandbox_packages_nodejs_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -84,12 +81,11 @@
     "/v1/shell/exec": {
       "post": {
         "tags": [
-          "shell",
-          "sandbox_mcp"
+          "shell"
         ],
         "summary": "Exec Command",
         "description": "Execute command in the specified shell session\nSupports SSE streaming if Accept header contains 'text/event-stream'",
-        "operationId": "exec_command",
+        "operationId": "exec_command_v1_shell_exec_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -129,12 +125,11 @@
     "/v1/shell/view": {
       "post": {
         "tags": [
-          "shell",
-          "sandbox_mcp"
+          "shell"
         ],
         "summary": "View Shell",
         "description": "View output of the specified shell session\nSupports SSE streaming if Accept header contains 'text/event-stream'",
-        "operationId": "view_shell",
+        "operationId": "view_shell_v1_shell_view_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -641,12 +636,11 @@
     "/v1/file/find": {
       "post": {
         "tags": [
-          "file",
-          "sandbox_mcp"
+          "file"
         ],
         "summary": "Find Files",
         "description": "Find files by name pattern",
-        "operationId": "find_files",
+        "operationId": "find_files_v1_file_find_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -773,12 +767,11 @@
     "/v1/file/list": {
       "post": {
         "tags": [
-          "file",
-          "sandbox_mcp"
+          "file"
         ],
         "summary": "List Path",
         "description": "List path contents with flexible options",
-        "operationId": "list_file_path",
+        "operationId": "list_path_v1_file_list_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -818,12 +811,11 @@
     "/v1/file/str_replace_editor": {
       "post": {
         "tags": [
-          "file",
-          "sandbox_mcp"
+          "file"
         ],
         "summary": "Str Replace Editor",
         "description": "An filesystem editor tool that allows the agent to\n- view\n- create\n- navigate\n- edit files\nThe tool parameters are defined by Anthropic and are not editable.",
-        "operationId": "str_replace_editor",
+        "operationId": "str_replace_editor_v1_file_str_replace_editor_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1225,12 +1217,11 @@
     "/v1/browser/info": {
       "get": {
         "tags": [
-          "browser",
-          "sandbox_mcp"
+          "browser"
         ],
         "summary": "Get Browser Info",
         "description": "Get information about browser, like cdp url, viewport size, etc.",
-        "operationId": "get_browser_info",
+        "operationId": "get_browser_info_v1_browser_info_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1250,12 +1241,11 @@
     "/v1/browser/screenshot": {
       "get": {
         "tags": [
-          "browser",
-          "sandbox_mcp"
+          "browser"
         ],
         "summary": "Take Screenshot",
         "description": "Take a screenshot of the current display.\n\nReturns:\n    StreamingResponse: PNG image data with proper headers including display and screenshot dimensions",
-        "operationId": "browser_screenshot",
+        "operationId": "take_screenshot_v1_browser_screenshot_get",
         "responses": {
           "200": {
             "description": "Screenshot image",
@@ -1297,12 +1287,11 @@
     "/v1/browser/actions": {
       "post": {
         "tags": [
-          "browser",
-          "sandbox_mcp"
+          "browser"
         ],
         "summary": "Execute Action",
         "description": "Execute a validated action on the current display.",
-        "operationId": "browser_execute_action",
+        "operationId": "execute_action_v1_browser_actions_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1413,12 +1402,11 @@
     "/v1/code/execute": {
       "post": {
         "tags": [
-          "code",
-          "sandbox_mcp"
+          "code"
         ],
         "summary": "Execute Code",
         "description": "Run code through the unified runtime, dispatching to Python, Node.js, or future language executors",
-        "operationId": "execute_code",
+        "operationId": "execute_code_v1_code_execute_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1458,12 +1446,11 @@
     "/v1/code/info": {
       "get": {
         "tags": [
-          "code",
-          "sandbox_mcp"
+          "code"
         ],
         "summary": "Code Info",
         "description": "Return metadata about supported code runtimes",
-        "operationId": "get_code_info",
+        "operationId": "code_info_v1_code_info_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1478,6 +1465,50 @@
         },
         "x-fern-sdk-group-name": "code",
         "x-fern-sdk-method-name": "get_info"
+      }
+    },
+    "/v1/util/convert_to_markdown": {
+      "post": {
+        "tags": [
+          "util"
+        ],
+        "summary": "Convert To Markdown",
+        "description": "Convert a given URI to Markdown format",
+        "operationId": "convert_to_markdown_v1_util_convert_to_markdown_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UtilConvertToMarkdownRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "util",
+        "x-fern-sdk-method-name": "convert_to_markdown"
       }
     },
     "/terminal": {
@@ -5845,6 +5876,21 @@
           "text"
         ],
         "title": "TypingAction"
+      },
+      "UtilConvertToMarkdownRequest": {
+        "properties": {
+          "uri": {
+            "type": "string",
+            "title": "Uri",
+            "description": "The URI of the resource to convert"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uri"
+        ],
+        "title": "UtilConvertToMarkdownRequest",
+        "description": "convert to markdown request"
       },
       "ValidationError": {
         "properties": {
