@@ -10,4 +10,4 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-agent-sandbox = { workspace = true }
+agent-sandbox = { path = "../../", editable = true }

@@ -5,11 +5,7 @@ description = "An example project integrating LangGraph and DeepAgents with aio-
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    # "deepagents>=0.0.5",
     "dotenv>=0.9.9",
-    # "langchain>=0.3.27",
-    # "langchain-mcp-adapters>=0.1.10",
-    # "langchain-openai>=0.3.0",
     "httpx[socks]>=0.27.2",
     "agent-sandbox",
     "deepagents>=0.1.2",
@@ -18,5 +14,5 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-agent-sandbox = { workspace = true }
+agent-sandbox = { path = "../../", editable = true }
 

@@ -34,6 +34,3 @@ dependencies = [
 Homepage = "https://github.com/agent-infra/sandbox-sdk"
 Repository = "https://github.com/agent-infra/sandbox-sdk"
 Documentation = "https://github.com/agent-infra/sandbox-sdk#readme"
-
-[tool.uv.workspace]
-members = ["examples/*"]

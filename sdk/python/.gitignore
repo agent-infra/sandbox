@@ -8,3 +8,4 @@ __pycache__/
 sandbox.egg-info
 agent_sandbox.egg-info/
 .venv/
+build/
