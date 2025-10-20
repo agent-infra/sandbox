@@ -1,15 +1,13 @@
 [project]
-name = "examples"
+name = "openai-integration"
 version = "0.1.0"
-description = "Add your description here"
+description = "OpenAI function calling integration with agent-sandbox for code execution"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "agent-sandbox",
-    "browser-use>=0.8.0",
-    "httpx[socks]>=0.28.1",
     "openai>=1.107.1",
-    "playwright>=1.48.0",
+    "python-dotenv>=1.0.0",
 ]
 
 [tool.uv.sources]

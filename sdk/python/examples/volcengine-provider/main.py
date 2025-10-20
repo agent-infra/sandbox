@@ -9,15 +9,14 @@ manage, and delete sandbox instances using the Volcengine VEFAAS API.
 from __future__ import print_function
 
 import os
-import sys
 import time
-import base64
+from pathlib import Path
+from dotenv import load_dotenv
 from agent_sandbox import Sandbox
-
-# Add the parent directory to Python path so we can import agent_sandbox
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from agent_sandbox.providers import VolcengineProvider
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 def main():
@@ -28,18 +27,19 @@ def main():
     access_key = os.getenv("VOLCENGINE_ACCESS_KEY")
     secret_key = os.getenv("VOLCENGINE_SECRET_KEY")
     region = os.getenv("VOLCENGINE_REGION", "cn-beijing")
-    
+
     # Initialize the Volcengine provider
     provider = VolcengineProvider(
         access_key=access_key,
         secret_key=secret_key,
         region=region
     )
-    
+
     print("=== Volcengine Sandbox Provider Example ===\n")
 
     print("1. Creating an application...(If created, skip this create step)")
-    application_id = provider.create_application(name="aio-3", gateway_name="test2-ly")
+    application_id = provider.create_application(
+        name="aio-3", gateway_name="test2-ly")
     print(f"Sandbox application id: {application_id}")
     if not application_id:
         print("Application creation failed; skipping sandbox operations.")
@@ -51,7 +51,8 @@ def main():
     while not ready:
         print("Application is not ready, waiting for 1 second...")
         time.sleep(1)
-        ready, function_id = provider.get_application_readiness(id=application_id)
+        ready, function_id = provider.get_application_readiness(
+            id=application_id)
     print(f"Is ready: {ready}, function_id: {function_id}")
     print("\n")
 
@@ -63,18 +64,18 @@ def main():
     sandbox_id = provider.create_sandbox(function_id=function_id)
     print(f"Create response: {sandbox_id}")
     print("\n")
-  
-    
+
     # Example 4: List all sandboxes for the function
     print("4. Listing all sandboxes for function...")
     list_response = provider.list_sandboxes(function_id=function_id)
-    
+
     print(f"Number of sandboxes: {len(list_response)}")
     # print(f"list_response: {list_response}")
     print("\n")
 
     print(f"5. Get sandbox details {sandbox_id}")
-    get_response = provider.get_sandbox(function_id=function_id, sandbox_id=sandbox_id)
+    get_response = provider.get_sandbox(
+        function_id=function_id, sandbox_id=sandbox_id)
     print(f"Get response: {get_response}")
 
     domains = get_response["domains"]
@@ -93,10 +94,11 @@ def main():
 
     # Example 6: Delete the sandbox
     print(f"6. Deleting sandbox '{sandbox_id}'...")
-    delete_response = provider.delete_sandbox(function_id=function_id, sandbox_id=sandbox_id)
+    delete_response = provider.delete_sandbox(
+        function_id=function_id, sandbox_id=sandbox_id)
     print(f"Delete response: {delete_response}")
     print("\n")
-    
+
     print("=== Example completed ===")
 
 

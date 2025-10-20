@@ -1,17 +1,23 @@
+import os
 import asyncio
 import base64
+from dotenv import load_dotenv
 from playwright.async_api import async_playwright
 from agent_sandbox import Sandbox
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 async def site_to_markdown():
     # initialize sandbox client
-    c = Sandbox(base_url="http://localhost:8080")
-    home_dir = c.sandbox.get_sandbox_context().home_dir
+    sandbox_url = os.getenv("SANDBOX_BASE_URL", "http://localhost:8080")
+    c = Sandbox(base_url=sandbox_url)
+    home_dir = c.sandbox.get_context().home_dir
 
     # Browser: automation to download html
     async with async_playwright() as p:
-        browser_info = c.browser.get_browser_info().data
+        browser_info = c.browser.get_info().data
         page = await (await p.chromium.connect_over_cdp(browser_info.cdp_url)).new_page(
             viewport={
                 "width": browser_info.viewport.width,
@@ -25,7 +31,7 @@ async def site_to_markdown():
         ).decode('utf-8')
 
     # Jupyter: Run code in sandbox to convert html to markdown
-    c.jupyter.execute_jupyter_code(
+    c.jupyter.execute_code(
         code=f"""
 from markdownify import markdownify
 html = '''{html}'''

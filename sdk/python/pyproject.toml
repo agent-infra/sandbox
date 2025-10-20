@@ -9,8 +9,8 @@ description = "Python SDK for the All-in-One Sandbox API, >=1.0.0.132"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 authors = [
-    {name = "zhengxi.zhou", email = "zhengxi.zhou@bytedance.com"},
-    {name = "jinxin001", email = "jinxin001@bytedance.com"},
+    { name = "zhengxi.zhou", email = "zhengxi.zhou@bytedance.com" },
+    { name = "jinxin001", email = "jinxin001@bytedance.com" },
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -24,7 +24,7 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "httpx>=0.23.0,<1",
+    "httpx[socks]>=0.23.0,<1",
     "pydantic>=1.9.0,<3",
     "typing_extensions>=4.0.0; python_version < '3.10'",
     "volcengine-python-sdk>=4.0.17",
@@ -36,6 +36,4 @@ Repository = "https://github.com/agent-infra/sandbox-sdk"
 Documentation = "https://github.com/agent-infra/sandbox-sdk#readme"
 
 [tool.uv.workspace]
-members = [
-    "examples",
-]
+members = ["examples/*"]
