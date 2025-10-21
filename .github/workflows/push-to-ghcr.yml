@@ -43,8 +43,8 @@ jobs:
             docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:${VERSION}
             echo "source_tag=${VERSION}" >> "$GITHUB_OUTPUT"
           else
-            docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.140
-            echo "source_tag=1.0.0.140" >> "$GITHUB_OUTPUT"
+            docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+            echo "source_tag=latest" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Mirror multi-arch image to GHCR
