@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.132"
+    "version": "1.0.0.140"
   },
   "paths": {
     "/v1/sandbox": {
@@ -1011,6 +1011,50 @@
         "x-fern-sdk-method-name": "delete_session"
       }
     },
+    "/v1/jupyter/sessions/create": {
+      "post": {
+        "tags": [
+          "jupyter"
+        ],
+        "summary": "Create Jupyter Session",
+        "description": "Create a new Jupyter session",
+        "operationId": "create_jupyter_session",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JupyterCreateSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_JupyterCreateSessionResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "jupyter",
+        "x-fern-sdk-method-name": "create_session"
+      }
+    },
     "/v1/nodejs/execute": {
       "post": {
         "tags": [
@@ -1399,6 +1443,50 @@
         "x-fern-sdk-method-name": "execute_action"
       }
     },
+    "/v1/browser/config": {
+      "post": {
+        "tags": [
+          "browser"
+        ],
+        "summary": "Set Config",
+        "description": "Execute a validated action on the current display.",
+        "operationId": "set_config_v1_browser_config_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BrowserConfigRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "browser",
+        "x-fern-sdk-method-name": "set_config"
+      }
+    },
     "/v1/code/execute": {
       "post": {
         "tags": [
@@ -1672,6 +1760,34 @@
         "title": "AudioContent",
         "description": "Audio content for a message."
       },
+      "AvailableTool": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Tool’s command / binary name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Tool’s functionality description",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "AvailableTool",
+        "description": "Describe an available command-line tool."
+      },
       "BashCommandStatus": {
         "type": "string",
         "enum": [
@@ -1746,6 +1862,24 @@
           "file"
         ],
         "title": "Body_upload_file"
+      },
+      "BrowserConfigRequest": {
+        "properties": {
+          "resolution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Resolution"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The desired screen resolution, allowed values are: 1920x1080, 640x480, 1360x768, 1280x720, 800x600, 1024x768, 1280x800, 1920x1200, 1280x960, 1400x1050, 1680x1050, 1280x1024, 1600x1200."
+          }
+        },
+        "type": "object",
+        "title": "BrowserConfigRequest",
+        "description": "Browser configuration request"
       },
       "BrowserInfoResult": {
         "properties": {
@@ -3012,6 +3146,65 @@
         "title": "ImageContent",
         "description": "Image content for a message."
       },
+      "JupyterCreateSessionRequest": {
+        "properties": {
+          "session_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session Id",
+            "description": "Unique identifier for the session, auto-generated if not provided"
+          },
+          "kernel_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kernel Name",
+            "description": "Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'",
+            "default": "python3"
+          }
+        },
+        "type": "object",
+        "title": "JupyterCreateSessionRequest",
+        "description": "Jupyter session creation request model"
+      },
+      "JupyterCreateSessionResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Unique identifier of the created session"
+          },
+          "kernel_name": {
+            "type": "string",
+            "title": "Kernel Name",
+            "description": "Name of the kernel associated with the session"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Status message about session creation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "kernel_name",
+          "message"
+        ],
+        "title": "JupyterCreateSessionResponse",
+        "description": "Jupyter session creation response model"
+      },
       "JupyterExecuteRequest": {
         "properties": {
           "code": {
@@ -3044,7 +3237,7 @@
               }
             ],
             "title": "Kernel Name",
-            "description": "Kernel name to use (e.g., 'python3', 'python3.11'). Defaults to 'python3'",
+            "description": "Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'",
             "default": "python3"
           },
           "session_id": {
@@ -3791,6 +3984,28 @@
         ],
         "title": "PressAction"
       },
+      "Resolution": {
+        "properties": {
+          "width": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Width",
+            "description": "Screen width in pixels."
+          },
+          "height": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Height",
+            "description": "Screen height in pixels."
+          }
+        },
+        "type": "object",
+        "required": [
+          "width",
+          "height"
+        ],
+        "title": "Resolution"
+      },
       "ResourceLink": {
         "properties": {
           "name": {
@@ -4403,6 +4618,42 @@
         "type": "object",
         "title": "Response[FileWriteResult]"
       },
+      "Response_JupyterCreateSessionResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JupyterCreateSessionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[JupyterCreateSessionResponse]"
+      },
       "Response_JupyterExecuteResponse_": {
         "properties": {
           "success": {
@@ -4946,6 +5197,56 @@
         "type": "object",
         "title": "RightClickAction"
       },
+      "RuntimeEnv": {
+        "properties": {
+          "python": {
+            "items": {
+              "$ref": "#/components/schemas/ToolSpec"
+            },
+            "type": "array",
+            "title": "Python"
+          },
+          "nodejs": {
+            "items": {
+              "$ref": "#/components/schemas/ToolSpec"
+            },
+            "type": "array",
+            "title": "Nodejs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "python",
+          "nodejs"
+        ],
+        "title": "RuntimeEnv",
+        "description": "version, path, etc. (python3, python3.11, python3.12, pip3, pip, uv, jupyter)"
+      },
+      "SandboxDetail": {
+        "properties": {
+          "system": {
+            "$ref": "#/components/schemas/SystemEnv"
+          },
+          "runtime": {
+            "$ref": "#/components/schemas/RuntimeEnv"
+          },
+          "utils": {
+            "items": {
+              "$ref": "#/components/schemas/ToolCategory"
+            },
+            "type": "array",
+            "title": "Utils"
+          }
+        },
+        "type": "object",
+        "required": [
+          "system",
+          "runtime",
+          "utils"
+        ],
+        "title": "SandboxDetail",
+        "description": "system environment info"
+      },
       "SandboxResponse": {
         "properties": {
           "success": {
@@ -4984,12 +5285,16 @@
           "version": {
             "type": "string",
             "title": "Version"
+          },
+          "detail": {
+            "$ref": "#/components/schemas/SandboxDetail"
           }
         },
         "type": "object",
         "required": [
           "home_dir",
-          "version"
+          "version",
+          "detail"
         ],
         "title": "SandboxResponse"
       },
@@ -5602,6 +5907,52 @@
         "title": "StrReplaceEditorResult",
         "description": "String replace editor result based on openhands_aci CLIResult"
       },
+      "SystemEnv": {
+        "properties": {
+          "os": {
+            "type": "string",
+            "title": "Os"
+          },
+          "os_version": {
+            "type": "string",
+            "title": "Os Version"
+          },
+          "arch": {
+            "type": "string",
+            "title": "Arch"
+          },
+          "user": {
+            "type": "string",
+            "title": "User"
+          },
+          "home_dir": {
+            "type": "string",
+            "title": "Home Dir"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "occupied_ports": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Occupied Ports"
+          }
+        },
+        "type": "object",
+        "required": [
+          "os",
+          "os_version",
+          "arch",
+          "user",
+          "home_dir",
+          "timezone",
+          "occupied_ports"
+        ],
+        "title": "SystemEnv"
+      },
       "TextContent": {
         "properties": {
           "type": {
@@ -5843,6 +6194,66 @@
         "type": "object",
         "title": "ToolAnnotations",
         "description": "Additional properties describing a Tool to clients.\n\nNOTE: all properties in ToolAnnotations are **hints**.\nThey are not guaranteed to provide a faithful description of\ntool behavior (including descriptive properties like `title`).\n\nClients should never make tool use decisions based on ToolAnnotations\nreceived from untrusted servers."
+      },
+      "ToolCategory": {
+        "properties": {
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Name of tool category"
+          },
+          "tools": {
+            "items": {
+              "$ref": "#/components/schemas/AvailableTool"
+            },
+            "type": "array",
+            "title": "Tools",
+            "description": "List of tools under this category"
+          }
+        },
+        "type": "object",
+        "required": [
+          "category",
+          "tools"
+        ],
+        "title": "ToolCategory",
+        "description": "将可用工具按功能分类"
+      },
+      "ToolSpec": {
+        "properties": {
+          "ver": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ver"
+          },
+          "bin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bin"
+          },
+          "alias": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Alias"
+          }
+        },
+        "type": "object",
+        "title": "ToolSpec",
+        "description": "Tool specification"
       },
       "TypingAction": {
         "properties": {

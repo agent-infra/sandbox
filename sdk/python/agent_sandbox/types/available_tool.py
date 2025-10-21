@@ -4,28 +4,22 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .sandbox_detail import SandboxDetail
 
 
-class SandboxResponse(UniversalBaseModel):
-    success: typing.Optional[bool] = pydantic.Field(default=None)
+class AvailableTool(UniversalBaseModel):
     """
-    Whether the operation was successful
-    """
-
-    message: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Operation result message
+    Describe an available command-line tool.
     """
 
-    data: typing.Optional[typing.Optional[typing.Any]] = pydantic.Field(default=None)
+    name: str = pydantic.Field()
     """
-    Data returned from the operation
+    Tool’s command / binary name
     """
 
-    home_dir: str
-    version: str
-    detail: SandboxDetail
+    description: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Tool’s functionality description
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

@@ -5,6 +5,8 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
 from ..types.action_response import ActionResponse
+from ..types.resolution import Resolution
+from ..types.response import Response
 from ..types.response_browser_info_result import ResponseBrowserInfoResult
 from .raw_client import AsyncRawBrowserClient, RawBrowserClient
 from .types.action import Action
@@ -108,6 +110,37 @@ class BrowserClient:
         )
         """
         _response = self._raw_client.execute_action(request=request, request_options=request_options)
+        return _response.data
+
+    def set_config(
+        self, *, resolution: typing.Optional[Resolution] = OMIT, request_options: typing.Optional[RequestOptions] = None
+    ) -> Response:
+        """
+        Execute a validated action on the current display.
+
+        Parameters
+        ----------
+        resolution : typing.Optional[Resolution]
+            The desired screen resolution, allowed values are: 1920x1080, 640x480, 1360x768, 1280x720, 800x600, 1024x768, 1280x800, 1920x1200, 1280x960, 1400x1050, 1680x1050, 1280x1024, 1600x1200.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.browser.set_config()
+        """
+        _response = self._raw_client.set_config(resolution=resolution, request_options=request_options)
         return _response.data
 
 
@@ -225,4 +258,43 @@ class AsyncBrowserClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.execute_action(request=request, request_options=request_options)
+        return _response.data
+
+    async def set_config(
+        self, *, resolution: typing.Optional[Resolution] = OMIT, request_options: typing.Optional[RequestOptions] = None
+    ) -> Response:
+        """
+        Execute a validated action on the current display.
+
+        Parameters
+        ----------
+        resolution : typing.Optional[Resolution]
+            The desired screen resolution, allowed values are: 1920x1080, 640x480, 1360x768, 1280x720, 800x600, 1024x768, 1280x800, 1920x1200, 1280x960, 1400x1050, 1680x1050, 1280x1024, 1600x1200.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.browser.set_config()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.set_config(resolution=resolution, request_options=request_options)
         return _response.data

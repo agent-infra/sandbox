@@ -13,6 +13,7 @@ from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.http_validation_error import HttpValidationError
 from ..types.response import Response
 from ..types.response_active_sessions_result import ResponseActiveSessionsResult
+from ..types.response_jupyter_create_session_response import ResponseJupyterCreateSessionResponse
 from ..types.response_jupyter_execute_response import ResponseJupyterExecuteResponse
 from ..types.response_jupyter_info_response import ResponseJupyterInfoResponse
 
@@ -50,7 +51,7 @@ class RawJupyterClient:
             Execution timeout in seconds
 
         kernel_name : typing.Optional[str]
-            Kernel name to use (e.g., 'python3', 'python3.11'). Defaults to 'python3'
+            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
 
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
@@ -259,6 +260,71 @@ class RawJupyterClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
+    def create_session(
+        self,
+        *,
+        session_id: typing.Optional[str] = OMIT,
+        kernel_name: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[ResponseJupyterCreateSessionResponse]:
+        """
+        Create a new Jupyter session
+
+        Parameters
+        ----------
+        session_id : typing.Optional[str]
+            Unique identifier for the session, auto-generated if not provided
+
+        kernel_name : typing.Optional[str]
+            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseJupyterCreateSessionResponse]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/jupyter/sessions/create",
+            method="POST",
+            json={
+                "session_id": session_id,
+                "kernel_name": kernel_name,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseJupyterCreateSessionResponse,
+                    parse_obj_as(
+                        type_=ResponseJupyterCreateSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
 
 class AsyncRawJupyterClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -290,7 +356,7 @@ class AsyncRawJupyterClient:
             Execution timeout in seconds
 
         kernel_name : typing.Optional[str]
-            Kernel name to use (e.g., 'python3', 'python3.11'). Defaults to 'python3'
+            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
 
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
@@ -481,6 +547,71 @@ class AsyncRawJupyterClient:
                     Response,
                     parse_obj_as(
                         type_=Response,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def create_session(
+        self,
+        *,
+        session_id: typing.Optional[str] = OMIT,
+        kernel_name: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[ResponseJupyterCreateSessionResponse]:
+        """
+        Create a new Jupyter session
+
+        Parameters
+        ----------
+        session_id : typing.Optional[str]
+            Unique identifier for the session, auto-generated if not provided
+
+        kernel_name : typing.Optional[str]
+            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseJupyterCreateSessionResponse]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/jupyter/sessions/create",
+            method="POST",
+            json={
+                "session_id": session_id,
+                "kernel_name": kernel_name,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseJupyterCreateSessionResponse,
+                    parse_obj_as(
+                        type_=ResponseJupyterCreateSessionResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

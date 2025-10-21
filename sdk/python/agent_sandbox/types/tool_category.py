@@ -4,28 +4,23 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .sandbox_detail import SandboxDetail
+from .available_tool import AvailableTool
 
 
-class SandboxResponse(UniversalBaseModel):
-    success: typing.Optional[bool] = pydantic.Field(default=None)
+class ToolCategory(UniversalBaseModel):
     """
-    Whether the operation was successful
-    """
-
-    message: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Operation result message
+    将可用工具按功能分类
     """
 
-    data: typing.Optional[typing.Optional[typing.Any]] = pydantic.Field(default=None)
+    category: str = pydantic.Field()
     """
-    Data returned from the operation
+    Name of tool category
     """
 
-    home_dir: str
-    version: str
-    detail: SandboxDetail
+    tools: typing.List[AvailableTool] = pydantic.Field()
+    """
+    List of tools under this category
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

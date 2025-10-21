@@ -12,6 +12,7 @@ if typing.TYPE_CHECKING:
     from .annotations import Annotations
     from .annotations_audience_item import AnnotationsAudienceItem
     from .audio_content import AudioContent
+    from .available_tool import AvailableTool
     from .bash_command_status import BashCommandStatus
     from .blob_resource_contents import BlobResourceContents
     from .browser_info_result import BrowserInfoResult
@@ -48,6 +49,7 @@ if typing.TYPE_CHECKING:
     from .http_validation_error import HttpValidationError
     from .icon import Icon
     from .image_content import ImageContent
+    from .jupyter_create_session_response import JupyterCreateSessionResponse
     from .jupyter_execute_response import JupyterExecuteResponse
     from .jupyter_info_response import JupyterInfoResponse
     from .jupyter_output import JupyterOutput
@@ -63,6 +65,7 @@ if typing.TYPE_CHECKING:
     from .node_js_output import NodeJsOutput
     from .node_js_runtime_info import NodeJsRuntimeInfo
     from .press_action import PressAction
+    from .resolution import Resolution
     from .resource import Resource
     from .resource_link import ResourceLink
     from .response import Response
@@ -79,6 +82,7 @@ if typing.TYPE_CHECKING:
     from .response_file_search_result import ResponseFileSearchResult
     from .response_file_upload_result import ResponseFileUploadResult
     from .response_file_write_result import ResponseFileWriteResult
+    from .response_jupyter_create_session_response import ResponseJupyterCreateSessionResponse
     from .response_jupyter_execute_response import ResponseJupyterExecuteResponse
     from .response_jupyter_info_response import ResponseJupyterInfoResponse
     from .response_list_str import ResponseListStr
@@ -94,6 +98,8 @@ if typing.TYPE_CHECKING:
     from .response_str import ResponseStr
     from .response_str_replace_editor_result import ResponseStrReplaceEditorResult
     from .right_click_action import RightClickAction
+    from .runtime_env import RuntimeEnv
+    from .sandbox_detail import SandboxDetail
     from .sandbox_response import SandboxResponse
     from .scroll_action import ScrollAction
     from .session_info import SessionInfo
@@ -105,10 +111,13 @@ if typing.TYPE_CHECKING:
     from .shell_wait_result import ShellWaitResult
     from .shell_write_result import ShellWriteResult
     from .str_replace_editor_result import StrReplaceEditorResult
+    from .system_env import SystemEnv
     from .text_content import TextContent
     from .text_resource_contents import TextResourceContents
     from .tool import Tool
     from .tool_annotations import ToolAnnotations
+    from .tool_category import ToolCategory
+    from .tool_spec import ToolSpec
     from .typing_action import TypingAction
     from .validation_error import ValidationError
     from .validation_error_loc_item import ValidationErrorLocItem
@@ -120,6 +129,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "Annotations": ".annotations",
     "AnnotationsAudienceItem": ".annotations_audience_item",
     "AudioContent": ".audio_content",
+    "AvailableTool": ".available_tool",
     "BashCommandStatus": ".bash_command_status",
     "BlobResourceContents": ".blob_resource_contents",
     "BrowserInfoResult": ".browser_info_result",
@@ -154,6 +164,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "HttpValidationError": ".http_validation_error",
     "Icon": ".icon",
     "ImageContent": ".image_content",
+    "JupyterCreateSessionResponse": ".jupyter_create_session_response",
     "JupyterExecuteResponse": ".jupyter_execute_response",
     "JupyterInfoResponse": ".jupyter_info_response",
     "JupyterOutput": ".jupyter_output",
@@ -169,6 +180,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "NodeJsOutput": ".node_js_output",
     "NodeJsRuntimeInfo": ".node_js_runtime_info",
     "PressAction": ".press_action",
+    "Resolution": ".resolution",
     "Resource": ".resource",
     "ResourceLink": ".resource_link",
     "Response": ".response",
@@ -185,6 +197,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseFileSearchResult": ".response_file_search_result",
     "ResponseFileUploadResult": ".response_file_upload_result",
     "ResponseFileWriteResult": ".response_file_write_result",
+    "ResponseJupyterCreateSessionResponse": ".response_jupyter_create_session_response",
     "ResponseJupyterExecuteResponse": ".response_jupyter_execute_response",
     "ResponseJupyterInfoResponse": ".response_jupyter_info_response",
     "ResponseListStr": ".response_list_str",
@@ -200,6 +213,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseStr": ".response_str",
     "ResponseStrReplaceEditorResult": ".response_str_replace_editor_result",
     "RightClickAction": ".right_click_action",
+    "RuntimeEnv": ".runtime_env",
+    "SandboxDetail": ".sandbox_detail",
     "SandboxResponse": ".sandbox_response",
     "ScrollAction": ".scroll_action",
     "SessionInfo": ".session_info",
@@ -211,10 +226,13 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ShellWaitResult": ".shell_wait_result",
     "ShellWriteResult": ".shell_write_result",
     "StrReplaceEditorResult": ".str_replace_editor_result",
+    "SystemEnv": ".system_env",
     "TextContent": ".text_content",
     "TextResourceContents": ".text_resource_contents",
     "Tool": ".tool",
     "ToolAnnotations": ".tool_annotations",
+    "ToolCategory": ".tool_category",
+    "ToolSpec": ".tool_spec",
     "TypingAction": ".typing_action",
     "ValidationError": ".validation_error",
     "ValidationErrorLocItem": ".validation_error_loc_item",
@@ -248,6 +266,7 @@ __all__ = [
     "Annotations",
     "AnnotationsAudienceItem",
     "AudioContent",
+    "AvailableTool",
     "BashCommandStatus",
     "BlobResourceContents",
     "BrowserInfoResult",
@@ -282,6 +301,7 @@ __all__ = [
     "HttpValidationError",
     "Icon",
     "ImageContent",
+    "JupyterCreateSessionResponse",
     "JupyterExecuteResponse",
     "JupyterInfoResponse",
     "JupyterOutput",
@@ -297,6 +317,7 @@ __all__ = [
     "NodeJsOutput",
     "NodeJsRuntimeInfo",
     "PressAction",
+    "Resolution",
     "Resource",
     "ResourceLink",
     "Response",
@@ -313,6 +334,7 @@ __all__ = [
     "ResponseFileSearchResult",
     "ResponseFileUploadResult",
     "ResponseFileWriteResult",
+    "ResponseJupyterCreateSessionResponse",
     "ResponseJupyterExecuteResponse",
     "ResponseJupyterInfoResponse",
     "ResponseListStr",
@@ -328,6 +350,8 @@ __all__ = [
     "ResponseStr",
     "ResponseStrReplaceEditorResult",
     "RightClickAction",
+    "RuntimeEnv",
+    "SandboxDetail",
     "SandboxResponse",
     "ScrollAction",
     "SessionInfo",
@@ -339,10 +363,13 @@ __all__ = [
     "ShellWaitResult",
     "ShellWriteResult",
     "StrReplaceEditorResult",
+    "SystemEnv",
     "TextContent",
     "TextResourceContents",
     "Tool",
     "ToolAnnotations",
+    "ToolCategory",
+    "ToolSpec",
     "TypingAction",
     "ValidationError",
     "ValidationErrorLocItem",

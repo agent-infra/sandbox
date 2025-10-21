@@ -4,28 +4,27 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .sandbox_detail import SandboxDetail
 
 
-class SandboxResponse(UniversalBaseModel):
-    success: typing.Optional[bool] = pydantic.Field(default=None)
+class JupyterCreateSessionResponse(UniversalBaseModel):
     """
-    Whether the operation was successful
-    """
-
-    message: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Operation result message
+    Jupyter session creation response model
     """
 
-    data: typing.Optional[typing.Optional[typing.Any]] = pydantic.Field(default=None)
+    session_id: str = pydantic.Field()
     """
-    Data returned from the operation
+    Unique identifier of the created session
     """
 
-    home_dir: str
-    version: str
-    detail: SandboxDetail
+    kernel_name: str = pydantic.Field()
+    """
+    Name of the kernel associated with the session
+    """
+
+    message: str = pydantic.Field()
+    """
+    Status message about session creation
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

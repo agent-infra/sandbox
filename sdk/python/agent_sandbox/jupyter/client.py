@@ -6,6 +6,7 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
 from ..types.response import Response
 from ..types.response_active_sessions_result import ResponseActiveSessionsResult
+from ..types.response_jupyter_create_session_response import ResponseJupyterCreateSessionResponse
 from ..types.response_jupyter_execute_response import ResponseJupyterExecuteResponse
 from ..types.response_jupyter_info_response import ResponseJupyterInfoResponse
 from .raw_client import AsyncRawJupyterClient, RawJupyterClient
@@ -55,7 +56,7 @@ class JupyterClient:
             Execution timeout in seconds
 
         kernel_name : typing.Optional[str]
-            Kernel name to use (e.g., 'python3', 'python3.11'). Defaults to 'python3'
+            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
 
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
@@ -192,6 +193,46 @@ class JupyterClient:
         _response = self._raw_client.delete_session(session_id, request_options=request_options)
         return _response.data
 
+    def create_session(
+        self,
+        *,
+        session_id: typing.Optional[str] = OMIT,
+        kernel_name: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseJupyterCreateSessionResponse:
+        """
+        Create a new Jupyter session
+
+        Parameters
+        ----------
+        session_id : typing.Optional[str]
+            Unique identifier for the session, auto-generated if not provided
+
+        kernel_name : typing.Optional[str]
+            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseJupyterCreateSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.jupyter.create_session()
+        """
+        _response = self._raw_client.create_session(
+            session_id=session_id, kernel_name=kernel_name, request_options=request_options
+        )
+        return _response.data
+
 
 class AsyncJupyterClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -234,7 +275,7 @@ class AsyncJupyterClient:
             Execution timeout in seconds
 
         kernel_name : typing.Optional[str]
-            Kernel name to use (e.g., 'python3', 'python3.11'). Defaults to 'python3'
+            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
 
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
@@ -413,4 +454,52 @@ class AsyncJupyterClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.delete_session(session_id, request_options=request_options)
+        return _response.data
+
+    async def create_session(
+        self,
+        *,
+        session_id: typing.Optional[str] = OMIT,
+        kernel_name: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseJupyterCreateSessionResponse:
+        """
+        Create a new Jupyter session
+
+        Parameters
+        ----------
+        session_id : typing.Optional[str]
+            Unique identifier for the session, auto-generated if not provided
+
+        kernel_name : typing.Optional[str]
+            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseJupyterCreateSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.jupyter.create_session()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.create_session(
+            session_id=session_id, kernel_name=kernel_name, request_options=request_options
+        )
         return _response.data

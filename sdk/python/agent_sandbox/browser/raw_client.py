@@ -13,6 +13,8 @@ from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.action_response import ActionResponse
 from ..types.http_validation_error import HttpValidationError
+from ..types.resolution import Resolution
+from ..types.response import Response
 from ..types.response_browser_info_result import ResponseBrowserInfoResult
 from .types.action import Action
 
@@ -157,6 +159,65 @@ class RawBrowserClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
+    def set_config(
+        self, *, resolution: typing.Optional[Resolution] = OMIT, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[Response]:
+        """
+        Execute a validated action on the current display.
+
+        Parameters
+        ----------
+        resolution : typing.Optional[Resolution]
+            The desired screen resolution, allowed values are: 1920x1080, 640x480, 1360x768, 1280x720, 800x600, 1024x768, 1280x800, 1920x1200, 1280x960, 1400x1050, 1680x1050, 1280x1024, 1600x1200.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[Response]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/browser/config",
+            method="POST",
+            json={
+                "resolution": convert_and_respect_annotation_metadata(
+                    object_=resolution, annotation=Resolution, direction="write"
+                ),
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Response,
+                    parse_obj_as(
+                        type_=Response,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
 
 class AsyncRawBrowserClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -276,6 +337,65 @@ class AsyncRawBrowserClient:
                     ActionResponse,
                     parse_obj_as(
                         type_=ActionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def set_config(
+        self, *, resolution: typing.Optional[Resolution] = OMIT, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[Response]:
+        """
+        Execute a validated action on the current display.
+
+        Parameters
+        ----------
+        resolution : typing.Optional[Resolution]
+            The desired screen resolution, allowed values are: 1920x1080, 640x480, 1360x768, 1280x720, 800x600, 1024x768, 1280x800, 1920x1200, 1280x960, 1400x1050, 1680x1050, 1280x1024, 1600x1200.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[Response]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/browser/config",
+            method="POST",
+            json={
+                "resolution": convert_and_respect_annotation_metadata(
+                    object_=resolution, annotation=Resolution, direction="write"
+                ),
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Response,
+                    parse_obj_as(
+                        type_=Response,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

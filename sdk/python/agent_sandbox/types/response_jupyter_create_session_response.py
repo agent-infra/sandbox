@@ -4,10 +4,10 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .sandbox_detail import SandboxDetail
+from .jupyter_create_session_response import JupyterCreateSessionResponse
 
 
-class SandboxResponse(UniversalBaseModel):
+class ResponseJupyterCreateSessionResponse(UniversalBaseModel):
     success: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Whether the operation was successful
@@ -18,14 +18,10 @@ class SandboxResponse(UniversalBaseModel):
     Operation result message
     """
 
-    data: typing.Optional[typing.Optional[typing.Any]] = pydantic.Field(default=None)
+    data: typing.Optional[JupyterCreateSessionResponse] = pydantic.Field(default=None)
     """
     Data returned from the operation
     """
-
-    home_dir: str
-    version: str
-    detail: SandboxDetail
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

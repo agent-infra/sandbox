@@ -4,28 +4,18 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .sandbox_detail import SandboxDetail
 
 
-class SandboxResponse(UniversalBaseModel):
-    success: typing.Optional[bool] = pydantic.Field(default=None)
+class Resolution(UniversalBaseModel):
+    width: int = pydantic.Field()
     """
-    Whether the operation was successful
-    """
-
-    message: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Operation result message
+    Screen width in pixels.
     """
 
-    data: typing.Optional[typing.Optional[typing.Any]] = pydantic.Field(default=None)
+    height: int = pydantic.Field()
     """
-    Data returned from the operation
+    Screen height in pixels.
     """
-
-    home_dir: str
-    version: str
-    detail: SandboxDetail
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
