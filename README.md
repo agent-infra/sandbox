@@ -115,7 +115,7 @@ from agent_sandbox import Sandbox
 
 # Initialize client
 client = Sandbox(base_url="http://localhost:8080")
-home_dir = c.sandbox.get_sandbox_context().home_dir
+home_dir = client.sandbox.get_context().home_dir
 
 # Execute shell commands
 result = client.shell.exec_command(command="ls -la")
