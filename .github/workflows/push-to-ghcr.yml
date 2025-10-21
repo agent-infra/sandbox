@@ -22,18 +22,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@1583c0f09d26c58c59d25b0eef29792b7ce99d9a
+
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Pull source image
         id: pull
@@ -46,32 +43,24 @@ jobs:
             docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:${VERSION}
             echo "source_tag=${VERSION}" >> "$GITHUB_OUTPUT"
           else
-            docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
-            echo "source_tag=latest" >> "$GITHUB_OUTPUT"
+            docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.140
+            echo "source_tag=1.0.0.140" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Tag image for GHCR
+      - name: Mirror multi-arch image to GHCR
+        shell: bash
         run: |
-          # Always tag as v1
-          docker tag enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:${{ steps.pull.outputs.source_tag }} \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          set -euo pipefail
 
-          # For releases, also tag with the version number
+          SOURCE_TAG="${{ steps.pull.outputs.source_tag }}"
+          SOURCE_IMAGE="enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:${SOURCE_TAG}"
+          DEST_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+
+          TAG_ARGS=(-t "${DEST_IMAGE}:latest")
           if [[ "${{ github.event_name }}" == "release" ]]; then
             VERSION="${{ github.event.release.tag_name }}"
             VERSION="${VERSION#v}"
-            docker tag enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:${{ steps.pull.outputs.source_tag }} \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION}
+            TAG_ARGS+=(-t "${DEST_IMAGE}:${VERSION}")
           fi
 
-      - name: Push image to GHCR
-        run: |
-          # Always push v1 tag
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-          # For releases, push the version tag
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            VERSION="${{ github.event.release.tag_name }}"
-            VERSION="${VERSION#v}"
-            docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${VERSION}
-          fi
+          docker buildx imagetools create "${TAG_ARGS[@]}" "${SOURCE_IMAGE}"
