@@ -4,7 +4,7 @@ export const frontmatter = {
 
 import { NoSSR, useDark, useI18n } from '@rspress/core/runtime';
 import { Suspense, lazy } from 'react';
-import './global.scss';
+import './index.scss';
 
 const ApiReferenceReact = lazy(() =>
   import('@scalar/api-reference-react').then((mod) => ({
