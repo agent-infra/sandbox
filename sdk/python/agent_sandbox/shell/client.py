@@ -41,6 +41,7 @@ class ShellClient:
         id: typing.Optional[str] = OMIT,
         exec_dir: typing.Optional[str] = OMIT,
         async_mode: typing.Optional[bool] = OMIT,
+        timeout: typing.Optional[float] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellCommandResult:
         """
@@ -60,6 +61,9 @@ class ShellClient:
 
         async_mode : typing.Optional[bool]
             Whether to execute command asynchronously (default: False for async, False for synchronous execution)
+
+        timeout : typing.Optional[float]
+            Maximum time (seconds) to wait for command completion before returning running status
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -81,7 +85,12 @@ class ShellClient:
         )
         """
         _response = self._raw_client.exec_command(
-            command=command, id=id, exec_dir=exec_dir, async_mode=async_mode, request_options=request_options
+            command=command,
+            id=id,
+            exec_dir=exec_dir,
+            async_mode=async_mode,
+            timeout=timeout,
+            request_options=request_options,
         )
         return _response.data
 
@@ -401,6 +410,7 @@ class AsyncShellClient:
         id: typing.Optional[str] = OMIT,
         exec_dir: typing.Optional[str] = OMIT,
         async_mode: typing.Optional[bool] = OMIT,
+        timeout: typing.Optional[float] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellCommandResult:
         """
@@ -420,6 +430,9 @@ class AsyncShellClient:
 
         async_mode : typing.Optional[bool]
             Whether to execute command asynchronously (default: False for async, False for synchronous execution)
+
+        timeout : typing.Optional[float]
+            Maximum time (seconds) to wait for command completion before returning running status
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -449,7 +462,12 @@ class AsyncShellClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.exec_command(
-            command=command, id=id, exec_dir=exec_dir, async_mode=async_mode, request_options=request_options
+            command=command,
+            id=id,
+            exec_dir=exec_dir,
+            async_mode=async_mode,
+            timeout=timeout,
+            request_options=request_options,
         )
         return _response.data
 

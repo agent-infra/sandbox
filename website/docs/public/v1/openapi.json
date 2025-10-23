@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.140"
+    "version": "1.0.0.142"
   },
   "paths": {
     "/v1/sandbox": {
@@ -5493,6 +5493,18 @@
             "title": "Async Mode",
             "description": "Whether to execute command asynchronously (default: False for async, False for synchronous execution)",
             "default": false
+          },
+          "timeout": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeout",
+            "description": "Maximum time (seconds) to wait for command completion before returning running status"
           }
         },
         "type": "object",

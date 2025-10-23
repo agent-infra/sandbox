@@ -1,5 +1,7 @@
 import * as path from 'node:path';
 import { pluginLlms } from '@rspress/plugin-llms';
+import { pluginSitemap } from '@rspress/plugin-sitemap';
+import { pluginTwoslash } from '@rspress/plugin-twoslash';
 import {
   transformerNotationDiff,
   transformerNotationErrorLevel,
@@ -7,10 +9,15 @@ import {
   transformerNotationHighlight,
 } from '@shikijs/transformers';
 import { defineConfig } from '@rspress/core';
+import { pluginGoogleAnalytics } from 'rsbuild-plugin-google-analytics';
+import { pluginOpenGraph } from 'rsbuild-plugin-open-graph';
+import { pluginFontOpenSans } from 'rspress-plugin-font-open-sans';
+
+const siteUrl = 'https://sandbox.agent-infra.com';
 
 export default defineConfig({
-  lang: 'en',
   root: path.join(__dirname, 'docs'),
+  lang: 'en',
   title: 'AIO Sandbox',
   description:
     'All-in-One Agent Sandbox Environment - Browser, Shell, File, VSCode Server, and MCP Hub in One Container',
@@ -35,13 +42,32 @@ export default defineConfig({
       checkDeadLinks: false,
     },
   },
-  plugins: [pluginLlms()],
+  plugins: [
+    pluginTwoslash(),
+    pluginFontOpenSans(),
+    pluginSitemap({
+      siteUrl,
+    }),
+    pluginLlms(),
+  ],
   base: process.env.BASE_URL ?? '/',
   outDir: 'doc_build',
   builderConfig: {
     html: {
       template: 'public/index.html',
     },
+    plugins: [
+      pluginGoogleAnalytics({ id: 'G-VDPJE6PYSN' }),
+      pluginOpenGraph({
+        url: siteUrl,
+        image: 'https://rspress.rs/og-image.png',
+        description: 'Rsbuild based static site generator',
+        twitter: {
+          site: '@rspack_dev',
+          card: 'summary_large_image',
+        },
+      }),
+    ],
   },
   locales: [
     {

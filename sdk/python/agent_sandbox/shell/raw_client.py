@@ -36,6 +36,7 @@ class RawShellClient:
         id: typing.Optional[str] = OMIT,
         exec_dir: typing.Optional[str] = OMIT,
         async_mode: typing.Optional[bool] = OMIT,
+        timeout: typing.Optional[float] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseShellCommandResult]:
         """
@@ -56,6 +57,9 @@ class RawShellClient:
         async_mode : typing.Optional[bool]
             Whether to execute command asynchronously (default: False for async, False for synchronous execution)
 
+        timeout : typing.Optional[float]
+            Maximum time (seconds) to wait for command completion before returning running status
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -72,6 +76,7 @@ class RawShellClient:
                 "exec_dir": exec_dir,
                 "command": command,
                 "async_mode": async_mode,
+                "timeout": timeout,
             },
             headers={
                 "content-type": "application/json",
@@ -579,6 +584,7 @@ class AsyncRawShellClient:
         id: typing.Optional[str] = OMIT,
         exec_dir: typing.Optional[str] = OMIT,
         async_mode: typing.Optional[bool] = OMIT,
+        timeout: typing.Optional[float] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseShellCommandResult]:
         """
@@ -599,6 +605,9 @@ class AsyncRawShellClient:
         async_mode : typing.Optional[bool]
             Whether to execute command asynchronously (default: False for async, False for synchronous execution)
 
+        timeout : typing.Optional[float]
+            Maximum time (seconds) to wait for command completion before returning running status
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -615,6 +624,7 @@ class AsyncRawShellClient:
                 "exec_dir": exec_dir,
                 "command": command,
                 "async_mode": async_mode,
+                "timeout": timeout,
             },
             headers={
                 "content-type": "application/json",

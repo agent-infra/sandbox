@@ -31,20 +31,20 @@ importers:
         version: 2.0.0-beta.34(@types/react@19.1.12)
       '@scalar/api-reference-react':
         specifier: ^0.7.50
-        version: 0.7.50(nprogress@0.2.0)(react@19.1.1)(tailwindcss@4.1.13)
+        version: 0.7.50(nprogress@0.2.0)(react@19.1.1)(tailwindcss@4.1.13)(typescript@5.9.3)
       core-js:
         specifier: ^3.45.1
         version: 3.45.1
-      mobx:
-        specifier: ^6.13.7
-        version: 6.13.7
-      styled-components:
-        specifier: ^6.1.19
-        version: 6.1.19(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
         version: 1.9.4
+      '@rspress/plugin-sitemap':
+        specifier: 2.0.0-beta.34
+        version: 2.0.0-beta.34(@rspress/core@2.0.0-beta.34(@types/react@19.1.12))
+      '@rspress/plugin-twoslash':
+        specifier: 2.0.0-beta.34
+        version: 2.0.0-beta.34(@rspress/core@2.0.0-beta.34(@types/react@19.1.12))(react@19.1.1)(typescript@5.9.3)
       '@shikijs/transformers':
         specifier: ^3.13.0
         version: 3.13.0
@@ -54,6 +54,15 @@ importers:
       prettier:
         specifier: ^3.4.2
         version: 3.6.2
+      rsbuild-plugin-google-analytics:
+        specifier: 1.0.4
+        version: 1.0.4(@rsbuild/core@1.5.12)
+      rsbuild-plugin-open-graph:
+        specifier: 1.1.0
+        version: 1.1.0(@rsbuild/core@1.5.12)
+      rspress-plugin-font-open-sans:
+        specifier: 1.0.3
+        version: 1.0.3(@rspress/core@2.0.0-beta.34(@types/react@19.1.12))
 
 packages:
 
@@ -174,15 +183,6 @@ packages:
 
   '@emnapi/wasi-threads@1.1.0':
     resolution: {integrity: sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==}
-
-  '@emotion/is-prop-valid@1.2.2':
-    resolution: {integrity: sha512-uNsoYd37AFmaCdXlg6EYD1KaPOaRWRByMCYzbKUX4+hhMfrxdVSelShywL4JVaAeM/eHUOSprYBQls+/neX3pw==}
-
-  '@emotion/memoize@0.8.1':
-    resolution: {integrity: sha512-W2P2c/VRW1/1tLox0mVUalvnWXxavmv/Oum2aPsRcoDJuob75FC3Y8FbpfLwUegRcxINtGUMPq0tFCvYNTBXNA==}
-
-  '@emotion/unitless@0.8.1':
-    resolution: {integrity: sha512-KOEGMu6dmJZtpadb476IsZBclKvILjopjUii3V+7MnXIQCYh8W3NgNcgwo21n9LXZX6EDIKvqfjYxXebDwxKmQ==}
 
   '@floating-ui/core@1.7.3':
     resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
@@ -456,6 +456,19 @@ packages:
     peerDependencies:
       '@rspress/core': ^2.0.0-beta.34
 
+  '@rspress/plugin-sitemap@2.0.0-beta.34':
+    resolution: {integrity: sha512-1EOEovb/6zcaV4STlkS3Lb1WPbrOBLLRQcf/j4gIEAoxBwpIqS+msuhk6NY0idIrfdXCm+50BFpJBsgyUohUiw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@rspress/core': ^2.0.0-beta.34
+
+  '@rspress/plugin-twoslash@2.0.0-beta.34':
+    resolution: {integrity: sha512-QiFb+7pNKTicvdgvy0PUtSX7BeYpuTJNarq8WaqT6XVWzNHiCAF1atv+C/ccaA6vmFjXQquCyjiUVxkqRimNrg==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@rspress/core': ^2.0.0-beta.34
+      react: '>=18.0.0'
+
   '@rspress/runtime@2.0.0-beta.34':
     resolution: {integrity: sha512-tz6J2bQCRscCGrDVOTF4XTb5RmTlpQK6DGFwv+N98z34ya4JYZ/xOpC4EGvDCTvVGI+AqFIsZz0Ra8Z2oX0zdg==}
     engines: {node: '>=18.0.0'}
@@ -595,6 +608,11 @@ packages:
   '@shikijs/transformers@3.13.0':
     resolution: {integrity: sha512-833lcuVzcRiG+fXvgslWsM2f4gHpjEgui1ipIknSizRuTgMkNZupiXE5/TVJ6eSYfhNBFhBZKkReKWO2GgYmqA==}
 
+  '@shikijs/twoslash@3.13.0':
+    resolution: {integrity: sha512-OmNKNoZ8Hevt4VKQHfJL+hrsrqLSnW/Nz7RMutuBqXBCIYZWk80HnF9pcXEwRmy9MN0MGRmZCW2rDDP8K7Bxkw==}
+    peerDependencies:
+      typescript: '>=5.5.0'
+
   '@shikijs/types@3.12.2':
     resolution: {integrity: sha512-K5UIBzxCyv0YoxN3LMrKB9zuhp1bV+LgewxuVwHdl4Gz5oePoUFrr9EfgJlGlDeXCU1b/yhdnXeuRvAnz8HN8Q==}
 
@@ -651,9 +669,6 @@ packages:
   '@types/react@19.1.12':
     resolution: {integrity: sha512-cMoR+FoAf/Jyq6+Df2/Z41jISvGZZ2eTlnsaJRptmZ76Caldwy1odD4xTr/gNV9VLj0AWgg/nmkevIyUfIIq5w==}
 
-  '@types/stylis@4.2.5':
-    resolution: {integrity: sha512-1Xve+NMN7FWjY14vLoY5tL3BVEQ/n42YLwaqJIPYhotZ9uBHt87VceMwWQpzmdEt2TNXIorIFG+YeCUUW7RInw==}
-
   '@types/unist@2.0.11':
     resolution: {integrity: sha512-CmBKiL6NNo/OqgmMn95Fk9Whlp2mtvIv+KNpQKN2F4SjvrEesubTRWGYSg+BnWZOnlCaSTU1sMpsBOzgbYhnsA==}
 
@@ -665,6 +680,11 @@ packages:
 
   '@types/web-bluetooth@0.0.21':
     resolution: {integrity: sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==}
+
+  '@typescript/vfs@1.6.1':
+    resolution: {integrity: sha512-JwoxboBh7Oz1v38tPbkrZ62ZXNHAk9bJ7c9x0eI5zBfBnBYGhURdbnh7Z4smN/MV48Y5OCcZb58n972UtbazsA==}
+    peerDependencies:
+      typescript: '*'
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
@@ -846,9 +866,6 @@ packages:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
     engines: {node: '>=8'}
 
-  camelize@1.0.1:
-    resolution: {integrity: sha512-dU+Tx2fsypxTgtLoE36npi3UqcjSSMNYfkqgmoEhtZrraP5VWq0K7FkWVTYa8eMPtnU/G2txVsfdCJTn9uzpuQ==}
-
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
 
@@ -897,13 +914,6 @@ packages:
 
   crelt@1.0.6:
     resolution: {integrity: sha512-VQ2MBenTq1fWZUH9DJNGti7kKv6EeAuYr3cLwxUWhIu1baTaXh4Ib5W2CqHVqib4/MqbYGJqiL3Zb8GJZr3l4g==}
-
-  css-color-keywords@1.0.0:
-    resolution: {integrity: sha512-FyyrDHZKEjXDpNJYvVsV960FiqQyXc/LlYmsxl2BcdMb2WPx0OGRVgTg55rPSyLSNMqP52R9r8geSp7apN3Ofg==}
-    engines: {node: '>=4'}
-
-  css-to-react-native@3.2.0:
-    resolution: {integrity: sha512-e8RKaLXMOFii+02mOlqwjbD00KSEKqblnpO9e++1aXS1fPQOpS1YoqdVHBqPjHNoxeF2mimzVqawm2KCbEdtHQ==}
 
   csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
@@ -1424,9 +1434,6 @@ packages:
   micromark@4.0.2:
     resolution: {integrity: sha512-zpe98Q6kvavpCr1NPVSCMebCKfD7CA2NqZ+rykeNhONIJBpc1tFKt9hucLGwha3jNTNI8lHpctWJWoimVF4PfA==}
 
-  mobx@6.13.7:
-    resolution: {integrity: sha512-aChaVU/DO5aRPmk1GX8L+whocagUUpBQqoPtJk+cm7UOXUk87J4PeWCh6nNmTTIfEhiR9DI/+FnA8dln/hTK7g==}
-
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
@@ -1482,13 +1489,6 @@ packages:
   picomatch@4.0.3:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
-
-  postcss-value-parser@4.2.0:
-    resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
-
-  postcss@8.4.49:
-    resolution: {integrity: sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA==}
-    engines: {node: ^10 || ^12 || >=14}
 
   postcss@8.5.6:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
@@ -1614,6 +1614,27 @@ packages:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
 
+  rsbuild-plugin-google-analytics@1.0.4:
+    resolution: {integrity: sha512-K7KkgIUJWtoBpcCLBDLnBXezvQWdue5LCDO4NDvSDe/TEFxOlKb8wG6dDtp/A+CwbnZRVeNOZ9cB6vNg/y/Suw==}
+    peerDependencies:
+      '@rsbuild/core': 1.x
+    peerDependenciesMeta:
+      '@rsbuild/core':
+        optional: true
+
+  rsbuild-plugin-open-graph@1.1.0:
+    resolution: {integrity: sha512-ETrmQxhs/hW7xFzDGb6CIiZ1tVOrsrGPDgPTC/49bQ+sK75y6LZ3/CvcqPNxMwdnI3Ba79l62FIFvR0uC+UISw==}
+    peerDependencies:
+      '@rsbuild/core': 1.x
+    peerDependenciesMeta:
+      '@rsbuild/core':
+        optional: true
+
+  rspress-plugin-font-open-sans@1.0.3:
+    resolution: {integrity: sha512-17i7uUqvyy5k51ggZJ5xoP9duqC2W76GcBviIu400VXXAQEZx3JzZWPcGz9gGmVaFHAkH19NtZK0EYKfneX4rw==}
+    peerDependencies:
+      '@rspress/core': ^2.0.0-beta.24 || ^2.0.0
+
   scheduler@0.26.0:
     resolution: {integrity: sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==}
 
@@ -1623,9 +1644,6 @@ packages:
 
   selderee@0.11.0:
     resolution: {integrity: sha512-5TF+l7p4+OsnP8BCCvSyZiSPc4x4//p5uPwK8TCnVPJYRmU2aYKMpOXvw8zM5a5JvuuCGN1jmsMwuU2W02ukfA==}
-
-  shallowequal@1.1.0:
-    resolution: {integrity: sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==}
 
   shell-quote@1.8.3:
     resolution: {integrity: sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==}
@@ -1671,16 +1689,6 @@ packages:
   style-to-object@1.0.9:
     resolution: {integrity: sha512-G4qppLgKu/k6FwRpHiGiKPaPTFcG3g4wNVX/Qsfu+RqQM30E7Tyu/TEgxcL9PNLF5pdRLwQdE3YKKf+KF2Dzlw==}
 
-  styled-components@6.1.19:
-    resolution: {integrity: sha512-1v/e3Dl1BknC37cXMhwGomhO8AkYmN41CqyX9xhUDxry1ns3BFQy2lLDRQXJRdVVWB9OHemv/53xaStimvWyuA==}
-    engines: {node: '>= 16'}
-    peerDependencies:
-      react: '>= 16.8.0'
-      react-dom: '>= 16.8.0'
-
-  stylis@4.3.2:
-    resolution: {integrity: sha512-bhtUjWd/z6ltJiQwg0dUfxEJ+W+jdqQd8TbWLWyeIJHlnsqmGLRFFd8e5mA0AZi/zx90smXRlN66YMTcaSFifg==}
-
   tabbable@6.2.0:
     resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
 
@@ -1715,15 +1723,25 @@ packages:
     resolution: {integrity: sha512-Du/ZW2RfwV/D4cmA5rXafYjBQVuvu4qGiEEla4EmEHVHgRdx68Gftx7i66jn2bzHPwSVZY36Ae6OuDn9el4ZKA==}
     engines: {node: '>=14.13.1'}
 
-  tslib@2.6.2:
-    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
-
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+  twoslash-protocol@0.3.4:
+    resolution: {integrity: sha512-HHd7lzZNLUvjPzG/IE6js502gEzLC1x7HaO1up/f72d8G8ScWAs9Yfa97igelQRDl5h9tGcdFsRp+lNVre1EeQ==}
+
+  twoslash@0.3.4:
+    resolution: {integrity: sha512-RtJURJlGRxrkJmTcZMjpr7jdYly1rfgpujJr1sBM9ch7SKVht/SjFk23IOAyvwT1NLCk+SJiMrvW4rIAUM2Wug==}
+    peerDependencies:
+      typescript: ^5.5.0
 
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
+
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
 
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
@@ -1997,14 +2015,6 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@emotion/is-prop-valid@1.2.2':
-    dependencies:
-      '@emotion/memoize': 0.8.1
-
-  '@emotion/memoize@0.8.1': {}
-
-  '@emotion/unitless@0.8.1': {}
-
   '@floating-ui/core@1.7.3':
     dependencies:
       '@floating-ui/utils': 0.2.10
@@ -2016,11 +2026,11 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@floating-ui/vue@1.1.9(vue@3.5.21)':
+  '@floating-ui/vue@1.1.9(vue@3.5.21(typescript@5.9.3))':
     dependencies:
       '@floating-ui/dom': 1.7.4
       '@floating-ui/utils': 0.2.10
-      vue-demi: 0.14.10(vue@3.5.21)
+      vue-demi: 0.14.10(vue@3.5.21(typescript@5.9.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -2029,10 +2039,10 @@ snapshots:
     dependencies:
       tailwindcss: 4.1.13
 
-  '@headlessui/vue@1.7.23(vue@3.5.21)':
+  '@headlessui/vue@1.7.23(vue@3.5.21(typescript@5.9.3))':
     dependencies:
-      '@tanstack/vue-virtual': 3.13.12(vue@3.5.21)
-      vue: 3.5.21
+      '@tanstack/vue-virtual': 3.13.12(vue@3.5.21(typescript@5.9.3))
+      vue: 3.5.21(typescript@5.9.3)
 
   '@hyperjump/browser@1.3.1':
     dependencies:
@@ -2357,6 +2367,25 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@rspress/plugin-sitemap@2.0.0-beta.34(@rspress/core@2.0.0-beta.34(@types/react@19.1.12))':
+    dependencies:
+      '@rspress/core': 2.0.0-beta.34(@types/react@19.1.12)
+
+  '@rspress/plugin-twoslash@2.0.0-beta.34(@rspress/core@2.0.0-beta.34(@types/react@19.1.12))(react@19.1.1)(typescript@5.9.3)':
+    dependencies:
+      '@floating-ui/dom': 1.7.4
+      '@rspress/core': 2.0.0-beta.34(@types/react@19.1.12)
+      '@shikijs/twoslash': 3.13.0(typescript@5.9.3)
+      mdast-util-from-markdown: 2.0.2
+      mdast-util-gfm: 3.1.0
+      mdast-util-to-hast: 13.2.0
+      picocolors: 1.1.1
+      react: 19.1.1
+      twoslash: 0.3.4(typescript@5.9.3)
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
+
   '@rspress/runtime@2.0.0-beta.34':
     dependencies:
       '@rspress/shared': 2.0.0-beta.34
@@ -2397,31 +2426,31 @@ snapshots:
     dependencies:
       zod: 3.24.1
 
-  '@scalar/api-client@2.5.34(nprogress@0.2.0)(tailwindcss@4.1.13)':
+  '@scalar/api-client@2.5.34(nprogress@0.2.0)(tailwindcss@4.1.13)(typescript@5.9.3)':
     dependencies:
       '@headlessui/tailwindcss': 0.2.2(tailwindcss@4.1.13)
-      '@headlessui/vue': 1.7.23(vue@3.5.21)
+      '@headlessui/vue': 1.7.23(vue@3.5.21(typescript@5.9.3))
       '@scalar/analytics-client': 1.0.0
-      '@scalar/components': 0.14.35
-      '@scalar/draggable': 0.2.0
+      '@scalar/components': 0.14.35(typescript@5.9.3)
+      '@scalar/draggable': 0.2.0(typescript@5.9.3)
       '@scalar/helpers': 0.0.11
-      '@scalar/icons': 0.4.7
-      '@scalar/import': 0.4.25
-      '@scalar/oas-utils': 0.4.30
+      '@scalar/icons': 0.4.7(typescript@5.9.3)
+      '@scalar/import': 0.4.25(typescript@5.9.3)
+      '@scalar/oas-utils': 0.4.30(typescript@5.9.3)
       '@scalar/object-utils': 1.2.7
-      '@scalar/openapi-parser': 0.21.0
+      '@scalar/openapi-parser': 0.21.0(typescript@5.9.3)
       '@scalar/openapi-types': 0.3.7
-      '@scalar/postman-to-openapi': 0.3.33
+      '@scalar/postman-to-openapi': 0.3.33(typescript@5.9.3)
       '@scalar/snippetz': 0.4.10
       '@scalar/themes': 0.13.18
       '@scalar/types': 0.2.16
-      '@scalar/use-codemirror': 0.12.36
-      '@scalar/use-hooks': 0.2.5
-      '@scalar/use-toasts': 0.8.0
-      '@scalar/workspace-store': 0.15.7
+      '@scalar/use-codemirror': 0.12.36(typescript@5.9.3)
+      '@scalar/use-hooks': 0.2.5(typescript@5.9.3)
+      '@scalar/use-toasts': 0.8.0(typescript@5.9.3)
+      '@scalar/workspace-store': 0.15.7(typescript@5.9.3)
       '@types/har-format': 1.2.16
-      '@vueuse/core': 13.9.0(vue@3.5.21)
-      '@vueuse/integrations': 13.9.0(focus-trap@7.6.5)(fuse.js@7.1.0)(nprogress@0.2.0)(vue@3.5.21)
+      '@vueuse/core': 13.9.0(vue@3.5.21(typescript@5.9.3))
+      '@vueuse/integrations': 13.9.0(focus-trap@7.6.5)(fuse.js@7.1.0)(nprogress@0.2.0)(vue@3.5.21(typescript@5.9.3))
       focus-trap: 7.6.5
       fuse.js: 7.1.0
       js-base64: 3.7.8
@@ -2431,8 +2460,8 @@ snapshots:
       pretty-ms: 8.0.0
       shell-quote: 1.8.3
       type-fest: 4.41.0
-      vue: 3.5.21
-      vue-router: 4.5.1(vue@3.5.21)
+      vue: 3.5.21(typescript@5.9.3)
+      vue-router: 4.5.1(vue@3.5.21(typescript@5.9.3))
       whatwg-mimetype: 4.0.0
       yaml: 2.8.0
       zod: 3.24.1
@@ -2452,9 +2481,9 @@ snapshots:
       - typescript
       - universal-cookie
 
-  '@scalar/api-reference-react@0.7.50(nprogress@0.2.0)(react@19.1.1)(tailwindcss@4.1.13)':
+  '@scalar/api-reference-react@0.7.50(nprogress@0.2.0)(react@19.1.1)(tailwindcss@4.1.13)(typescript@5.9.3)':
     dependencies:
-      '@scalar/api-reference': 1.35.7(nprogress@0.2.0)(tailwindcss@4.1.13)
+      '@scalar/api-reference': 1.35.7(nprogress@0.2.0)(tailwindcss@4.1.13)(typescript@5.9.3)
       '@scalar/types': 0.2.16
       react: 19.1.1
     transitivePeerDependencies:
@@ -2473,29 +2502,29 @@ snapshots:
       - typescript
       - universal-cookie
 
-  '@scalar/api-reference@1.35.7(nprogress@0.2.0)(tailwindcss@4.1.13)':
+  '@scalar/api-reference@1.35.7(nprogress@0.2.0)(tailwindcss@4.1.13)(typescript@5.9.3)':
     dependencies:
-      '@floating-ui/vue': 1.1.9(vue@3.5.21)
-      '@headlessui/vue': 1.7.23(vue@3.5.21)
-      '@scalar/api-client': 2.5.34(nprogress@0.2.0)(tailwindcss@4.1.13)
+      '@floating-ui/vue': 1.1.9(vue@3.5.21(typescript@5.9.3))
+      '@headlessui/vue': 1.7.23(vue@3.5.21(typescript@5.9.3))
+      '@scalar/api-client': 2.5.34(nprogress@0.2.0)(tailwindcss@4.1.13)(typescript@5.9.3)
       '@scalar/code-highlight': 0.2.0
-      '@scalar/components': 0.14.35
+      '@scalar/components': 0.14.35(typescript@5.9.3)
       '@scalar/helpers': 0.0.11
-      '@scalar/icons': 0.4.7
-      '@scalar/json-magic': 0.5.0
-      '@scalar/oas-utils': 0.4.30
+      '@scalar/icons': 0.4.7(typescript@5.9.3)
+      '@scalar/json-magic': 0.5.0(typescript@5.9.3)
+      '@scalar/oas-utils': 0.4.30(typescript@5.9.3)
       '@scalar/object-utils': 1.2.7
-      '@scalar/openapi-parser': 0.21.0
+      '@scalar/openapi-parser': 0.21.0(typescript@5.9.3)
       '@scalar/openapi-types': 0.3.7
       '@scalar/openapi-upgrader': 0.1.0
       '@scalar/snippetz': 0.4.10
       '@scalar/themes': 0.13.18
       '@scalar/types': 0.2.16
-      '@scalar/use-hooks': 0.2.5
-      '@scalar/use-toasts': 0.8.0
-      '@scalar/workspace-store': 0.15.7
-      '@unhead/vue': 1.11.20(vue@3.5.21)
-      '@vueuse/core': 13.9.0(vue@3.5.21)
+      '@scalar/use-hooks': 0.2.5(typescript@5.9.3)
+      '@scalar/use-toasts': 0.8.0(typescript@5.9.3)
+      '@scalar/workspace-store': 0.15.7(typescript@5.9.3)
+      '@unhead/vue': 1.11.20(vue@3.5.21(typescript@5.9.3))
+      '@vueuse/core': 13.9.0(vue@3.5.21(typescript@5.9.3))
       flatted: 3.3.3
       fuse.js: 7.1.0
       github-slugger: 2.0.0
@@ -2503,7 +2532,7 @@ snapshots:
       microdiff: 1.5.0
       nanoid: 5.1.5
       type-fest: 4.41.0
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
       zod: 3.24.1
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -2543,74 +2572,74 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@scalar/components@0.14.35':
+  '@scalar/components@0.14.35(typescript@5.9.3)':
     dependencies:
       '@floating-ui/utils': 0.2.10
-      '@floating-ui/vue': 1.1.9(vue@3.5.21)
-      '@headlessui/vue': 1.7.23(vue@3.5.21)
+      '@floating-ui/vue': 1.1.9(vue@3.5.21(typescript@5.9.3))
+      '@headlessui/vue': 1.7.23(vue@3.5.21(typescript@5.9.3))
       '@scalar/code-highlight': 0.2.0
       '@scalar/helpers': 0.0.11
-      '@scalar/icons': 0.4.7
-      '@scalar/oas-utils': 0.4.30
+      '@scalar/icons': 0.4.7(typescript@5.9.3)
+      '@scalar/oas-utils': 0.4.30(typescript@5.9.3)
       '@scalar/themes': 0.13.18
-      '@scalar/use-hooks': 0.2.5
-      '@scalar/use-toasts': 0.8.0
-      '@vueuse/core': 13.9.0(vue@3.5.21)
-      cva: 1.0.0-beta.2
+      '@scalar/use-hooks': 0.2.5(typescript@5.9.3)
+      '@scalar/use-toasts': 0.8.0(typescript@5.9.3)
+      '@vueuse/core': 13.9.0(vue@3.5.21(typescript@5.9.3))
+      cva: 1.0.0-beta.2(typescript@5.9.3)
       nanoid: 5.1.5
       pretty-bytes: 6.1.1
-      radix-vue: 1.9.17(vue@3.5.21)
-      vue: 3.5.21
+      radix-vue: 1.9.17(vue@3.5.21(typescript@5.9.3))
+      vue: 3.5.21(typescript@5.9.3)
       vue-component-type-helpers: 3.0.7
     transitivePeerDependencies:
       - '@vue/composition-api'
       - supports-color
       - typescript
 
-  '@scalar/draggable@0.2.0':
+  '@scalar/draggable@0.2.0(typescript@5.9.3)':
     dependencies:
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
   '@scalar/helpers@0.0.11': {}
 
-  '@scalar/icons@0.4.7':
+  '@scalar/icons@0.4.7(typescript@5.9.3)':
     dependencies:
       '@phosphor-icons/core': 2.1.1
       '@types/node': 22.18.6
       chalk: 5.6.2
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
-  '@scalar/import@0.4.25':
+  '@scalar/import@0.4.25(typescript@5.9.3)':
     dependencies:
       '@scalar/helpers': 0.0.11
-      '@scalar/openapi-parser': 0.21.0
+      '@scalar/openapi-parser': 0.21.0(typescript@5.9.3)
       yaml: 2.8.0
     transitivePeerDependencies:
       - typescript
 
-  '@scalar/json-magic@0.5.0':
+  '@scalar/json-magic@0.5.0(typescript@5.9.3)':
     dependencies:
       '@scalar/helpers': 0.0.11
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
       yaml: 2.8.0
     transitivePeerDependencies:
       - typescript
 
-  '@scalar/oas-utils@0.4.30':
+  '@scalar/oas-utils@0.4.30(typescript@5.9.3)':
     dependencies:
       '@hyperjump/browser': 1.3.1
       '@hyperjump/json-schema': 1.16.2(@hyperjump/browser@1.3.1)
       '@scalar/helpers': 0.0.11
-      '@scalar/json-magic': 0.5.0
+      '@scalar/json-magic': 0.5.0(typescript@5.9.3)
       '@scalar/object-utils': 1.2.7
       '@scalar/openapi-types': 0.3.7
       '@scalar/themes': 0.13.18
       '@scalar/types': 0.2.16
-      '@scalar/workspace-store': 0.15.7
+      '@scalar/workspace-store': 0.15.7(typescript@5.9.3)
       '@types/har-format': 1.2.16
       flatted: 3.3.3
       js-base64: 3.7.8
@@ -2631,9 +2660,9 @@ snapshots:
       ts-deepmerge: 7.0.3
       type-fest: 4.41.0
 
-  '@scalar/openapi-parser@0.21.0':
+  '@scalar/openapi-parser@0.21.0(typescript@5.9.3)':
     dependencies:
-      '@scalar/json-magic': 0.5.0
+      '@scalar/json-magic': 0.5.0(typescript@5.9.3)
       '@scalar/openapi-types': 0.3.7
       '@scalar/openapi-upgrader': 0.1.0
       ajv: 8.17.1
@@ -2653,10 +2682,10 @@ snapshots:
     dependencies:
       '@scalar/openapi-types': 0.3.7
 
-  '@scalar/postman-to-openapi@0.3.33':
+  '@scalar/postman-to-openapi@0.3.33(typescript@5.9.3)':
     dependencies:
       '@scalar/helpers': 0.0.11
-      '@scalar/oas-utils': 0.4.30
+      '@scalar/oas-utils': 0.4.30(typescript@5.9.3)
       '@scalar/openapi-types': 0.3.7
     transitivePeerDependencies:
       - supports-color
@@ -2680,7 +2709,7 @@ snapshots:
       nanoid: 5.1.5
       zod: 3.24.1
 
-  '@scalar/use-codemirror@0.12.36':
+  '@scalar/use-codemirror@0.12.36(typescript@5.9.3)':
     dependencies:
       '@codemirror/autocomplete': 6.18.7
       '@codemirror/commands': 6.8.1
@@ -2696,45 +2725,45 @@ snapshots:
       '@lezer/common': 1.2.3
       '@lezer/highlight': 1.2.1
       '@replit/codemirror-css-color-picker': 6.3.0(@codemirror/language@6.11.3)(@codemirror/state@6.5.2)(@codemirror/view@6.38.2)
-      '@scalar/components': 0.14.35
+      '@scalar/components': 0.14.35(typescript@5.9.3)
       codemirror: 6.0.2
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - supports-color
       - typescript
 
-  '@scalar/use-hooks@0.2.5':
+  '@scalar/use-hooks@0.2.5(typescript@5.9.3)':
     dependencies:
-      '@scalar/use-toasts': 0.8.0
-      '@vueuse/core': 13.9.0(vue@3.5.21)
-      cva: 1.0.0-beta.2
+      '@scalar/use-toasts': 0.8.0(typescript@5.9.3)
+      '@vueuse/core': 13.9.0(vue@3.5.21(typescript@5.9.3))
+      cva: 1.0.0-beta.2(typescript@5.9.3)
       tailwind-merge: 2.6.0
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
       zod: 3.24.1
     transitivePeerDependencies:
       - typescript
 
-  '@scalar/use-toasts@0.8.0':
+  '@scalar/use-toasts@0.8.0(typescript@5.9.3)':
     dependencies:
       nanoid: 5.1.5
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
       vue-sonner: 1.3.2
     transitivePeerDependencies:
       - typescript
 
-  '@scalar/workspace-store@0.15.7':
+  '@scalar/workspace-store@0.15.7(typescript@5.9.3)':
     dependencies:
       '@scalar/code-highlight': 0.2.0
       '@scalar/helpers': 0.0.11
-      '@scalar/json-magic': 0.5.0
+      '@scalar/json-magic': 0.5.0(typescript@5.9.3)
       '@scalar/openapi-upgrader': 0.1.0
       '@scalar/snippetz': 0.4.10
       '@scalar/typebox': 0.1.1
       '@scalar/types': 0.2.16
       github-slugger: 2.0.0
       type-fest: 4.41.0
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
       yaml: 2.8.0
     transitivePeerDependencies:
       - supports-color
@@ -2792,6 +2821,15 @@ snapshots:
       '@shikijs/core': 3.13.0
       '@shikijs/types': 3.13.0
 
+  '@shikijs/twoslash@3.13.0(typescript@5.9.3)':
+    dependencies:
+      '@shikijs/core': 3.13.0
+      '@shikijs/types': 3.13.0
+      twoslash: 0.3.4(typescript@5.9.3)
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@shikijs/types@3.12.2':
     dependencies:
       '@shikijs/vscode-textmate': 10.0.2
@@ -2810,10 +2848,10 @@ snapshots:
 
   '@tanstack/virtual-core@3.13.12': {}
 
-  '@tanstack/vue-virtual@3.13.12(vue@3.5.21)':
+  '@tanstack/vue-virtual@3.13.12(vue@3.5.21(typescript@5.9.3))':
     dependencies:
       '@tanstack/virtual-core': 3.13.12
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
 
   '@tybys/wasm-util@0.10.1':
     dependencies:
@@ -2856,8 +2894,6 @@ snapshots:
     dependencies:
       csstype: 3.1.3
 
-  '@types/stylis@4.2.5': {}
-
   '@types/unist@2.0.11': {}
 
   '@types/unist@3.0.3': {}
@@ -2865,6 +2901,13 @@ snapshots:
   '@types/web-bluetooth@0.0.20': {}
 
   '@types/web-bluetooth@0.0.21': {}
+
+  '@typescript/vfs@1.6.1(typescript@5.9.3)':
+    dependencies:
+      debug: 4.4.1
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
 
   '@ungap/structured-clone@1.3.0': {}
 
@@ -2888,13 +2931,13 @@ snapshots:
       '@unhead/schema': 1.11.20
       packrup: 0.1.2
 
-  '@unhead/vue@1.11.20(vue@3.5.21)':
+  '@unhead/vue@1.11.20(vue@3.5.21(typescript@5.9.3))':
     dependencies:
       '@unhead/schema': 1.11.20
       '@unhead/shared': 1.11.20
       hookable: 5.5.3
       unhead: 1.11.20
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
 
   '@vue/compiler-core@3.5.21':
     dependencies:
@@ -2944,36 +2987,36 @@ snapshots:
       '@vue/shared': 3.5.21
       csstype: 3.1.3
 
-  '@vue/server-renderer@3.5.21(vue@3.5.21)':
+  '@vue/server-renderer@3.5.21(vue@3.5.21(typescript@5.9.3))':
     dependencies:
       '@vue/compiler-ssr': 3.5.21
       '@vue/shared': 3.5.21
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
 
   '@vue/shared@3.5.21': {}
 
-  '@vueuse/core@10.11.1(vue@3.5.21)':
+  '@vueuse/core@10.11.1(vue@3.5.21(typescript@5.9.3))':
     dependencies:
       '@types/web-bluetooth': 0.0.20
       '@vueuse/metadata': 10.11.1
-      '@vueuse/shared': 10.11.1(vue@3.5.21)
-      vue-demi: 0.14.10(vue@3.5.21)
+      '@vueuse/shared': 10.11.1(vue@3.5.21(typescript@5.9.3))
+      vue-demi: 0.14.10(vue@3.5.21(typescript@5.9.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/core@13.9.0(vue@3.5.21)':
+  '@vueuse/core@13.9.0(vue@3.5.21(typescript@5.9.3))':
     dependencies:
       '@types/web-bluetooth': 0.0.21
       '@vueuse/metadata': 13.9.0
-      '@vueuse/shared': 13.9.0(vue@3.5.21)
-      vue: 3.5.21
+      '@vueuse/shared': 13.9.0(vue@3.5.21(typescript@5.9.3))
+      vue: 3.5.21(typescript@5.9.3)
 
-  '@vueuse/integrations@13.9.0(focus-trap@7.6.5)(fuse.js@7.1.0)(nprogress@0.2.0)(vue@3.5.21)':
+  '@vueuse/integrations@13.9.0(focus-trap@7.6.5)(fuse.js@7.1.0)(nprogress@0.2.0)(vue@3.5.21(typescript@5.9.3))':
     dependencies:
-      '@vueuse/core': 13.9.0(vue@3.5.21)
-      '@vueuse/shared': 13.9.0(vue@3.5.21)
-      vue: 3.5.21
+      '@vueuse/core': 13.9.0(vue@3.5.21(typescript@5.9.3))
+      '@vueuse/shared': 13.9.0(vue@3.5.21(typescript@5.9.3))
+      vue: 3.5.21(typescript@5.9.3)
     optionalDependencies:
       focus-trap: 7.6.5
       fuse.js: 7.1.0
@@ -2983,16 +3026,16 @@ snapshots:
 
   '@vueuse/metadata@13.9.0': {}
 
-  '@vueuse/shared@10.11.1(vue@3.5.21)':
+  '@vueuse/shared@10.11.1(vue@3.5.21(typescript@5.9.3))':
     dependencies:
-      vue-demi: 0.14.10(vue@3.5.21)
+      vue-demi: 0.14.10(vue@3.5.21(typescript@5.9.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/shared@13.9.0(vue@3.5.21)':
+  '@vueuse/shared@13.9.0(vue@3.5.21(typescript@5.9.3))':
     dependencies:
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
 
   acorn-jsx@5.3.2(acorn@8.15.0):
     dependencies:
@@ -3041,8 +3084,6 @@ snapshots:
       fill-range: 7.1.1
 
   cac@6.7.14: {}
-
-  camelize@1.0.1: {}
 
   ccount@2.0.1: {}
 
@@ -3094,19 +3135,13 @@ snapshots:
 
   crelt@1.0.6: {}
 
-  css-color-keywords@1.0.0: {}
-
-  css-to-react-native@3.2.0:
-    dependencies:
-      camelize: 1.0.1
-      css-color-keywords: 1.0.0
-      postcss-value-parser: 4.2.0
-
   csstype@3.1.3: {}
 
-  cva@1.0.0-beta.2:
+  cva@1.0.0-beta.2(typescript@5.9.3):
     dependencies:
       clsx: 2.1.1
+    optionalDependencies:
+      typescript: 5.9.3
 
   debug@4.4.1:
     dependencies:
@@ -3970,8 +4005,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  mobx@6.13.7: {}
-
   ms@2.1.3: {}
 
   nanoid@3.3.11: {}
@@ -4021,14 +4054,6 @@ snapshots:
 
   picomatch@4.0.3: {}
 
-  postcss-value-parser@4.2.0: {}
-
-  postcss@8.4.49:
-    dependencies:
-      nanoid: 3.3.11
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
-
   postcss@8.5.6:
     dependencies:
       nanoid: 3.3.11
@@ -4047,20 +4072,20 @@ snapshots:
 
   property-information@7.1.0: {}
 
-  radix-vue@1.9.17(vue@3.5.21):
+  radix-vue@1.9.17(vue@3.5.21(typescript@5.9.3)):
     dependencies:
       '@floating-ui/dom': 1.7.4
-      '@floating-ui/vue': 1.1.9(vue@3.5.21)
+      '@floating-ui/vue': 1.1.9(vue@3.5.21(typescript@5.9.3))
       '@internationalized/date': 3.9.0
       '@internationalized/number': 3.6.5
-      '@tanstack/vue-virtual': 3.13.12(vue@3.5.21)
-      '@vueuse/core': 10.11.1(vue@3.5.21)
-      '@vueuse/shared': 10.11.1(vue@3.5.21)
+      '@tanstack/vue-virtual': 3.13.12(vue@3.5.21(typescript@5.9.3))
+      '@vueuse/core': 10.11.1(vue@3.5.21(typescript@5.9.3))
+      '@vueuse/shared': 10.11.1(vue@3.5.21(typescript@5.9.3))
       aria-hidden: 1.2.6
       defu: 6.1.4
       fast-deep-equal: 3.1.3
       nanoid: 5.1.5
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
     transitivePeerDependencies:
       - '@vue/composition-api'
 
@@ -4218,6 +4243,18 @@ snapshots:
 
   require-from-string@2.0.2: {}
 
+  rsbuild-plugin-google-analytics@1.0.4(@rsbuild/core@1.5.12):
+    optionalDependencies:
+      '@rsbuild/core': 1.5.12
+
+  rsbuild-plugin-open-graph@1.1.0(@rsbuild/core@1.5.12):
+    optionalDependencies:
+      '@rsbuild/core': 1.5.12
+
+  rspress-plugin-font-open-sans@1.0.3(@rspress/core@2.0.0-beta.34(@types/react@19.1.12)):
+    dependencies:
+      '@rspress/core': 2.0.0-beta.34(@types/react@19.1.12)
+
   scheduler@0.26.0: {}
 
   section-matter@1.0.0:
@@ -4228,8 +4265,6 @@ snapshots:
   selderee@0.11.0:
     dependencies:
       parseley: 0.12.1
-
-  shallowequal@1.1.0: {}
 
   shell-quote@1.8.3: {}
 
@@ -4277,22 +4312,6 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.4
 
-  styled-components@6.1.19(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
-    dependencies:
-      '@emotion/is-prop-valid': 1.2.2
-      '@emotion/unitless': 0.8.1
-      '@types/stylis': 4.2.5
-      css-to-react-native: 3.2.0
-      csstype: 3.1.3
-      postcss: 8.4.49
-      react: 19.1.1
-      react-dom: 19.1.1(react@19.1.1)
-      shallowequal: 1.1.0
-      stylis: 4.3.2
-      tslib: 2.6.2
-
-  stylis@4.3.2: {}
-
   tabbable@6.2.0: {}
 
   tailwind-merge@2.6.0: {}
@@ -4318,11 +4337,21 @@ snapshots:
 
   ts-deepmerge@7.0.3: {}
 
-  tslib@2.6.2: {}
-
   tslib@2.8.1: {}
 
+  twoslash-protocol@0.3.4: {}
+
+  twoslash@0.3.4(typescript@5.9.3):
+    dependencies:
+      '@typescript/vfs': 1.6.1(typescript@5.9.3)
+      twoslash-protocol: 0.3.4
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - supports-color
+
   type-fest@4.41.0: {}
+
+  typescript@5.9.3: {}
 
   undici-types@5.26.5: {}
 
@@ -4404,24 +4433,26 @@ snapshots:
 
   vue-component-type-helpers@3.0.7: {}
 
-  vue-demi@0.14.10(vue@3.5.21):
+  vue-demi@0.14.10(vue@3.5.21(typescript@5.9.3)):
     dependencies:
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
 
-  vue-router@4.5.1(vue@3.5.21):
+  vue-router@4.5.1(vue@3.5.21(typescript@5.9.3)):
     dependencies:
       '@vue/devtools-api': 6.6.4
-      vue: 3.5.21
+      vue: 3.5.21(typescript@5.9.3)
 
   vue-sonner@1.3.2: {}
 
-  vue@3.5.21:
+  vue@3.5.21(typescript@5.9.3):
     dependencies:
       '@vue/compiler-dom': 3.5.21
       '@vue/compiler-sfc': 3.5.21
       '@vue/runtime-dom': 3.5.21
-      '@vue/server-renderer': 3.5.21(vue@3.5.21)
+      '@vue/server-renderer': 3.5.21(vue@3.5.21(typescript@5.9.3))
       '@vue/shared': 3.5.21
+    optionalDependencies:
+      typescript: 5.9.3
 
   w3c-keyname@2.2.8: {}
 
