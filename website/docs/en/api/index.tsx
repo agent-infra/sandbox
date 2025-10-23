@@ -4,6 +4,7 @@ export const frontmatter = {
 
 import { NoSSR, useDark, useI18n } from '@rspress/core/runtime';
 import { Suspense, lazy } from 'react';
+import './global.scss';
 
 const ApiReferenceReact = lazy(() =>
   import('@scalar/api-reference-react').then((mod) => ({
@@ -41,16 +42,6 @@ export const APIPage = () => {
                 animation: 'spin 1s linear infinite',
               }}
             />
-            <style>{`
-              @keyframes spin {
-                0% {
-                  transform: rotate(0deg);
-                }
-                100% {
-                  transform: rotate(360deg);
-                }
-              }
-            `}</style>
             <div style={{ color: '#666', fontSize: '14px' }}>
               {t('loadingApiReference')}
             </div>
