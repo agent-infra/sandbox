@@ -1,4 +1,5 @@
 import * as path from 'node:path';
+import { pluginSass } from '@rsbuild/plugin-sass';
 import { pluginLlms } from '@rspress/plugin-llms';
 import { pluginSitemap } from '@rspress/plugin-sitemap';
 import { pluginTwoslash } from '@rspress/plugin-twoslash';
@@ -57,6 +58,7 @@ export default defineConfig({
       template: 'public/index.html',
     },
     plugins: [
+      pluginSass(),
       pluginGoogleAnalytics({ id: 'G-VDPJE6PYSN' }),
       pluginOpenGraph({
         url: siteUrl,
