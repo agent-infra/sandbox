@@ -332,7 +332,7 @@ class FileClient:
 
     def download_file(
         self, *, path: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.Optional[typing.Any]:
+    ) -> typing.Iterator[bytes]:
         """
         Download file using FileResponse
 
@@ -341,11 +341,11 @@ class FileClient:
         path : str
 
         request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
+            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
 
         Returns
         -------
-        typing.Optional[typing.Any]
+        typing.Iterator[bytes]
             Successful Response
 
         Examples
@@ -359,8 +359,8 @@ class FileClient:
             path="path",
         )
         """
-        _response = self._raw_client.download_file(path=path, request_options=request_options)
-        return _response.data
+        with self._raw_client.download_file(path=path, request_options=request_options) as r:
+            yield from r.data
 
     def list_path(
         self,
@@ -878,7 +878,7 @@ class AsyncFileClient:
 
     async def download_file(
         self, *, path: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.Optional[typing.Any]:
+    ) -> typing.AsyncIterator[bytes]:
         """
         Download file using FileResponse
 
@@ -887,11 +887,11 @@ class AsyncFileClient:
         path : str
 
         request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
+            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
 
         Returns
         -------
-        typing.Optional[typing.Any]
+        typing.AsyncIterator[bytes]
             Successful Response
 
         Examples
@@ -913,8 +913,9 @@ class AsyncFileClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.download_file(path=path, request_options=request_options)
-        return _response.data
+        async with self._raw_client.download_file(path=path, request_options=request_options) as r:
+            async for _chunk in r.data:
+                yield _chunk
 
     async def list_path(
         self,
