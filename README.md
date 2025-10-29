@@ -31,21 +31,21 @@
 Get up and running in 30 seconds:
 
 ```bash
-docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 For users in mainland China:
 
 ```bash
-docker run --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
 Use a specific version in the format `agent-infra/sandbox:${version}`, for example, to use version 1.0.0.125:
 
 ```bash
-docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:1.0.0.125
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:1.0.0.125
 # or users in mainland China
-docker run --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.125
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.125
 ```
 
 Once running, access the environment at:

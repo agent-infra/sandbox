@@ -7,7 +7,7 @@ Brief description of what this example demonstrates.
 1. Start the sandbox
 
 ```bash
-docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 2. Configure the environment

@@ -17,11 +17,11 @@
 
 The **AIO Sandbox SDK** is a cutting-edge Node.js library engineered for seamless integration with the AIO Sandbox environment. It delivers a comprehensive toolkit for:
 
-🔹 **Shell Execution** - Command automation and process management  
-🔹 **File Operations** - Complete file system interaction  
-🔹 **Jupyter Integration** - Notebook code execution and management  
-🔹 **Browser Automation** - Advanced web interaction capabilities  
-🔹 **TypeScript Support** - Full type safety and IntelliSense  
+🔹 **Shell Execution** - Command automation and process management
+🔹 **File Operations** - Complete file system interaction
+🔹 **Jupyter Integration** - Notebook code execution and management
+🔹 **Browser Automation** - Advanced web interaction capabilities
+🔹 **TypeScript Support** - Full type safety and IntelliSense
 
 Built with a **modern modular architecture**, the SDK ensures clean separation of concerns and provides an exceptional developer experience through comprehensive TypeScript support.
 
@@ -37,7 +37,7 @@ Built with a **modern modular architecture**, the SDK ensures clean separation o
 - 📊 Real-time output monitoring
 - ⏱️ Configurable timeout handling
 
-### 📁 **File Management** 
+### 📁 **File Management**
 - 📋 Directory listing with recursion
 - ✏️ File editing capabilities
 - 💾 Download and upload operations
@@ -226,7 +226,7 @@ docker pull aio.sandbox:latest
 
 **2️⃣ Start the Container**
 ```shell
-docker run -it -p 8821:8080 aio.sandbox:latest
+docker run --security-opt seccomp=unconfined -it -p 8821:8080 aio.sandbox:latest
 ```
 
 **3️⃣ Verify Connection**

@@ -15,7 +15,7 @@ Get up and running with AIO Sandbox in just a few minutes.
 
 ```bash
 # Pull and run the latest version
-docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 ### Option 2: For Users in Mainland China
@@ -23,7 +23,7 @@ docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
 Use our China mirror for faster downloads:
 
 ```bash
-docker run --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
 ### Option 3: Use a specific version
@@ -31,16 +31,16 @@ docker run --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefa
 Format `agent-infra/sandbox:${version}`, for example, to use version 1.0.0.125:
 
 ```bash
-docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:1.0.0.125
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:1.0.0.125
 
 # or users in mainland China
-docker run --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.125
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.125
 ```
 
 > If port 8080 is occupied, map to a different port:
 
 ```bash
-docker run --rm -it -p 3000:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 3000:8080 ghcr.io/agent-infra/sandbox:latest
 # Then access via http://localhost:3000
 ```
 

@@ -15,7 +15,7 @@ import { Tab, Tabs } from '@rspress/core/theme';
 
 ```bash
 # 拉取并运行最新版本
-docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 ### 选项 2：中国大陆用户
@@ -23,13 +23,13 @@ docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
 使用我们的中国镜像以获得更快的下载速度：
 
 ```bash
-docker run --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
 > 如果端口 8080 被占用，映射到不同的端口：
 
 ```bash
-docker run --rm -it -p 3000:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 3000:8080 ghcr.io/agent-infra/sandbox:latest
 # 然后通过 http://localhost:3000 访问
 ```
 
