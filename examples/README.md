@@ -9,6 +9,7 @@ This directory contains examples demonstrating various use cases and integration
 - [volcengine-provider](./volcengine-provider) - Volcengine cloud provider integration
 - [site-to-markdown](./site-to-markdown) - Website to markdown conversion with browser automation
 - [browser-use-integration](./browser-use-integration) - AI-driven browser automation
+- [playwright-integration](./playwright-integration) - Browser automation with Playwright
 - [openai-integration](./openai-integration) - OpenAI function calling with code execution
 - [langgraph-deepagents-integration](./langgraph-deepagents-integration) - LangGraph deep agent with MCP tools integration
 - [code-execute](./code-execute) - Execute code in sandbox (Jupyter and Node.js)
