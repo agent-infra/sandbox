@@ -15,7 +15,7 @@ from agent_sandbox import Sandbox
 
 client = Sandbox(base_url="http://localhost:8091")
 
-ctx = client.sandbox.get_sandbox_context()
+ctx = client.sandbox.get_context()
 print(ctx)
 
 result = client.shell.exec_command(command="ls -la")
@@ -34,7 +34,7 @@ async def main():
     client = AsyncSandbox(base_url="http://localhost:8091")
     
     # Get sandbox context
-    ctx = await client.sandbox.get_sandbox_context()
+    ctx = await client.sandbox.get_context()
     print(ctx)
 
     result = await client.shell.exec_command(command="ls -la")

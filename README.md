@@ -211,7 +211,7 @@ from agent_sandbox import Sandbox
 async def site_to_markdown():
     # Initialize sandbox client
     c = Sandbox(base_url="http://localhost:8080")
-    home_dir = c.sandbox.get_sandbox_context().home_dir
+    home_dir = c.sandbox.get_context().home_dir
 
     # Browser: Automation to download HTML
     async with async_playwright() as p:

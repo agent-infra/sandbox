@@ -243,7 +243,7 @@ from agent_sandbox import Sandbox
 async def site_to_markdown():
     # 初始化沙盒客户端
     c = Sandbox(base_url="http://localhost:8080")
-    home_dir = c.sandbox.get_sandbox_context().home_dir
+    home_dir = c.sandbox.get_context().home_dir
 
     # 浏览器：自动化下载 html
     async with async_playwright() as p:
