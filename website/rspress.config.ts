@@ -32,6 +32,13 @@ export default defineConfig({
   },
   markdown: {
     shiki: {
+      langAlias: {
+        Bash: 'shellscript',
+        Shell: 'shellscript',
+        Dockerfile: 'docker',
+        Python: 'python',
+      },
+      langs: ['shellscript', 'docker', 'python'],
       transformers: [
         transformerNotationDiff(),
         transformerNotationErrorLevel(),
