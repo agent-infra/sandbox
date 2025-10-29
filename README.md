@@ -222,7 +222,7 @@ async def site_to_markdown():
         screenshot_b64 = base64.b64encode(await page.screenshot()).decode('utf-8')
 
     # Jupyter: Convert HTML to markdown in sandbox
-    c.jupyter.execute_jupyter_code(code=f"""
+    c.jupyter.execute_code(code=f"""
 from markdownify import markdownify
 html = '''{html}'''
 screenshot_b64 = "{screenshot_b64}"
@@ -410,7 +410,7 @@ sandbox = Sandbox(base_url="http://localhost:8080")
 # define a tool to run code in the sandbox
 def run_code(code, lang="python"):
     if lang == "python":
-        return sandbox.jupyter.execute_jupyter_code(code=code).data
+        return sandbox.jupyter.execute_code(code=code).data
     return sandbox.nodejs.execute_nodejs_code(code=code).data
 
 

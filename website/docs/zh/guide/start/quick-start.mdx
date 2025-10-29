@@ -261,7 +261,7 @@ async def site_to_markdown():
         ).decode('utf-8')
 
     # Jupyter：在沙盒中运行代码将 html 转换为 markdown
-    c.jupyter.execute_jupyter_code(
+    c.jupyter.execute_code(
         code=f"""
 from markdownify import markdownify
 html = '''{html}'''

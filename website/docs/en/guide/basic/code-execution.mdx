@@ -39,7 +39,7 @@ from agent_sandbox import Sandbox
 client = Sandbox(base_url="http://127.0.0.1:8080")
 
 # Execute Python code
-result = client.jupyter.execute_jupyter_code(
+result = client.jupyter.execute_code(
     code="""
 import numpy as np
 
@@ -74,13 +74,13 @@ Maintain variable state across multiple code executions using sessions:
 <Tab label="Python SDK">
 ```python
 # First execution - initialize variables
-result1 = client.jupyter.execute_jupyter_code(
+result1 = client.jupyter.execute_code(
     code="x = 42\ny = 'Hello'",
     session_id="my_session"
 )
 
 # Second execution - use previous variables
-result2 = client.jupyter.execute_jupyter_code(
+result2 = client.jupyter.execute_code(
     code="print(f'{y}, the answer is {x}')",
     session_id="my_session"  # Same session ID
 )
@@ -133,7 +133,7 @@ print(f"Available kernels: {info.available_kernels}")
 # Output: ['python3', 'python3.9', 'python3.10', 'python3.11', 'python3.12']
 
 # Use Python 3.9 for legacy compatibility
-result_py39 = client.jupyter.execute_jupyter_code(
+result_py39 = client.jupyter.execute_code(
     code="""
 import sys
 print(f"Python: {sys.version}")
@@ -148,7 +148,7 @@ process(['a', 'b', 'c'])
 )
 
 # Use Python 3.11 for new features
-result_py311 = client.jupyter.execute_jupyter_code(
+result_py311 = client.jupyter.execute_code(
     code="""
 import sys
 print(f"Python: {sys.version}")
@@ -167,7 +167,7 @@ process(['hello', 'world'])
 )
 
 # Use Python 3.12 for latest features
-result_py312 = client.jupyter.execute_jupyter_code(
+result_py312 = client.jupyter.execute_code(
     code="""
 import sys
 print(f"Python: {sys.version}")
@@ -203,7 +203,7 @@ Configure kernel, timeout, and other execution parameters:
 
 ```python
 # Use specific kernel with timeout
-result = client.jupyter.execute_jupyter_code(
+result = client.jupyter.execute_code(
     code="""
 import time
 import sys
@@ -229,7 +229,7 @@ print(f"Max sessions: {info.max_sessions}")
 Jupyter execution returns different output types based on the code:
 
 ```python
-result = client.jupyter.execute_jupyter_code(code="...")
+result = client.jupyter.execute_code(code="...")
 
 # Check execution status
 print(f"Status: {result.status}")  # 'ok', 'error', or 'timeout'
@@ -484,7 +484,7 @@ Both execution environments provide comprehensive error information:
 
 ```python
 try:
-    result = client.jupyter.execute_jupyter_code(
+    result = client.jupyter.execute_code(
         code="print(undefined_variable)"
     )
 
@@ -544,7 +544,7 @@ if result.status == "error":
 def execute_with_retry(code, max_retries=3):
     for attempt in range(max_retries):
         try:
-            result = client.jupyter.execute_jupyter_code(
+            result = client.jupyter.execute_code(
                 code=code,
                 timeout=60
             )
