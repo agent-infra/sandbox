@@ -215,7 +215,7 @@ async def site_to_markdown():
 
     # Browser: Automation to download HTML
     async with async_playwright() as p:
-        browser_info = c.browser.get_browser_info().data
+        browser_info = c.browser.get_info().data
         page = await (await p.chromium.connect_over_cdp(browser_info.cdp_url)).new_page()
         await page.goto("https://example.com", wait_until="networkidle")
         html = await page.content()

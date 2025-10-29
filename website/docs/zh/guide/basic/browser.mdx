@@ -70,7 +70,7 @@ from agent_sandbox.browser import Action_Click, Action_MoveTo, Action_Typing
 client = Sandbox(base_url="http://localhost:8080")
 
 # 获取浏览器信息
-browser_info = client.browser.get_browser_info()
+browser_info = client.browser.get_info()
 print(f"CDP URL: {browser_info.cdp_url}")
 print(f"Viewport: {browser_info.viewport}")
 
@@ -110,7 +110,7 @@ async def main():
     client = AsyncSandbox(base_url="http://localhost:8080")
 
     # 获取浏览器信息
-    browser_info = await client.browser.get_browser_info()
+    browser_info = await client.browser.get_info()
     print(f"CDP URL: {browser_info.cdp_url}")
 
     # 截图
@@ -145,7 +145,7 @@ from browser_use.browser.browser import BrowserSession, BrowserProfile
 
 # 获取 CDP URL
 client = Sandbox(base_url="http://localhost:8080")
-cdp_url = client.browser.get_browser_info().cdp_url
+cdp_url = client.browser.get_info().cdp_url
 
 # 配置浏览器配置文件
 profile = {
@@ -176,7 +176,7 @@ from agent_sandbox import Sandbox
 client = Sandbox(base_url="http://localhost:8080")
 
 async with async_playwright() as p:
-    browser_info = client.browser.get_browser_info()
+    browser_info = client.browser.get_info()
     cdp_url = browser_info.cdp_url
 
     browser = await p.chromium.connect_over_cdp(cdp_url)

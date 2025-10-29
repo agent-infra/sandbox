@@ -206,7 +206,7 @@ curl -X 'POST' \
 ```python
 from playwright.sync_api import sync_playwright
 
-browser_info = client.browser.get_browser_info()
+browser_info = client.browser.get_info()
 cdp_url = browser_info.data.cdp_url
 playwright = sync_playwright().start()
 browser = playwright.chromium.connect_over_cdp(cdp_url)
@@ -247,7 +247,7 @@ async def site_to_markdown():
 
     # 浏览器：自动化下载 html
     async with async_playwright() as p:
-        browser_info = c.browser.get_browser_info().data
+        browser_info = c.browser.get_info().data
         page = await (await p.chromium.connect_over_cdp(browser_info.cdp_url)).new_page(
             viewport={
                 "width": browser_info.viewport.width,
