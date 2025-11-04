@@ -28,13 +28,13 @@ docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-pu
 
 ### Option 3: Use a specific version
 
-Format `agent-infra/sandbox:${version}`, for example, to use version 1.0.0.125:
+Format `agent-infra/sandbox:${version}`, for example, to use version 1.0.0.150:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:1.0.0.125
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:1.0.0.150
 
 # or users in mainland China
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.125
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.150
 ```
 
 > If port 8080 is occupied, map to a different port:
