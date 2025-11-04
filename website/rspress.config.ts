@@ -83,13 +83,13 @@ export default defineConfig({
       lang: 'en',
       label: 'English',
       title: 'AIO Sandbox',
-      description: 'Static Site Generator',
+      description: 'All-in-One Environment for AI Agents',
     },
     {
       lang: 'zh',
       label: '简体中文',
       title: 'AIO Sandbox',
-      description: '静态网站生成器',
+      description: '面向 AI Agents 的一体化沙盒环境',
     },
   ],
   themeConfig: {
