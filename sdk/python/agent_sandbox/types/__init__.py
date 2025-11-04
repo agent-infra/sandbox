@@ -19,19 +19,12 @@ if typing.TYPE_CHECKING:
     from .browser_viewport import BrowserViewport
     from .button import Button
     from .call_tool_result import CallToolResult
-    from .call_tool_result_content_item import (
-        CallToolResultContentItem,
-        CallToolResultContentItem_Audio,
-        CallToolResultContentItem_Image,
-        CallToolResultContentItem_Resource,
-        CallToolResultContentItem_ResourceLink,
-        CallToolResultContentItem_Text,
-    )
     from .click_action import ClickAction
     from .code_execute_response import CodeExecuteResponse
     from .code_info_response import CodeInfoResponse
     from .code_language_info import CodeLanguageInfo
     from .console_record import ConsoleRecord
+    from .dependency_command_result import DependencyCommandResult
     from .double_click_action import DoubleClickAction
     from .drag_rel_action import DragRelAction
     from .drag_to_action import DragToAction
@@ -72,9 +65,18 @@ if typing.TYPE_CHECKING:
     from .response_active_sessions_result import ResponseActiveSessionsResult
     from .response_active_shell_sessions_result import ResponseActiveShellSessionsResult
     from .response_browser_info_result import ResponseBrowserInfoResult
-    from .response_call_tool_result import ResponseCallToolResult
+    from .response_call_tool_result_model import ResponseCallToolResultModel
+    from .response_call_tool_result_model_data_content_item import (
+        ResponseCallToolResultModelDataContentItem,
+        ResponseCallToolResultModelDataContentItem_Audio,
+        ResponseCallToolResultModelDataContentItem_Image,
+        ResponseCallToolResultModelDataContentItem_Resource,
+        ResponseCallToolResultModelDataContentItem_ResourceLink,
+        ResponseCallToolResultModelDataContentItem_Text,
+    )
     from .response_code_execute_response import ResponseCodeExecuteResponse
     from .response_code_info_response import ResponseCodeInfoResponse
+    from .response_dict import ResponseDict
     from .response_file_find_result import ResponseFileFindResult
     from .response_file_list_result import ResponseFileListResult
     from .response_file_read_result import ResponseFileReadResult
@@ -86,7 +88,7 @@ if typing.TYPE_CHECKING:
     from .response_jupyter_execute_response import ResponseJupyterExecuteResponse
     from .response_jupyter_info_response import ResponseJupyterInfoResponse
     from .response_list_str import ResponseListStr
-    from .response_list_tools_result import ResponseListToolsResult
+    from .response_list_tools_result_model import ResponseListToolsResultModel
     from .response_node_js_execute_response import ResponseNodeJsExecuteResponse
     from .response_node_js_runtime_info import ResponseNodeJsRuntimeInfo
     from .response_shell_command_result import ResponseShellCommandResult
@@ -95,6 +97,10 @@ if typing.TYPE_CHECKING:
     from .response_shell_view_result import ResponseShellViewResult
     from .response_shell_wait_result import ResponseShellWaitResult
     from .response_shell_write_result import ResponseShellWriteResult
+    from .response_skill_content_result import ResponseSkillContentResult
+    from .response_skill_metadata import ResponseSkillMetadata
+    from .response_skill_metadata_collection import ResponseSkillMetadataCollection
+    from .response_skill_registration_result import ResponseSkillRegistrationResult
     from .response_str import ResponseStr
     from .response_str_replace_editor_result import ResponseStrReplaceEditorResult
     from .right_click_action import RightClickAction
@@ -110,6 +116,11 @@ if typing.TYPE_CHECKING:
     from .shell_view_result import ShellViewResult
     from .shell_wait_result import ShellWaitResult
     from .shell_write_result import ShellWriteResult
+    from .skill_content_result import SkillContentResult
+    from .skill_metadata import SkillMetadata
+    from .skill_metadata_collection import SkillMetadataCollection
+    from .skill_registration_item import SkillRegistrationItem
+    from .skill_registration_result import SkillRegistrationResult
     from .str_replace_editor_result import StrReplaceEditorResult
     from .system_env import SystemEnv
     from .text_content import TextContent
@@ -136,17 +147,12 @@ _dynamic_imports: typing.Dict[str, str] = {
     "BrowserViewport": ".browser_viewport",
     "Button": ".button",
     "CallToolResult": ".call_tool_result",
-    "CallToolResultContentItem": ".call_tool_result_content_item",
-    "CallToolResultContentItem_Audio": ".call_tool_result_content_item",
-    "CallToolResultContentItem_Image": ".call_tool_result_content_item",
-    "CallToolResultContentItem_Resource": ".call_tool_result_content_item",
-    "CallToolResultContentItem_ResourceLink": ".call_tool_result_content_item",
-    "CallToolResultContentItem_Text": ".call_tool_result_content_item",
     "ClickAction": ".click_action",
     "CodeExecuteResponse": ".code_execute_response",
     "CodeInfoResponse": ".code_info_response",
     "CodeLanguageInfo": ".code_language_info",
     "ConsoleRecord": ".console_record",
+    "DependencyCommandResult": ".dependency_command_result",
     "DoubleClickAction": ".double_click_action",
     "DragRelAction": ".drag_rel_action",
     "DragToAction": ".drag_to_action",
@@ -187,9 +193,16 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseActiveSessionsResult": ".response_active_sessions_result",
     "ResponseActiveShellSessionsResult": ".response_active_shell_sessions_result",
     "ResponseBrowserInfoResult": ".response_browser_info_result",
-    "ResponseCallToolResult": ".response_call_tool_result",
+    "ResponseCallToolResultModel": ".response_call_tool_result_model",
+    "ResponseCallToolResultModelDataContentItem": ".response_call_tool_result_model_data_content_item",
+    "ResponseCallToolResultModelDataContentItem_Audio": ".response_call_tool_result_model_data_content_item",
+    "ResponseCallToolResultModelDataContentItem_Image": ".response_call_tool_result_model_data_content_item",
+    "ResponseCallToolResultModelDataContentItem_Resource": ".response_call_tool_result_model_data_content_item",
+    "ResponseCallToolResultModelDataContentItem_ResourceLink": ".response_call_tool_result_model_data_content_item",
+    "ResponseCallToolResultModelDataContentItem_Text": ".response_call_tool_result_model_data_content_item",
     "ResponseCodeExecuteResponse": ".response_code_execute_response",
     "ResponseCodeInfoResponse": ".response_code_info_response",
+    "ResponseDict": ".response_dict",
     "ResponseFileFindResult": ".response_file_find_result",
     "ResponseFileListResult": ".response_file_list_result",
     "ResponseFileReadResult": ".response_file_read_result",
@@ -201,7 +214,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseJupyterExecuteResponse": ".response_jupyter_execute_response",
     "ResponseJupyterInfoResponse": ".response_jupyter_info_response",
     "ResponseListStr": ".response_list_str",
-    "ResponseListToolsResult": ".response_list_tools_result",
+    "ResponseListToolsResultModel": ".response_list_tools_result_model",
     "ResponseNodeJsExecuteResponse": ".response_node_js_execute_response",
     "ResponseNodeJsRuntimeInfo": ".response_node_js_runtime_info",
     "ResponseShellCommandResult": ".response_shell_command_result",
@@ -210,6 +223,10 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseShellViewResult": ".response_shell_view_result",
     "ResponseShellWaitResult": ".response_shell_wait_result",
     "ResponseShellWriteResult": ".response_shell_write_result",
+    "ResponseSkillContentResult": ".response_skill_content_result",
+    "ResponseSkillMetadata": ".response_skill_metadata",
+    "ResponseSkillMetadataCollection": ".response_skill_metadata_collection",
+    "ResponseSkillRegistrationResult": ".response_skill_registration_result",
     "ResponseStr": ".response_str",
     "ResponseStrReplaceEditorResult": ".response_str_replace_editor_result",
     "RightClickAction": ".right_click_action",
@@ -225,6 +242,11 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ShellViewResult": ".shell_view_result",
     "ShellWaitResult": ".shell_wait_result",
     "ShellWriteResult": ".shell_write_result",
+    "SkillContentResult": ".skill_content_result",
+    "SkillMetadata": ".skill_metadata",
+    "SkillMetadataCollection": ".skill_metadata_collection",
+    "SkillRegistrationItem": ".skill_registration_item",
+    "SkillRegistrationResult": ".skill_registration_result",
     "StrReplaceEditorResult": ".str_replace_editor_result",
     "SystemEnv": ".system_env",
     "TextContent": ".text_content",
@@ -273,17 +295,12 @@ __all__ = [
     "BrowserViewport",
     "Button",
     "CallToolResult",
-    "CallToolResultContentItem",
-    "CallToolResultContentItem_Audio",
-    "CallToolResultContentItem_Image",
-    "CallToolResultContentItem_Resource",
-    "CallToolResultContentItem_ResourceLink",
-    "CallToolResultContentItem_Text",
     "ClickAction",
     "CodeExecuteResponse",
     "CodeInfoResponse",
     "CodeLanguageInfo",
     "ConsoleRecord",
+    "DependencyCommandResult",
     "DoubleClickAction",
     "DragRelAction",
     "DragToAction",
@@ -324,9 +341,16 @@ __all__ = [
     "ResponseActiveSessionsResult",
     "ResponseActiveShellSessionsResult",
     "ResponseBrowserInfoResult",
-    "ResponseCallToolResult",
+    "ResponseCallToolResultModel",
+    "ResponseCallToolResultModelDataContentItem",
+    "ResponseCallToolResultModelDataContentItem_Audio",
+    "ResponseCallToolResultModelDataContentItem_Image",
+    "ResponseCallToolResultModelDataContentItem_Resource",
+    "ResponseCallToolResultModelDataContentItem_ResourceLink",
+    "ResponseCallToolResultModelDataContentItem_Text",
     "ResponseCodeExecuteResponse",
     "ResponseCodeInfoResponse",
+    "ResponseDict",
     "ResponseFileFindResult",
     "ResponseFileListResult",
     "ResponseFileReadResult",
@@ -338,7 +362,7 @@ __all__ = [
     "ResponseJupyterExecuteResponse",
     "ResponseJupyterInfoResponse",
     "ResponseListStr",
-    "ResponseListToolsResult",
+    "ResponseListToolsResultModel",
     "ResponseNodeJsExecuteResponse",
     "ResponseNodeJsRuntimeInfo",
     "ResponseShellCommandResult",
@@ -347,6 +371,10 @@ __all__ = [
     "ResponseShellViewResult",
     "ResponseShellWaitResult",
     "ResponseShellWriteResult",
+    "ResponseSkillContentResult",
+    "ResponseSkillMetadata",
+    "ResponseSkillMetadataCollection",
+    "ResponseSkillRegistrationResult",
     "ResponseStr",
     "ResponseStrReplaceEditorResult",
     "RightClickAction",
@@ -362,6 +390,11 @@ __all__ = [
     "ShellViewResult",
     "ShellWaitResult",
     "ShellWriteResult",
+    "SkillContentResult",
+    "SkillMetadata",
+    "SkillMetadataCollection",
+    "SkillRegistrationItem",
+    "SkillRegistrationResult",
     "StrReplaceEditorResult",
     "SystemEnv",
     "TextContent",

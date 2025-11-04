@@ -18,6 +18,7 @@ if typing.TYPE_CHECKING:
     from .nodejs.client import AsyncNodejsClient, NodejsClient
     from .sandbox.client import AsyncSandboxClient, SandboxClient
     from .shell.client import AsyncShellClient, ShellClient
+    from .skills.client import AsyncSkillsClient, SkillsClient
     from .util.client import AsyncUtilClient, UtilClient
 
 
@@ -83,6 +84,7 @@ class Sandbox:
         self._browser: typing.Optional[BrowserClient] = None
         self._code: typing.Optional[CodeClient] = None
         self._util: typing.Optional[UtilClient] = None
+        self._skills: typing.Optional[SkillsClient] = None
 
     @property
     def with_raw_response(self) -> RawSandbox:
@@ -195,6 +197,14 @@ class Sandbox:
             self._util = UtilClient(client_wrapper=self._client_wrapper)
         return self._util
 
+    @property
+    def skills(self):
+        if self._skills is None:
+            from .skills.client import SkillsClient  # noqa: E402
+
+            self._skills = SkillsClient(client_wrapper=self._client_wrapper)
+        return self._skills
+
 
 class AsyncSandbox:
     """
@@ -258,6 +268,7 @@ class AsyncSandbox:
         self._browser: typing.Optional[AsyncBrowserClient] = None
         self._code: typing.Optional[AsyncCodeClient] = None
         self._util: typing.Optional[AsyncUtilClient] = None
+        self._skills: typing.Optional[AsyncSkillsClient] = None
 
     @property
     def with_raw_response(self) -> AsyncRawSandbox:
@@ -377,3 +388,11 @@ class AsyncSandbox:
 
             self._util = AsyncUtilClient(client_wrapper=self._client_wrapper)
         return self._util
+
+    @property
+    def skills(self):
+        if self._skills is None:
+            from .skills.client import AsyncSkillsClient  # noqa: E402
+
+            self._skills = AsyncSkillsClient(client_wrapper=self._client_wrapper)
+        return self._skills

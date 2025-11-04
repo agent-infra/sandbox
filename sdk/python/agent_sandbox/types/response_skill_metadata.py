@@ -4,10 +4,10 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .list_tools_result import ListToolsResult
+from .skill_metadata import SkillMetadata
 
 
-class ResponseListToolsResult(UniversalBaseModel):
+class ResponseSkillMetadata(UniversalBaseModel):
     success: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Whether the operation was successful
@@ -18,7 +18,7 @@ class ResponseListToolsResult(UniversalBaseModel):
     Operation result message
     """
 
-    data: typing.Optional[ListToolsResult] = pydantic.Field(default=None)
+    data: typing.Optional[SkillMetadata] = pydantic.Field(default=None)
     """
     Data returned from the operation
     """

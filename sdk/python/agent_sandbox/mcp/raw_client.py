@@ -11,9 +11,9 @@ from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.http_validation_error import HttpValidationError
-from ..types.response_call_tool_result import ResponseCallToolResult
+from ..types.response_call_tool_result_model import ResponseCallToolResultModel
 from ..types.response_list_str import ResponseListStr
-from ..types.response_list_tools_result import ResponseListToolsResult
+from ..types.response_list_tools_result_model import ResponseListToolsResultModel
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -25,7 +25,7 @@ class RawMcpClient:
 
     def list_mcp_tools(
         self, server_name: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> HttpResponse[ResponseListToolsResult]:
+    ) -> HttpResponse[ResponseListToolsResultModel]:
         """
         List all available tools from the specified MCP server
 
@@ -45,7 +45,7 @@ class RawMcpClient:
 
         Returns
         -------
-        HttpResponse[ResponseListToolsResult]
+        HttpResponse[ResponseListToolsResultModel]
             Successful Response
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -56,9 +56,9 @@ class RawMcpClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ResponseListToolsResult,
+                    ResponseListToolsResultModel,
                     parse_obj_as(
-                        type_=ResponseListToolsResult,  # type: ignore
+                        type_=ResponseListToolsResultModel,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -86,7 +86,7 @@ class RawMcpClient:
         *,
         request: typing.Dict[str, typing.Optional[typing.Any]],
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[ResponseCallToolResult]:
+    ) -> HttpResponse[ResponseCallToolResultModel]:
         """
         Execute a specific tool on the specified MCP server
 
@@ -113,7 +113,7 @@ class RawMcpClient:
 
         Returns
         -------
-        HttpResponse[ResponseCallToolResult]
+        HttpResponse[ResponseCallToolResultModel]
             Successful Response
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -129,9 +129,9 @@ class RawMcpClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ResponseCallToolResult,
+                    ResponseCallToolResultModel,
                     parse_obj_as(
-                        type_=ResponseCallToolResult,  # type: ignore
+                        type_=ResponseCallToolResultModel,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -198,7 +198,7 @@ class AsyncRawMcpClient:
 
     async def list_mcp_tools(
         self, server_name: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[ResponseListToolsResult]:
+    ) -> AsyncHttpResponse[ResponseListToolsResultModel]:
         """
         List all available tools from the specified MCP server
 
@@ -218,7 +218,7 @@ class AsyncRawMcpClient:
 
         Returns
         -------
-        AsyncHttpResponse[ResponseListToolsResult]
+        AsyncHttpResponse[ResponseListToolsResultModel]
             Successful Response
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -229,9 +229,9 @@ class AsyncRawMcpClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ResponseListToolsResult,
+                    ResponseListToolsResultModel,
                     parse_obj_as(
-                        type_=ResponseListToolsResult,  # type: ignore
+                        type_=ResponseListToolsResultModel,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -259,7 +259,7 @@ class AsyncRawMcpClient:
         *,
         request: typing.Dict[str, typing.Optional[typing.Any]],
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[ResponseCallToolResult]:
+    ) -> AsyncHttpResponse[ResponseCallToolResultModel]:
         """
         Execute a specific tool on the specified MCP server
 
@@ -286,7 +286,7 @@ class AsyncRawMcpClient:
 
         Returns
         -------
-        AsyncHttpResponse[ResponseCallToolResult]
+        AsyncHttpResponse[ResponseCallToolResultModel]
             Successful Response
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -302,9 +302,9 @@ class AsyncRawMcpClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ResponseCallToolResult,
+                    ResponseCallToolResultModel,
                     parse_obj_as(
-                        type_=ResponseCallToolResult,  # type: ignore
+                        type_=ResponseCallToolResultModel,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

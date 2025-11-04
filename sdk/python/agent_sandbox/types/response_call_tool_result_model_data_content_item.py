@@ -13,7 +13,7 @@ from .icon import Icon
 from .resource import Resource
 
 
-class CallToolResultContentItem_Text(UniversalBaseModel):
+class ResponseCallToolResultModelDataContentItem_Text(UniversalBaseModel):
     type: typing.Literal["text"] = "text"
     text: str
     annotations: typing.Optional[Annotations] = None
@@ -31,7 +31,7 @@ class CallToolResultContentItem_Text(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-class CallToolResultContentItem_Image(UniversalBaseModel):
+class ResponseCallToolResultModelDataContentItem_Image(UniversalBaseModel):
     type: typing.Literal["image"] = "image"
     data: str
     mime_type: typing_extensions.Annotated[str, FieldMetadata(alias="mimeType")]
@@ -50,7 +50,7 @@ class CallToolResultContentItem_Image(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-class CallToolResultContentItem_Audio(UniversalBaseModel):
+class ResponseCallToolResultModelDataContentItem_Audio(UniversalBaseModel):
     type: typing.Literal["audio"] = "audio"
     data: str
     mime_type: typing_extensions.Annotated[str, FieldMetadata(alias="mimeType")]
@@ -69,7 +69,7 @@ class CallToolResultContentItem_Audio(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-class CallToolResultContentItem_ResourceLink(UniversalBaseModel):
+class ResponseCallToolResultModelDataContentItem_ResourceLink(UniversalBaseModel):
     type: typing.Literal["resource_link"] = "resource_link"
     name: str
     title: typing.Optional[str] = None
@@ -93,7 +93,7 @@ class CallToolResultContentItem_ResourceLink(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-class CallToolResultContentItem_Resource(UniversalBaseModel):
+class ResponseCallToolResultModelDataContentItem_Resource(UniversalBaseModel):
     type: typing.Literal["resource"] = "resource"
     resource: Resource
     annotations: typing.Optional[Annotations] = None
@@ -111,10 +111,10 @@ class CallToolResultContentItem_Resource(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-CallToolResultContentItem = typing.Union[
-    CallToolResultContentItem_Text,
-    CallToolResultContentItem_Image,
-    CallToolResultContentItem_Audio,
-    CallToolResultContentItem_ResourceLink,
-    CallToolResultContentItem_Resource,
+ResponseCallToolResultModelDataContentItem = typing.Union[
+    ResponseCallToolResultModelDataContentItem_Text,
+    ResponseCallToolResultModelDataContentItem_Image,
+    ResponseCallToolResultModelDataContentItem_Audio,
+    ResponseCallToolResultModelDataContentItem_ResourceLink,
+    ResponseCallToolResultModelDataContentItem_Resource,
 ]

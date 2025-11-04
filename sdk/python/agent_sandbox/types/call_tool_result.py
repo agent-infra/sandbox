@@ -6,7 +6,7 @@ import pydantic
 import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ..core.serialization import FieldMetadata
-from .call_tool_result_content_item import CallToolResultContentItem
+from .response_call_tool_result_model_data_content_item import ResponseCallToolResultModelDataContentItem
 
 
 class CallToolResult(UniversalBaseModel):
@@ -17,7 +17,7 @@ class CallToolResult(UniversalBaseModel):
     meta: typing_extensions.Annotated[
         typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]], FieldMetadata(alias="_meta")
     ] = None
-    content: typing.List[CallToolResultContentItem]
+    content: typing.List[ResponseCallToolResultModelDataContentItem]
     structured_content: typing_extensions.Annotated[
         typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]], FieldMetadata(alias="structuredContent")
     ] = None

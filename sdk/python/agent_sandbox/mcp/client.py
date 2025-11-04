@@ -4,9 +4,9 @@ import typing
 
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
-from ..types.response_call_tool_result import ResponseCallToolResult
+from ..types.response_call_tool_result_model import ResponseCallToolResultModel
 from ..types.response_list_str import ResponseListStr
-from ..types.response_list_tools_result import ResponseListToolsResult
+from ..types.response_list_tools_result_model import ResponseListToolsResultModel
 from .raw_client import AsyncRawMcpClient, RawMcpClient
 
 # this is used as the default value for optional parameters
@@ -30,7 +30,7 @@ class McpClient:
 
     def list_mcp_tools(
         self, server_name: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> ResponseListToolsResult:
+    ) -> ResponseListToolsResultModel:
         """
         List all available tools from the specified MCP server
 
@@ -50,7 +50,7 @@ class McpClient:
 
         Returns
         -------
-        ResponseListToolsResult
+        ResponseListToolsResultModel
             Successful Response
 
         Examples
@@ -74,7 +74,7 @@ class McpClient:
         *,
         request: typing.Dict[str, typing.Optional[typing.Any]],
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseCallToolResult:
+    ) -> ResponseCallToolResultModel:
         """
         Execute a specific tool on the specified MCP server
 
@@ -101,7 +101,7 @@ class McpClient:
 
         Returns
         -------
-        ResponseCallToolResult
+        ResponseCallToolResultModel
             Successful Response
 
         Examples
@@ -169,7 +169,7 @@ class AsyncMcpClient:
 
     async def list_mcp_tools(
         self, server_name: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> ResponseListToolsResult:
+    ) -> ResponseListToolsResultModel:
         """
         List all available tools from the specified MCP server
 
@@ -189,7 +189,7 @@ class AsyncMcpClient:
 
         Returns
         -------
-        ResponseListToolsResult
+        ResponseListToolsResultModel
             Successful Response
 
         Examples
@@ -221,7 +221,7 @@ class AsyncMcpClient:
         *,
         request: typing.Dict[str, typing.Optional[typing.Any]],
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseCallToolResult:
+    ) -> ResponseCallToolResultModel:
         """
         Execute a specific tool on the specified MCP server
 
@@ -248,7 +248,7 @@ class AsyncMcpClient:
 
         Returns
         -------
-        ResponseCallToolResult
+        ResponseCallToolResultModel
             Successful Response
 
         Examples

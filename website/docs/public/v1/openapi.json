@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.143"
+    "version": "1.0.0.150"
   },
   "paths": {
     "/v1/sandbox": {
@@ -1153,7 +1153,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response_ListToolsResult_"
+                  "$ref": "#/components/schemas/Response_ListToolsResultModel_"
                 }
               }
             }
@@ -1221,7 +1221,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Response_CallToolResult_"
+                  "$ref": "#/components/schemas/Response_CallToolResultModel_"
                 }
               }
             }
@@ -1602,6 +1602,210 @@
         "x-fern-sdk-method-name": "convert_to_markdown"
       }
     },
+    "/v1/skills/register": {
+      "post": {
+        "tags": [
+          "skills"
+        ],
+        "summary": "Register Skills",
+        "operationId": "register_skills",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_register_skills"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_SkillRegistrationResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "skills",
+        "x-fern-sdk-method-name": "register_skills"
+      }
+    },
+    "/v1/skills/metadatas": {
+      "get": {
+        "tags": [
+          "skills"
+        ],
+        "summary": "List Skills Metadata",
+        "operationId": "list_skills_metadata",
+        "parameters": [
+          {
+            "name": "names",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Names"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_SkillMetadataCollection_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "skills",
+        "x-fern-sdk-method-name": "list_metadata"
+      }
+    },
+    "/v1/skills": {
+      "delete": {
+        "tags": [
+          "skills"
+        ],
+        "summary": "Clear Skills",
+        "operationId": "clear_skills",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_dict_"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "skills",
+        "x-fern-sdk-method-name": "clear_skills"
+      }
+    },
+    "/v1/skills/{name}": {
+      "delete": {
+        "tags": [
+          "skills"
+        ],
+        "summary": "Delete Skill",
+        "operationId": "delete_skill",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_SkillMetadata_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "skills",
+        "x-fern-sdk-method-name": "delete_skill"
+      }
+    },
+    "/v1/skills/{name}/content": {
+      "get": {
+        "tags": [
+          "skills"
+        ],
+        "summary": "Get Skill Content",
+        "operationId": "get_skill_content",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_SkillContentResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "skills",
+        "x-fern-sdk-method-name": "get_content"
+      }
+    },
     "/terminal": {
       "get": {
         "summary": "Serve Terminal",
@@ -1848,6 +2052,46 @@
         "title": "BlobResourceContents",
         "description": "Binary contents of a resource."
       },
+      "Body_register_skills": {
+        "properties": {
+          "file": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "binary"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "title": "Body_register_skills"
+      },
       "Body_upload_file": {
         "properties": {
           "file": {
@@ -1935,69 +2179,6 @@
           "height"
         ],
         "title": "BrowserViewport"
-      },
-      "CallToolResult": {
-        "properties": {
-          "_meta": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Meta"
-          },
-          "content": {
-            "items": {
-              "anyOf": [
-                {
-                  "$ref": "#/components/schemas/TextContent"
-                },
-                {
-                  "$ref": "#/components/schemas/ImageContent"
-                },
-                {
-                  "$ref": "#/components/schemas/AudioContent"
-                },
-                {
-                  "$ref": "#/components/schemas/ResourceLink"
-                },
-                {
-                  "$ref": "#/components/schemas/EmbeddedResource"
-                }
-              ]
-            },
-            "type": "array",
-            "title": "Content"
-          },
-          "structuredContent": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Structuredcontent"
-          },
-          "isError": {
-            "type": "boolean",
-            "title": "Iserror",
-            "default": false
-          }
-        },
-        "additionalProperties": true,
-        "type": "object",
-        "required": [
-          "content"
-        ],
-        "title": "CallToolResult",
-        "description": "The server's response to a tool call."
       },
       "ClickAction": {
         "properties": {
@@ -2256,6 +2437,53 @@
         ],
         "title": "ConsoleRecord",
         "description": "Shell command console record model"
+      },
+      "DependencyCommandResult": {
+        "properties": {
+          "command": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Command",
+            "description": "Executed dependency command"
+          },
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the command succeeded"
+          },
+          "stdout": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stdout",
+            "description": "Standard output from command"
+          },
+          "stderr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stderr",
+            "description": "Standard error from command"
+          }
+        },
+        "type": "object",
+        "required": [
+          "command",
+          "success"
+        ],
+        "title": "DependencyCommandResult"
       },
       "DoubleClickAction": {
         "properties": {
@@ -3546,47 +3774,6 @@
         "title": "Language",
         "description": "Supported programming languages for code execution"
       },
-      "ListToolsResult": {
-        "properties": {
-          "_meta": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Meta"
-          },
-          "nextCursor": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Nextcursor"
-          },
-          "tools": {
-            "items": {
-              "$ref": "#/components/schemas/Tool"
-            },
-            "type": "array",
-            "title": "Tools"
-          }
-        },
-        "additionalProperties": true,
-        "type": "object",
-        "required": [
-          "tools"
-        ],
-        "title": "ListToolsResult",
-        "description": "The server's response to a tools/list request from the client."
-      },
       "MouseDownAction": {
         "properties": {
           "action_type": {
@@ -4261,7 +4448,7 @@
         "type": "object",
         "title": "Response[BrowserInfoResult]"
       },
-      "Response_CallToolResult_": {
+      "Response_CallToolResultModel_": {
         "properties": {
           "success": {
             "type": "boolean",
@@ -4285,17 +4472,78 @@
           "data": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/CallToolResult"
+                "properties": {
+                  "_meta": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": true,
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Meta"
+                  },
+                  "content": {
+                    "items": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/TextContent"
+                        },
+                        {
+                          "$ref": "#/components/schemas/ImageContent"
+                        },
+                        {
+                          "$ref": "#/components/schemas/AudioContent"
+                        },
+                        {
+                          "$ref": "#/components/schemas/ResourceLink"
+                        },
+                        {
+                          "$ref": "#/components/schemas/EmbeddedResource"
+                        }
+                      ]
+                    },
+                    "type": "array",
+                    "title": "Content"
+                  },
+                  "structuredContent": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": true,
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Structuredcontent"
+                  },
+                  "isError": {
+                    "type": "boolean",
+                    "title": "Iserror",
+                    "default": false
+                  }
+                },
+                "additionalProperties": true,
+                "type": "object",
+                "required": [
+                  "content"
+                ],
+                "title": "CallToolResult",
+                "description": "The server's response to a tool call."
               },
               {
                 "type": "null"
               }
             ],
+            "title": "Data",
             "description": "Data returned from the operation"
           }
         },
         "type": "object",
-        "title": "Response[CallToolResult]"
+        "title": "Response[CallToolResultModel]"
       },
       "Response_CodeExecuteResponse_": {
         "properties": {
@@ -4729,7 +4977,7 @@
         "type": "object",
         "title": "Response[JupyterInfoResponse]"
       },
-      "Response_ListToolsResult_": {
+      "Response_ListToolsResultModel_": {
         "properties": {
           "success": {
             "type": "boolean",
@@ -4753,17 +5001,56 @@
           "data": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ListToolsResult"
+                "properties": {
+                  "_meta": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": true,
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Meta"
+                  },
+                  "nextCursor": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Nextcursor"
+                  },
+                  "tools": {
+                    "items": {
+                      "$ref": "#/components/schemas/Tool"
+                    },
+                    "type": "array",
+                    "title": "Tools"
+                  }
+                },
+                "additionalProperties": true,
+                "type": "object",
+                "required": [
+                  "tools"
+                ],
+                "title": "ListToolsResult",
+                "description": "The server's response to a tools/list request from the client."
               },
               {
                 "type": "null"
               }
             ],
+            "title": "Data",
             "description": "Data returned from the operation"
           }
         },
         "type": "object",
-        "title": "Response[ListToolsResult]"
+        "title": "Response[ListToolsResultModel]"
       },
       "Response_List_str__": {
         "properties": {
@@ -5093,6 +5380,150 @@
         "type": "object",
         "title": "Response[ShellWriteResult]"
       },
+      "Response_SkillContentResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillContentResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[SkillContentResult]"
+      },
+      "Response_SkillMetadataCollection_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillMetadataCollection"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[SkillMetadataCollection]"
+      },
+      "Response_SkillMetadata_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[SkillMetadata]"
+      },
+      "Response_SkillRegistrationResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkillRegistrationResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[SkillRegistrationResult]"
+      },
       "Response_StrReplaceEditorResult_": {
         "properties": {
           "success": {
@@ -5128,6 +5559,44 @@
         },
         "type": "object",
         "title": "Response[StrReplaceEditorResult]"
+      },
+      "Response_dict_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data",
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[dict]"
       },
       "Response_str_": {
         "properties": {
@@ -5766,6 +6235,128 @@
         ],
         "title": "ShellWriteToProcessRequest",
         "description": "Request model for writing input to a running process"
+      },
+      "SkillContentResult": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Skill name"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Absolute path to the skill directory"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "description": "Skill content excluding front matter"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "path",
+          "content"
+        ],
+        "title": "SkillContentResult"
+      },
+      "SkillMetadata": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Skill name"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Absolute path to the skill directory"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata",
+            "description": "Metadata parsed from SKILL.md front matter"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "path"
+        ],
+        "title": "SkillMetadata"
+      },
+      "SkillMetadataCollection": {
+        "properties": {
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/SkillMetadata"
+            },
+            "type": "array",
+            "title": "Skills",
+            "description": "Collection of skill metadata entries"
+          }
+        },
+        "type": "object",
+        "title": "SkillMetadataCollection"
+      },
+      "SkillRegistrationItem": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Skill name"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "Absolute path to the skill directory"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata",
+            "description": "Metadata parsed from SKILL.md front matter"
+          },
+          "dependency_commands": {
+            "items": {
+              "$ref": "#/components/schemas/DependencyCommandResult"
+            },
+            "type": "array",
+            "title": "Dependency Commands",
+            "description": "Dependency commands executed for the skill"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "path"
+        ],
+        "title": "SkillRegistrationItem"
+      },
+      "SkillRegistrationResult": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "description": "Number of registered skills"
+          },
+          "registered": {
+            "items": {
+              "$ref": "#/components/schemas/SkillRegistrationItem"
+            },
+            "type": "array",
+            "title": "Registered",
+            "description": "Registered skills and metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count"
+        ],
+        "title": "SkillRegistrationResult"
       },
       "StrReplaceEditorRequest": {
         "properties": {
