@@ -45,6 +45,7 @@ export const APIPage = () => {
       <ApiReferenceReact
         key={dark ? 'dark' : 'light'}
         configuration={{
+          baseServerURL: 'http://127.0.0.1:8080',
           url: '/v1/openapi.json',
           darkMode: dark,
           forceDarkModeState: dark ? 'dark' : 'light',
