@@ -82,13 +82,13 @@ export default defineConfig({
     {
       lang: 'en',
       label: 'English',
-      title: 'Rspress',
+      title: 'AIO Sandbox',
       description: 'Static Site Generator',
     },
     {
       lang: 'zh',
       label: '简体中文',
-      title: 'Rspress',
+      title: 'AIO Sandbox',
       description: '静态网站生成器',
     },
   ],
