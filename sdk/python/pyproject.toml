@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-sandbox"
-version = "0.0.17"
-description = "Python SDK for the All-in-One Sandbox API, >=1.0.0.150"
+version = "0.0.18"
+description = "Python SDK for the All-in-One Sandbox API, >=1.0.0.151"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 authors = [
