@@ -4,7 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .skill_registration_item import SkillRegistrationItem
+from .skill_metadata import SkillMetadata
 
 
 class SkillRegistrationResult(UniversalBaseModel):
@@ -13,7 +13,7 @@ class SkillRegistrationResult(UniversalBaseModel):
     Number of registered skills
     """
 
-    registered: typing.Optional[typing.List[SkillRegistrationItem]] = pydantic.Field(default=None)
+    registered: typing.Optional[typing.List[SkillMetadata]] = pydantic.Field(default=None)
     """
     Registered skills and metadata
     """

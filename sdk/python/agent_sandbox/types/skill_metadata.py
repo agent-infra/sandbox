@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .dependency_command_result import DependencyCommandResult
 
 
 class SkillMetadata(UniversalBaseModel):
@@ -20,6 +21,11 @@ class SkillMetadata(UniversalBaseModel):
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
     Metadata parsed from SKILL.md front matter
+    """
+
+    dependency_commands: typing.Optional[typing.List[DependencyCommandResult]] = pydantic.Field(default=None)
+    """
+    Dependency commands for the skill
     """
 
     if IS_PYDANTIC_V2:

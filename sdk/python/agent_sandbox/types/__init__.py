@@ -119,7 +119,6 @@ if typing.TYPE_CHECKING:
     from .skill_content_result import SkillContentResult
     from .skill_metadata import SkillMetadata
     from .skill_metadata_collection import SkillMetadataCollection
-    from .skill_registration_item import SkillRegistrationItem
     from .skill_registration_result import SkillRegistrationResult
     from .str_replace_editor_result import StrReplaceEditorResult
     from .system_env import SystemEnv
@@ -245,7 +244,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "SkillContentResult": ".skill_content_result",
     "SkillMetadata": ".skill_metadata",
     "SkillMetadataCollection": ".skill_metadata_collection",
-    "SkillRegistrationItem": ".skill_registration_item",
     "SkillRegistrationResult": ".skill_registration_result",
     "StrReplaceEditorResult": ".str_replace_editor_result",
     "SystemEnv": ".system_env",
@@ -393,7 +391,6 @@ __all__ = [
     "SkillContentResult",
     "SkillMetadata",
     "SkillMetadataCollection",
-    "SkillRegistrationItem",
     "SkillRegistrationResult",
     "StrReplaceEditorResult",
     "SystemEnv",

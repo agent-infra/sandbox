@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.150"
+    "version": "1.0.0.151"
   },
   "paths": {
     "/v1/sandbox": {
@@ -6279,6 +6279,14 @@
             "type": "object",
             "title": "Metadata",
             "description": "Metadata parsed from SKILL.md front matter"
+          },
+          "dependency_commands": {
+            "items": {
+              "$ref": "#/components/schemas/DependencyCommandResult"
+            },
+            "type": "array",
+            "title": "Dependency Commands",
+            "description": "Dependency commands for the skill"
           }
         },
         "type": "object",
@@ -6302,40 +6310,6 @@
         "type": "object",
         "title": "SkillMetadataCollection"
       },
-      "SkillRegistrationItem": {
-        "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name",
-            "description": "Skill name"
-          },
-          "path": {
-            "type": "string",
-            "title": "Path",
-            "description": "Absolute path to the skill directory"
-          },
-          "metadata": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Metadata",
-            "description": "Metadata parsed from SKILL.md front matter"
-          },
-          "dependency_commands": {
-            "items": {
-              "$ref": "#/components/schemas/DependencyCommandResult"
-            },
-            "type": "array",
-            "title": "Dependency Commands",
-            "description": "Dependency commands executed for the skill"
-          }
-        },
-        "type": "object",
-        "required": [
-          "name",
-          "path"
-        ],
-        "title": "SkillRegistrationItem"
-      },
       "SkillRegistrationResult": {
         "properties": {
           "count": {
@@ -6345,7 +6319,7 @@
           },
           "registered": {
             "items": {
-              "$ref": "#/components/schemas/SkillRegistrationItem"
+              "$ref": "#/components/schemas/SkillMetadata"
             },
             "type": "array",
             "title": "Registered",
