@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc",
     "postgenerate": "node scripts/post-generate.js",
+    "regenerate": "echo '⚠️  Run this from sdk/js directory' && cd ../fern && fern generate --group js-sdk --local && cd ../js && npm run postgenerate && npm run build",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "test:ui": "vitest --ui",
