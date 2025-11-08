@@ -31,7 +31,7 @@ groups:
   nodejs-sdk:
     generators:
       - name: fernapi/fern-typescript-node-sdk
-        version: 0.46.3
+        version: 0.51.7
         config:
           package_name: "@agent-infra/sandbox"
           client_class_name: "Sandbox"
