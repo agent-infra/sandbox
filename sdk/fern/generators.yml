@@ -28,13 +28,13 @@ groups:
           path: ./sdk-go
         config:
           module: github.com/agent-infra/sandbox-sdk-go
-  nodejs-sdk:
+  js-sdk:
     generators:
-      - name: fernapi/fern-typescript-node-sdk
-        version: 0.51.7
+      - name: fernapi/fern-typescript-sdk
+        version: 3.28.4
         output:
           location: local-file-system
-          path: ../js
+          path: ../js/src
         config:
           namespaceExport: Sandbox
           treatUnknownAsAny: true

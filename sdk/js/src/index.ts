@@ -1,8 +1,5 @@
-/*
- * Copyright (c) 2025 Bytedance, Inc. and its affiliates.
- * SPDX-License-Identifier: Apache-2.0
- */
-
-export * from "./aio";
-export * from "./types";
-export * from "./providers";
+export * as Sandbox from "./api/index.js";
+export type { BaseClientOptions, BaseRequestOptions } from "./BaseClient.js";
+export { SandboxClient } from "./Client.js";
+export { SandboxError, SandboxTimeoutError } from "./errors/index.js";
+export * from "./exports.js";
