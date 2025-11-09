@@ -3,8 +3,7 @@
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
-import * as errors from "../../../../errors/index.js";
-import type * as Sandbox from "../../../index.js";
+import * as Sandbox from "../../../index.js";
 
 export declare namespace SandboxService {
     export interface Options extends BaseClientOptions {}
@@ -29,13 +28,13 @@ export class SandboxService {
      */
     public getContext(
         requestOptions?: SandboxService.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.SandboxResponse> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.SandboxResponse, Sandbox.sandbox.getContext.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__getContext(requestOptions));
     }
 
     private async __getContext(
         requestOptions?: SandboxService.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.SandboxResponse>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.SandboxResponse, Sandbox.sandbox.getContext.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -53,32 +52,25 @@ export class SandboxService {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.SandboxResponse, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.SandboxResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/sandbox.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.getContext.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -91,13 +83,13 @@ export class SandboxService {
      */
     public getPythonPackages(
         requestOptions?: SandboxService.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.Response> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.sandbox.getPythonPackages.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__getPythonPackages(requestOptions));
     }
 
     private async __getPythonPackages(
         requestOptions?: SandboxService.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.Response>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.sandbox.getPythonPackages.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -115,32 +107,25 @@ export class SandboxService {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.Response, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/sandbox/packages/python.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.getPythonPackages.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -153,13 +138,13 @@ export class SandboxService {
      */
     public getNodejsPackages(
         requestOptions?: SandboxService.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.Response> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.sandbox.getNodejsPackages.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__getNodejsPackages(requestOptions));
     }
 
     private async __getNodejsPackages(
         requestOptions?: SandboxService.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.Response>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.sandbox.getNodejsPackages.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -177,31 +162,24 @@ export class SandboxService {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.Response, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/sandbox/packages/nodejs.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.getNodejsPackages.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 }

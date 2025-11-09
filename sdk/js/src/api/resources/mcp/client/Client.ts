@@ -3,7 +3,6 @@
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
-import * as errors from "../../../../errors/index.js";
 import * as Sandbox from "../../../index.js";
 
 export declare namespace Mcp {
@@ -31,22 +30,24 @@ export class Mcp {
      * @param {string} serverName - Name of the MCP server
      * @param {Mcp.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.mcp.listMcpTools("server_name")
      */
     public listMcpTools(
         serverName: string,
         requestOptions?: Mcp.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseListToolsResultModel> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseListToolsResultModel, Sandbox.mcp.listMcpTools.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__listMcpTools(serverName, requestOptions));
     }
 
     private async __listMcpTools(
         serverName: string,
         requestOptions?: Mcp.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseListToolsResultModel>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseListToolsResultModel, Sandbox.mcp.listMcpTools.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -64,40 +65,41 @@ export class Mcp {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseListToolsResultModel, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseListToolsResultModel,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.mcp.listMcpTools.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/mcp/{server_name}/tools.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.mcp.listMcpTools.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -116,8 +118,6 @@ export class Mcp {
      * @param {Record<string, unknown>} request
      * @param {Mcp.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.mcp.executeMcpTool("server_name", "tool_name", {
      *         "key": "value"
@@ -128,7 +128,9 @@ export class Mcp {
         toolName: string,
         request: Record<string, unknown>,
         requestOptions?: Mcp.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseCallToolResultModel> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseCallToolResultModel, Sandbox.mcp.executeMcpTool.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(
             this.__executeMcpTool(serverName, toolName, request, requestOptions),
         );
@@ -139,7 +141,9 @@ export class Mcp {
         toolName: string,
         request: Record<string, unknown>,
         requestOptions?: Mcp.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseCallToolResultModel>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseCallToolResultModel, Sandbox.mcp.executeMcpTool.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -160,42 +164,41 @@ export class Mcp {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseCallToolResultModel, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseCallToolResultModel,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.mcp.executeMcpTool.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError(
-                    "Timeout exceeded when calling POST /v1/mcp/{server_name}/tools/{tool_name}.",
-                );
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.mcp.executeMcpTool.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -209,13 +212,15 @@ export class Mcp {
      * @example
      *     await client.mcp.listMcpServers()
      */
-    public listMcpServers(requestOptions?: Mcp.RequestOptions): core.HttpResponsePromise<Sandbox.ResponseListStr> {
+    public listMcpServers(
+        requestOptions?: Mcp.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseListStr, Sandbox.mcp.listMcpServers.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__listMcpServers(requestOptions));
     }
 
     private async __listMcpServers(
         requestOptions?: Mcp.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseListStr>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseListStr, Sandbox.mcp.listMcpServers.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -233,31 +238,24 @@ export class Mcp {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseListStr, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseListStr,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/mcp/servers.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.mcp.listMcpServers.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 }

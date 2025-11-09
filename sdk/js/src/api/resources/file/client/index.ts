@@ -1,1 +1,10 @@
+export * as downloadFile from "./downloadFile.js";
+export * as findFiles from "./findFiles.js";
+export * as listPath from "./listPath.js";
+export * as readFile from "./readFile.js";
+export * as replaceInFile from "./replaceInFile.js";
 export * from "./requests/index.js";
+export * as searchInFile from "./searchInFile.js";
+export * as strReplaceEditor from "./strReplaceEditor.js";
+export * as uploadFile from "./uploadFile.js";
+export * as writeFile from "./writeFile.js";

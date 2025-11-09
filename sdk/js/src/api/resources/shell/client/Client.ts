@@ -3,7 +3,6 @@
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
-import * as errors from "../../../../errors/index.js";
 import * as Sandbox from "../../../index.js";
 
 export declare namespace Shell {
@@ -26,8 +25,6 @@ export class Shell {
      * @param {Sandbox.ShellExecRequest} request
      * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.shell.execCommand({
      *         command: "command"
@@ -36,14 +33,16 @@ export class Shell {
     public execCommand(
         request: Sandbox.ShellExecRequest,
         requestOptions?: Shell.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseShellCommandResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseShellCommandResult, Sandbox.shell.execCommand.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__execCommand(request, requestOptions));
     }
 
     private async __execCommand(
         request: Sandbox.ShellExecRequest,
         requestOptions?: Shell.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseShellCommandResult>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseShellCommandResult, Sandbox.shell.execCommand.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -64,40 +63,41 @@ export class Shell {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseShellCommandResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseShellCommandResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.shell.execCommand.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/shell/exec.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.execCommand.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -107,8 +107,6 @@ export class Shell {
      * @param {Sandbox.ShellViewRequest} request
      * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.shell.view({
      *         id: "id"
@@ -117,14 +115,14 @@ export class Shell {
     public view(
         request: Sandbox.ShellViewRequest,
         requestOptions?: Shell.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseShellViewResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseShellViewResult, Sandbox.shell.view.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__view(request, requestOptions));
     }
 
     private async __view(
         request: Sandbox.ShellViewRequest,
         requestOptions?: Shell.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseShellViewResult>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseShellViewResult, Sandbox.shell.view.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -145,40 +143,41 @@ export class Shell {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseShellViewResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseShellViewResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.shell.view.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/shell/view.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.view.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -186,8 +185,6 @@ export class Shell {
      *
      * @param {Sandbox.ShellWaitRequest} request
      * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.shell.waitForProcess({
@@ -197,14 +194,16 @@ export class Shell {
     public waitForProcess(
         request: Sandbox.ShellWaitRequest,
         requestOptions?: Shell.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseShellWaitResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseShellWaitResult, Sandbox.shell.waitForProcess.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__waitForProcess(request, requestOptions));
     }
 
     private async __waitForProcess(
         request: Sandbox.ShellWaitRequest,
         requestOptions?: Shell.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseShellWaitResult>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseShellWaitResult, Sandbox.shell.waitForProcess.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -225,40 +224,41 @@ export class Shell {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseShellWaitResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseShellWaitResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.shell.waitForProcess.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/shell/wait.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.waitForProcess.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -266,8 +266,6 @@ export class Shell {
      *
      * @param {Sandbox.ShellWriteToProcessRequest} request
      * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.shell.writeToProcess({
@@ -279,14 +277,18 @@ export class Shell {
     public writeToProcess(
         request: Sandbox.ShellWriteToProcessRequest,
         requestOptions?: Shell.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseShellWriteResult> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseShellWriteResult, Sandbox.shell.writeToProcess.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__writeToProcess(request, requestOptions));
     }
 
     private async __writeToProcess(
         request: Sandbox.ShellWriteToProcessRequest,
         requestOptions?: Shell.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseShellWriteResult>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseShellWriteResult, Sandbox.shell.writeToProcess.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -307,40 +309,41 @@ export class Shell {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseShellWriteResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseShellWriteResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.shell.writeToProcess.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/shell/write.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.writeToProcess.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -348,8 +351,6 @@ export class Shell {
      *
      * @param {Sandbox.ShellKillProcessRequest} request
      * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.shell.killProcess({
@@ -359,14 +360,16 @@ export class Shell {
     public killProcess(
         request: Sandbox.ShellKillProcessRequest,
         requestOptions?: Shell.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseShellKillResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseShellKillResult, Sandbox.shell.killProcess.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__killProcess(request, requestOptions));
     }
 
     private async __killProcess(
         request: Sandbox.ShellKillProcessRequest,
         requestOptions?: Shell.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseShellKillResult>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseShellKillResult, Sandbox.shell.killProcess.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -387,40 +390,41 @@ export class Shell {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseShellKillResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseShellKillResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.shell.killProcess.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/shell/kill.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.killProcess.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -430,22 +434,26 @@ export class Shell {
      * @param {Sandbox.ShellCreateSessionRequest} request
      * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.shell.createSession()
      */
     public createSession(
         request: Sandbox.ShellCreateSessionRequest = {},
         requestOptions?: Shell.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseShellCreateSessionResponse> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseShellCreateSessionResponse, Sandbox.shell.createSession.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__createSession(request, requestOptions));
     }
 
     private async __createSession(
         request: Sandbox.ShellCreateSessionRequest = {},
         requestOptions?: Shell.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseShellCreateSessionResponse>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseShellCreateSessionResponse, Sandbox.shell.createSession.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -467,7 +475,12 @@ export class Shell {
         });
         if (_response.ok) {
             return {
-                data: _response.body as Sandbox.ResponseShellCreateSessionResponse,
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseShellCreateSessionResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
             };
         }
@@ -475,34 +488,27 @@ export class Shell {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.shell.createSession.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/shell/sessions/create.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.createSession.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -513,13 +519,15 @@ export class Shell {
      * @example
      *     await client.shell.getTerminalUrl()
      */
-    public getTerminalUrl(requestOptions?: Shell.RequestOptions): core.HttpResponsePromise<Sandbox.ResponseStr> {
+    public getTerminalUrl(
+        requestOptions?: Shell.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseStr, Sandbox.shell.getTerminalUrl.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__getTerminalUrl(requestOptions));
     }
 
     private async __getTerminalUrl(
         requestOptions?: Shell.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseStr>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseStr, Sandbox.shell.getTerminalUrl.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -537,32 +545,25 @@ export class Shell {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseStr, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseStr,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/shell/terminal-url.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.getTerminalUrl.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -575,13 +576,19 @@ export class Shell {
      */
     public listSessions(
         requestOptions?: Shell.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseActiveShellSessionsResult> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseActiveShellSessionsResult, Sandbox.shell.listSessions.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__listSessions(requestOptions));
     }
 
     private async __listSessions(
         requestOptions?: Shell.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseActiveShellSessionsResult>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseActiveShellSessionsResult, Sandbox.shell.listSessions.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -600,34 +607,24 @@ export class Shell {
         });
         if (_response.ok) {
             return {
-                data: _response.body as Sandbox.ResponseActiveShellSessionsResult,
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseActiveShellSessionsResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
             };
         }
 
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.listSessions.Error._unknown(_response.error),
                 rawResponse: _response.rawResponse,
-            });
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/shell/sessions.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -638,13 +635,15 @@ export class Shell {
      * @example
      *     await client.shell.cleanupAllSessions()
      */
-    public cleanupAllSessions(requestOptions?: Shell.RequestOptions): core.HttpResponsePromise<Sandbox.Response> {
+    public cleanupAllSessions(
+        requestOptions?: Shell.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.shell.cleanupAllSessions.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__cleanupAllSessions(requestOptions));
     }
 
     private async __cleanupAllSessions(
         requestOptions?: Shell.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.Response>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.shell.cleanupAllSessions.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -662,32 +661,25 @@ export class Shell {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.Response, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling DELETE /v1/shell/sessions.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.cleanupAllSessions.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -696,22 +688,20 @@ export class Shell {
      * @param {string} sessionId
      * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.shell.cleanupSession("session_id")
      */
     public cleanupSession(
         sessionId: string,
         requestOptions?: Shell.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.Response> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.shell.cleanupSession.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__cleanupSession(sessionId, requestOptions));
     }
 
     private async __cleanupSession(
         sessionId: string,
         requestOptions?: Shell.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.Response>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.shell.cleanupSession.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -729,41 +719,40 @@ export class Shell {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.Response, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.shell.cleanupSession.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError(
-                    "Timeout exceeded when calling DELETE /v1/shell/sessions/{session_id}.",
-                );
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.cleanupSession.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 }

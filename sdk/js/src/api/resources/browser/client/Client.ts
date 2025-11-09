@@ -3,7 +3,6 @@
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
-import * as errors from "../../../../errors/index.js";
 import * as Sandbox from "../../../index.js";
 
 export declare namespace Browser {
@@ -29,13 +28,15 @@ export class Browser {
      */
     public getInfo(
         requestOptions?: Browser.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseBrowserInfoResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseBrowserInfoResult, Sandbox.browser.getInfo.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__getInfo(requestOptions));
     }
 
     private async __getInfo(
         requestOptions?: Browser.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseBrowserInfoResult>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseBrowserInfoResult, Sandbox.browser.getInfo.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -53,32 +54,25 @@ export class Browser {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseBrowserInfoResult, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseBrowserInfoResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/browser/info.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.browser.getInfo.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -87,13 +81,15 @@ export class Browser {
      * Returns:
      *     StreamingResponse: PNG image data with proper headers including display and screenshot dimensions
      */
-    public screenshot(requestOptions?: Browser.RequestOptions): core.HttpResponsePromise<core.BinaryResponse> {
+    public screenshot(
+        requestOptions?: Browser.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<core.BinaryResponse, Sandbox.browser.screenshot.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__screenshot(requestOptions));
     }
 
     private async __screenshot(
         requestOptions?: Browser.RequestOptions,
-    ): Promise<core.WithRawResponse<core.BinaryResponse>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<core.BinaryResponse, Sandbox.browser.screenshot.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)<core.BinaryResponse>({
             url: core.url.join(
@@ -112,32 +108,25 @@ export class Browser {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/browser/screenshot.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.browser.screenshot.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -145,8 +134,6 @@ export class Browser {
      *
      * @param {Sandbox.Action} request
      * @param {Browser.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.browser.executeAction({
@@ -158,14 +145,14 @@ export class Browser {
     public executeAction(
         request: Sandbox.Action,
         requestOptions?: Browser.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ActionResponse> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ActionResponse, Sandbox.browser.executeAction.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__executeAction(request, requestOptions));
     }
 
     private async __executeAction(
         request: Sandbox.Action,
         requestOptions?: Browser.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ActionResponse>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ActionResponse, Sandbox.browser.executeAction.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -186,40 +173,41 @@ export class Browser {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ActionResponse, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ActionResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.browser.executeAction.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/browser/actions.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.browser.executeAction.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -228,22 +216,20 @@ export class Browser {
      * @param {Sandbox.BrowserConfigRequest} request
      * @param {Browser.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.browser.setConfig()
      */
     public setConfig(
         request: Sandbox.BrowserConfigRequest = {},
         requestOptions?: Browser.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.Response> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.browser.setConfig.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__setConfig(request, requestOptions));
     }
 
     private async __setConfig(
         request: Sandbox.BrowserConfigRequest = {},
         requestOptions?: Browser.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.Response>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.browser.setConfig.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -264,39 +250,40 @@ export class Browser {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.Response, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.browser.setConfig.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/browser/config.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.browser.setConfig.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 }

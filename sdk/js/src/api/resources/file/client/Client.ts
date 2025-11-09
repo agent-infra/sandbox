@@ -3,7 +3,6 @@
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
-import * as errors from "../../../../errors/index.js";
 import * as Sandbox from "../../../index.js";
 
 export declare namespace File_ {
@@ -25,8 +24,6 @@ export class File_ {
      * @param {Sandbox.FileReadRequest} request
      * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.file.readFile({
      *         file: "file"
@@ -35,14 +32,14 @@ export class File_ {
     public readFile(
         request: Sandbox.FileReadRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseFileReadResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileReadResult, Sandbox.file.readFile.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__readFile(request, requestOptions));
     }
 
     private async __readFile(
         request: Sandbox.FileReadRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseFileReadResult>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileReadResult, Sandbox.file.readFile.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -63,40 +60,41 @@ export class File_ {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseFileReadResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseFileReadResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.readFile.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/file/read.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.readFile.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -108,8 +106,6 @@ export class File_ {
      * @param {Sandbox.FileWriteRequest} request
      * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.file.writeFile({
      *         file: "file",
@@ -119,14 +115,14 @@ export class File_ {
     public writeFile(
         request: Sandbox.FileWriteRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseFileWriteResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileWriteResult, Sandbox.file.writeFile.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__writeFile(request, requestOptions));
     }
 
     private async __writeFile(
         request: Sandbox.FileWriteRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseFileWriteResult>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileWriteResult, Sandbox.file.writeFile.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -147,40 +143,41 @@ export class File_ {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseFileWriteResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseFileWriteResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.writeFile.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/file/write.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.writeFile.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -188,8 +185,6 @@ export class File_ {
      *
      * @param {Sandbox.FileReplaceRequest} request
      * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.file.replaceInFile({
@@ -201,14 +196,16 @@ export class File_ {
     public replaceInFile(
         request: Sandbox.FileReplaceRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseFileReplaceResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileReplaceResult, Sandbox.file.replaceInFile.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__replaceInFile(request, requestOptions));
     }
 
     private async __replaceInFile(
         request: Sandbox.FileReplaceRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseFileReplaceResult>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileReplaceResult, Sandbox.file.replaceInFile.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -229,40 +226,41 @@ export class File_ {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseFileReplaceResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseFileReplaceResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.replaceInFile.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/file/replace.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.replaceInFile.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -270,8 +268,6 @@ export class File_ {
      *
      * @param {Sandbox.FileSearchRequest} request
      * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.file.searchInFile({
@@ -282,14 +278,16 @@ export class File_ {
     public searchInFile(
         request: Sandbox.FileSearchRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseFileSearchResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileSearchResult, Sandbox.file.searchInFile.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__searchInFile(request, requestOptions));
     }
 
     private async __searchInFile(
         request: Sandbox.FileSearchRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseFileSearchResult>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileSearchResult, Sandbox.file.searchInFile.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -310,40 +308,41 @@ export class File_ {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseFileSearchResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseFileSearchResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.searchInFile.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/file/search.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.searchInFile.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -351,8 +350,6 @@ export class File_ {
      *
      * @param {Sandbox.FileFindRequest} request
      * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.file.findFiles({
@@ -363,14 +360,14 @@ export class File_ {
     public findFiles(
         request: Sandbox.FileFindRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseFileFindResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileFindResult, Sandbox.file.findFiles.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__findFiles(request, requestOptions));
     }
 
     private async __findFiles(
         request: Sandbox.FileFindRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseFileFindResult>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileFindResult, Sandbox.file.findFiles.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -391,40 +388,41 @@ export class File_ {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseFileFindResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseFileFindResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.findFiles.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/file/find.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.findFiles.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -432,8 +430,6 @@ export class File_ {
      *
      * @param {Sandbox.BodyUploadFile} request
      * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     import { createReadStream } from "fs";
@@ -444,14 +440,16 @@ export class File_ {
     public uploadFile(
         request: Sandbox.BodyUploadFile,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseFileUploadResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileUploadResult, Sandbox.file.uploadFile.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__uploadFile(request, requestOptions));
     }
 
     private async __uploadFile(
         request: Sandbox.BodyUploadFile,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseFileUploadResult>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileUploadResult, Sandbox.file.uploadFile.Error>>
+    > {
         const _request = await core.newFormData();
         await _request.appendFile("file", request.file);
         if (request.path != null) {
@@ -483,57 +481,57 @@ export class File_ {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseFileUploadResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseFileUploadResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.uploadFile.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/file/upload.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.uploadFile.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
      * Download file using FileResponse
-     * @throws {@link Sandbox.UnprocessableEntityError}
      */
     public downloadFile(
         request: Sandbox.FileDownloadFileRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<core.BinaryResponse> {
+    ): core.HttpResponsePromise<core.APIResponse<core.BinaryResponse, Sandbox.file.downloadFile.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__downloadFile(request, requestOptions));
     }
 
     private async __downloadFile(
         request: Sandbox.FileDownloadFileRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<core.BinaryResponse>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<core.BinaryResponse, Sandbox.file.downloadFile.Error>>> {
         const { path } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         _queryParams.path = path;
@@ -555,40 +553,41 @@ export class File_ {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.downloadFile.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/file/download.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.downloadFile.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -596,8 +595,6 @@ export class File_ {
      *
      * @param {Sandbox.FileListRequest} request
      * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.file.listPath({
@@ -607,14 +604,14 @@ export class File_ {
     public listPath(
         request: Sandbox.FileListRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseFileListResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileListResult, Sandbox.file.listPath.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__listPath(request, requestOptions));
     }
 
     private async __listPath(
         request: Sandbox.FileListRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseFileListResult>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileListResult, Sandbox.file.listPath.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -635,40 +632,41 @@ export class File_ {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseFileListResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseFileListResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.listPath.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/file/list.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.listPath.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -682,8 +680,6 @@ export class File_ {
      * @param {Sandbox.StrReplaceEditorRequest} request
      * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.file.strReplaceEditor({
      *         command: "view",
@@ -693,14 +689,20 @@ export class File_ {
     public strReplaceEditor(
         request: Sandbox.StrReplaceEditorRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseStrReplaceEditorResult> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseStrReplaceEditorResult, Sandbox.file.strReplaceEditor.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__strReplaceEditor(request, requestOptions));
     }
 
     private async __strReplaceEditor(
         request: Sandbox.StrReplaceEditorRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseStrReplaceEditorResult>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseStrReplaceEditorResult, Sandbox.file.strReplaceEditor.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -722,7 +724,12 @@ export class File_ {
         });
         if (_response.ok) {
             return {
-                data: _response.body as Sandbox.ResponseStrReplaceEditorResult,
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseStrReplaceEditorResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
             };
         }
@@ -730,33 +737,26 @@ export class File_ {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.strReplaceEditor.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/file/str_replace_editor.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.strReplaceEditor.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 }

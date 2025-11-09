@@ -3,7 +3,6 @@
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
-import * as errors from "../../../../errors/index.js";
 import * as Sandbox from "../../../index.js";
 
 export declare namespace Util {
@@ -25,8 +24,6 @@ export class Util {
      * @param {Sandbox.UtilConvertToMarkdownRequest} request
      * @param {Util.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.util.convertToMarkdown({
      *         uri: "uri"
@@ -35,14 +32,14 @@ export class Util {
     public convertToMarkdown(
         request: Sandbox.UtilConvertToMarkdownRequest,
         requestOptions?: Util.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.Response> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.util.convertToMarkdown.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__convertToMarkdown(request, requestOptions));
     }
 
     private async __convertToMarkdown(
         request: Sandbox.UtilConvertToMarkdownRequest,
         requestOptions?: Util.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.Response>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.util.convertToMarkdown.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -63,41 +60,40 @@ export class Util {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.Response, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.util.convertToMarkdown.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError(
-                    "Timeout exceeded when calling POST /v1/util/convert_to_markdown.",
-                );
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.util.convertToMarkdown.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 }

@@ -3,7 +3,6 @@
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
-import * as errors from "../../../../errors/index.js";
 import * as Sandbox from "../../../index.js";
 
 export declare namespace Nodejs {
@@ -28,8 +27,6 @@ export class Nodejs {
      * @param {Sandbox.NodeJsExecuteRequest} request
      * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.nodejs.executeCode({
      *         code: "code"
@@ -38,14 +35,18 @@ export class Nodejs {
     public executeCode(
         request: Sandbox.NodeJsExecuteRequest,
         requestOptions?: Nodejs.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseNodeJsExecuteResponse> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseNodeJsExecuteResponse, Sandbox.nodejs.executeCode.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__executeCode(request, requestOptions));
     }
 
     private async __executeCode(
         request: Sandbox.NodeJsExecuteRequest,
         requestOptions?: Nodejs.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseNodeJsExecuteResponse>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseNodeJsExecuteResponse, Sandbox.nodejs.executeCode.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -67,7 +68,12 @@ export class Nodejs {
         });
         if (_response.ok) {
             return {
-                data: _response.body as Sandbox.ResponseNodeJsExecuteResponse,
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseNodeJsExecuteResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
             };
         }
@@ -75,34 +81,27 @@ export class Nodejs {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.nodejs.executeCode.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/nodejs/execute.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.nodejs.executeCode.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -115,13 +114,15 @@ export class Nodejs {
      */
     public getInfo(
         requestOptions?: Nodejs.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseNodeJsRuntimeInfo> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseNodeJsRuntimeInfo, Sandbox.nodejs.getInfo.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__getInfo(requestOptions));
     }
 
     private async __getInfo(
         requestOptions?: Nodejs.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseNodeJsRuntimeInfo>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseNodeJsRuntimeInfo, Sandbox.nodejs.getInfo.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -139,31 +140,24 @@ export class Nodejs {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseNodeJsRuntimeInfo, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseNodeJsRuntimeInfo,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/nodejs/info.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.nodejs.getInfo.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 }

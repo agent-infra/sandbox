@@ -1,1 +1,11 @@
+export * as cleanupAllSessions from "./cleanupAllSessions.js";
+export * as cleanupSession from "./cleanupSession.js";
+export * as createSession from "./createSession.js";
+export * as execCommand from "./execCommand.js";
+export * as getTerminalUrl from "./getTerminalUrl.js";
+export * as killProcess from "./killProcess.js";
+export * as listSessions from "./listSessions.js";
 export * from "./requests/index.js";
+export * as view from "./view.js";
+export * as waitForProcess from "./waitForProcess.js";
+export * as writeToProcess from "./writeToProcess.js";

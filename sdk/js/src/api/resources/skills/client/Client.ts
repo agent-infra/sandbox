@@ -3,7 +3,6 @@
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
-import * as errors from "../../../../errors/index.js";
 import * as Sandbox from "../../../index.js";
 
 export declare namespace Skills {
@@ -23,8 +22,6 @@ export class Skills {
      * @param {Sandbox.BodyRegisterSkills} request
      * @param {Skills.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     import { createReadStream } from "fs";
      *     await client.skills.registerSkills({
@@ -34,14 +31,20 @@ export class Skills {
     public registerSkills(
         request: Sandbox.BodyRegisterSkills,
         requestOptions?: Skills.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseSkillRegistrationResult> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseSkillRegistrationResult, Sandbox.skills.registerSkills.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__registerSkills(request, requestOptions));
     }
 
     private async __registerSkills(
         request: Sandbox.BodyRegisterSkills,
         requestOptions?: Skills.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseSkillRegistrationResult>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseSkillRegistrationResult, Sandbox.skills.registerSkills.Error>
+        >
+    > {
         const _request = await core.newFormData();
         await _request.appendFile("file", request.file);
         if (request.path != null) {
@@ -78,7 +81,12 @@ export class Skills {
         });
         if (_response.ok) {
             return {
-                data: _response.body as Sandbox.ResponseSkillRegistrationResult,
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseSkillRegistrationResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
             };
         }
@@ -86,41 +94,32 @@ export class Skills {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.skills.registerSkills.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/skills/register.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.skills.registerSkills.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
      * @param {Sandbox.SkillsListMetadataRequest} request
      * @param {Skills.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.skills.listMetadata({
@@ -130,14 +129,20 @@ export class Skills {
     public listMetadata(
         request: Sandbox.SkillsListMetadataRequest = {},
         requestOptions?: Skills.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseSkillMetadataCollection> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseSkillMetadataCollection, Sandbox.skills.listMetadata.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__listMetadata(request, requestOptions));
     }
 
     private async __listMetadata(
         request: Sandbox.SkillsListMetadataRequest = {},
         requestOptions?: Skills.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseSkillMetadataCollection>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseSkillMetadataCollection, Sandbox.skills.listMetadata.Error>
+        >
+    > {
         const { names } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         if (names != null) {
@@ -162,7 +167,12 @@ export class Skills {
         });
         if (_response.ok) {
             return {
-                data: _response.body as Sandbox.ResponseSkillMetadataCollection,
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseSkillMetadataCollection,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
             };
         }
@@ -170,34 +180,27 @@ export class Skills {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.skills.listMetadata.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/skills/metadatas.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.skills.listMetadata.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -206,13 +209,15 @@ export class Skills {
      * @example
      *     await client.skills.clearSkills()
      */
-    public clearSkills(requestOptions?: Skills.RequestOptions): core.HttpResponsePromise<Sandbox.ResponseDict> {
+    public clearSkills(
+        requestOptions?: Skills.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseDict, Sandbox.skills.clearSkills.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__clearSkills(requestOptions));
     }
 
     private async __clearSkills(
         requestOptions?: Skills.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseDict>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseDict, Sandbox.skills.clearSkills.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -230,39 +235,30 @@ export class Skills {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseDict, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseDict,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling DELETE /v1/skills.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.skills.clearSkills.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
      * @param {string} name
      * @param {Skills.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.skills.deleteSkill("name")
@@ -270,14 +266,16 @@ export class Skills {
     public deleteSkill(
         name: string,
         requestOptions?: Skills.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseSkillMetadata> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseSkillMetadata, Sandbox.skills.deleteSkill.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__deleteSkill(name, requestOptions));
     }
 
     private async __deleteSkill(
         name: string,
         requestOptions?: Skills.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseSkillMetadata>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseSkillMetadata, Sandbox.skills.deleteSkill.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -295,47 +293,46 @@ export class Skills {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseSkillMetadata, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseSkillMetadata,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.skills.deleteSkill.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling DELETE /v1/skills/{name}.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.skills.deleteSkill.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
      * @param {string} name
      * @param {Skills.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Sandbox.UnprocessableEntityError}
      *
      * @example
      *     await client.skills.getContent("name")
@@ -343,14 +340,16 @@ export class Skills {
     public getContent(
         name: string,
         requestOptions?: Skills.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseSkillContentResult> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseSkillContentResult, Sandbox.skills.getContent.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__getContent(name, requestOptions));
     }
 
     private async __getContent(
         name: string,
         requestOptions?: Skills.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseSkillContentResult>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseSkillContentResult, Sandbox.skills.getContent.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -368,39 +367,40 @@ export class Skills {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseSkillContentResult, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseSkillContentResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.skills.getContent.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/skills/{name}/content.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.skills.getContent.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 }

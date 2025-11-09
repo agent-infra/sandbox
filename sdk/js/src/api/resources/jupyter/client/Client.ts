@@ -3,7 +3,6 @@
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
-import * as errors from "../../../../errors/index.js";
 import * as Sandbox from "../../../index.js";
 
 export declare namespace Jupyter {
@@ -30,8 +29,6 @@ export class Jupyter {
      * @param {Sandbox.JupyterExecuteRequest} request
      * @param {Jupyter.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.jupyter.executeCode({
      *         code: "code"
@@ -40,14 +37,20 @@ export class Jupyter {
     public executeCode(
         request: Sandbox.JupyterExecuteRequest,
         requestOptions?: Jupyter.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseJupyterExecuteResponse> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseJupyterExecuteResponse, Sandbox.jupyter.executeCode.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__executeCode(request, requestOptions));
     }
 
     private async __executeCode(
         request: Sandbox.JupyterExecuteRequest,
         requestOptions?: Jupyter.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseJupyterExecuteResponse>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseJupyterExecuteResponse, Sandbox.jupyter.executeCode.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -69,7 +72,12 @@ export class Jupyter {
         });
         if (_response.ok) {
             return {
-                data: _response.body as Sandbox.ResponseJupyterExecuteResponse,
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseJupyterExecuteResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
             };
         }
@@ -77,34 +85,27 @@ export class Jupyter {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.jupyter.executeCode.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/jupyter/execute.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.jupyter.executeCode.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -117,13 +118,15 @@ export class Jupyter {
      */
     public getInfo(
         requestOptions?: Jupyter.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseJupyterInfoResponse> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseJupyterInfoResponse, Sandbox.jupyter.getInfo.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__getInfo(requestOptions));
     }
 
     private async __getInfo(
         requestOptions?: Jupyter.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseJupyterInfoResponse>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseJupyterInfoResponse, Sandbox.jupyter.getInfo.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -141,32 +144,25 @@ export class Jupyter {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseJupyterInfoResponse, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseJupyterInfoResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/jupyter/info.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.jupyter.getInfo.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -179,13 +175,17 @@ export class Jupyter {
      */
     public listSessions(
         requestOptions?: Jupyter.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseActiveSessionsResult> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseActiveSessionsResult, Sandbox.jupyter.listSessions.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__listSessions(requestOptions));
     }
 
     private async __listSessions(
         requestOptions?: Jupyter.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseActiveSessionsResult>> {
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseActiveSessionsResult, Sandbox.jupyter.listSessions.Error>>
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -203,32 +203,25 @@ export class Jupyter {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.ResponseActiveSessionsResult, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseActiveSessionsResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling GET /v1/jupyter/sessions.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.jupyter.listSessions.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -239,13 +232,15 @@ export class Jupyter {
      * @example
      *     await client.jupyter.deleteSessions()
      */
-    public deleteSessions(requestOptions?: Jupyter.RequestOptions): core.HttpResponsePromise<Sandbox.Response> {
+    public deleteSessions(
+        requestOptions?: Jupyter.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.jupyter.deleteSessions.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__deleteSessions(requestOptions));
     }
 
     private async __deleteSessions(
         requestOptions?: Jupyter.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.Response>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.jupyter.deleteSessions.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -263,32 +258,25 @@ export class Jupyter {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.Response, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            throw new errors.SandboxError({
-                statusCode: _response.error.statusCode,
-                body: _response.error.body,
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
-            });
+            };
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling DELETE /v1/jupyter/sessions.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.jupyter.deleteSessions.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -297,22 +285,20 @@ export class Jupyter {
      * @param {string} sessionId
      * @param {Jupyter.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.jupyter.deleteSession("session_id")
      */
     public deleteSession(
         sessionId: string,
         requestOptions?: Jupyter.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.Response> {
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.jupyter.deleteSession.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__deleteSession(sessionId, requestOptions));
     }
 
     private async __deleteSession(
         sessionId: string,
         requestOptions?: Jupyter.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.Response>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.jupyter.deleteSession.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -330,42 +316,41 @@ export class Jupyter {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Sandbox.Response, rawResponse: _response.rawResponse };
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.jupyter.deleteSession.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError(
-                    "Timeout exceeded when calling DELETE /v1/jupyter/sessions/{session_id}.",
-                );
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.jupyter.deleteSession.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 
     /**
@@ -374,22 +359,26 @@ export class Jupyter {
      * @param {Sandbox.JupyterCreateSessionRequest} request
      * @param {Jupyter.RequestOptions} requestOptions - Request-specific configuration.
      *
-     * @throws {@link Sandbox.UnprocessableEntityError}
-     *
      * @example
      *     await client.jupyter.createSession()
      */
     public createSession(
         request: Sandbox.JupyterCreateSessionRequest = {},
         requestOptions?: Jupyter.RequestOptions,
-    ): core.HttpResponsePromise<Sandbox.ResponseJupyterCreateSessionResponse> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseJupyterCreateSessionResponse, Sandbox.jupyter.createSession.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__createSession(request, requestOptions));
     }
 
     private async __createSession(
         request: Sandbox.JupyterCreateSessionRequest = {},
         requestOptions?: Jupyter.RequestOptions,
-    ): Promise<core.WithRawResponse<Sandbox.ResponseJupyterCreateSessionResponse>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseJupyterCreateSessionResponse, Sandbox.jupyter.createSession.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -411,7 +400,12 @@ export class Jupyter {
         });
         if (_response.ok) {
             return {
-                data: _response.body as Sandbox.ResponseJupyterCreateSessionResponse,
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseJupyterCreateSessionResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
                 rawResponse: _response.rawResponse,
             };
         }
@@ -419,33 +413,26 @@ export class Jupyter {
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
-                    throw new Sandbox.UnprocessableEntityError(
-                        _response.error.body as Sandbox.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.SandboxError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.jupyter.createSession.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
                         rawResponse: _response.rawResponse,
-                    });
+                    };
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.SandboxError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.SandboxTimeoutError("Timeout exceeded when calling POST /v1/jupyter/sessions/create.");
-            case "unknown":
-                throw new errors.SandboxError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.jupyter.createSession.Error._unknown(_response.error),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
     }
 }
