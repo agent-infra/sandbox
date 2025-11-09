@@ -11,10 +11,7 @@ export default defineConfig({
       format: 'esm',
       syntax: 'es2021',
       bundle: false,
-      dts: {
-        bundle: false,
-        abortOnError: false,
-      },
+      dts: false,
       output: {
         distPath: './dist/esm',
       },
@@ -23,10 +20,7 @@ export default defineConfig({
       format: 'cjs',
       syntax: 'es2021',
       bundle: false,
-      dts: {
-        bundle: false,
-        abortOnError: false,
-      },
+      dts: false,
       output: {
         distPath: './dist/cjs',
       },
