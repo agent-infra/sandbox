@@ -1,0 +1,23 @@
+{
+  "name": "@agent-infra/sandbox-examples",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "simple": "tsx simple-examples.ts",
+    "basic": "tsx basic-usage.ts",
+    "volcengine": "tsx volcengine-provider.ts",
+    "error": "tsx error-handling.ts",
+    "advanced": "tsx advanced-usage.ts",
+    "all": "npm run simple && npm run basic && npm run error && npm run advanced"
+  },
+  "dependencies": {
+    "@agent-infra/sandbox": "file:.."
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.24",
+    "tsx": "^4.7.0",
+    "typescript": "^5.9.3"
+  }
+}
