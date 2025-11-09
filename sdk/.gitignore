@@ -3,3 +3,4 @@ snapshot
 node_modules
 dist
 js/coverage
+.claude

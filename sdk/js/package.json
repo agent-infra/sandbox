@@ -2,10 +2,18 @@
   "name": "@agent-infra/sandbox",
   "version": "1.0.0",
   "description": "Node.js SDK for AIO Sandbox integration providing tools and interfaces",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "rslib build",
     "prepublishOnly": "npm run build",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
@@ -34,6 +42,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@rslib/core": "^0.17.1",
     "@types/node": "^20.19.24",
     "@vitest/coverage-v8": "^1.0.0",
     "@vitest/ui": "^1.0.0",
