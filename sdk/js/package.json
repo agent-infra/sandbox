@@ -1,11 +1,12 @@
 {
   "name": "@agent-infra/sandbox",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "Node.js SDK for AIO Sandbox integration providing tools and interfaces",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "test:ui": "vitest --ui",
@@ -19,9 +20,9 @@
   },
   "files": [
     "dist",
+    "src",
     "README.md",
-    "package.json",
-    "examples"
+    "package.json"
   ],
   "keywords": [
     "aio",
@@ -33,15 +34,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
-    "vitest": "^1.0.0",
+    "@types/node": "^20.19.24",
     "@vitest/coverage-v8": "^1.0.0",
     "@vitest/ui": "^1.0.0",
-    "rimraf": "^5.0.0"
-  },
-  "dependencies": {
-    "@agent-infra/logger": "0.0.2-beta.2"
+    "rimraf": "^5.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^1.0.0"
   },
   "engines": {
     "node": ">=18.0.0"

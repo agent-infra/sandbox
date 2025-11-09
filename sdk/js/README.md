@@ -1,343 +1,385 @@
-# 🚀 AIO Sandbox SDK
+# @agent-infra/sandbox
 
-<div align="center">
+Node.js/TypeScript SDK for AIO Sandbox integration, providing tools and interfaces for sandbox management and cloud provider integrations.
 
-[![Version](https://img.shields.io/npm/v/@agent-infra/sandbox?style=for-the-badge&logo=npm&color=cb3837)](https://www.npmjs.com/package/@agent-infra/sandbox)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen?style=for-the-badge&logo=node.js)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-%3E%3D5.0.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
-
-**🔧 A powerful Node.js library for seamless AIO Sandbox integration**
-
-</div>
-
-## 📖 Overview
-
-> **🎯 Modern • Modular • TypeScript-First**
-
-The **AIO Sandbox SDK** is a cutting-edge Node.js library engineered for seamless integration with the AIO Sandbox environment. It delivers a comprehensive toolkit for:
-
-🔹 **Shell Execution** - Command automation and process management
-🔹 **File Operations** - Complete file system interaction
-🔹 **Jupyter Integration** - Notebook code execution and management
-🔹 **Browser Automation** - Advanced web interaction capabilities
-🔹 **TypeScript Support** - Full type safety and IntelliSense
-
-Built with a **modern modular architecture**, the SDK ensures clean separation of concerns and provides an exceptional developer experience through comprehensive TypeScript support.
-
-## ✨ Features
-
-<table>
-<tr>
-<td width="50%">
-
-### 🖥️ **Shell Execution**
-- ⚡ Synchronous command execution
-- 🔄 Asynchronous execution with polling
-- 📊 Real-time output monitoring
-- ⏱️ Configurable timeout handling
-
-### 📁 **File Management**
-- 📋 Directory listing with recursion
-- ✏️ File editing capabilities
-- 💾 Download and upload operations
-- 🗂️ Advanced file system navigation
-
-</td>
-<td width="50%">
-
-### 🐍 **Jupyter Integration**
-- 🚀 Code execution in multiple kernels
-- 📓 Notebook management
-- 🔧 Customizable execution parameters
-- 📈 Output capture and processing
-
-### 🌐 **Browser Automation**
-- 🎯 CDP (Chrome DevTools Protocol) integration
-- 📱 Browser information retrieval
-- 📸 Screenshot capture
-- 🖱️ Mouse and keyboard automation
-- 🎬 Advanced browser action execution
-
-</td>
-</tr>
-</table>
-
-### 🏗️ **Architecture Highlights**
-- 🧩 **Modular Design** - Clean separation of concerns
-- 📦 **TypeScript First** - Complete type safety
-- 🔄 **Async/Await** - Modern promise-based API
-- ⚙️ **Configurable** - Flexible client configuration
-
-## 📦 Installation
-
-<div align="center">
-
-### Quick Start Installation
-
-</div>
-
-Install the SDK using your preferred package manager:
+## Installation
 
 ```bash
-# Using pnpm (recommended)
-pnpm install @agent-infra/sandbox
-
-# Using npm
 npm install @agent-infra/sandbox
+```
 
-# Using yarn
+or with yarn:
+
+```bash
 yarn add @agent-infra/sandbox
 ```
 
-> 💡 **Tip**: We recommend using `pnpm` for faster installation and better dependency management.
+or with pnpm:
 
-## 🚀 Usage Guide
-
-### ⚙️ Basic Configuration
-
-Start by importing the SDK and configuring the client:
-
-```typescript
-import { AioClient } from "@agent-infra/sandbox";
-
-const client = new AioClient({
-  baseUrl: `https://{aio.sandbox.example}`, //The Url and Port should consistent with the Aio Sandbox
-  timeout: 30000, // Optional: request timeout in milliseconds
-  retries: 3, // Optional: number of retry attempts
-  retryDelay: 1000, // Optional: delay between retries in milliseconds
-});
-```
-
-### 🖥️ Shell Execution
-
-Execute shell commands within the sandbox environment:
-
-```typescript
-const response = await client.shellExec({
-  command: "ls -la",
-});
-
-if (response.success) {
-  console.log("Command Output:", response.data.output);
-} else {
-  console.error("Error:", response.message);
-}
-
-// Asynchronous rotation training results, suitable for long-term tasks
-const response = await client.shellExecWithPolling({
-  command: "ls -la",
-  maxWaitTime: 60 * 1000,
-});
-```
-
-### 📁 File Management
-
-Manage files and directories within the sandbox:
-
-```typescript
-const fileList = await client.fileList({
-  path: "/home/gem",
-  recursive: true,
-});
-
-if (fileList.success) {
-  console.log("Files:", fileList.data.files);
-} else {
-  console.error("Error:", fileList.message);
-}
-```
-
-### 🐍 Jupyter Code Execution
-
-Execute code in Jupyter notebooks with multiple kernel support:
-
-```typescript
-const jupyterResponse = await client.jupyterExecute({
-  code: "print('Hello, Jupyter!')",
-  kernel_name: "python3",
-});
-
-if (jupyterResponse.success) {
-  console.log("Output:", jupyterResponse.data);
-} else {
-  console.error("Error:", jupyterResponse.message);
-}
-```
-
-### 🌐 Browser Automation
-
-Advanced browser control, automation, and web interaction capabilities:
-
-```typescript
-// Get browser information
-const browserInfo = await client.browserInfo();
-if (browserInfo.success) {
-  console.log("Browser Info:", browserInfo.data);
-}
-
-// Capture screenshot
-const screenshot = await client.browserScreenshot();
-if (screenshot.ok) {
-  const buffer = await screenshot.arrayBuffer();
-  // Save or process screenshot buffer
-}
-
-// Get CDP version information
-const cdpVersion = await client.browserCdpVersion();
-if (cdpVersion.success) {
-  console.log("CDP Version:", cdpVersion.data);
-}
-
-// Execute browser actions (click, type, scroll, etc.)
-const actionResponse = await client.browserActions({
-  actions: [
-    { action_type: "MOVE_TO", x: 100, y: 100 },
-    { action_type: "CLICK", x: 100, y: 100 },
-    { action_type: "TYPING", text: "Hello World" }
-  ]
-});
-
-if (actionResponse.success) {
-  console.log("Actions executed successfully");
-}
-```
-
-## 🐳 Sandbox Startup Instructions
-
-<div align="center">
-
-### 🚀 Quick Docker Setup
-
-</div>
-
-Follow these simple steps to get your sandbox running locally:
-
-#### Prerequisites
-- 🐳 **Docker** installed on your system
-- 🌐 **Network access** for pulling the image
-
-#### Step-by-Step Guide
-
-**1️⃣ Pull the AIO Sandbox Image**
-```shell
-docker pull aio.sandbox:latest
-```
-
-**2️⃣ Start the Container**
-```shell
-docker run --security-opt seccomp=unconfined -it -p 8821:8080 aio.sandbox:latest
-```
-
-**3️⃣ Verify Connection**
-The sandbox server will be available at:
-```
-🌐 http://localhost:8821
-```
-
-**4️⃣ Update Client Configuration**
-```typescript
-const client = new AioClient({
-  baseUrl: "http://localhost:8821", // ✅ Local sandbox URL
-  timeout: 30000,
-  retries: 3,
-});
-```
-
-> ✅ **Ready to go!** Your sandbox environment is now running and ready for integration.
-
-## 🛠️ Development
-
-<div align="center">
-
-### 🔧 Developer Commands
-
-</div>
-
-<table>
-<tr>
-<td width="33%">
-
-#### 🏗️ **Build**
-Compile TypeScript to JavaScript:
 ```bash
-pnpm build
+pnpm add @agent-infra/sandbox
 ```
 
-</td>
-<td width="33%">
+## Quick Start
 
-#### ✅ **Test**
-Run the test suite with Vitest:
+### Basic Usage
+
+```typescript
+import { SandboxApiClient } from '@agent-infra/sandbox';
+
+// Initialize the client
+const client = new SandboxApiClient({
+  environment: 'https://your-sandbox-api.com',
+  // Add authentication if required
+});
+
+// Use the API
+const result = await client.file.read({
+  path: '/path/to/file',
+});
+
+console.log(result);
+```
+
+### Using Cloud Providers
+
+The SDK includes provider implementations for managing sandboxes on different cloud platforms.
+
+#### Volcengine Provider
+
+```typescript
+import { providers } from '@agent-infra/sandbox';
+
+// Initialize Volcengine provider
+const volcengineProvider = new providers.VolcengineProvider({
+  accessKey: process.env.VOLCENGINE_ACCESS_KEY,
+  secretKey: process.env.VOLCENGINE_SECRET_KEY,
+  region: 'cn-beijing', // Optional, defaults to 'cn-beijing'
+});
+
+// Create a sandbox
+const sandboxId = await volcengineProvider.createSandbox(
+  'your-function-id',
+  30 // timeout in minutes
+);
+console.log('Created sandbox:', sandboxId);
+
+// Get sandbox details with APIG domains
+const sandbox = await volcengineProvider.getSandbox(
+  'your-function-id',
+  sandboxId
+);
+console.log('Sandbox domains:', sandbox.domains);
+
+// List all sandboxes for a function
+const sandboxes = await volcengineProvider.listSandboxes('your-function-id');
+console.log('Total sandboxes:', sandboxes.length);
+
+// Delete a sandbox
+await volcengineProvider.deleteSandbox('your-function-id', sandboxId);
+console.log('Sandbox deleted');
+```
+
+#### Application Management
+
+```typescript
+// Create an application
+const appId = await volcengineProvider.createApplication(
+  'my-app',
+  'my-gateway'
+);
+
+// Check application readiness
+const [isReady, functionId] = await volcengineProvider.getApplicationReadiness(appId);
+if (isReady) {
+  console.log('Application is ready, function ID:', functionId);
+}
+
+// Get APIG domains for a function
+const domains = await volcengineProvider.getApigDomains('your-function-id');
+console.log('Available domains:', domains);
+```
+
+## Features
+
+### Sandbox API Client
+
+- **File Operations**: Read, write, search, and manage files
+- **Shell Execution**: Execute shell commands and manage sessions
+- **Browser Automation**: Control browser actions and retrieve information
+- **Code Execution**: Execute code in various languages (Python, Node.js, Jupyter)
+- **MCP Integration**: Execute MCP (Model Context Protocol) tools
+
+### Cloud Providers
+
+#### Volcengine Provider
+
+- ✅ Sandbox lifecycle management (create, delete, get, list)
+- ✅ Application deployment and monitoring
+- ✅ APIG (API Gateway) domain management
+- ✅ Automatic request signing with HMAC-SHA256
+- ✅ Support for temporary credentials
+
+#### Extensible Provider System
+
+Create custom providers by extending the `BaseProvider` class:
+
+```typescript
+import { providers } from '@agent-infra/sandbox';
+
+class MyCustomProvider extends providers.BaseProvider {
+  async createSandbox(functionId: string, ...kwargs: any[]): Promise<any> {
+    // Your implementation
+  }
+
+  async deleteSandbox(functionId: string, sandboxId: string, ...kwargs: any[]): Promise<any> {
+    // Your implementation
+  }
+
+  async getSandbox(functionId: string, sandboxId: string, ...kwargs: any[]): Promise<any> {
+    // Your implementation
+  }
+
+  async listSandboxes(functionId: string, ...kwargs: any[]): Promise<any> {
+    // Your implementation
+  }
+}
+```
+
+## API Reference
+
+### SandboxApiClient
+
+The main client for interacting with the Sandbox API.
+
+```typescript
+const client = new SandboxApiClient({
+  environment: string,          // API base URL
+  timeout?: number,             // Request timeout in milliseconds
+  headers?: Record<string, string>, // Custom headers
+});
+```
+
+#### Available Modules
+
+- `client.file` - File operations
+- `client.shell` - Shell command execution
+- `client.browser` - Browser automation
+- `client.code` - Code execution
+- `client.jupyter` - Jupyter notebook operations
+- `client.nodejs` - Node.js specific operations
+- `client.mcp` - MCP tool execution
+
+### Providers
+
+#### BaseProvider (Abstract)
+
+Base class for all cloud provider implementations.
+
+**Methods:**
+- `createSandbox(functionId: string, ...kwargs: any[]): Promise<any>`
+- `deleteSandbox(functionId: string, sandboxId: string, ...kwargs: any[]): Promise<any>`
+- `getSandbox(functionId: string, sandboxId: string, ...kwargs: any[]): Promise<any>`
+- `listSandboxes(functionId: string, ...kwargs: any[]): Promise<any>`
+
+#### VolcengineProvider
+
+Volcengine VEFAAS implementation.
+
+**Constructor Options:**
+```typescript
+{
+  accessKey: string;              // Volcengine access key ID
+  secretKey: string;              // Volcengine secret access key
+  region?: string;                // Region (default: 'cn-beijing')
+  clientSideValidation?: boolean; // Enable validation (default: true)
+}
+```
+
+**Additional Methods:**
+- `createApplication(name: string, gatewayName: string): Promise<string | null>`
+- `getApplicationReadiness(id: string): Promise<[boolean, string | null]>`
+- `getApigDomains(functionId: string): Promise<DomainInfo[]>`
+
+## Environment Variables
+
+Configure Volcengine credentials using environment variables:
+
 ```bash
-pnpm test
+# Volcengine credentials (option 1)
+VOLCENGINE_ACCESS_KEY=your-access-key
+VOLCENGINE_SECRET_KEY=your-secret-key
+
+# Volcengine credentials (option 2)
+VOLC_ACCESSKEY=your-access-key
+VOLC_SECRETKEY=your-secret-key
 ```
 
-</td>
-<td width="33%">
+## TypeScript Support
 
-#### 🧹 **Clean**
-Remove build artifacts:
+This package is written in TypeScript and includes full type definitions. TypeScript 5.0+ is recommended.
+
+```typescript
+import type {
+  SandboxApi,
+  BaseClientOptions,
+  BaseRequestOptions
+} from '@agent-infra/sandbox';
+```
+
+## Examples
+
+### Execute Shell Command
+
+```typescript
+const result = await client.shell.exec({
+  command: 'ls -la',
+  timeout: 5000,
+});
+console.log(result.stdout);
+```
+
+### Read File
+
+```typescript
+const fileContent = await client.file.read({
+  path: '/path/to/file.txt',
+});
+console.log(fileContent.content);
+```
+
+### Browser Automation
+
+```typescript
+const browserInfo = await client.browser.info();
+console.log('Browser:', browserInfo);
+
+await client.browser.config({
+  action: {
+    type: 'click',
+    selector: '#button',
+  },
+});
+```
+
+### Execute Python Code
+
+```typescript
+const result = await client.code.execute({
+  code: 'print("Hello from sandbox!")',
+  language: 'python',
+});
+console.log(result.output);
+```
+
+## Error Handling
+
+```typescript
+import { SandboxApiError, SandboxApiTimeoutError } from '@agent-infra/sandbox';
+
+try {
+  const result = await client.file.read({ path: '/nonexistent' });
+} catch (error) {
+  if (error instanceof SandboxApiTimeoutError) {
+    console.error('Request timed out');
+  } else if (error instanceof SandboxApiError) {
+    console.error('API error:', error.statusCode, error.message);
+  } else {
+    console.error('Unexpected error:', error);
+  }
+}
+```
+
+## Development
+
+### Project Structure
+
+```
+sdk/js/
+├── src/              # TypeScript source code
+│   ├── api/          # Generated API modules
+│   ├── core/         # Core utilities
+│   ├── errors/       # Error classes
+│   ├── providers/    # Cloud provider implementations (custom code)
+│   │   ├── base.ts       # Base provider interface
+│   │   ├── volcengine.ts # Volcengine implementation
+│   │   ├── sign.ts       # Request signing utilities
+│   │   └── README.md     # Provider documentation
+│   ├── BaseClient.ts # Base client implementation
+│   ├── Client.ts     # Main API client
+│   └── index.ts      # Package entry point
+├── dist/             # Compiled JavaScript output (generated by build)
+├── package.json      # Package configuration
+└── tsconfig.json     # TypeScript configuration
+```
+
+### Building
+
+The SDK uses TypeScript and compiles source code from `src/` to `dist/`:
+
 ```bash
-pnpm clean
+npm run build
 ```
 
-</td>
-</tr>
-</table>
+This will:
+1. Compile TypeScript files from `src/` to JavaScript in `dist/`
+2. Generate `.d.ts` type definition files
+3. Generate source maps for debugging
 
-### 📋 **Development Scripts**
+### Testing
 
-| Command | Description | Purpose |
-|---------|-------------|---------|
-| `pnpm build` | 🏗️ Compile TypeScript | Production builds |
-| `pnpm test` | ✅ Run test suite | Quality assurance |
-| `pnpm test:watch` | 👀 Watch mode testing | Development testing |
-| `pnpm clean` | 🧹 Clean dist folder | Fresh rebuilds |
-| `pnpm lint` | 🔍 Code linting | Code quality |
-| `pnpm dev` | 🚀 Development mode | Live development |
+```bash
+npm test
+
+# With coverage
+npm run test:coverage
+
+# With UI
+npm run test:ui
+```
+
+### Development Mode
+
+```bash
+npm run dev  # Watch mode with auto-rebuild
+```
+
+### Generating SDK
+
+The base SDK code is generated using [Fern](https://buildwithfern.com/):
+
+```bash
+cd sdk/fern
+fern generate --group nodejs-sdk --local
+```
+
+This generates TypeScript code from the OpenAPI specification into `src/`.
+Custom providers in `src/providers/` are preserved via `.fernignore`.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Adding Custom Providers
+
+See [providers/README.md](./providers/README.md) for detailed information on implementing custom cloud providers.
+
+## License
+
+ISC
+
+## Links
+
+- [Repository](https://github.com/agent-infra/sandbox-sdk)
+- [Issues](https://github.com/agent-infra/sandbox-sdk/issues)
+- [Volcengine Documentation](https://www.volcengine.com/docs/)
+
+## Support
+
+For questions and support, please open an issue on GitHub.
 
 ---
 
-## 🤝 Contributing
-
-<div align="center">
-
-**🎉 We welcome contributions from the community! 🎉**
-
-</div>
-
-### 🌟 **How to Contribute**
-
-1. 🍴 **Fork** the repository
-2. 🌿 **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. 💾 **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. 📤 **Push** to the branch (`git push origin feature/amazing-feature`)
-5. 🔃 **Open** a Pull Request
-
-### 📋 **Contribution Guidelines**
-
-- ✅ Write clear, concise commit messages
-- 🧪 Add tests for new functionality
-- 📚 Update documentation as needed
-- 🎨 Follow existing code style and conventions
-- 🐛 Submit issues for bugs and feature requests
-
-### 💬 **Get Help**
-
-- 📖 Check our [documentation](docs/)
-- 🐛 Report bugs via [GitHub Issues](issues/)
-- 💡 Suggest features via [GitHub Discussions](discussions/)
-- 📧 Contact the maintainers for questions
-
----
-
-<div align="center">
-
-**Made with ❤️ by the AIO Sandbox Team**
-
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-black?style=for-the-badge&logo=github)](https://github.com/your-repo)
-[![NPM](https://img.shields.io/badge/NPM-Package-red?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@agent-infra/sandbox)
-[![TypeScript](https://img.shields.io/badge/Built_with-TypeScript-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-
-</div>
+**Version**: 1.0.0
+**Node.js**: >=18.0.0
+**TypeScript**: >=5.0.0
