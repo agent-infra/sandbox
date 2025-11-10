@@ -5,7 +5,10 @@ __pycache__/
 .Python
 .pytest_cache/
 .coverage
+htmlcov/
+coverage.xml
 sandbox.egg-info
 agent_sandbox.egg-info/
 .venv/
 build/
+dist/
