@@ -147,14 +147,14 @@ class MyCustomAgent(BaseAgentLoop):
         # 你的自定义初始化
 
     async def run(self, prompt: str, tools: List[Dict[str, Any]]) -> List[AgentMessage]:
-        # 你的 agent 逻辑
+        # 你的 agent 逻辑 - 调用 self.call_tool() 来执行工具
         pass
 
-    async def _execute_tool_call(self, tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
-        # 通过 MCP 执行工具
-        result = await self.mcp_session.call_tool(tool_name, arguments=arguments)
-        return result.model_dump() if hasattr(result, "model_dump") else result
+    # call_tool() 是可选的 - BaseAgentLoop 提供了默认实现
+    # 只有在需要自定义行为时才需要覆盖（重试逻辑、缓存等）
 ```
+
+**注意**：`call_tool()` 在 `BaseAgentLoop` 中有默认实现，直接调用 MCP。只有在需要自定义工具执行逻辑时才需要覆盖它（例如重试机制、缓存、自定义错误处理）。
 
 **使用自定义 Agent：**
 

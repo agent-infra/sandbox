@@ -15,7 +15,8 @@ This directory contains concrete implementations of agent runtimes that are **ex
    ```python
    @AgentRegistry.register("my_agent")  # ← Just change this name
    class MyCustomAgent(BaseAgentLoop):
-       # Implement __init__, run(), _execute_tool_call()
+       # Implement __init__ and run()
+       # call_tool() has default implementation (override only if needed)
        # See _template.py for detailed guide
    ```
 

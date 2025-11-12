@@ -6,7 +6,7 @@ Copy this file to create your own agent implementation.
 Steps:
 1. Copy this file: cp agent_runtime/_template.py agent_runtime/my_agent.py
 2. Rename the class and update the @register decorator
-3. Implement __init__, run(), and _execute_tool_call()
+3. Implement __init__ and run() (call_tool() has default implementation)
 4. Run: uv run main.py --agent my_agent
 """
 
@@ -83,7 +83,7 @@ class MyCustomAgent(BaseAgentLoop):  # ← Change class name
             2. Loop:
                a. Call LLM with messages and tools
                b. If no tool calls, return messages
-               c. Execute tool calls via self._execute_tool_call()
+               c. Execute tool calls via self.call_tool()
                d. Add tool results to messages
             3. Return all messages
         """
@@ -111,7 +111,7 @@ class MyCustomAgent(BaseAgentLoop):  # ← Change class name
             # if response.has_tool_calls():
             #     for tool_call in response.tool_calls:
             #         # Execute tool (metrics auto-tracked!)
-            #         result = await self._execute_tool_call(
+            #         result = await self.call_tool(
             #             tool_name=tool_call.name,
             #             arguments=tool_call.arguments
             #         )
@@ -131,43 +131,46 @@ class MyCustomAgent(BaseAgentLoop):  # ← Change class name
 
         return messages
 
-    @override
-    async def _execute_tool_call(
-        self,
-        tool_name: str,
-        arguments: Dict[str, Any],
-    ) -> ToolResult:
-        """
-        Execute a tool call via MCP.
-
-        DO NOT MODIFY THIS METHOD unless you have a specific reason.
-        Metrics are automatically tracked by the BaseAgentLoop decorator!
-
-        Args:
-            tool_name: Name of the tool to call
-            arguments: Tool arguments as key-value pairs
-
-        Returns:
-            Tool execution result in MCP format:
-            {
-                "content": [{"type": "text", "text": "Result data"}],
-                "isError": False
-            }
-
-        Raises:
-            ToolExecutionError: If execution fails
-        """
-        if not self.mcp_session:
-            raise ToolExecutionError("No MCP session available for tool execution")
-
-        try:
-            result = await self.mcp_session.call_tool(tool_name, arguments=arguments)
-            # Convert CallToolResult (Pydantic model) to dict for JSON serialization
-            if hasattr(result, "model_dump"):
-                return result.model_dump()
-            return result
-        except Exception as e:
-            raise ToolExecutionError(f"Failed to execute tool {tool_name}: {e}") from e
+    # =========================================================================
+    # call_tool() - Optional Override
+    # =========================================================================
+    #
+    # BaseAgentLoop provides a default implementation of call_tool() that
+    # directly calls self.mcp_session.call_tool().
+    #
+    # You DON'T need to implement call_tool() unless you need custom behavior:
+    #
+    # ✓ When to override:
+    #   - Adding retry logic for failed tool calls
+    #   - Implementing tool result caching
+    #   - Custom error handling or transformation
+    #   - Tool call preprocessing/postprocessing
+    #
+    # ✗ When NOT to override:
+    #   - Standard MCP tool execution (default works fine!)
+    #   - No special requirements
+    #
+    # Example override (uncomment if needed):
+    #
+    # @override
+    # async def call_tool(
+    #     self,
+    #     tool_name: str,
+    #     arguments: Dict[str, Any],
+    # ) -> ToolResult:
+    #     """Custom tool execution with retry logic."""
+    #     max_retries = 3
+    #     for attempt in range(max_retries):
+    #         try:
+    #             result = await self.mcp_session.call_tool(tool_name, arguments=arguments)
+    #             if hasattr(result, "model_dump"):
+    #                 return result.model_dump()
+    #             return result
+    #         except Exception as e:
+    #             if attempt == max_retries - 1:
+    #                 raise ToolExecutionError(f"Tool {tool_name} failed after {max_retries} retries: {e}")
+    #             await asyncio.sleep(2 ** attempt)  # Exponential backoff
+    # =========================================================================
 
 
 # ==============================================================================

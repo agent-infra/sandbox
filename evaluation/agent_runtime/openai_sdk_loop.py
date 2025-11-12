@@ -153,7 +153,7 @@ class OpenAISDKAgentLoop(BaseAgentLoop):
 
                 # Execute tool (metrics tracked automatically by decorator)
                 try:
-                    result = await self._execute_tool_call(tool_name, tool_args)
+                    result = await self.call_tool(tool_name, tool_args)
                     result_str = json.dumps(result, ensure_ascii=False)
                 except Exception as e:
                     print(f"❌ Tool execution error for {tool_name}: {e}")
@@ -211,43 +211,6 @@ class OpenAISDKAgentLoop(BaseAgentLoop):
 
         # Return ChatCompletion (Pydantic model) directly
         return response
-
-    @override
-    async def _execute_tool_call(
-        self,
-        tool_name: str,
-        arguments: Dict[str, Any],
-    ) -> ToolResult:
-        """
-        Execute a tool call via MCP.
-
-        Metrics are automatically tracked by BaseAgentLoop!
-
-        Args:
-            tool_name: Name of the tool to call
-            arguments: Tool arguments as key-value pairs
-
-        Returns:
-            Tool execution result in MCP format:
-            {
-                "content": [{"type": "text", "text": "Result data"}],
-                "isError": False
-            }
-
-        Raises:
-            ToolExecutionError: If execution fails
-        """
-        if not self.mcp_session:
-            raise ToolExecutionError("No MCP session available for tool execution")
-
-        try:
-            result = await self.mcp_session.call_tool(tool_name, arguments=arguments)
-            # Convert CallToolResult (Pydantic model) to dict for JSON serialization
-            if hasattr(result, "model_dump"):
-                return result.model_dump()
-            return result
-        except Exception as e:
-            raise ToolExecutionError(f"Failed to execute tool {tool_name}: {e}") from e
 
     def _validate_response_tags(self, content: str) -> List[str]:
         """

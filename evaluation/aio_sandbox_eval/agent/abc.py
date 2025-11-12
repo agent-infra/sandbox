@@ -15,6 +15,7 @@ from .type import (
     ToolMetricsDict,
     ToolResult,
     ToolDefinition,
+    ToolExecutionError,
 )
 from .metrics import MetricsCollector
 
@@ -28,7 +29,7 @@ def track_tool_calls(func: Callable) -> Callable:
     """
     Decorator to automatically track tool call metrics.
 
-    Wraps _execute_tool_call to automatically record metrics without
+    Wraps call_tool to automatically record metrics without
     user intervention. The agent instance must have a _metrics_collector
     attribute.
     """
@@ -70,7 +71,7 @@ class BaseAgentLoop(ABC):
 
     Subclasses must implement:
     - run(): Main execution loop - returns List[AgentMessage]
-    - _execute_tool_call(): Tool execution
+    - call_tool(): Tool execution
 
     Tool call metrics are automatically tracked - no decorator needed!
 
@@ -85,7 +86,7 @@ class BaseAgentLoop(ABC):
                 # Your agent loop implementation
                 return messages
 
-            async def _execute_tool_call(self, tool_name, args):
+            async def call_tool(self, tool_name, args):
                 # Your tool execution implementation
                 # Metrics tracked automatically!
                 result = await self.mcp_session.call_tool(tool_name, args)
@@ -97,18 +98,18 @@ class BaseAgentLoop(ABC):
 
     def __init_subclass__(cls, **kwargs):
         """
-        Automatically wrap _execute_tool_call with metrics tracking.
+        Automatically wrap call_tool with metrics tracking.
 
         This is called when a subclass is created, so users don't need
         to manually add the @track_tool_calls decorator.
         """
         super().__init_subclass__(**kwargs)
 
-        if "_execute_tool_call" in cls.__dict__:
-            original_method = cls.__dict__["_execute_tool_call"]
+        if "call_tool" in cls.__dict__:
+            original_method = cls.__dict__["call_tool"]
 
             if not hasattr(original_method, "__wrapped__"):
-                cls._execute_tool_call = track_tool_calls(original_method)
+                cls.call_tool = track_tool_calls(original_method)
 
     def __init__(
         self,
@@ -171,7 +172,7 @@ class BaseAgentLoop(ABC):
 
                     # Execute tools (metrics auto-tracked!)
                     for tool_call in response.tool_calls:
-                        result = await self._execute_tool_call(...)
+                        result = await self.call_tool(...)
                         messages.append(result)
 
                 return messages
@@ -212,14 +213,17 @@ class BaseAgentLoop(ABC):
 
         return response_text, metrics
 
-    @abstractmethod
-    async def _execute_tool_call(
+    async def call_tool(
         self,
         tool_name: str,
         arguments: Dict[str, Any],
     ) -> ToolResult:
         """
         Execute a tool call via MCP.
+
+        This method provides a default implementation that calls MCP session directly.
+        You only need to override this if you have custom tool execution logic
+        (e.g., retry logic, caching, custom error handling).
 
         Args:
             tool_name: Name of the tool to call (must match tool definition)
@@ -233,17 +237,33 @@ class BaseAgentLoop(ABC):
             }
 
         Raises:
-            NotImplementedError: Must be implemented by subclass
             ToolExecutionError: If tool execution fails
 
         Example:
-            result = await self._execute_tool_call(
+            result = await self.call_tool(
                 tool_name="get_weather",
                 arguments={"location": "Tokyo"}
             )
             # Returns: {"content": [{"type": "text", "text": "Sunny, 25°C"}]}
+
+        Note:
+            Override this method only if you need custom behavior:
+            - Adding retry logic
+            - Tool result caching
+            - Custom error handling
+            - Tool call transformation
         """
-        raise NotImplementedError("Subclasses must implement _execute_tool_call()")
+        if not self.mcp_session:
+            raise ToolExecutionError("No MCP session available for tool execution")
+
+        try:
+            result = await self.mcp_session.call_tool(tool_name, arguments=arguments)
+            # Convert CallToolResult (Pydantic model) to dict for JSON serialization
+            if hasattr(result, "model_dump"):
+                return result.model_dump()
+            return result
+        except Exception as e:
+            raise ToolExecutionError(f"Failed to execute tool {tool_name}: {e}") from e
 
     def _extract_final_response(self, messages: List[AgentMessage]) -> str:
         """

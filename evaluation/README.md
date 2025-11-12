@@ -145,14 +145,14 @@ class MyCustomAgent(BaseAgentLoop):
         # Your custom initialization
 
     async def run(self, prompt: str, tools: List[Dict[str, Any]]) -> List[AgentMessage]:
-        # Your agent logic
+        # Your agent logic - call self.call_tool() to execute tools
         pass
 
-    async def _execute_tool_call(self, tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
-        # Execute tools via MCP
-        result = await self.mcp_session.call_tool(tool_name, arguments=arguments)
-        return result.model_dump() if hasattr(result, "model_dump") else result
+    # call_tool() is OPTIONAL - BaseAgentLoop provides default implementation
+    # Only override if you need custom behavior (retry logic, caching, etc.)
 ```
+
+**Note**: `call_tool()` has a default implementation in `BaseAgentLoop` that directly calls MCP. You only need to override it if you require custom tool execution logic (e.g., retry mechanisms, caching, custom error handling).
 
 **Use Your Custom Agent:**
 
