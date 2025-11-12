@@ -1,0 +1,120 @@
+<evaluation>
+    <task category="browser" complexity="medium" requires_network="true">
+        <description>Test browser navigation + text extraction</description>
+        <prompt>Navigate to https://bytedance.com, get the page text content, and check if it
+            contains
+            the word 'ByteDance' or '字节跳动'. Return 'YES' if found, 'NO' otherwise.</prompt>
+        <response>YES</response>
+    </task>
+
+    <task category="browser" complexity="high" requires_network="true">
+        <description>Test browser link extraction</description>
+        <prompt>Navigate to https://bytedance.com, read all links on the page, and count how many
+            links have an href attribute. Return just the number.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+        <validation>Response should be a positive integer</validation>
+    </task>
+
+    <task category="browser" complexity="high">
+        <description>Test evaluate tool for JavaScript execution</description>
+        <prompt>Navigate to http://baidu.com, then use evaluate to execute JavaScript:
+            'document.querySelectorAll("a").length'. This should return the number of links on the
+            page. Return just the number.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+        <validation>Response should be a positive integer greater than 0</validation>
+    </task>
+
+    <task category="browser" complexity="high">
+        <description>Test evaluate with title extraction</description>
+        <prompt>Navigate to http://baidu.com, then use evaluate to execute JavaScript:
+            'document.title'. Return the title.</prompt>
+        <response_pattern>.+</response_pattern>
+        <validation>Response should be a non-empty string</validation>
+    </task>
+
+    <task category="browser" complexity="very_high">
+        <description>Test evaluate with DOM manipulation</description>
+        <prompt>Navigate to http://baidu.com, then use evaluate to execute:
+            'document.querySelectorAll("a").length'. Return the count of anchor elements.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+        <validation>Response should be a positive integer greater than 0</validation>
+    </task>
+
+    <task category="browser" complexity="high">
+        <description>Test form_input_fill tool</description>
+        <prompt>Navigate to http://baidu.com, find the search input field (selector: '#kw' or
+            'input[name="wd"]'), use form_input_fill to fill it with value 'test_search'. Then use
+            evaluate to execute: 'document.querySelector("#kw, input[name=\\"wd\\"]").value' to
+            verify. Return the value.</prompt>
+        <response>test_search</response>
+    </task>
+
+    <task category="browser" complexity="very_high">
+        <description>Test form fill workflow with search field</description>
+        <prompt>Navigate to http://baidu.com. Find the search input field (selector: '#kw' or
+            'input[name="wd"]'), fill it with 'MCP test' using form_input_fill. Then use evaluate to
+            get the value back and return it.</prompt>
+        <response>MCP test</response>
+    </task>
+
+    <task category="browser_workflow" complexity="very_high">
+        <description>Test complete browser workflow</description>
+        <prompt>Navigate to http://baidu.com. Read all links using read_links, get the markdown
+            content using get_markdown, and execute JavaScript using evaluate to get
+            'document.title'. Return the title.</prompt>
+        <response_pattern>.+</response_pattern>
+        <validation>Response should be a non-empty string</validation>
+    </task>
+
+    <task category="browser_tabs" complexity="high">
+        <description>Test new_tab and tab_list</description>
+        <prompt>Create a new tab using new_tab with URL http://baidu.com. Then use tab_list to list
+            all tabs and count them. Return just the number of tabs.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+        <validation>Response should be a positive integer</validation>
+    </task>
+
+    <task category="browser_tabs" complexity="very_high">
+        <description>Test tab switching workflow</description>
+        <prompt>Use tab_list to get all tabs, then use switch_tab to switch to the first tab in the
+            list. Use evaluate to execute: 'document.title' and return the title.</prompt>
+        <response_pattern>.+</response_pattern>
+        <validation>Response should be a non-empty string</validation>
+    </task>
+
+    <task category="browser" complexity="very_high">
+        <description>Test search for aio sandbox documentation</description>
+        <prompt>Use Google to search for "aio sandbox", navigate to the aio sandbox GitHub page, and
+            output the main contributor of aio sandbox.</prompt>
+        <response_pattern>ycjcl868</response_pattern>
+        <validation>Response should be a non-empty string</validation>
+    </task>
+
+    <!-- 场景D: browser_get_download_list - 下载管理 -->
+    <task category="browser_advanced" complexity="medium">
+        <description>Test browser_get_download_list empty</description>
+        <prompt>使用 browser_get_download_list 获取下载列表。统计列表中的项目数量。返回数量(数字)。</prompt>
+        <response_pattern>^\d+$</response_pattern>
+        <validation>Should return a number (may be 0 if no downloads)</validation>
+    </task>
+
+    <task category="browser_advanced" complexity="high">
+        <description>Test browser_get_download_list with file</description>
+        <prompt>创建 /tmp/download_test.html:
+            &lt;html&gt;&lt;body&gt;
+            &lt;a id="download" href="data:text/plain;charset=utf-8,Hello%20Download"
+            download="test.txt"&gt;Download&lt;/a&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            导航到 file:///tmp/download_test.html。使用 browser_get_clickable_elements 获取元素列表,找到下载链接并点击。等待
+            2 秒(使用 browser_execute_action WAIT)。使用 browser_get_download_list 获取下载列表。检查列表是否包含文件名
+            'test.txt'。如果包含返回 'DOWNLOADED',否则返回 'NOT_FOUND'。</prompt>
+        <response_pattern>DOWNLOADED|NOT_FOUND</response_pattern>
+    </task>
+
+    <task category="browser_advanced" complexity="high">
+        <description>Test browser_get_download_list details</description>
+        <prompt>触发一个下载操作(创建包含下载链接的 HTML 页面并点击)。使用 browser_get_download_list 获取下载列表。检查返回的下载项是否包含
+            'filename' 字段。如果包含返回 'HAS_FILENAME',否则返回 'NO_FILENAME'。</prompt>
+        <response_pattern>HAS_FILENAME|NO_FILENAME</response_pattern>
+    </task>
+</evaluation>

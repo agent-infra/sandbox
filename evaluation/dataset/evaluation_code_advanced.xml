@@ -1,0 +1,133 @@
+<evaluation>
+    <!-- ============================================================ -->
+    <!-- 代码执行高级测试 -->
+    <!-- 测试 JavaScript 执行、Python 高级特性、错误处理等 -->
+    <!-- ============================================================ -->
+
+    <!-- 场景A: JavaScript 基础执行 -->
+    <task category="code_advanced" complexity="low">
+        <description>Test JavaScript code execution - basic arithmetic</description>
+        <prompt>Execute JavaScript code: "console.log(10 + 20); console.log(5 * 6);" and return the output. The output should contain both numbers.</prompt>
+        <response_pattern>30.*30</response_pattern>
+        <validation>Output should contain "30" from both operations</validation>
+    </task>
+
+    <task category="code_advanced" complexity="medium">
+        <description>Test JavaScript string manipulation</description>
+        <prompt>Execute JavaScript code to reverse a string: "const str = 'Hello MCP'; const reversed = str.split('').reverse().join(''); console.log(reversed);". Return the output.</prompt>
+        <response>PCM olleH</response>
+    </task>
+
+    <!-- 场景B: JavaScript 对象和数组 -->
+    <task category="code_advanced" complexity="medium">
+        <description>Test JavaScript array operations</description>
+        <prompt>Execute JavaScript: "const arr = [1, 2, 3, 4, 5]; const sum = arr.reduce((a, b) => a + b, 0); console.log(sum);". Return just the number.</prompt>
+        <response>15</response>
+    </task>
+
+    <task category="code_advanced" complexity="high">
+        <description>Test JavaScript JSON parsing</description>
+        <prompt>Execute JavaScript: "const json = '{\"name\":\"test\",\"value\":42}'; const obj = JSON.parse(json); console.log(obj.value);". Return the value.</prompt>
+        <response>42</response>
+    </task>
+
+    <!-- 场景C: Python 高级特性 -->
+    <task category="code_advanced" complexity="medium">
+        <description>Test Python list comprehension</description>
+        <prompt>Execute Python code: "squares = [x**2 for x in range(1, 6)]; print(sum(squares))". Return the sum.</prompt>
+        <response>55</response>
+    </task>
+
+    <task category="code_advanced" complexity="high">
+        <description>Test Python dictionary operations</description>
+        <prompt>Execute Python: "data = {'a': 1, 'b': 2, 'c': 3}; result = sum(data.values()); print(result)". Return the number.</prompt>
+        <response>6</response>
+    </task>
+
+    <task category="code_advanced" complexity="high">
+        <description>Test Python lambda and map</description>
+        <prompt>Execute Python: "nums = [1, 2, 3, 4]; doubled = list(map(lambda x: x * 2, nums)); print(sum(doubled))". Return the sum.</prompt>
+        <response>20</response>
+    </task>
+
+    <!-- 场景D: 文件操作 + 代码执行 -->
+    <task category="code_advanced" complexity="high">
+        <description>Test Python file I/O within code execution</description>
+        <prompt>Execute Python code that creates a file, writes to it, and reads it back:
+```python
+with open('/tmp/test_code_io.txt', 'w') as f:
+    f.write('Data from code execution')
+with open('/tmp/test_code_io.txt', 'r') as f:
+    content = f.read()
+print(len(content))
+```
+Return the length.</prompt>
+        <response>24</response>
+    </task>
+
+    <!-- 场景E: JavaScript 异步代码 (如果支持) -->
+    <task category="code_advanced" complexity="high">
+        <description>Test JavaScript setTimeout (sync execution)</description>
+        <prompt>Execute JavaScript: "let result = 0; for(let i = 1; i &lt;= 10; i++) { result += i; } console.log(result);". Return the sum.</prompt>
+        <response>55</response>
+    </task>
+
+    <!-- 场景F: 错误处理 -->
+    <task category="code_advanced" complexity="medium">
+        <description>Test Python exception in code execution</description>
+        <prompt>Execute Python code: "try:\n    x = 10 / 0\nexcept ZeroDivisionError:\n    x = -1\nprint(x)". Return the value.</prompt>
+        <response>-1</response>
+    </task>
+
+    <task category="code_advanced" complexity="medium">
+        <description>Test JavaScript error handling</description>
+        <prompt>Execute JavaScript: "let result; try { result = JSON.parse('invalid json'); } catch(e) { result = 'ERROR'; } console.log(result);". Return the output.</prompt>
+        <response>ERROR</response>
+    </task>
+
+    <!-- 场景G: 数学运算 -->
+    <task category="code_advanced" complexity="medium">
+        <description>Test Python math library</description>
+        <prompt>Execute Python: "import math; result = math.sqrt(144) + math.pow(2, 3); print(int(result))". Return the number.</prompt>
+        <response>20</response>
+    </task>
+
+    <task category="code_advanced" complexity="medium">
+        <description>Test JavaScript Math operations</description>
+        <prompt>Execute JavaScript: "const result = Math.sqrt(64) + Math.pow(3, 2); console.log(result);". Return the number.</prompt>
+        <response>17</response>
+    </task>
+
+    <!-- 场景H: 字符串处理 -->
+    <task category="code_advanced" complexity="high">
+        <description>Test Python regex</description>
+        <prompt>Execute Python: "import re; text = 'test@example.com and user@domain.org'; emails = re.findall(r'[\\w.-]+@[\\w.-]+', text); print(len(emails))". Return the count.</prompt>
+        <response>2</response>
+    </task>
+
+    <task category="code_advanced" complexity="medium">
+        <description>Test JavaScript regex</description>
+        <prompt>Execute JavaScript: "const text = 'abc123def456'; const numbers = text.match(/\\d+/g); console.log(numbers.length);". Return the count.</prompt>
+        <response>2</response>
+    </task>
+
+    <!-- 场景I: 数据结构 -->
+    <task category="code_advanced" complexity="high">
+        <description>Test Python set operations</description>
+        <prompt>Execute Python: "a = {1, 2, 3, 4}; b = {3, 4, 5, 6}; intersection = a &amp; b; print(len(intersection))". Return the count.</prompt>
+        <response>2</response>
+    </task>
+
+    <!-- 场景J: 综合场景 -->
+    <task category="code_advanced" complexity="high">
+        <description>Test Python data processing pipeline</description>
+        <prompt>Execute Python: "data = [10, 25, 30, 15, 40]; filtered = [x for x in data if x &gt; 20]; avg = sum(filtered) / len(filtered); print(int(avg))". Return the average.</prompt>
+        <response>31</response>
+    </task>
+
+    <task category="code_advanced" complexity="high">
+        <description>Test JavaScript functional programming</description>
+        <prompt>Execute JavaScript: "const data = [5, 10, 15, 20]; const result = data.filter(x =&gt; x &gt; 10).map(x =&gt; x * 2).reduce((a, b) =&gt; a + b, 0); console.log(result);". Return the result.</prompt>
+        <response>70</response>
+    </task>
+</evaluation>

@@ -1,0 +1,61 @@
+<evaluation>
+    <!-- ============================================================ -->
+    <!-- 包管理工具测试 -->
+    <!-- 测试 Node.js 包查询和混合查询 -->
+    <!-- ============================================================ -->
+
+    <!-- 场景A: Node.js 包查询 -->
+    <task category="packages" complexity="low">
+        <description>Test get_packages for Node.js</description>
+        <prompt>Use get_packages with language='nodejs' to get all installed Node.js packages. Check if 'express' is in the list. Return 'YES' if found, 'NO' otherwise.</prompt>
+        <response_pattern>YES|NO</response_pattern>
+        <validation>Should return YES or NO based on actual package installation</validation>
+    </task>
+
+    <task category="packages" complexity="medium">
+        <description>Test get_packages Node.js count</description>
+        <prompt>Use get_packages with language='nodejs' to get Node.js packages. Use Python code to parse the output and count how many packages are installed. Return just the number.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+    </task>
+
+    <!-- 场景B: 混合包查询 -->
+    <task category="packages" complexity="medium">
+        <description>Test get_packages without language parameter</description>
+        <prompt>Use get_packages without specifying language parameter. This should return both Python and Node.js packages. Check if the output contains both "Python Packages:" and "Node.js Packages:" sections. Return 'BOTH' if both sections exist, 'PARTIAL' if only one exists, 'NONE' if neither.</prompt>
+        <response>BOTH</response>
+    </task>
+
+    <!-- 场景C: 不同语言别名 -->
+    <task category="packages" complexity="low">
+        <description>Test get_packages with language alias 'node'</description>
+        <prompt>Use get_packages with language='node' (alias for nodejs). Check if it returns Node.js packages. Return 'SUCCESS' if packages are listed, 'FAILED' otherwise.</prompt>
+        <response>SUCCESS</response>
+    </task>
+
+    <task category="packages" complexity="low">
+        <description>Test get_packages with language alias 'py'</description>
+        <prompt>Use get_packages with language='py' (alias for python). Count the number of packages. Return just the number.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+    </task>
+
+    <!-- 场景D: 包搜索 -->
+    <task category="packages" complexity="high">
+        <description>Test searching for specific packages</description>
+        <prompt>Use get_packages for Python packages. Use Python code to check if packages containing 'test' in their names exist. Return the count of such packages.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+    </task>
+
+    <!-- 场景E: 版本信息 -->
+    <task category="packages" complexity="medium">
+        <description>Test extracting package versions</description>
+        <prompt>Use get_packages for Python. Use Python code to extract the version number of 'pip' package (format: pip==X.Y.Z). Return just the version number without 'pip=='.</prompt>
+        <response_pattern>^\d+\.\d+(\.\d+)?$</response_pattern>
+    </task>
+
+    <!-- 场景F: 包统计 -->
+    <task category="packages" complexity="high">
+        <description>Test package statistics</description>
+        <prompt>Use get_packages without language parameter to get all packages. Count total number of packages (Python + Node.js). Return just the total number.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+    </task>
+</evaluation>

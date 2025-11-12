@@ -1,0 +1,50 @@
+<evaluation>
+  <!-- ============================================================ -->
+  <!-- Next.js 全栈项目评测 -->
+  <!-- 测试 create-next-app + 服务启动 + 浏览器验证 + API请求 -->
+  <!-- ============================================================ -->
+
+  <task category="nextjs" complexity="very_high">
+    <description>Create Next.js project with create-next-app, start dev server, verify page and API</description>
+    <prompt>完成以下完整的 Next.js 全栈工作流:
+
+1. **清理环境** (防止磁盘空间不足):
+   - 运行: rm -rf /tmp/my-nextjs-app /tmp/test-nextjs-app
+   - 运行: npm cache clean --force
+
+2. **创建项目**:
+   - 在 /tmp 目录下运行: npx --yes create-next-app@latest my-nextjs-app --yes
+   - 等待项目创建完成
+
+3. **添加 API 路由**:
+   - 进入项目目录 /tmp/my-nextjs-app
+   - 创建 app/api/hello/route.ts 文件,内容:
+     ```typescript
+     export async function GET() {
+       return Response.json({ message: "Hello from API", status: "success" })
+     }
+     ```
+
+4. **启动开发服务器**:
+   - 在项目目录中,后台运行: npm run dev -- -p 3500
+   - 等待 10 秒确保服务完全启动
+
+5. **验证网站访问**:
+   - 使用 sandbox_browser_navigate 打开 http://localhost:3500
+   - 等待 2 秒页面加载
+   - 使用 sandbox_browser_evaluate 执行 document.title,确认页面已加载
+
+6. **验证 API 请求**:
+   - 使用 sandbox_browser_navigate 打开 http://localhost:3500/api/hello
+   - 使用 sandbox_browser_evaluate 执行: document.body.innerText
+   - 解析返回的 JSON,提取 status 字段的值并返回
+
+返回最终的 status 字段值。
+
+注意:
+- 使用 run_in_background 参数运行 npm run dev
+- 确保等待足够时间让 npm 安装依赖和启动服务</prompt>
+    <response>success</response>
+  </task>
+
+</evaluation>

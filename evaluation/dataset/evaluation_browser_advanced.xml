@@ -1,0 +1,315 @@
+<evaluation>
+    <!-- ============================================================ -->
+    <!-- 浏览器高级交互测试 -->
+    <!-- 测试鼠标、键盘、元素交互等高级功能 -->
+    <!-- 使用本地HTML文件避免网络问题 -->
+    <!-- ============================================================ -->
+
+    <!-- 场景A: 元素点击操作 -->
+    <task category="browser_advanced" complexity="medium">
+        <description>Test browser_element_click with local HTML</description>
+        <prompt>First, create a simple HTML file at /tmp/test_click.html with content:
+            &lt;html&gt;&lt;body&gt;&lt;button id="myBtn"
+            onclick="this.innerText='Clicked'"&gt;Click Me&lt;/button&gt;&lt;/body&gt;&lt;/html&gt;
+            Then navigate to file:///tmp/test_click.html. Use browser_element_click to click the
+            button with selector "#myBtn". Then use evaluate to get the button text:
+            document.querySelector('#myBtn').innerText. Return the text.</prompt>
+        <response>Clicked</response>
+    </task>
+
+    <task category="browser_advanced" complexity="high">
+        <description>Test browser_element_click with index</description>
+        <prompt>Create /tmp/multi_buttons.html with 3 buttons:
+            &lt;html&gt;&lt;body&gt;
+            &lt;button class="btn"&gt;Button 1&lt;/button&gt;
+            &lt;button class="btn"&gt;Button 2&lt;/button&gt;
+            &lt;button class="btn" id="target"&gt;Button 3&lt;/button&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            Navigate to it, get clickable elements, find the index of "Button 3", click it using
+            browser_element_click with that index. Return 'SUCCESS' if clicked.</prompt>
+        <response>SUCCESS</response>
+    </task>
+
+    <!-- 场景B: 表单填充与提交 -->
+    <task category="browser_advanced" complexity="high">
+        <description>Test browser_form_input_fill with text input</description>
+        <prompt>Create /tmp/form.html:
+            &lt;html&gt;&lt;body&gt;
+            &lt;input id="username" type="text" value="" /&gt;
+            &lt;input id="email" type="email" value="" /&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            Navigate to file:///tmp/form.html. Use browser_form_input_fill to fill "#username" with
+            "testuser" and "#email" with "test@example.com". Then use evaluate to get both values
+            and return them as "username:email".</prompt>
+        <response>testuser:test@example.com</response>
+    </task>
+
+    <!-- 场景C: 键盘操作 -->
+    <task category="browser_advanced"
+        complexity="medium">
+        <description>Test browser_press_key</description>
+        <prompt>Create /tmp/keypress.html:
+            &lt;html&gt;&lt;body&gt;
+            &lt;input id="text" type="text" value="" /&gt;
+            &lt;div id="output"&gt;&lt;/div&gt;
+            &lt;script&gt;
+            document.getElementById('text').addEventListener('keydown', (e) =&gt; {
+            document.getElementById('output').innerText = e.key;
+            });
+            &lt;/script&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            Navigate to it, click on the input field, use browser_press_key to press "Enter". Use
+            evaluate to get output div text. Return the key name.</prompt>
+        <response>Enter</response>
+    </task>
+
+    <!-- 场景D: 鼠标移动与悬停 -->
+    <task category="browser_advanced" complexity="medium">
+        <description>Test browser_element_hover</description>
+        <prompt>Create /tmp/hover.html:
+            &lt;html&gt;&lt;body&gt;
+            &lt;div id="hoverTarget" style="width:100px;height:100px;background:red;"&gt;Hover
+            Me&lt;/div&gt;
+            &lt;div id="status"&gt;Not Hovered&lt;/div&gt;
+            &lt;script&gt;
+            document.getElementById('hoverTarget').addEventListener('mouseenter', () =&gt; {
+            document.getElementById('status').innerText = 'Hovered';
+            });
+            &lt;/script&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            Navigate to file:///tmp/hover.html, use browser_element_hover on "#hoverTarget". Use
+            evaluate to get status div text. Return it.</prompt>
+        <response>Hovered</response>
+    </task>
+
+    <!-- 场景E: 滚动操作 -->
+    <task category="browser_advanced" complexity="low">
+        <description>Test browser_scroll</description>
+        <prompt>Create /tmp/scroll.html with a long page:
+            &lt;html&gt;&lt;body style="height:3000px;"&gt;
+            &lt;div id="top"&gt;Top&lt;/div&gt;
+            &lt;div id="bottom" style="position:absolute;top:2500px;"&gt;Bottom&lt;/div&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            Navigate to it. Use browser_scroll with y=2500. Use evaluate to get window.scrollY.
+            Return 'SCROLLED' if value &gt; 2000, else 'NOT_SCROLLED'.</prompt>
+        <response>SCROLLED</response>
+    </task>
+
+    <!-- 场景F: 导航历史 -->
+    <task category="browser_advanced"
+        complexity="medium">
+        <description>Test browser_go_back and browser_go_forward</description>
+        <prompt>Create /tmp/page1.html with content "Page 1" and /tmp/page2.html with content "Page
+            2". Navigate to file:///tmp/page1.html, then navigate to file:///tmp/page2.html. Use
+            browser_go_back. Use evaluate to get document.body.innerText. Return the text.</prompt>
+        <response>Page 1</response>
+    </task>
+
+    <task category="browser_advanced" complexity="medium">
+        <description>Test browser_go_forward</description>
+        <prompt>Create /tmp/nav1.html ("Nav 1") and /tmp/nav2.html ("Nav 2"). Navigate to nav1, then
+            nav2, then go back, then use browser_go_forward. Use evaluate to get
+            document.body.innerText. Return it.</prompt>
+        <response>Nav 2</response>
+    </task>
+
+    <!-- 场景G: 标签页管理 -->
+    <task category="browser_advanced" complexity="medium">
+        <description>Test browser_close_tab</description>
+        <prompt>Create 3 new tabs with browser_new_tab (no URL). Use browser_tab_list to count tabs.
+            Close one tab with browser_close_tab using index 1. Use tab_list again to count
+            remaining tabs. Return the count difference (should be 1).</prompt>
+        <response>1</response>
+    </task>
+
+    <!-- 场景H: 下拉选择 -->
+    <task category="browser_advanced" complexity="high">
+        <description>Test browser_element_select with dropdown</description>
+        <prompt>Create /tmp/select.html:
+            &lt;html&gt;&lt;body&gt;
+            &lt;select id="mySelect"&gt;
+            &lt;option value="1"&gt;Option 1&lt;/option&gt;
+            &lt;option value="2"&gt;Option 2&lt;/option&gt;
+            &lt;option value="3"&gt;Option 3&lt;/option&gt;
+            &lt;/select&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            Navigate to file:///tmp/select.html. Use browser_element_select to select option with
+            value "2" from "#mySelect". Use evaluate to get the selected value. Return it.</prompt>
+        <response>2</response>
+    </task>
+
+    <!-- 场景I: 复杂交互场景 -->
+    <task category="browser_advanced" complexity="high">
+        <description>Test browser interaction workflow</description>
+        <prompt>Create /tmp/calculator.html:
+            &lt;html&gt;&lt;body&gt;
+            &lt;input id="num1" type="number" value="0"/&gt;
+            &lt;input id="num2" type="number" value="0"/&gt;
+            &lt;button id="add" onclick="document.getElementById('result').innerText =
+            parseInt(document.getElementById('num1').value) +
+            parseInt(document.getElementById('num2').value)"&gt;Add&lt;/button&gt;
+            &lt;div id="result"&gt;0&lt;/div&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            Navigate to it. Fill num1 with "15", num2 with "27", click add button, get result.
+            Return the result number.</prompt>
+        <response>42</response>
+    </task>
+
+
+    <task
+        category="browser_advanced" complexity="medium">
+        <description>Test browser_element_select multiple options</description>
+        <prompt>创建 /tmp/multi_select.html:
+            &lt;html&gt;&lt;body&gt;
+            &lt;select id="fruits"&gt;
+            &lt;option value="apple"&gt;Apple&lt;/option&gt;
+            &lt;option value="banana"&gt;Banana&lt;/option&gt;
+            &lt;option value="cherry"&gt;Cherry&lt;/option&gt;
+            &lt;/select&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            导航到它。使用 browser_element_select 选择 value="banana",使用 selector="#fruits"。使用 evaluate
+            获取选中的值。返回该值。</prompt>
+        <response>banana</response>
+    </task>
+
+    <task category="browser_advanced" complexity="high">
+        <description>Test browser_element_select by index</description>
+        <prompt>创建包含下拉菜单的页面。使用 browser_get_clickable_elements 获取元素列表,找到 select 元素的索引。使用
+            browser_element_select 通过 index 参数选择 value="cherry"。验证选择是否成功。返回选中的值。</prompt>
+        <response>cherry</response>
+    </task>
+
+    <task category="browser_advanced" complexity="medium">
+        <description>Test browser_element_hover with selector</description>
+        <prompt>创建 /tmp/hover_selector.html,包含悬停菜单。使用 browser_element_hover 通过 selector="#menu"
+            悬停在菜单上。使用 evaluate 检查菜单是否显示。返回 'VISIBLE' 或 'HIDDEN'。</prompt>
+        <response_pattern>VISIBLE|HIDDEN</response_pattern>
+    </task>
+
+    <task
+        category="browser_advanced" complexity="high">
+        <description>Test browser_element_hover tooltip</description>
+        <prompt>创建 /tmp/tooltip.html:
+            &lt;html&gt;&lt;body&gt;
+            &lt;button id="btn"&gt;Hover Me&lt;/button&gt;
+            &lt;div id="tooltip" style="display:none;"&gt;Tooltip Text&lt;/div&gt;
+            &lt;script&gt;
+            document.getElementById('btn').addEventListener('mouseenter', () => {
+            document.getElementById('tooltip').style.display = 'block';
+            });
+            &lt;/script&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            导航到它。使用 browser_element_hover 悬停在按钮上(selector="#btn")。使用 evaluate 获取 tooltip 的 display
+            样式。如果是 'block' 返回 'SHOWN',否则返回 'HIDDEN'。</prompt>
+        <response>SHOWN</response>
+    </task>
+    <!-- 场景H: browser_scroll 增强测试 -->
+    <task category="browser_advanced" complexity="medium">
+        <description>Test browser_scroll negative amount</description>
+        <prompt>创建长页面 /tmp/scroll_up.html(高度 3000px)。导航到它。使用 browser_scroll 滚动 amount=2000(向下)。然后使用
+            browser_scroll amount=-1000(向上)。使用 evaluate 获取 window.scrollY。如果 scrollY 在 900-1100 之间返回
+            'CORRECT',否则返回 'INCORRECT'。</prompt>
+        <response_pattern>CORRECT|INCORRECT</response_pattern>
+    </task>
+
+    <task
+        category="browser_advanced" complexity="medium">
+        <description>Test browser_scroll to bottom</description>
+        <prompt>创建长页面。导航到它。使用 browser_scroll 不带 amount 参数(应该滚动到底部)。使用 evaluate 执行: window.scrollY +
+            window.innerHeight >= document.body.scrollHeight。如果返回 true 返回 'AT_BOTTOM',否则返回
+            'NOT_AT_BOTTOM'。</prompt>
+        <response_pattern>AT_BOTTOM|NOT_AT_BOTTOM</response_pattern>
+    </task>
+
+    <!-- 场景I: browser_press_key 增强测试 -->
+    <task
+        category="browser_advanced" complexity="medium">
+        <description>Test browser_press_key special keys</description>
+        <prompt>创建 /tmp/special_keys.html,包含一个输入框和键盘事件监听器。点击输入框。使用 browser_press_key 按 'Tab' 键。使用
+            evaluate 检查焦点是否移动。返回 'TAB_PRESSED' 或 'NO_EFFECT'。</prompt>
+        <response_pattern>TAB_PRESSED|NO_EFFECT</response_pattern>
+    </task>
+
+    <task
+        category="browser_advanced" complexity="high">
+        <description>Test browser_press_key combination</description>
+        <prompt>创建 /tmp/key_combo.html:
+            &lt;html&gt;&lt;body&gt;
+            &lt;input id="text" type="text" value="test content"&gt;
+            &lt;div id="result"&gt;&lt;/div&gt;
+            &lt;script&gt;
+            document.getElementById('text').addEventListener('keydown', (e) => {
+            if (e.key === 'Delete') {
+            document.getElementById('result').innerText = 'DELETE_PRESSED';
+            }
+            });
+            &lt;/script&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            导航到它。点击输入框。使用 browser_press_key 按 'Delete'。使用 evaluate 获取 #result 的文本。返回该文本。</prompt>
+        <response>DELETE_PRESSED</response>
+    </task>
+    <!-- 场景J: browser_close_tab 增强测试 -->
+    <task category="browser_advanced"
+        complexity="medium">
+        <description>Test browser_close_tab after switch</description>
+        <prompt>创建 3 个新标签页。使用 browser_tab_list 获取所有标签页。使用 browser_switch_tab 切换到索引 1 的标签页。使用
+            browser_close_tab 关闭该标签页。再次使用 tab_list 获取标签页列表。统计剩余标签页数量并返回。</prompt>
+        <response_pattern>^\d+$</response_pattern>
+    </task>
+
+    <task category="browser_advanced"
+        complexity="high">
+        <description>Test browser_close_tab last tab behavior</description>
+        <prompt>使用 browser_tab_list 获取当前标签页数量。如果只有 1 个标签页,记录为 'SINGLE_TAB'。使用 browser_close_tab
+            关闭它。使用 tab_list 检查是否自动创建了新标签页。如果有标签页存在返回 'AUTO_CREATED',否则返回 'NO_TABS'。</prompt>
+        <response_pattern>AUTO_CREATED|NO_TABS|MULTIPLE_TABS</response_pattern>
+    </task>
+
+    <!-- 场景L: browser_get_clickable_elements 增强测试 -->
+    <task category="browser_advanced"
+        complexity="medium">
+        <description>Test browser_get_clickable_elements filtering</description>
+        <prompt>创建 /tmp/elements.html:
+            &lt;html&gt;&lt;body&gt;
+            &lt;button&gt;Button 1&lt;/button&gt;
+            &lt;a href="#"&gt;Link 1&lt;/a&gt;
+            &lt;input type="text" value="Input 1"&gt;
+            &lt;button&gt;Button 2&lt;/button&gt;
+            &lt;/body&gt;&lt;/html&gt;
+            导航到它。使用 browser_get_clickable_elements 获取元素列表。使用 Python 代码解析返回的元素,统计 button
+            类型的元素数量。返回数量。</prompt>
+        <response>2</response>
+    </task>
+
+    <task category="browser_advanced" complexity="high">
+        <description>Test browser_get_clickable_elements with complex page</description>
+        <prompt>创建复杂页面包含多种可交互元素(按钮、链接、输入框、选择框、图片链接等)。使用 browser_get_clickable_elements
+            获取所有元素。统计总元素数量。如果数量 >= 5 返回 'MANY_ELEMENTS',否则返回 'FEW_ELEMENTS'。</prompt>
+        <response_pattern>MANY_ELEMENTS|FEW_ELEMENTS</response_pattern>
+    </task>
+
+    <!-- 场景A: browser_get_info - 浏览器信息获取 -->
+    <task
+        category="sandbox" complexity="low">
+        <description>Test sandbox_browser_get_info basic</description>
+        <prompt>使用 sandbox_browser_get_info 获取浏览器信息,检查返回结果是否包含 viewport 信息。如果包含 width 和 height 字段返回
+            'YES',否则返回 'NO'。</prompt>
+        <response>YES</response>
+    </task>
+
+    <task category="sandbox" complexity="medium">
+        <description>Test sandbox_browser_get_info CDP URL</description>
+        <prompt>使用 sandbox_browser_get_info 获取浏览器信息,提取 cdp_url 字段。如果 cdp_url 以 'ws://' 或 'wss://'
+            开头返回 'VALID',否则返回 'INVALID'。</prompt>
+        <response>VALID</response>
+    </task>
+
+    <task category="sandbox" complexity="medium">
+        <description>Test sandbox_browser_get_info viewport size</description>
+        <prompt>使用 sandbox_browser_get_info 获取浏览器视口信息。计算视口面积(width * height),如果面积大于 500000 返回
+            'LARGE',否则返回 'SMALL'。</prompt>
+        <response_pattern>LARGE|SMALL</response_pattern>
+        <validation>Response should indicate viewport size category</validation>
+    </task>
+
+</evaluation>

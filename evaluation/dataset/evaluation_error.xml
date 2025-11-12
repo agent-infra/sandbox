@@ -1,0 +1,21 @@
+<evaluation>
+    <!-- ============================================================ -->
+    <!-- 错误处理测试 -->
+    <!-- ============================================================ -->
+
+    <!-- 场景组J：错误处理 -->
+    <task category="error_handling" complexity="medium">
+        <description>Test file read error handling</description>
+        <prompt>Try to read a non-existent file at
+            /tmp/this_file_absolutely_does_not_exist_xyz123.txt. If you get an error, return the
+            string 'FILE_NOT_FOUND'. Otherwise return 'FILE_EXISTS'.</prompt>
+        <response>FILE_NOT_FOUND</response>
+    </task>
+
+    <task category="error_handling" complexity="medium">
+        <description>Test code execution error handling</description>
+        <prompt>Execute Python code that raises a ZeroDivisionError: '1/0'. If an error occurs,
+            return 'ERROR_CAUGHT'. If no error, return 'NO_ERROR'.</prompt>
+        <response>ERROR_CAUGHT</response>
+    </task>
+</evaluation>

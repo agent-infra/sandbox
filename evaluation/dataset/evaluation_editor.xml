@@ -1,0 +1,113 @@
+<evaluation>
+    <!-- ============================================================ -->
+    <!-- str_replace_editor 工具测试 -->
+    <!-- 测试专业文件编辑器的各种命令 -->
+    <!-- ============================================================ -->
+
+    <!-- 场景A: 文件查看 (view) -->
+    <task category="editor" complexity="low">
+        <description>Test str_replace_editor view command</description>
+        <prompt>Use str_replace_editor to view the file /tmp/test_editor.txt. First create it with
+            content "Line 1\nLine 2\nLine 3\nLine 4\nLine 5" using file_operations. Then view it and
+            return the content.</prompt>
+        <response_pattern>Line 1.*Line 2.*Line 3.*Line 4.*Line 5</response_pattern>
+        <validation>Should contain all 5 lines</validation>
+    </task>
+
+    <task category="editor" complexity="medium">
+        <description>Test str_replace_editor view with range</description>
+        <prompt>Create /tmp/test_range.txt with 10 lines (Line 1 to Line 10) using file_operations.
+            Then use str_replace_editor with view_range [2, 5] to view a subset of lines. Return the viewed
+            content.</prompt>
+        <response_pattern>Line 2.*Line 3.*Line 4.*Line 5</response_pattern>
+        <validation>Should show lines 2-5 (1-based inclusive range)</validation>
+    </task>
+
+    <!-- 场景B: 文件创建 (create) -->
+    <task category="editor" complexity="medium">
+        <description>Test str_replace_editor create command</description>
+        <prompt>Use str_replace_editor to create a new file /tmp/editor_created.py with content "def
+            hello():\n return 'Hello World'". Then read it back with file_operations and return the
+            content.</prompt>
+        <response_pattern>return 'Hello World'</response_pattern>
+        <validation>Should return the content of the file</validation>
+    </task>
+
+    <!-- 场景C: 字符串替换 (str_replace) -->
+    <task category="editor" complexity="medium">
+        <description>Test str_replace_editor string replacement</description>
+        <prompt>Create /tmp/replace_test.txt with content "Hello World\nHello Python\nHello MCP"
+            using file_operations. Then use str_replace_editor to replace "Hello" with "Hi" in the
+            first occurrence. Read the file back and return its content.</prompt>
+        <response>Hi World
+Hello Python
+Hello MCP</response>
+    </task>
+
+    <task category="editor" complexity="high">
+        <description>Test str_replace_editor multi-line replacement</description>
+        <prompt>Create /tmp/multiline.py with content "def old_func():\n pass\n\ndef other():\n return 1". Use str_replace_editor to replace "def old_func():\n pass" with "def new_func():\n return 42". Return the new content.</prompt>
+        <response_pattern>def new_func\(\):.*return 42.*def other\(\):.*return 1</response_pattern>
+    </task>
+
+    <!-- 场景D: 插入 (insert) -->
+    <task category="editor" complexity="medium">
+        <description>Test str_replace_editor insert command</description>
+        <prompt>Create /tmp/insert_test.txt with 3 lines "Line 1\nLine 2\nLine 3". Use
+            str_replace_editor to insert "Inserted Line" at line 1 (after Line 1). Return the
+            content.</prompt>
+        <response>Line 1
+Inserted Line
+Line 2
+Line 3</response>
+    </task>
+
+    <!-- 场景E: 复杂编辑场景 -->
+    <task category="editor" complexity="high">
+        <description>Test str_replace_editor with Python code refactoring</description>
+        <prompt>Create /tmp/refactor.py with content "def calculate(x, y):\n    result = x + y\n    return result". Use str_replace_editor to replace the function body to use one line: "return x + y". Then execute the file and call calculate(5, 3). Return the result.</prompt>
+        <response>8</response>
+    </task>
+
+    <!-- 场景F: 边界情况 -->
+    <task category="editor" complexity="medium">
+        <description>Test str_replace_editor on empty file creation</description>
+        <prompt>Use str_replace_editor to create /tmp/empty.txt with empty content "". Then use
+            file_operations to check if file exists and is empty. Return 'EMPTY' if file exists and
+            has 0 bytes, otherwise return 'NOT_EMPTY'.</prompt>
+        <response>EMPTY</response>
+    </task>
+
+    <task category="editor" complexity="high">
+        <description>Test str_replace_editor with special characters</description>
+        <prompt>Use str_replace_editor to create /tmp/special.txt with content containing special
+            chars: "Hello\tWorld\n$PATH=/usr/bin\n\"quoted\"". Read it back and count the number of
+            lines. Return just the number.</prompt>
+        <response>3</response>
+    </task>
+
+    <task category="editor" complexity="medium">
+        <description>Test str_replace_editor undo_edit basic</description>
+        <prompt>使用 str_replace_editor 创建 /tmp/undo_test.txt,内容为 "Original Content"。然后使用 str_replace
+            将内容替换为 "Modified Content"。使用 undo_edit 命令撤销上一次编辑。使用 file_operations read 读取文件内容。如果内容是
+            "Original Content" 返回 'UNDONE',如果是 "Modified Content" 返回 'NOT_UNDONE',否则返回 'ERROR'。</prompt>
+        <response_pattern>UNDONE|NOT_UNDONE|ERROR</response_pattern>
+        <validation>Test if undo_edit successfully reverts changes</validation>
+    </task>
+
+    <task category="editor" complexity="high">
+        <description>Test str_replace_editor undo_edit multiple</description>
+        <prompt>使用 str_replace_editor 创建 /tmp/multi_undo.txt,内容为 "Version 1"。执行 3 次替换:将内容改为 "Version
+            2",然后 "Version 3",然后 "Version 4"。执行 2 次 undo_edit。读取文件内容,应该回到 "Version 2"。返回当前版本号(如
+            "Version 2")。</prompt>
+        <response>Version 2</response>
+    </task>
+
+    <task category="editor" complexity="medium">
+        <description>Test str_replace_editor undo_edit on new file</description>
+        <prompt>使用 str_replace_editor 创建 /tmp/new_undo.txt,内容为 "New File"。立即使用 undo_edit 尝试撤销创建操作。使用
+            file_operations 检查文件是否仍然存在。如果文件不存在返回 'FILE_REMOVED',如果存在返回 'FILE_EXISTS'。</prompt>
+        <response_pattern>FILE_REMOVED|FILE_EXISTS</response_pattern>
+    </task>
+
+</evaluation>

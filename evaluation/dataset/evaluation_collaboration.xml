@@ -1,0 +1,106 @@
+<evaluation>
+    <!-- ============================================================ -->
+    <!-- 层级2：多工具协作测试 -->
+    <!-- ============================================================ -->
+
+    <!-- 场景组E：文件+代码执行 -->
+    <task category="collaboration" complexity="medium">
+        <description>Test file read + code execution collaboration</description>
+        <prompt>
+          Create a file at /tmp/main.py with some async function.
+          Read the file /tmp/main.py
+          and use Python code to count how many times the word 'async' appears in it. Return just
+          the number.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+        <validation>Response should be a positive integer</validation>
+      </task>
+
+    <task category="collaboration" complexity="high">
+        <description>Test file write + code execution workflow</description>
+        <prompt>Create a Python script at /tmp/fibonacci.py with this code: 'def fib(n): return n if
+            n &lt;= 1 else fib(n-1) + fib(n-2)\nprint(fib(10))'. Then execute it and return the output number.</prompt>
+        <response>55</response>
+    </task>
+
+    <!-- 场景组F：Shell+文件操作 -->
+    <task category="collaboration" complexity="medium">
+        <description>Test bash + file operations workflow</description>
+        <prompt>Use bash to create directory /tmp/eval_test (if it doesn't exist), then create a
+            file /tmp/eval_test/data.txt with content "Sandbox Test" using file operations. Read the
+            file back and return its content.</prompt>
+        <response>Sandbox Test</response>
+    </task>
+
+    <task category="collaboration" complexity="high">
+        <description>Test bash command + file write</description>
+        <prompt>Use bash to get the current working directory (use: pwd). Write the result to /tmp/current_dir.txt using file operations. Then read the file back and return the content.</prompt>
+        <response_pattern>.+</response_pattern>
+        <validation>Response should be a valid directory path</validation>
+    </task>
+
+    <!-- 场景组G：环境探测+代码分析 -->
+    <task category="collaboration" complexity="high">
+        <description>Test get_packages + execute_code collaboration</description>
+        <prompt>Get the list of installed Python packages, then use Python code to parse the output
+            and count how many package names contain the substring 'fast' (case-insensitive). Return
+            just the number.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+        <validation>Response should be a positive integer</validation>
+    </task>
+
+    <!-- 场景组H：Browser + 文件操作 -->
+    <task category="collaboration" complexity="high">
+        <description>Test browser + file operations workflow</description>
+        <prompt>Create an HTML file at /tmp/test_page.html with content "&lt;html&gt;&lt;body&gt;&lt;h1&gt;Test Page&lt;/h1&gt;&lt;p&gt;MCP Testing&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;". Navigate to file:///tmp/test_page.html with browser. Get the page text and check if it contains "MCP Testing". Return 'YES' if found, 'NO' otherwise.</prompt>
+        <response>YES</response>
+    </task>
+
+    <!-- 场景组I：编辑器 + 代码执行 -->
+    <task category="collaboration" complexity="high">
+        <description>Test str_replace_editor + code execution</description>
+        <prompt>Use str_replace_editor to create /tmp/calc.py with content "def add(a, b):\n    return a + b\nprint(add(15, 27))". Then execute the Python file and return the output number.</prompt>
+        <response>42</response>
+    </task>
+
+    <task category="collaboration" complexity="high">
+        <description>Test editor modify + re-execute workflow</description>
+        <prompt>Create /tmp/counter.py with "counter = 0\nprint(counter)". Execute it (should print 0). Then use str_replace_editor to replace "counter = 0" with "counter = 100". Execute again and return the new output.</prompt>
+        <response>100</response>
+    </task>
+
+    <!-- 场景组J：复杂多步协作 -->
+    <task category="collaboration" complexity="high">
+        <description>Test bash + file + code execution pipeline</description>
+        <prompt>Use bash to create /tmp/data_dir directory. Create /tmp/data_dir/numbers.txt with numbers "1\n2\n3\n4\n5" using file operations. Use Python code to read the file, sum the numbers, and write the result to /tmp/data_dir/sum.txt. Read sum.txt and return its content.</prompt>
+        <response>15</response>
+    </task>
+
+    <task category="collaboration" complexity="high">
+        <description>Test get_context + file operations</description>
+        <prompt>Use get_context to get sandbox version info. Extract the version string (like v1.0.0.xxx). Write it to /tmp/version.txt using file operations. Read the file back and verify it starts with 'v'. Return 'VALID_VERSION' if it matches pattern v*.*.*.*, else 'INVALID'.</prompt>
+        <response>VALID_VERSION</response>
+    </task>
+
+    <!-- 场景组K：浏览器 + 代码分析 -->
+    <task category="collaboration" complexity="high">
+        <description>Test browser evaluate + code processing</description>
+        <prompt>Create /tmp/dom_test.html with "&lt;html&gt;&lt;body&gt;&lt;div class='item'&gt;A&lt;/div&gt;&lt;div class='item'&gt;B&lt;/div&gt;&lt;div class='item'&gt;C&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;". Navigate to it. Use browser_evaluate to get all div texts: "Array.from(document.querySelectorAll('.item')).map(d => d.innerText).join(',')". Use Python to split by comma and count items. Return the count.</prompt>
+        <response>3</response>
+    </task>
+
+    <!-- 场景组L：文件查找 + 处理 -->
+    <task category="collaboration" complexity="high">
+        <description>Test file find + batch processing</description>
+        <prompt>Create 3 files: /tmp/test1.txt (content: "hello"), /tmp/test2.txt (content: "world"),
+          /tmp/test_concat.txt (content: ""). Use file operations to concatenate the content of the 3
+          files into /tmp/test_concat.txt. for "hello world" content, the content of /tmp/test_concat.txt should be "hello world".
+          Return the content of /tmp/test_concat.txt.</prompt>
+        <response>hello world</response>
+      </task>
+
+    <task category="collaboration" complexity="high">
+        <description>Test file search + aggregation</description>
+        <prompt>Create /tmp/log.txt with content "ERROR: failed\nINFO: success\nERROR: timeout\nINFO: done". Use file operations to search for "ERROR" pattern. Count the matches and return just the number.</prompt>
+        <response>2</response>
+    </task>
+</evaluation>

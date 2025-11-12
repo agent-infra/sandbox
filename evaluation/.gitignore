@@ -1,0 +1,66 @@
+dist/
+./terminal-server/terminal-server
+.venv/
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log/Temp files
+.tmp/
+tmp/
+*.tmp
+.logs/
+logs/
+*.log
+.build
+python-server/log/
+log/
+
+# Environment files
+*.env
+.env.development
+
+# Local development configs (auto-generated, do not commit)
+python-server/mcp-servers.json
+
+# Code Editors
+.idea
+
+# Node.js Project
+node_modules
+dist
+out
+.eslintcache
+test-results/
+coverage/
+
+# Python Project
+*.pyc
+*.egg-info/
+.eggs/
+.tox/
+.coverage
+coverage.xml
+htmlcov/
+venv/
+venv_py/
+.mypy_cache/
+.pytest_cache/*
+.ruff_cache/
+__pycache__/
+report.xml
+log/
+.coverage.*
+
+Dockerfile.build
+Dockerfile.tmp
+.history/
+
+.pytest_cache/
+
+result/_*/

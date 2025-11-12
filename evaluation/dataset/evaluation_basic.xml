@@ -1,0 +1,80 @@
+<evaluation>
+    <!-- ============================================================ -->
+    <!-- 层级1：单工具基础能力测试 -->
+    <!-- ============================================================ -->
+
+    <!-- 场景组A：环境探测 -->
+    <task category="environment" complexity="simple">
+        <description>Test get_packages tool to verify Python package installation</description>
+        <prompt>Check if the Python package 'fastapi' is installed in the sandbox. Answer with 'YES'
+            or 'NO'.</prompt>
+        <response>YES</response>
+    </task>
+
+    <task category="environment" complexity="simple">
+        <description>Test get_packages tool to count installed Python packages</description>
+        <prompt>Get the list of installed Python packages and count how many packages are installed.
+            Return just the number.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+        <validation>Response should be a positive integer greater than 10</validation>
+    </task>
+
+    <!-- 场景组B：文件操作 -->
+    <task category="file" complexity="simple">
+        <description>Test file_operations write capability</description>
+        <prompt>Create a file at /tmp/test_eval.txt with content "Hello MCP". Then read it back and
+            return the content.</prompt>
+        <response>Hello MCP</response>
+    </task>
+
+    <task category="file" complexity="medium">
+        <description>Test file_operations list capability</description>
+        <prompt>List all files in /tmp directory find the file name start with 'test_eval' and
+            return the count.</prompt>
+        <response>1</response>
+    </task>
+
+    <task category="file" complexity="medium">
+        <description>Test file_operations search capability</description>
+        <prompt>Search for the pattern 'Hello MCP' in the file /tmp/test_eval.txt and return the
+            count of matches found.</prompt>
+        <response>1</response>
+    </task>
+
+    <!-- 场景组C：代码执行 -->
+    <task category="code" complexity="simple">
+        <description>Test execute_code with simple arithmetic</description>
+        <prompt>Execute Python code to calculate 2**10 and return the result as a number.</prompt>
+        <response>1024</response>
+    </task>
+
+    <task category="code" complexity="medium">
+        <description>Test execute_code with algorithm</description>
+        <prompt>Execute Python code to find the sum of all even numbers from 1 to 100 (inclusive).
+            Return just the number.</prompt>
+        <response>2550</response>
+    </task>
+
+    <task category="code" complexity="medium">
+        <description>Test execute_code with string processing</description>
+        <prompt>Execute Python code to count the number of vowels (a, e, i, o, u, case-insensitive)
+            in the string "Model Context Protocol". Return just the number.</prompt>
+        <response>7</response>
+    </task>
+
+    <!-- 场景组D：Shell操作 -->
+    <task category="shell" complexity="simple">
+        <description>Test execute_bash with basic echo</description>
+        <prompt>Execute bash command 'echo "MCP_TEST"' and return the output (without quotes or
+            extra whitespace).</prompt>
+        <response>MCP_TEST</response>
+    </task>
+
+    <task category="shell" complexity="medium">
+        <description>Test execute_bash with file counting</description>
+        <prompt>Use bash to count the number of folders in /tmp directory. Use the command: ls -l
+            /tmp | grep ^d | wc -l. Return just the number.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+        <validation>Response should be a positive integer</validation>
+    </task>
+</evaluation>

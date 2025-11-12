@@ -1,0 +1,18 @@
+<evaluation>
+    <!-- ============================================================ -->
+    <!-- convert_to_markdown 工具测试（本地文件） -->
+    <!-- ============================================================ -->
+
+    <task category="util" complexity="medium">
+        <description>Test convert_to_markdown with web page</description>
+        <prompt>Use convert_to_markdown to convert the page at http://baidu.com to markdown. Check if the output contains the text '百度' or 'Baidu'. Return 'YES' if found, 'NO' otherwise.</prompt>
+        <response>YES</response>
+    </task>
+
+    <task category="util" complexity="medium">
+        <description>Test convert_to_markdown content extraction</description>
+        <prompt>Use convert_to_markdown to convert http://baidu.com to markdown. Count how many times the word '百度' appears in the markdown output. Return just the number.</prompt>
+        <response_pattern>^\d+$</response_pattern>
+        <validation>Response should be a positive integer greater than 0</validation>
+    </task>
+</evaluation>

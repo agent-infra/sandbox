@@ -1,0 +1,9 @@
+[project]
+name = "tool-evaluation"
+version = "0.1.0"
+description = "Tool Evaluation Framework using Azure OpenAI and MCP"
+requires-python = ">=3.13"
+dependencies = [
+    "openai>=1.54.0",
+    "mcp>=1.12.3",
+]
