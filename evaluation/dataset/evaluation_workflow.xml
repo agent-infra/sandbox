@@ -1,9 +1,4 @@
 <evaluation>
-    <!-- ============================================================ -->
-    <!-- 层级3：真实工作场景 -->
-    <!-- ============================================================ -->
-
-    <!-- 代码审查工作流 -->
     <task category="workflow" complexity="very_high">
         <description>Test complex file search workflow</description>
         <prompt>Find all .py files in /tmp directory that
@@ -13,26 +8,6 @@
         <validation>Response should be a positive integer</validation>
     </task>
 
-    <task category="workflow" complexity="very_high">
-        <description>Test code analysis workflow</description>
-        <prompt>Read the file /tmp/main.py
-            and use Python code with AST parsing to count the number of function definitions (async
-            and sync). Return just the number.</prompt>
-        <response_pattern>^\d+$</response_pattern>
-        <validation>Response should be a positive integer</validation>
-    </task>
-
-    <!-- 数据处理管道 -->
-    <task category="workflow" complexity="very_high">
-        <description>Test multi-step data processing pipeline</description>
-        <prompt>Read /tmp/evaluation.xml,
-            use Python code to parse it as XML and count the total number of &lt;task&gt; elements.
-            Return just the number.</prompt>
-        <response_pattern>^\d+$</response_pattern>
-        <validation>Response should be a positive integer</validation>
-    </task>
-
-    <!--数据处理管道 -->
     <task category="workflow" complexity="very_high">
         <description>
             show aio sandbox's contributors in a browser.

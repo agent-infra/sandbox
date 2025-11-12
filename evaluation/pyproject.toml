@@ -1,9 +1,33 @@
 [project]
 name = "tool-evaluation"
-version = "0.1.0"
-description = "Tool Evaluation Framework using Azure OpenAI and MCP"
-requires-python = ">=3.13"
-dependencies = [
-    "openai>=1.54.0",
-    "mcp>=1.12.3",
+version = "0.0.1"
+description = "aio-sandbox tools evaluation"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "zhangjingtian.oana", email = "zhangjingtian.oana@bytedance.com" },
+    { name = "jinxin001", email = "jinxin001@bytedance.com" },
 ]
+dependencies = ["mcp>=1.12.3", "openai>=1.54.0", "pydantic>=2.0.0"]
+
+[project.optional-dependencies]
+# LangChain with OpenAI
+langchain-openai = [
+    "langchain>=1.0.5",
+    "langchain-core>=1.0.4",
+    "langchain-openai>=1.0.2",
+    "langchain-mcp-adapters>=0.1.12",
+]
+
+[project.scripts]
+aio-eval = "aio_sandbox_eval.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["aio_sandbox_eval*"]
+exclude = ["dataset*", "result*", ".*"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
