@@ -11,8 +11,8 @@
     "deploy": "npm run build && npm run preview"
   },
   "dependencies": {
-    "@rspress/core": "2.0.0-beta.35",
-    "@rspress/plugin-llms": "2.0.0-beta.35",
+    "@rspress/core": "2.0.0-rc.1",
+    "@rspress/plugin-llms": "2.0.0-rc.1",
     "@rspress/theme-default": "2.0.0-beta.35",
     "@scalar/api-reference-react": "^0.8.2",
     "core-js": "^3.45.1"
@@ -21,8 +21,8 @@
     "@biomejs/biome": "^1.9.4",
     "@shikijs/transformers": "^3.13.0",
     "rsbuild-plugin-google-analytics": "1.0.4",
-    "@rspress/plugin-sitemap": "2.0.0-beta.35",
-    "@rspress/plugin-twoslash": "2.0.0-beta.35",
+    "@rspress/plugin-sitemap": "2.0.0-rc.1",
+    "@rspress/plugin-twoslash": "2.0.0-rc.1",
     "@rsbuild/plugin-sass": "1.4.0",
     "rsbuild-plugin-open-graph": "1.1.0",
     "rspress-plugin-font-open-sans": "1.0.3",
