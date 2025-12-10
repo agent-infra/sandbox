@@ -91,7 +91,7 @@ export class Skills {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -110,7 +110,7 @@ export class Skills {
         return {
             data: {
                 ok: false,
-                error: Sandbox.skills.registerSkills.Error._unknown(_response.error),
+                error: Sandbox.skills.registerSkills.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -177,7 +177,7 @@ export class Skills {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -196,7 +196,7 @@ export class Skills {
         return {
             data: {
                 ok: false,
-                error: Sandbox.skills.listMetadata.Error._unknown(_response.error),
+                error: Sandbox.skills.listMetadata.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -249,7 +249,7 @@ export class Skills {
         return {
             data: {
                 ok: false,
-                error: Sandbox.skills.clearSkills.Error._unknown(_response.error),
+                error: Sandbox.skills.clearSkills.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -304,7 +304,7 @@ export class Skills {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -323,7 +323,7 @@ export class Skills {
         return {
             data: {
                 ok: false,
-                error: Sandbox.skills.deleteSkill.Error._unknown(_response.error),
+                error: Sandbox.skills.deleteSkill.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -378,7 +378,7 @@ export class Skills {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -397,7 +397,7 @@ export class Skills {
         return {
             data: {
                 ok: false,
-                error: Sandbox.skills.getContent.Error._unknown(_response.error),
+                error: Sandbox.skills.getContent.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

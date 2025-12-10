@@ -4,16 +4,16 @@
   "description": "Node.js SDK for AIO Sandbox integration providing tools and interfaces",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.mjs",
-  "types": "./src/index.ts",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/types/index.d.ts",
       "import": "./dist/esm/index.mjs",
       "require": "./dist/cjs/index.js"
     }
   },
   "scripts": {
-    "build": "rslib build",
+    "build": "rslib build && tsc",
     "prepublishOnly": "npm run build",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
@@ -28,7 +28,6 @@
   },
   "files": [
     "dist",
-    "src",
     "README.md",
     "package.json"
   ],

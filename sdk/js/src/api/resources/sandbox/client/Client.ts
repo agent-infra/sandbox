@@ -66,7 +66,7 @@ export class SandboxService {
         return {
             data: {
                 ok: false,
-                error: Sandbox.sandbox.getContext.Error._unknown(_response.error),
+                error: Sandbox.sandbox.getContext.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -121,7 +121,7 @@ export class SandboxService {
         return {
             data: {
                 ok: false,
-                error: Sandbox.sandbox.getPythonPackages.Error._unknown(_response.error),
+                error: Sandbox.sandbox.getPythonPackages.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -176,7 +176,7 @@ export class SandboxService {
         return {
             data: {
                 ok: false,
-                error: Sandbox.sandbox.getNodejsPackages.Error._unknown(_response.error),
+                error: Sandbox.sandbox.getNodejsPackages.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

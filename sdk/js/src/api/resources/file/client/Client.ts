@@ -71,7 +71,7 @@ export class File_ {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -90,7 +90,7 @@ export class File_ {
         return {
             data: {
                 ok: false,
-                error: Sandbox.file.readFile.Error._unknown(_response.error),
+                error: Sandbox.file.readFile.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -154,7 +154,7 @@ export class File_ {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -173,7 +173,7 @@ export class File_ {
         return {
             data: {
                 ok: false,
-                error: Sandbox.file.writeFile.Error._unknown(_response.error),
+                error: Sandbox.file.writeFile.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -237,7 +237,7 @@ export class File_ {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -256,7 +256,7 @@ export class File_ {
         return {
             data: {
                 ok: false,
-                error: Sandbox.file.replaceInFile.Error._unknown(_response.error),
+                error: Sandbox.file.replaceInFile.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -319,7 +319,7 @@ export class File_ {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -338,7 +338,7 @@ export class File_ {
         return {
             data: {
                 ok: false,
-                error: Sandbox.file.searchInFile.Error._unknown(_response.error),
+                error: Sandbox.file.searchInFile.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -399,7 +399,7 @@ export class File_ {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -418,7 +418,7 @@ export class File_ {
         return {
             data: {
                 ok: false,
-                error: Sandbox.file.findFiles.Error._unknown(_response.error),
+                error: Sandbox.file.findFiles.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -492,7 +492,7 @@ export class File_ {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -511,7 +511,7 @@ export class File_ {
         return {
             data: {
                 ok: false,
-                error: Sandbox.file.uploadFile.Error._unknown(_response.error),
+                error: Sandbox.file.uploadFile.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -564,7 +564,7 @@ export class File_ {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -583,7 +583,7 @@ export class File_ {
         return {
             data: {
                 ok: false,
-                error: Sandbox.file.downloadFile.Error._unknown(_response.error),
+                error: Sandbox.file.downloadFile.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -643,7 +643,7 @@ export class File_ {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -662,7 +662,7 @@ export class File_ {
         return {
             data: {
                 ok: false,
-                error: Sandbox.file.listPath.Error._unknown(_response.error),
+                error: Sandbox.file.listPath.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -734,7 +734,7 @@ export class File_ {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -753,7 +753,7 @@ export class File_ {
         return {
             data: {
                 ok: false,
-                error: Sandbox.file.strReplaceEditor.Error._unknown(_response.error),
+                error: Sandbox.file.strReplaceEditor.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

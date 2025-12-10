@@ -1,5 +1,6 @@
 import { toJson } from "../json.js";
 import { toQueryString } from "../url/qs.js";
+import type { BodyInit } from "../../types/fetch.js";
 
 export declare namespace GetRequestBody {
     interface Args {

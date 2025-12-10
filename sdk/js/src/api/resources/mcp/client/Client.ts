@@ -76,7 +76,7 @@ export class Mcp {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -95,7 +95,7 @@ export class Mcp {
         return {
             data: {
                 ok: false,
-                error: Sandbox.mcp.listMcpTools.Error._unknown(_response.error),
+                error: Sandbox.mcp.listMcpTools.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -175,7 +175,7 @@ export class Mcp {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -194,7 +194,7 @@ export class Mcp {
         return {
             data: {
                 ok: false,
-                error: Sandbox.mcp.executeMcpTool.Error._unknown(_response.error),
+                error: Sandbox.mcp.executeMcpTool.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -252,7 +252,7 @@ export class Mcp {
         return {
             data: {
                 ok: false,
-                error: Sandbox.mcp.listMcpServers.Error._unknown(_response.error),
+                error: Sandbox.mcp.listMcpServers.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

@@ -21,3 +21,21 @@ export interface FailedResponse<T> {
     error: T;
     rawResponse: RawResponse;
 }
+
+/**
+ * Type guard to check if a response is successful
+ */
+export function isSuccessfulResponse<Success, Failure>(
+    response: APIResponse<Success, Failure>
+): response is SuccessfulResponse<Success> {
+    return response.ok === true;
+}
+
+/**
+ * Type guard to check if a response is failed
+ */
+export function isFailedResponse<Success, Failure>(
+    response: APIResponse<Success, Failure>
+): response is FailedResponse<Failure> {
+    return response.ok === false;
+}

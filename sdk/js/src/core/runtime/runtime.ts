@@ -42,7 +42,7 @@ function evaluateRuntime(): Runtime {
      * A constant that indicates whether the environment the code is running is Cloudflare.
      * https://developers.cloudflare.com/workers/runtime-apis/web-standards/#navigatoruseragent
      */
-    const isCloudflare = typeof globalThis !== "undefined" && globalThis?.navigator?.userAgent === "Cloudflare-Workers";
+    const isCloudflare = typeof globalThis !== "undefined" && (globalThis as any)?.navigator?.userAgent === "Cloudflare-Workers";
     if (isCloudflare) {
         return {
             type: "workerd",

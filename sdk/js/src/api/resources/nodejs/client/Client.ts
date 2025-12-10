@@ -78,7 +78,7 @@ export class Nodejs {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -97,7 +97,7 @@ export class Nodejs {
         return {
             data: {
                 ok: false,
-                error: Sandbox.nodejs.executeCode.Error._unknown(_response.error),
+                error: Sandbox.nodejs.executeCode.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -154,7 +154,7 @@ export class Nodejs {
         return {
             data: {
                 ok: false,
-                error: Sandbox.nodejs.getInfo.Error._unknown(_response.error),
+                error: Sandbox.nodejs.getInfo.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

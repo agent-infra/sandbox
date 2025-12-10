@@ -1,3 +1,7 @@
+import type { HeadersInit } from "../../types/fetch.js";
+
+type HeadersIterator<T> = Generator<T, void, unknown>;
+
 let Headers: typeof globalThis.Headers;
 
 if (typeof globalThis.Headers !== "undefined") {

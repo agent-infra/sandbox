@@ -74,7 +74,7 @@ export class Shell {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -93,7 +93,7 @@ export class Shell {
         return {
             data: {
                 ok: false,
-                error: Sandbox.shell.execCommand.Error._unknown(_response.error),
+                error: Sandbox.shell.execCommand.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -154,7 +154,7 @@ export class Shell {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -173,7 +173,7 @@ export class Shell {
         return {
             data: {
                 ok: false,
-                error: Sandbox.shell.view.Error._unknown(_response.error),
+                error: Sandbox.shell.view.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -235,7 +235,7 @@ export class Shell {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -254,7 +254,7 @@ export class Shell {
         return {
             data: {
                 ok: false,
-                error: Sandbox.shell.waitForProcess.Error._unknown(_response.error),
+                error: Sandbox.shell.waitForProcess.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -320,7 +320,7 @@ export class Shell {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -339,7 +339,7 @@ export class Shell {
         return {
             data: {
                 ok: false,
-                error: Sandbox.shell.writeToProcess.Error._unknown(_response.error),
+                error: Sandbox.shell.writeToProcess.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -401,7 +401,7 @@ export class Shell {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -420,7 +420,7 @@ export class Shell {
         return {
             data: {
                 ok: false,
-                error: Sandbox.shell.killProcess.Error._unknown(_response.error),
+                error: Sandbox.shell.killProcess.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -485,7 +485,7 @@ export class Shell {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -504,7 +504,7 @@ export class Shell {
         return {
             data: {
                 ok: false,
-                error: Sandbox.shell.createSession.Error._unknown(_response.error),
+                error: Sandbox.shell.createSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -559,7 +559,7 @@ export class Shell {
         return {
             data: {
                 ok: false,
-                error: Sandbox.shell.getTerminalUrl.Error._unknown(_response.error),
+                error: Sandbox.shell.getTerminalUrl.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -620,7 +620,7 @@ export class Shell {
         return {
             data: {
                 ok: false,
-                error: Sandbox.shell.listSessions.Error._unknown(_response.error),
+                error: Sandbox.shell.listSessions.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -675,7 +675,7 @@ export class Shell {
         return {
             data: {
                 ok: false,
-                error: Sandbox.shell.cleanupAllSessions.Error._unknown(_response.error),
+                error: Sandbox.shell.cleanupAllSessions.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -730,7 +730,7 @@ export class Shell {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -749,7 +749,7 @@ export class Shell {
         return {
             data: {
                 ok: false,
-                error: Sandbox.shell.cleanupSession.Error._unknown(_response.error),
+                error: Sandbox.shell.cleanupSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

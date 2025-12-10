@@ -137,7 +137,7 @@ export class SandboxClient {
         return {
             data: {
                 ok: false,
-                error: Sandbox.serveTerminalTerminalGet.Error._unknown(_response.error),
+                error: Sandbox.serveTerminalTerminalGet.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

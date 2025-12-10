@@ -1,4 +1,5 @@
 import { anySignal, getTimeoutSignal } from "./signals.js";
+import type { BodyInit } from "../../types/fetch.js";
 
 export const makeRequest = async (
     fetchFn: (url: string, init: RequestInit) => Promise<Response>,

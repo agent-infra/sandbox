@@ -71,7 +71,7 @@ export class Util {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -90,7 +90,7 @@ export class Util {
         return {
             data: {
                 ok: false,
-                error: Sandbox.util.convertToMarkdown.Error._unknown(_response.error),
+                error: Sandbox.util.convertToMarkdown.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

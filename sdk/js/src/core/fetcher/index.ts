@@ -1,4 +1,5 @@
-export type { APIResponse } from "./APIResponse.js";
+export type { APIResponse, SuccessfulResponse, FailedResponse } from "./APIResponse.js";
+export { isSuccessfulResponse, isFailedResponse } from "./APIResponse.js";
 export type { BinaryResponse } from "./BinaryResponse.js";
 export type { EndpointMetadata } from "./EndpointMetadata.js";
 export { EndpointSupplier } from "./EndpointSupplier.js";

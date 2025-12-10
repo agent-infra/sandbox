@@ -82,7 +82,7 @@ export class Jupyter {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -101,7 +101,7 @@ export class Jupyter {
         return {
             data: {
                 ok: false,
-                error: Sandbox.jupyter.executeCode.Error._unknown(_response.error),
+                error: Sandbox.jupyter.executeCode.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -158,7 +158,7 @@ export class Jupyter {
         return {
             data: {
                 ok: false,
-                error: Sandbox.jupyter.getInfo.Error._unknown(_response.error),
+                error: Sandbox.jupyter.getInfo.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -217,7 +217,7 @@ export class Jupyter {
         return {
             data: {
                 ok: false,
-                error: Sandbox.jupyter.listSessions.Error._unknown(_response.error),
+                error: Sandbox.jupyter.listSessions.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -272,7 +272,7 @@ export class Jupyter {
         return {
             data: {
                 ok: false,
-                error: Sandbox.jupyter.deleteSessions.Error._unknown(_response.error),
+                error: Sandbox.jupyter.deleteSessions.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -327,7 +327,7 @@ export class Jupyter {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -346,7 +346,7 @@ export class Jupyter {
         return {
             data: {
                 ok: false,
-                error: Sandbox.jupyter.deleteSession.Error._unknown(_response.error),
+                error: Sandbox.jupyter.deleteSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -410,7 +410,7 @@ export class Jupyter {
             };
         }
 
-        if (_response.error.reason === "status-code") {
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 422:
                     return {
@@ -429,7 +429,7 @@ export class Jupyter {
         return {
             data: {
                 ok: false,
-                error: Sandbox.jupyter.createSession.Error._unknown(_response.error),
+                error: Sandbox.jupyter.createSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
