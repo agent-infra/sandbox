@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.151"
+    "version": "1.0.0.156"
   },
   "paths": {
     "/v1/sandbox": {
@@ -6414,6 +6414,23 @@
             "title": "View Range",
             "description": "Optional parameter of `view` command when `path` points to a file. If none is given, the full file is shown. If provided, the file will be shown in the indicated line number range, e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines from `start_line` to the end of the file.",
             "default": []
+          },
+          "replace_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ALL",
+                  "FIRST",
+                  "LAST"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replace Mode",
+            "description": "Optional parameter of `str_replace` command. When specified, controls how multiple occurrences are handled: 'ALL' replaces all occurrences, 'FIRST' replaces only the first, 'LAST' replaces only the last. If not specified, requires unique match (original behavior)."
           }
         },
         "type": "object",
@@ -6701,6 +6718,16 @@
               }
             ],
             "title": "Meta"
+          },
+          "execution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolExecution"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": true,
@@ -6798,6 +6825,30 @@
         ],
         "title": "ToolCategory",
         "description": "将可用工具按功能分类"
+      },
+      "ToolExecution": {
+        "properties": {
+          "taskSupport": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "forbidden",
+                  "optional",
+                  "required"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tasksupport"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "title": "ToolExecution",
+        "description": "Execution-related properties for a tool."
       },
       "ToolSpec": {
         "properties": {

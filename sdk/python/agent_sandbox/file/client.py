@@ -16,6 +16,7 @@ from ..types.response_file_write_result import ResponseFileWriteResult
 from ..types.response_str_replace_editor_result import ResponseStrReplaceEditorResult
 from .raw_client import AsyncRawFileClient, RawFileClient
 from .types.command import Command
+from .types.str_replace_editor_request_replace_mode import StrReplaceEditorRequestReplaceMode
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -451,6 +452,7 @@ class FileClient:
         new_str: typing.Optional[str] = OMIT,
         insert_line: typing.Optional[int] = OMIT,
         view_range: typing.Optional[typing.Sequence[int]] = OMIT,
+        replace_mode: typing.Optional[StrReplaceEditorRequestReplaceMode] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseStrReplaceEditorResult:
         """
@@ -484,6 +486,9 @@ class FileClient:
         view_range : typing.Optional[typing.Sequence[int]]
             Optional parameter of `view` command when `path` points to a file. If none is given, the full file is shown. If provided, the file will be shown in the indicated line number range, e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines from `start_line` to the end of the file.
 
+        replace_mode : typing.Optional[StrReplaceEditorRequestReplaceMode]
+            Optional parameter of `str_replace` command. When specified, controls how multiple occurrences are handled: 'ALL' replaces all occurrences, 'FIRST' replaces only the first, 'LAST' replaces only the last. If not specified, requires unique match (original behavior).
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -512,6 +517,7 @@ class FileClient:
             new_str=new_str,
             insert_line=insert_line,
             view_range=view_range,
+            replace_mode=replace_mode,
             request_options=request_options,
         )
         return _response.data
@@ -1014,6 +1020,7 @@ class AsyncFileClient:
         new_str: typing.Optional[str] = OMIT,
         insert_line: typing.Optional[int] = OMIT,
         view_range: typing.Optional[typing.Sequence[int]] = OMIT,
+        replace_mode: typing.Optional[StrReplaceEditorRequestReplaceMode] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseStrReplaceEditorResult:
         """
@@ -1046,6 +1053,9 @@ class AsyncFileClient:
 
         view_range : typing.Optional[typing.Sequence[int]]
             Optional parameter of `view` command when `path` points to a file. If none is given, the full file is shown. If provided, the file will be shown in the indicated line number range, e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines from `start_line` to the end of the file.
+
+        replace_mode : typing.Optional[StrReplaceEditorRequestReplaceMode]
+            Optional parameter of `str_replace` command. When specified, controls how multiple occurrences are handled: 'ALL' replaces all occurrences, 'FIRST' replaces only the first, 'LAST' replaces only the last. If not specified, requires unique match (original behavior).
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1083,6 +1093,7 @@ class AsyncFileClient:
             new_str=new_str,
             insert_line=insert_line,
             view_range=view_range,
+            replace_mode=replace_mode,
             request_options=request_options,
         )
         return _response.data

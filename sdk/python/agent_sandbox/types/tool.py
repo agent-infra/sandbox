@@ -8,6 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from ..core.serialization import FieldMetadata
 from .icon import Icon
 from .tool_annotations import ToolAnnotations
+from .tool_execution import ToolExecution
 
 
 class Tool(UniversalBaseModel):
@@ -29,6 +30,7 @@ class Tool(UniversalBaseModel):
     meta: typing_extensions.Annotated[
         typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]], FieldMetadata(alias="_meta")
     ] = None
+    execution: typing.Optional[ToolExecution] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

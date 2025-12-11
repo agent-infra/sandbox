@@ -7,7 +7,11 @@ from importlib import import_module
 
 if typing.TYPE_CHECKING:
     from .command import Command
-_dynamic_imports: typing.Dict[str, str] = {"Command": ".command"}
+    from .str_replace_editor_request_replace_mode import StrReplaceEditorRequestReplaceMode
+_dynamic_imports: typing.Dict[str, str] = {
+    "Command": ".command",
+    "StrReplaceEditorRequestReplaceMode": ".str_replace_editor_request_replace_mode",
+}
 
 
 def __getattr__(attr_name: str) -> typing.Any:
@@ -29,4 +33,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["Command"]
+__all__ = ["Command", "StrReplaceEditorRequestReplaceMode"]

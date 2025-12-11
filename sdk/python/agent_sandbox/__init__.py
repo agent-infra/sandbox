@@ -126,6 +126,8 @@ if typing.TYPE_CHECKING:
         Tool,
         ToolAnnotations,
         ToolCategory,
+        ToolExecution,
+        ToolExecutionTaskSupport,
         ToolSpec,
         TypingAction,
         ValidationError,
@@ -154,7 +156,7 @@ if typing.TYPE_CHECKING:
         Action_Wait,
     )
     from .client import AsyncSandbox, Sandbox
-    from .file import Command
+    from .file import Command, StrReplaceEditorRequestReplaceMode
 _dynamic_imports: typing.Dict[str, str] = {
     "Action": ".browser",
     "ActionResponse": ".types",
@@ -288,6 +290,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "SkillMetadata": ".types",
     "SkillMetadataCollection": ".types",
     "SkillRegistrationResult": ".types",
+    "StrReplaceEditorRequestReplaceMode": ".file",
     "StrReplaceEditorResult": ".types",
     "SystemEnv": ".types",
     "TextContent": ".types",
@@ -295,6 +298,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "Tool": ".types",
     "ToolAnnotations": ".types",
     "ToolCategory": ".types",
+    "ToolExecution": ".types",
+    "ToolExecutionTaskSupport": ".types",
     "ToolSpec": ".types",
     "TypingAction": ".types",
     "UnprocessableEntityError": ".errors",
@@ -466,6 +471,7 @@ __all__ = [
     "SkillMetadata",
     "SkillMetadataCollection",
     "SkillRegistrationResult",
+    "StrReplaceEditorRequestReplaceMode",
     "StrReplaceEditorResult",
     "SystemEnv",
     "TextContent",
@@ -473,6 +479,8 @@ __all__ = [
     "Tool",
     "ToolAnnotations",
     "ToolCategory",
+    "ToolExecution",
+    "ToolExecutionTaskSupport",
     "ToolSpec",
     "TypingAction",
     "UnprocessableEntityError",

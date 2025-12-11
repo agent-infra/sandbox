@@ -127,6 +127,8 @@ if typing.TYPE_CHECKING:
     from .tool import Tool
     from .tool_annotations import ToolAnnotations
     from .tool_category import ToolCategory
+    from .tool_execution import ToolExecution
+    from .tool_execution_task_support import ToolExecutionTaskSupport
     from .tool_spec import ToolSpec
     from .typing_action import TypingAction
     from .validation_error import ValidationError
@@ -252,6 +254,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "Tool": ".tool",
     "ToolAnnotations": ".tool_annotations",
     "ToolCategory": ".tool_category",
+    "ToolExecution": ".tool_execution",
+    "ToolExecutionTaskSupport": ".tool_execution_task_support",
     "ToolSpec": ".tool_spec",
     "TypingAction": ".typing_action",
     "ValidationError": ".validation_error",
@@ -399,6 +403,8 @@ __all__ = [
     "Tool",
     "ToolAnnotations",
     "ToolCategory",
+    "ToolExecution",
+    "ToolExecutionTaskSupport",
     "ToolSpec",
     "TypingAction",
     "ValidationError",
