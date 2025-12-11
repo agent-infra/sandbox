@@ -17,8 +17,8 @@
 import * as crypto from 'crypto';
 
 // Service parameters
-const Service = 'apig';
-const Version = '2021-03-03';
+const Service = 'vefaas';
+const Version = '2024-06-06';
 const Region = 'cn-beijing';
 const Host = 'iam.volcengineapi.com';
 const ContentType = 'application/x-www-form-urlencoded';
@@ -98,7 +98,8 @@ export async function request(
   token: string | null,
   action: string,
   body: string,
-  region?: string
+  region?: string,
+  version?: string,
 ): Promise<any> {
   // Initialize credential
   const credential: Credential = {
@@ -129,14 +130,14 @@ export async function request(
   }
 
   let contentType = ContentType;
-  let version = Version;
+  let apiVersion = version || Version;
 
   if (method === 'POST') {
     contentType = 'application/json';
   }
 
-  if (action === 'CreateRoute' || action === 'ListRoutes') {
-    version = '2022-11-12';
+  if (!version && (action === 'CreateRoute' || action === 'ListRoutes')) {
+    apiVersion = '2022-11-12';
   }
 
   // Initialize request parameters
@@ -147,11 +148,14 @@ export async function request(
     method,
     content_type: contentType,
     date,
-    query: { Action: action, Version: version, ...query },
+    query: { Action: action, Version: apiVersion, ...query },
   };
 
   // Calculate signature
-  const xDate = date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const xDate = date
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}/, '');
   const shortXDate = xDate.slice(0, 8);
   const xContentSha256 = hashSha256(requestParam.body);
 
@@ -180,11 +184,24 @@ export async function request(
   ].join('\n');
 
   const hashedCanonicalRequest = hashSha256(canonicalRequestStr);
-  const credentialScope = [shortXDate, credential.region, credential.service, 'request'].join('/');
-  const stringToSign = ['HMAC-SHA256', xDate, credentialScope, hashedCanonicalRequest].join('\n');
+  const credentialScope = [
+    shortXDate,
+    credential.region,
+    credential.service,
+    'request',
+  ].join('/');
+  const stringToSign = [
+    'HMAC-SHA256',
+    xDate,
+    credentialScope,
+    hashedCanonicalRequest,
+  ].join('\n');
 
   // Calculate signing key
-  const kDate = hmacSha256(Buffer.from(credential.secret_access_key, 'utf8'), shortXDate);
+  const kDate = hmacSha256(
+    Buffer.from(credential.secret_access_key, 'utf8'),
+    shortXDate,
+  );
   const kRegion = hmacSha256(kDate, credential.region);
   const kService = hmacSha256(kRegion, credential.service);
   const kSigning = hmacSha256(kService, 'request');
