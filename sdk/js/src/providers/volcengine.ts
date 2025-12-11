@@ -51,7 +51,11 @@ export class VolcengineProvider extends BaseProvider {
    * @param kwargs - Additional parameters for sandbox creation
    * @returns The ID of the created sandbox or error
    */
-  async createSandbox(functionId: string, timeout: number = 30, ...kwargs: any[]): Promise<any> {
+  async createSandbox(
+    functionId: string,
+    timeout: number = 30,
+    ...kwargs: any[]
+  ): Promise<any> {
     try {
       const body = JSON.stringify({
         function_id: functionId,
@@ -68,10 +72,10 @@ export class VolcengineProvider extends BaseProvider {
         this.secretKey,
         null,
         'CreateSandbox',
-        body
+        body,
       );
 
-      return response.sandbox_id;
+      return response;
     } catch (error) {
       return error;
     }
@@ -85,7 +89,11 @@ export class VolcengineProvider extends BaseProvider {
    * @param kwargs - Additional parameters for sandbox deletion
    * @returns The response containing deletion status
    */
-  async deleteSandbox(functionId: string, sandboxId: string, ...kwargs: any[]): Promise<any> {
+  async deleteSandbox(
+    functionId: string,
+    sandboxId: string,
+    ...kwargs: any[]
+  ): Promise<any> {
     try {
       const body = JSON.stringify({
         function_id: functionId,
@@ -102,7 +110,7 @@ export class VolcengineProvider extends BaseProvider {
         this.secretKey,
         null,
         'KillSandbox',
-        body
+        body,
       );
 
       return response;
@@ -114,7 +122,10 @@ export class VolcengineProvider extends BaseProvider {
   /**
    * Append ?faasInstanceName= to domain field of structured domain objects.
    */
-  private appendInstanceQueryStruct(domainsInfo: DomainInfo[], instanceName: string): DomainInfo[] {
+  private appendInstanceQueryStruct(
+    domainsInfo: DomainInfo[],
+    instanceName: string,
+  ): DomainInfo[] {
     const result: DomainInfo[] = [];
 
     for (const info of domainsInfo) {
@@ -147,7 +158,11 @@ export class VolcengineProvider extends BaseProvider {
    * @param kwargs - Additional parameters for sandbox retrieval
    * @returns The response containing sandbox details
    */
-  async getSandbox(functionId: string, sandboxId: string, ...kwargs: any[]): Promise<any> {
+  async getSandbox(
+    functionId: string,
+    sandboxId: string,
+    ...kwargs: any[]
+  ): Promise<any> {
     try {
       const body = JSON.stringify({
         function_id: functionId,
@@ -164,11 +179,14 @@ export class VolcengineProvider extends BaseProvider {
         this.secretKey,
         null,
         'DescribeSandbox',
-        body
+        body,
       );
 
       const baseDomains = await this.getApigDomains(functionId);
-      const domainsStruct = this.appendInstanceQueryStruct(baseDomains, sandboxId);
+      const domainsStruct = this.appendInstanceQueryStruct(
+        baseDomains,
+        sandboxId,
+      );
       response.domains = domainsStruct;
 
       return response;
@@ -200,7 +218,7 @@ export class VolcengineProvider extends BaseProvider {
         this.secretKey,
         null,
         'ListSandboxes',
-        body
+        body,
       );
 
       // Attach domains with instanceName query to each sandbox item
@@ -243,7 +261,7 @@ export class VolcengineProvider extends BaseProvider {
       this.secretKey,
       '',
       'ListTriggers',
-      body
+      body,
     );
 
     if (response && typeof response === 'object') {
@@ -276,7 +294,9 @@ export class VolcengineProvider extends BaseProvider {
    * @param upstreamId - The upstream ID to get routes for
    * @returns List of domains from the routes, or empty list
    */
-  private async getApigDomainsFromUpstream(upstreamId: string): Promise<DomainInfo[]> {
+  private async getApigDomainsFromUpstream(
+    upstreamId: string,
+  ): Promise<DomainInfo[]> {
     const body = JSON.stringify({
       UpstreamId: upstreamId,
       PageSize: 100,
@@ -292,7 +312,7 @@ export class VolcengineProvider extends BaseProvider {
       this.secretKey,
       '',
       'ListRoutes',
-      body
+      body,
     );
 
     const domains: DomainInfo[] = [];
@@ -353,7 +373,11 @@ export class VolcengineProvider extends BaseProvider {
    * @param kwargs - Additional parameters
    * @returns Application ID or null
    */
-  private async createApplicationInternal(name: string, gatewayName: string, ...kwargs: any[]): Promise<string | null> {
+  private async createApplicationInternal(
+    name: string,
+    gatewayName: string,
+    ...kwargs: any[]
+  ): Promise<string | null> {
     const functionName = `${name}-function`;
     const sid = Math.random().toString().slice(2, 9);
 
@@ -378,11 +402,14 @@ export class VolcengineProvider extends BaseProvider {
         this.secretKey,
         '',
         'CreateApplication',
-        body
+        body,
       );
 
       if (typeof response !== 'object' || !response) {
-        console.error('CreateApplication returned non-object response:', response);
+        console.error(
+          'CreateApplication returned non-object response:',
+          response,
+        );
         return null;
       }
 
@@ -394,7 +421,10 @@ export class VolcengineProvider extends BaseProvider {
 
       const applicationId = result.Id;
       if (!applicationId) {
-        console.error('CreateApplication response missing Result.Id:', response);
+        console.error(
+          'CreateApplication response missing Result.Id:',
+          response,
+        );
         return null;
       }
 
@@ -424,7 +454,7 @@ export class VolcengineProvider extends BaseProvider {
       this.secretKey,
       '',
       'ReleaseApplication',
-      body
+      body,
     );
 
     return response;
@@ -438,7 +468,11 @@ export class VolcengineProvider extends BaseProvider {
    * @param kwargs - Additional parameters
    * @returns Application ID or null
    */
-  async createApplication(name: string, gatewayName: string, ...kwargs: any[]): Promise<string | null> {
+  async createApplication(
+    name: string,
+    gatewayName: string,
+    ...kwargs: any[]
+  ): Promise<string | null> {
     if (!name) {
       throw new Error('name is required to create an application');
     }
@@ -446,7 +480,11 @@ export class VolcengineProvider extends BaseProvider {
       throw new Error('gateway_name is required to create an application');
     }
 
-    const applicationId = await this.createApplicationInternal(name, gatewayName, ...kwargs);
+    const applicationId = await this.createApplicationInternal(
+      name,
+      gatewayName,
+      ...kwargs,
+    );
     if (!applicationId) {
       return null;
     }
@@ -454,7 +492,10 @@ export class VolcengineProvider extends BaseProvider {
     try {
       await this.releaseApplication(applicationId, ...kwargs);
     } catch (error) {
-      console.error(`ReleaseApplication request failed for id ${applicationId}:`, error);
+      console.error(
+        `ReleaseApplication request failed for id ${applicationId}:`,
+        error,
+      );
     }
 
     return applicationId;
@@ -467,7 +508,10 @@ export class VolcengineProvider extends BaseProvider {
    * @param kwargs - Additional parameters
    * @returns Tuple of [isReady, functionId]
    */
-  async getApplicationReadiness(id: string, ...kwargs: any[]): Promise<[boolean, string | null]> {
+  async getApplicationReadiness(
+    id: string,
+    ...kwargs: any[]
+  ): Promise<[boolean, string | null]> {
     const body = JSON.stringify({ Id: id });
 
     try {
@@ -480,7 +524,7 @@ export class VolcengineProvider extends BaseProvider {
         this.secretKey,
         '',
         'GetApplication',
-        body
+        body,
       );
 
       if (typeof response !== 'object' || !response) {
@@ -510,7 +554,10 @@ export class VolcengineProvider extends BaseProvider {
             }
           }
         } catch (error) {
-          console.error(`Failed to decode CloudResource for application ${id}:`, error);
+          console.error(
+            `Failed to decode CloudResource for application ${id}:`,
+            error,
+          );
         }
       } else if (typeof cloudResourceRaw === 'object') {
         functionId = cloudResourceRaw.function_id;
