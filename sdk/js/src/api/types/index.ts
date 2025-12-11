@@ -112,6 +112,8 @@ export * from "./TextResourceContents.js";
 export * from "./Tool.js";
 export * from "./ToolAnnotations.js";
 export * from "./ToolCategory.js";
+export * from "./ToolExecution.js";
+export * from "./ToolExecutionTaskSupport.js";
 export * from "./ToolSpec.js";
 export * from "./TypingAction.js";
 export * from "./ValidationError.js";

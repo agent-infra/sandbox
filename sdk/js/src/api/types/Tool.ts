@@ -14,6 +14,7 @@ export interface Tool {
     icons?: Sandbox.Icon[];
     annotations?: Sandbox.ToolAnnotations;
     _meta?: Record<string, unknown>;
+    execution?: Sandbox.ToolExecution;
     /** Accepts any additional properties */
     [key: string]: any;
 }

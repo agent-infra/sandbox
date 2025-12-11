@@ -24,4 +24,6 @@ export interface StrReplaceEditorRequest {
     insert_line?: number;
     /** Optional parameter of `view` command when `path` points to a file. If none is given, the full file is shown. If provided, the file will be shown in the indicated line number range, e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines from `start_line` to the end of the file. */
     view_range?: number[];
+    /** Optional parameter of `str_replace` command. When specified, controls how multiple occurrences are handled: 'ALL' replaces all occurrences, 'FIRST' replaces only the first, 'LAST' replaces only the last. If not specified, requires unique match (original behavior). */
+    replace_mode?: Sandbox.StrReplaceEditorRequestReplaceMode;
 }
