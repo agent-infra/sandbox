@@ -47,20 +47,29 @@ export class VolcengineProvider extends BaseProvider {
    * Create a new sandbox instance using Volcengine VEFAAS.
    *
    * @param functionId - The function ID for the sandbox
-   * @param timeout - The timeout for the sandbox creation in minutes (default: 30)
+   * @param timeout - The timeout for the sandbox creation in seconds (default: 60)
    * @param kwargs - Additional parameters for sandbox creation
    * @returns The ID of the created sandbox or error
    */
   async createSandbox(
     functionId: string,
-    timeout: number = 30,
+    timeout: number = 60,
     ...kwargs: any[]
   ): Promise<any> {
     try {
+      const params = kwargs[0] || {};
       const body = JSON.stringify({
-        function_id: functionId,
-        timeout,
-        ...kwargs[0],
+        FunctionId: functionId,
+        Timeout: timeout,
+        Metadata: params.metadata,
+        InstanceTosMountConfig: params.instanceTosMountConfig,
+        Envs: params.envs,
+        InstanceImageInfo: params.instanceImageInfo,
+        CpuMilli: params.cpuMilli,
+        MemoryMB: params.memoryMB,
+        MaxConcurrency: params.maxConcurrency,
+        RequestTimeout: params.requestTimeout,
+        ...kwargs[0]
       });
 
       const response = await request(
@@ -96,9 +105,9 @@ export class VolcengineProvider extends BaseProvider {
   ): Promise<any> {
     try {
       const body = JSON.stringify({
-        function_id: functionId,
-        sandbox_id: sandboxId,
-        ...kwargs[0],
+        FunctionId: functionId,
+        SandboxId: sandboxId,
+        ...kwargs[0]
       });
 
       const response = await request(
@@ -165,9 +174,9 @@ export class VolcengineProvider extends BaseProvider {
   ): Promise<any> {
     try {
       const body = JSON.stringify({
-        function_id: functionId,
-        sandbox_id: sandboxId,
-        ...kwargs[0],
+        SandboxId: sandboxId,
+        FunctionId: functionId,
+        ...kwargs[0]
       });
 
       const response = await request(
@@ -182,12 +191,53 @@ export class VolcengineProvider extends BaseProvider {
         body,
       );
 
-      const baseDomains = await this.getApigDomains(functionId);
-      const domainsStruct = this.appendInstanceQueryStruct(
-        baseDomains,
-        sandboxId,
+      if (response?.Result) {
+        const baseDomains = await this.getApigDomains(functionId);
+        const domainsStruct = this.appendInstanceQueryStruct(
+          baseDomains,
+          sandboxId,
+        );
+        response.Result.domains = domainsStruct;
+      }
+
+      return response;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  /**
+   * Set the timeout for an existing sandbox instance.
+   *
+   * @param functionId - The function ID of the sandbox
+   * @param sandboxId - The ID of the sandbox to update
+   * @param timeout - The new timeout value in seconds
+   * @param kwargs - Additional parameters
+   * @returns The response containing the updated sandbox information
+   */
+  async setSandboxTimeout(
+    functionId: string,
+    sandboxId: string,
+    timeout: number,
+  ): Promise<any> {
+    try {
+      const body = JSON.stringify({
+        FunctionId: functionId,
+        SandboxId: sandboxId,
+        Timeout: timeout,
+      });
+
+      const response = await request(
+        'POST',
+        new Date(),
+        {},
+        {},
+        this.accessKey,
+        this.secretKey,
+        null,
+        'SetSandboxTimeout',
+        body,
       );
-      response.domains = domainsStruct;
 
       return response;
     } catch (error) {
@@ -204,9 +254,16 @@ export class VolcengineProvider extends BaseProvider {
    */
   async listSandboxes(functionId: string, ...kwargs: any[]): Promise<any> {
     try {
+      const params = kwargs[0] || {};
       const body = JSON.stringify({
-        function_id: functionId,
-        ...kwargs[0],
+        FunctionId: functionId,
+        SandboxId: params.sandboxId,
+        Metadata: params.metadata,
+        PageNumber: params.pageNumber || 1,
+        PageSize: params.pageSize || 10,
+        ImageUrl: params.imageUrl,
+        Status: params.status,
+        ...kwargs[0]
       });
 
       const response = await request(
@@ -221,21 +278,28 @@ export class VolcengineProvider extends BaseProvider {
         body,
       );
 
-      // Attach domains with instanceName query to each sandbox item
-      const baseDomains = await this.getApigDomains(functionId);
-      const sandboxes = response.sandboxes || [];
-      const normalized: any[] = [];
+      if (response?.Result) {
+        const baseDomains = await this.getApigDomains(functionId);
+        const sandboxes = response.Result.Sandboxes || [];
+        const normalized: any[] = [];
 
-      for (const sb of sandboxes) {
-        const instanceId = sb.id || sb.sandbox_id;
-        const domainsStruct = instanceId
-          ? this.appendInstanceQueryStruct(baseDomains, instanceId)
-          : baseDomains;
-        sb.domains = domainsStruct;
-        normalized.push(sb);
+        for (const sb of sandboxes) {
+          const instanceId = sb.Id || sb.SandboxId;
+          const domainsStruct = instanceId
+            ? this.appendInstanceQueryStruct(baseDomains, instanceId)
+            : baseDomains;
+          sb.domains = domainsStruct;
+          normalized.push(sb);
+        }
+
+        return {
+          sandboxes: normalized,
+          total: response.Result.Total,
+          statusCount: response.Result.StatusCount,
+        };
       }
 
-      return normalized;
+      return response;
     } catch (error) {
       return error;
     }
