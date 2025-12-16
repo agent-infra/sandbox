@@ -11,6 +11,7 @@ license = { text = "Apache-2.0" }
 authors = [
     { name = "zhengxi.zhou", email = "zhengxi.zhou@bytedance.com" },
     { name = "jinxin001", email = "jinxin001@bytedance.com" },
+    { name = "zhangjingtian.oana", email = "zhangjingtian.oana@bytedance.com" }
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
