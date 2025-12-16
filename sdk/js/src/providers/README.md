@@ -38,6 +38,9 @@ const sandboxes = await provider.listSandboxes('function-id');
 
 // Delete a sandbox
 await provider.deleteSandbox('function-id', sandboxId);
+
+// Set sandbox timeout
+await provider.setSandboxTimeout('function-id', sandboxId, 120);
 ```
 
 ### Application Management
@@ -110,13 +113,14 @@ Volcengine VEFAAS implementation of the BaseProvider.
 - `createApplication(name: string, gatewayName: string, ...kwargs: any[]): Promise<string | null>`
 - `getApplicationReadiness(id: string, ...kwargs: any[]): Promise<[boolean, string | null]>`
 - `getApigDomains(functionId: string): Promise<DomainInfo[]>`
+- `setSandboxTimeout(functionId: string, sandboxId: string, timeout: number): Promise<any>`
 
 ## Environment Variables
 
 For the Volcengine provider, you can also configure credentials using environment variables:
 
-- `VOLCENGINE_ACCESS_KEY` or `VOLC_ACCESSKEY`
-- `VOLCENGINE_SECRET_KEY` or `VOLC_SECRETKEY`
+- `VOLCENGINE_ACCESS_KEY`
+- `VOLCENGINE_SECRET_KEY`
 
 ## License
 
