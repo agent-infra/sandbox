@@ -7,24 +7,27 @@ describe('VolcengineProvider E2E Tests - Sandbox Operations', () => {
   let createdSandboxId: string;
 
   // Skip tests if required environment variables are not set
-  const hasRequiredEnvVars = 
-    process.env.VOLCENGINE_ACCESS_KEY && 
-    process.env.VOLCENGINE_SECRET_KEY && 
+  const hasRequiredEnvVars =
+    process.env.VOLCENGINE_ACCESS_KEY &&
+    process.env.VOLCENGINE_SECRET_KEY &&
     process.env.VOLCENGINE_TEST_FUNCTION_ID;
-  
+
   const describeE2E = hasRequiredEnvVars ? describe : describe.skip;
 
   beforeAll(() => {
     // Validate required environment variables
     if (hasRequiredEnvVars) {
-      if (!process.env.VOLCENGINE_ACCESS_KEY || !process.env.VOLCENGINE_SECRET_KEY) {
+      if (
+        !process.env.VOLCENGINE_ACCESS_KEY ||
+        !process.env.VOLCENGINE_SECRET_KEY
+      ) {
         throw new Error(
-          'VOLCENGINE_ACCESS_KEY and VOLCENGINE_SECRET_KEY environment variables are required for e2e tests'
+          'VOLCENGINE_ACCESS_KEY and VOLCENGINE_SECRET_KEY environment variables are required for e2e tests',
         );
       }
       if (!process.env.VOLCENGINE_TEST_FUNCTION_ID) {
         throw new Error(
-          'VOLCENGINE_TEST_FUNCTION_ID environment variable is required for e2e tests'
+          'VOLCENGINE_TEST_FUNCTION_ID environment variable is required for e2e tests',
         );
       }
     }
@@ -79,7 +82,11 @@ describe('VolcengineProvider E2E Tests - Sandbox Operations', () => {
         },
       };
 
-      const result = await provider.createSandbox(testFunctionId, 120, customConfig);
+      const result = await provider.createSandbox(
+        testFunctionId,
+        120,
+        customConfig,
+      );
 
       expect(result).toBeDefined();
       expect(result.Result).toBeDefined();
@@ -111,7 +118,10 @@ describe('VolcengineProvider E2E Tests - Sandbox Operations', () => {
         createdSandboxId = createResult.Result?.SandboxId;
       }
 
-      const result = await provider.getSandbox(testFunctionId, createdSandboxId);
+      const result = await provider.getSandbox(
+        testFunctionId,
+        createdSandboxId,
+      );
 
       expect(result).toBeDefined();
       expect(result.Result).toBeDefined();
@@ -119,6 +129,7 @@ describe('VolcengineProvider E2E Tests - Sandbox Operations', () => {
       expect(result.Result.Status).toBeDefined();
       expect(result.Result.domains).toBeDefined();
       expect(Array.isArray(result.Result.domains)).toBe(true);
+      expect(result.Result.domains.length > 0).toBe(true);
     });
 
     it('should handle non-existent sandbox gracefully', async () => {
@@ -189,7 +200,7 @@ describe('VolcengineProvider E2E Tests - Sandbox Operations', () => {
       const result = await provider.setSandboxTimeout(
         testFunctionId,
         createdSandboxId,
-        newTimeout
+        newTimeout,
       );
 
       expect(result).toBeDefined();
@@ -206,7 +217,7 @@ describe('VolcengineProvider E2E Tests - Sandbox Operations', () => {
       const result = await provider.setSandboxTimeout(
         testFunctionId,
         createdSandboxId,
-        invalidTimeout
+        invalidTimeout,
       );
 
       expect(result).toBeDefined();
@@ -226,7 +237,7 @@ describe('VolcengineProvider E2E Tests - Sandbox Operations', () => {
 
       const deleteResult = await provider.deleteSandbox(
         testFunctionId,
-        sandboxToDelete
+        sandboxToDelete,
       );
 
       expect(deleteResult).toBeDefined();
@@ -234,13 +245,19 @@ describe('VolcengineProvider E2E Tests - Sandbox Operations', () => {
       expect(deleteResult.ResponseMetadata.Error).toBeUndefined();
 
       // Verify deletion by trying to get the sandbox
-      const getResult = await provider.getSandbox(testFunctionId, sandboxToDelete);
+      const getResult = await provider.getSandbox(
+        testFunctionId,
+        sandboxToDelete,
+      );
       expect(getResult.ResponseMetadata?.Error).toBeDefined();
     });
 
     it('should handle deletion of non-existent sandbox', async () => {
       const nonExistentId = 'non-existent-sandbox-id';
-      const result = await provider.deleteSandbox(testFunctionId, nonExistentId);
+      const result = await provider.deleteSandbox(
+        testFunctionId,
+        nonExistentId,
+      );
 
       expect(result).toBeDefined();
       // API might return success even for non-existent resources

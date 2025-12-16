@@ -16,12 +16,31 @@
 
 import * as crypto from 'crypto';
 
-// Service parameters
-const Service = 'vefaas';
-const Version = '2024-06-06';
-const Region = 'cn-beijing';
-const Host = 'iam.volcengineapi.com';
+// Default service parameters
+const DEFAULT_SERVICE = 'vefaas';
+const DEFAULT_VERSION = '2024-06-06';
+const DEFAULT_REGION = 'cn-beijing';
+const Host = 'open.volcengineapi.com';
 const ContentType = 'application/x-www-form-urlencoded';
+
+// API action configuration map
+interface ActionConfig {
+  service: string;
+  version: string;
+  contentType?: string;
+}
+
+const ACTION_CONFIG_MAP = new Map<string, ActionConfig>([
+  // VEFAAS actions (Service=vefaas, Version=2024-06-06)
+  ['CreateSandbox', { service: 'vefaas', version: '2024-06-06' }],
+  ['KillSandbox', { service: 'vefaas', version: '2024-06-06' }],
+  ['DescribeSandbox', { service: 'vefaas', version: '2024-06-06' }],
+  ['SetSandboxTimeout', { service: 'vefaas', version: '2024-06-06' }],
+  ['ListSandboxes', { service: 'vefaas', version: '2024-06-06' }],
+  ['ListTriggers', { service: 'vefaas', version: '2024-06-06' }],
+  // APIG actions (Service=apig, Version=22022-11-12)
+  ['ListRoutes', { service: 'apig', version: '2022-11-12' }],
+]);
 
 /**
  * Normalize query parameters for signing
@@ -101,44 +120,31 @@ export async function request(
   region?: string,
   version?: string,
 ): Promise<any> {
+  // Get action configuration from map or use defaults
+  const actionConfig = ACTION_CONFIG_MAP.get(action) || {
+    service: DEFAULT_SERVICE,
+    version: DEFAULT_VERSION,
+  };
+
   // Initialize credential
   const credential: Credential = {
     access_key_id: ak,
     secret_access_key: sk,
-    service: Service,
-    region: region || Region,
+    service: actionConfig.service,
+    region: region || DEFAULT_REGION,
   };
 
   if (token) {
     credential.session_token = token;
   }
 
-  // Adjust service for specific actions
-  const vefaasActions = [
-    'CodeUploadCallback',
-    'CreateDependencyInstallTask',
-    'GetDependencyInstallTaskStatus',
-    'GetDependencyInstallTaskLogDownloadURI',
-    'ListTriggers',
-    'CreateApplication',
-    'ReleaseApplication',
-    'GetApplication',
-  ];
-
-  if (vefaasActions.includes(action)) {
-    credential.service = 'vefaas';
-  }
-
-  let contentType = ContentType;
-  let apiVersion = version || Version;
-
+  // Determine content type
+  let contentType = actionConfig.contentType || ContentType;
   if (method === 'POST') {
     contentType = 'application/json';
   }
 
-  if (!version && (action === 'CreateRoute' || action === 'ListRoutes')) {
-    apiVersion = '2022-11-12';
-  }
+  const apiVersion = version || actionConfig.version;
 
   // Initialize request parameters
   const requestParam: RequestParam = {
