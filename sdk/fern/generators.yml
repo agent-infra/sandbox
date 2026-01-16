@@ -42,6 +42,7 @@ groups:
         version: 1.12.4
         output:
           location: local-file-system
-          path: ./sdk-go
+          path: ../../sandbox-sdk-go
         config:
-          module: github.com/agent-infra/sandbox-sdk-go
+          module:
+            path: github.com/agent-infra/sandbox-sdk-go
