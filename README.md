@@ -326,7 +326,13 @@ metadata:
   name: aio-sandbox
 spec:
   replicas: 2
+  selector:
+    matchLabels:
+      app: aio-sandbox
   template:
+    metadata:
+      labels:
+        app: aio-sandbox
     spec:
       containers:
       - name: aio-sandbox
