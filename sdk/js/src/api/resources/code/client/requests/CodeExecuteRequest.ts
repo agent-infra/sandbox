@@ -16,4 +16,6 @@ export interface CodeExecuteRequest {
     code: string;
     /** Execution timeout in seconds */
     timeout?: number;
+    /** Current working directory for code execution */
+    cwd?: string;
 }

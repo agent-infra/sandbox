@@ -20,4 +20,6 @@ export interface CodeExecuteResponse {
     stderr?: string;
     /** Process exit code when applicable */
     exit_code?: number;
+    /** Captured error traceback lines when available */
+    traceback?: string[];
 }

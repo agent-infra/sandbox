@@ -9,4 +9,8 @@ export interface ShellCreateSessionRequest {
     id?: string;
     /** Working directory for the new session (must use absolute path) */
     exec_dir?: string;
+    /** Timeout (seconds) for detecting no new output from commands in this session. Default is 120 seconds. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status. */
+    no_change_timeout?: number;
+    /** If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility. */
+    preserve_symlinks?: boolean;
 }

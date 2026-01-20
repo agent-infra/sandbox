@@ -512,6 +512,85 @@ export class Shell {
     }
 
     /**
+     * Update shell session configuration (e.g., no_change_timeout)
+     *
+     * @param {Sandbox.ShellUpdateSessionRequest} request
+     * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.shell.updateSession({
+     *         id: "id"
+     *     })
+     */
+    public updateSession(
+        request: Sandbox.ShellUpdateSessionRequest,
+        requestOptions?: Shell.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.shell.updateSession.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__updateSession(request, requestOptions));
+    }
+
+    private async __updateSession(
+        request: Sandbox.ShellUpdateSessionRequest,
+        requestOptions?: Shell.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.shell.updateSession.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/shell/sessions/update",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.shell.updateSession.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.updateSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
      * Create a new shell session and return the terminal URL
      *
      * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.

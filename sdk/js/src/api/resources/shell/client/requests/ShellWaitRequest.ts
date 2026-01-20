@@ -11,4 +11,6 @@ export interface ShellWaitRequest {
     id: string;
     /** Wait time (seconds) */
     seconds?: number;
+    /** Maximum wait time (seconds) for the command to complete */
+    max_wait_seconds?: number;
 }

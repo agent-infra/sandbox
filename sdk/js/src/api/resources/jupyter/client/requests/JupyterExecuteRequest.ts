@@ -15,4 +15,6 @@ export interface JupyterExecuteRequest {
     kernel_name?: string;
     /** Session ID to maintain kernel state across requests */
     session_id?: string;
+    /** Current working directory for the kernel */
+    cwd?: string;
 }

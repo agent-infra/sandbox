@@ -17,4 +17,10 @@ export interface ShellExecRequest {
     async_mode?: boolean;
     /** Maximum time (seconds) to wait for command completion before returning running status */
     timeout?: number;
+    /** Strict mode for working directory validation. If True, returns error when working directory does not exist. If False or None, silently falls back to session working directory. */
+    strict?: boolean;
+    /** Timeout (seconds) for detecting no new output from a command. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status. Overrides session-level setting for this command only. */
+    no_change_timeout?: number;
+    /** If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility. */
+    preserve_symlinks?: boolean;
 }
