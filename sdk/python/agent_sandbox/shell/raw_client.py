@@ -37,6 +37,9 @@ class RawShellClient:
         exec_dir: typing.Optional[str] = OMIT,
         async_mode: typing.Optional[bool] = OMIT,
         timeout: typing.Optional[float] = OMIT,
+        strict: typing.Optional[bool] = OMIT,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        preserve_symlinks: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseShellCommandResult]:
         """
@@ -60,6 +63,15 @@ class RawShellClient:
         timeout : typing.Optional[float]
             Maximum time (seconds) to wait for command completion before returning running status
 
+        strict : typing.Optional[bool]
+            Strict mode for working directory validation. If True, returns error when working directory does not exist. If False or None, silently falls back to session working directory.
+
+        no_change_timeout : typing.Optional[int]
+            Timeout (seconds) for detecting no new output from a command. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status. Overrides session-level setting for this command only.
+
+        preserve_symlinks : typing.Optional[bool]
+            If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -77,6 +89,9 @@ class RawShellClient:
                 "command": command,
                 "async_mode": async_mode,
                 "timeout": timeout,
+                "strict": strict,
+                "no_change_timeout": no_change_timeout,
+                "preserve_symlinks": preserve_symlinks,
             },
             headers={
                 "content-type": "application/json",
@@ -169,7 +184,12 @@ class RawShellClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def wait_for_process(
-        self, *, id: str, seconds: typing.Optional[int] = OMIT, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        id: str,
+        seconds: typing.Optional[int] = OMIT,
+        max_wait_seconds: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseShellWaitResult]:
         """
         Wait for the process in the specified shell session to return
@@ -181,6 +201,9 @@ class RawShellClient:
 
         seconds : typing.Optional[int]
             Wait time (seconds)
+
+        max_wait_seconds : typing.Optional[int]
+            Maximum wait time (seconds) for the command to complete
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -196,6 +219,7 @@ class RawShellClient:
             json={
                 "id": id,
                 "seconds": seconds,
+                "max_wait_seconds": max_wait_seconds,
             },
             headers={
                 "content-type": "application/json",
@@ -356,6 +380,8 @@ class RawShellClient:
         *,
         id: typing.Optional[str] = OMIT,
         exec_dir: typing.Optional[str] = OMIT,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        preserve_symlinks: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseShellCreateSessionResponse]:
         """
@@ -369,6 +395,12 @@ class RawShellClient:
 
         exec_dir : typing.Optional[str]
             Working directory for the new session (must use absolute path)
+
+        no_change_timeout : typing.Optional[int]
+            Timeout (seconds) for detecting no new output from commands in this session. Default is 120 seconds. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status.
+
+        preserve_symlinks : typing.Optional[bool]
+            If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -384,6 +416,8 @@ class RawShellClient:
             json={
                 "id": id,
                 "exec_dir": exec_dir,
+                "no_change_timeout": no_change_timeout,
+                "preserve_symlinks": preserve_symlinks,
             },
             headers={
                 "content-type": "application/json",
@@ -397,6 +431,71 @@ class RawShellClient:
                     ResponseShellCreateSessionResponse,
                     parse_obj_as(
                         type_=ResponseShellCreateSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def update_session(
+        self,
+        *,
+        id: str,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[Response]:
+        """
+        Update shell session configuration (e.g., no_change_timeout)
+
+        Parameters
+        ----------
+        id : str
+            Unique identifier of the target shell session
+
+        no_change_timeout : typing.Optional[int]
+            New timeout (seconds) for detecting no new output from commands. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[Response]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/shell/sessions/update",
+            method="POST",
+            json={
+                "id": id,
+                "no_change_timeout": no_change_timeout,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Response,
+                    parse_obj_as(
+                        type_=Response,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -585,6 +684,9 @@ class AsyncRawShellClient:
         exec_dir: typing.Optional[str] = OMIT,
         async_mode: typing.Optional[bool] = OMIT,
         timeout: typing.Optional[float] = OMIT,
+        strict: typing.Optional[bool] = OMIT,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        preserve_symlinks: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseShellCommandResult]:
         """
@@ -608,6 +710,15 @@ class AsyncRawShellClient:
         timeout : typing.Optional[float]
             Maximum time (seconds) to wait for command completion before returning running status
 
+        strict : typing.Optional[bool]
+            Strict mode for working directory validation. If True, returns error when working directory does not exist. If False or None, silently falls back to session working directory.
+
+        no_change_timeout : typing.Optional[int]
+            Timeout (seconds) for detecting no new output from a command. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status. Overrides session-level setting for this command only.
+
+        preserve_symlinks : typing.Optional[bool]
+            If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -625,6 +736,9 @@ class AsyncRawShellClient:
                 "command": command,
                 "async_mode": async_mode,
                 "timeout": timeout,
+                "strict": strict,
+                "no_change_timeout": no_change_timeout,
+                "preserve_symlinks": preserve_symlinks,
             },
             headers={
                 "content-type": "application/json",
@@ -717,7 +831,12 @@ class AsyncRawShellClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def wait_for_process(
-        self, *, id: str, seconds: typing.Optional[int] = OMIT, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        id: str,
+        seconds: typing.Optional[int] = OMIT,
+        max_wait_seconds: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseShellWaitResult]:
         """
         Wait for the process in the specified shell session to return
@@ -729,6 +848,9 @@ class AsyncRawShellClient:
 
         seconds : typing.Optional[int]
             Wait time (seconds)
+
+        max_wait_seconds : typing.Optional[int]
+            Maximum wait time (seconds) for the command to complete
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -744,6 +866,7 @@ class AsyncRawShellClient:
             json={
                 "id": id,
                 "seconds": seconds,
+                "max_wait_seconds": max_wait_seconds,
             },
             headers={
                 "content-type": "application/json",
@@ -904,6 +1027,8 @@ class AsyncRawShellClient:
         *,
         id: typing.Optional[str] = OMIT,
         exec_dir: typing.Optional[str] = OMIT,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        preserve_symlinks: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseShellCreateSessionResponse]:
         """
@@ -917,6 +1042,12 @@ class AsyncRawShellClient:
 
         exec_dir : typing.Optional[str]
             Working directory for the new session (must use absolute path)
+
+        no_change_timeout : typing.Optional[int]
+            Timeout (seconds) for detecting no new output from commands in this session. Default is 120 seconds. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status.
+
+        preserve_symlinks : typing.Optional[bool]
+            If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -932,6 +1063,8 @@ class AsyncRawShellClient:
             json={
                 "id": id,
                 "exec_dir": exec_dir,
+                "no_change_timeout": no_change_timeout,
+                "preserve_symlinks": preserve_symlinks,
             },
             headers={
                 "content-type": "application/json",
@@ -945,6 +1078,71 @@ class AsyncRawShellClient:
                     ResponseShellCreateSessionResponse,
                     parse_obj_as(
                         type_=ResponseShellCreateSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def update_session(
+        self,
+        *,
+        id: str,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[Response]:
+        """
+        Update shell session configuration (e.g., no_change_timeout)
+
+        Parameters
+        ----------
+        id : str
+            Unique identifier of the target shell session
+
+        no_change_timeout : typing.Optional[int]
+            New timeout (seconds) for detecting no new output from commands. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[Response]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/shell/sessions/update",
+            method="POST",
+            json={
+                "id": id,
+                "no_change_timeout": no_change_timeout,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Response,
+                    parse_obj_as(
+                        type_=Response,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

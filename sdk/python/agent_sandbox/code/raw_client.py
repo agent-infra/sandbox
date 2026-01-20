@@ -28,6 +28,7 @@ class RawCodeClient:
         language: Language,
         code: str,
         timeout: typing.Optional[int] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseCodeExecuteResponse]:
         """
@@ -44,6 +45,9 @@ class RawCodeClient:
         timeout : typing.Optional[int]
             Execution timeout in seconds
 
+        cwd : typing.Optional[str]
+            Current working directory for code execution
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -59,6 +63,7 @@ class RawCodeClient:
                 "language": language,
                 "code": code,
                 "timeout": timeout,
+                "cwd": cwd,
             },
             headers={
                 "content-type": "application/json",
@@ -139,6 +144,7 @@ class AsyncRawCodeClient:
         language: Language,
         code: str,
         timeout: typing.Optional[int] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseCodeExecuteResponse]:
         """
@@ -155,6 +161,9 @@ class AsyncRawCodeClient:
         timeout : typing.Optional[int]
             Execution timeout in seconds
 
+        cwd : typing.Optional[str]
+            Current working directory for code execution
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -170,6 +179,7 @@ class AsyncRawCodeClient:
                 "language": language,
                 "code": code,
                 "timeout": timeout,
+                "cwd": cwd,
             },
             headers={
                 "content-type": "application/json",

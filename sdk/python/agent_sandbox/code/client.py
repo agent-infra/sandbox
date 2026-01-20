@@ -34,6 +34,7 @@ class CodeClient:
         language: Language,
         code: str,
         timeout: typing.Optional[int] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseCodeExecuteResponse:
         """
@@ -49,6 +50,9 @@ class CodeClient:
 
         timeout : typing.Optional[int]
             Execution timeout in seconds
+
+        cwd : typing.Optional[str]
+            Current working directory for code execution
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -71,7 +75,7 @@ class CodeClient:
         )
         """
         _response = self._raw_client.execute_code(
-            language=language, code=code, timeout=timeout, request_options=request_options
+            language=language, code=code, timeout=timeout, cwd=cwd, request_options=request_options
         )
         return _response.data
 
@@ -123,6 +127,7 @@ class AsyncCodeClient:
         language: Language,
         code: str,
         timeout: typing.Optional[int] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseCodeExecuteResponse:
         """
@@ -138,6 +143,9 @@ class AsyncCodeClient:
 
         timeout : typing.Optional[int]
             Execution timeout in seconds
+
+        cwd : typing.Optional[str]
+            Current working directory for code execution
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -168,7 +176,7 @@ class AsyncCodeClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.execute_code(
-            language=language, code=code, timeout=timeout, request_options=request_options
+            language=language, code=code, timeout=timeout, cwd=cwd, request_options=request_options
         )
         return _response.data
 

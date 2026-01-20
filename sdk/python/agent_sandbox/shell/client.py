@@ -42,6 +42,9 @@ class ShellClient:
         exec_dir: typing.Optional[str] = OMIT,
         async_mode: typing.Optional[bool] = OMIT,
         timeout: typing.Optional[float] = OMIT,
+        strict: typing.Optional[bool] = OMIT,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        preserve_symlinks: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellCommandResult:
         """
@@ -64,6 +67,15 @@ class ShellClient:
 
         timeout : typing.Optional[float]
             Maximum time (seconds) to wait for command completion before returning running status
+
+        strict : typing.Optional[bool]
+            Strict mode for working directory validation. If True, returns error when working directory does not exist. If False or None, silently falls back to session working directory.
+
+        no_change_timeout : typing.Optional[int]
+            Timeout (seconds) for detecting no new output from a command. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status. Overrides session-level setting for this command only.
+
+        preserve_symlinks : typing.Optional[bool]
+            If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -90,6 +102,9 @@ class ShellClient:
             exec_dir=exec_dir,
             async_mode=async_mode,
             timeout=timeout,
+            strict=strict,
+            no_change_timeout=no_change_timeout,
+            preserve_symlinks=preserve_symlinks,
             request_options=request_options,
         )
         return _response.data
@@ -127,7 +142,12 @@ class ShellClient:
         return _response.data
 
     def wait_for_process(
-        self, *, id: str, seconds: typing.Optional[int] = OMIT, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        id: str,
+        seconds: typing.Optional[int] = OMIT,
+        max_wait_seconds: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellWaitResult:
         """
         Wait for the process in the specified shell session to return
@@ -139,6 +159,9 @@ class ShellClient:
 
         seconds : typing.Optional[int]
             Wait time (seconds)
+
+        max_wait_seconds : typing.Optional[int]
+            Maximum wait time (seconds) for the command to complete
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -159,7 +182,9 @@ class ShellClient:
             id="id",
         )
         """
-        _response = self._raw_client.wait_for_process(id=id, seconds=seconds, request_options=request_options)
+        _response = self._raw_client.wait_for_process(
+            id=id, seconds=seconds, max_wait_seconds=max_wait_seconds, request_options=request_options
+        )
         return _response.data
 
     def write_to_process(
@@ -243,6 +268,8 @@ class ShellClient:
         *,
         id: typing.Optional[str] = OMIT,
         exec_dir: typing.Optional[str] = OMIT,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        preserve_symlinks: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellCreateSessionResponse:
         """
@@ -256,6 +283,12 @@ class ShellClient:
 
         exec_dir : typing.Optional[str]
             Working directory for the new session (must use absolute path)
+
+        no_change_timeout : typing.Optional[int]
+            Timeout (seconds) for detecting no new output from commands in this session. Default is 120 seconds. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status.
+
+        preserve_symlinks : typing.Optional[bool]
+            If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -274,7 +307,55 @@ class ShellClient:
         )
         client.shell.create_session()
         """
-        _response = self._raw_client.create_session(id=id, exec_dir=exec_dir, request_options=request_options)
+        _response = self._raw_client.create_session(
+            id=id,
+            exec_dir=exec_dir,
+            no_change_timeout=no_change_timeout,
+            preserve_symlinks=preserve_symlinks,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def update_session(
+        self,
+        *,
+        id: str,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Response:
+        """
+        Update shell session configuration (e.g., no_change_timeout)
+
+        Parameters
+        ----------
+        id : str
+            Unique identifier of the target shell session
+
+        no_change_timeout : typing.Optional[int]
+            New timeout (seconds) for detecting no new output from commands. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.shell.update_session(
+            id="id",
+        )
+        """
+        _response = self._raw_client.update_session(
+            id=id, no_change_timeout=no_change_timeout, request_options=request_options
+        )
         return _response.data
 
     def get_terminal_url(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseStr:
@@ -411,6 +492,9 @@ class AsyncShellClient:
         exec_dir: typing.Optional[str] = OMIT,
         async_mode: typing.Optional[bool] = OMIT,
         timeout: typing.Optional[float] = OMIT,
+        strict: typing.Optional[bool] = OMIT,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        preserve_symlinks: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellCommandResult:
         """
@@ -433,6 +517,15 @@ class AsyncShellClient:
 
         timeout : typing.Optional[float]
             Maximum time (seconds) to wait for command completion before returning running status
+
+        strict : typing.Optional[bool]
+            Strict mode for working directory validation. If True, returns error when working directory does not exist. If False or None, silently falls back to session working directory.
+
+        no_change_timeout : typing.Optional[int]
+            Timeout (seconds) for detecting no new output from a command. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status. Overrides session-level setting for this command only.
+
+        preserve_symlinks : typing.Optional[bool]
+            If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -467,6 +560,9 @@ class AsyncShellClient:
             exec_dir=exec_dir,
             async_mode=async_mode,
             timeout=timeout,
+            strict=strict,
+            no_change_timeout=no_change_timeout,
+            preserve_symlinks=preserve_symlinks,
             request_options=request_options,
         )
         return _response.data
@@ -514,7 +610,12 @@ class AsyncShellClient:
         return _response.data
 
     async def wait_for_process(
-        self, *, id: str, seconds: typing.Optional[int] = OMIT, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        id: str,
+        seconds: typing.Optional[int] = OMIT,
+        max_wait_seconds: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellWaitResult:
         """
         Wait for the process in the specified shell session to return
@@ -526,6 +627,9 @@ class AsyncShellClient:
 
         seconds : typing.Optional[int]
             Wait time (seconds)
+
+        max_wait_seconds : typing.Optional[int]
+            Maximum wait time (seconds) for the command to complete
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -554,7 +658,9 @@ class AsyncShellClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.wait_for_process(id=id, seconds=seconds, request_options=request_options)
+        _response = await self._raw_client.wait_for_process(
+            id=id, seconds=seconds, max_wait_seconds=max_wait_seconds, request_options=request_options
+        )
         return _response.data
 
     async def write_to_process(
@@ -654,6 +760,8 @@ class AsyncShellClient:
         *,
         id: typing.Optional[str] = OMIT,
         exec_dir: typing.Optional[str] = OMIT,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        preserve_symlinks: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellCreateSessionResponse:
         """
@@ -667,6 +775,12 @@ class AsyncShellClient:
 
         exec_dir : typing.Optional[str]
             Working directory for the new session (must use absolute path)
+
+        no_change_timeout : typing.Optional[int]
+            Timeout (seconds) for detecting no new output from commands in this session. Default is 120 seconds. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status.
+
+        preserve_symlinks : typing.Optional[bool]
+            If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -693,7 +807,63 @@ class AsyncShellClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.create_session(id=id, exec_dir=exec_dir, request_options=request_options)
+        _response = await self._raw_client.create_session(
+            id=id,
+            exec_dir=exec_dir,
+            no_change_timeout=no_change_timeout,
+            preserve_symlinks=preserve_symlinks,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def update_session(
+        self,
+        *,
+        id: str,
+        no_change_timeout: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Response:
+        """
+        Update shell session configuration (e.g., no_change_timeout)
+
+        Parameters
+        ----------
+        id : str
+            Unique identifier of the target shell session
+
+        no_change_timeout : typing.Optional[int]
+            New timeout (seconds) for detecting no new output from commands. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.shell.update_session(
+                id="id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.update_session(
+            id=id, no_change_timeout=no_change_timeout, request_options=request_options
+        )
         return _response.data
 
     async def get_terminal_url(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseStr:

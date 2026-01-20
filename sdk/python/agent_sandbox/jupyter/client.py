@@ -37,6 +37,7 @@ class JupyterClient:
         timeout: typing.Optional[int] = OMIT,
         kernel_name: typing.Optional[str] = OMIT,
         session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseJupyterExecuteResponse:
         """
@@ -61,6 +62,9 @@ class JupyterClient:
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
 
+        cwd : typing.Optional[str]
+            Current working directory for the kernel
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -81,7 +85,12 @@ class JupyterClient:
         )
         """
         _response = self._raw_client.execute_code(
-            code=code, timeout=timeout, kernel_name=kernel_name, session_id=session_id, request_options=request_options
+            code=code,
+            timeout=timeout,
+            kernel_name=kernel_name,
+            session_id=session_id,
+            cwd=cwd,
+            request_options=request_options,
         )
         return _response.data
 
@@ -198,6 +207,7 @@ class JupyterClient:
         *,
         session_id: typing.Optional[str] = OMIT,
         kernel_name: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseJupyterCreateSessionResponse:
         """
@@ -210,6 +220,9 @@ class JupyterClient:
 
         kernel_name : typing.Optional[str]
             Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+
+        cwd : typing.Optional[str]
+            Current working directory for the session
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -229,7 +242,7 @@ class JupyterClient:
         client.jupyter.create_session()
         """
         _response = self._raw_client.create_session(
-            session_id=session_id, kernel_name=kernel_name, request_options=request_options
+            session_id=session_id, kernel_name=kernel_name, cwd=cwd, request_options=request_options
         )
         return _response.data
 
@@ -256,6 +269,7 @@ class AsyncJupyterClient:
         timeout: typing.Optional[int] = OMIT,
         kernel_name: typing.Optional[str] = OMIT,
         session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseJupyterExecuteResponse:
         """
@@ -279,6 +293,9 @@ class AsyncJupyterClient:
 
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
+
+        cwd : typing.Optional[str]
+            Current working directory for the kernel
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -308,7 +325,12 @@ class AsyncJupyterClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.execute_code(
-            code=code, timeout=timeout, kernel_name=kernel_name, session_id=session_id, request_options=request_options
+            code=code,
+            timeout=timeout,
+            kernel_name=kernel_name,
+            session_id=session_id,
+            cwd=cwd,
+            request_options=request_options,
         )
         return _response.data
 
@@ -461,6 +483,7 @@ class AsyncJupyterClient:
         *,
         session_id: typing.Optional[str] = OMIT,
         kernel_name: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseJupyterCreateSessionResponse:
         """
@@ -473,6 +496,9 @@ class AsyncJupyterClient:
 
         kernel_name : typing.Optional[str]
             Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+
+        cwd : typing.Optional[str]
+            Current working directory for the session
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -500,6 +526,6 @@ class AsyncJupyterClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.create_session(
-            session_id=session_id, kernel_name=kernel_name, request_options=request_options
+            session_id=session_id, kernel_name=kernel_name, cwd=cwd, request_options=request_options
         )
         return _response.data

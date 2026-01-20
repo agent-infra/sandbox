@@ -32,6 +32,7 @@ class RawJupyterClient:
         timeout: typing.Optional[int] = OMIT,
         kernel_name: typing.Optional[str] = OMIT,
         session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseJupyterExecuteResponse]:
         """
@@ -56,6 +57,9 @@ class RawJupyterClient:
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
 
+        cwd : typing.Optional[str]
+            Current working directory for the kernel
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -72,6 +76,7 @@ class RawJupyterClient:
                 "timeout": timeout,
                 "kernel_name": kernel_name,
                 "session_id": session_id,
+                "cwd": cwd,
             },
             headers={
                 "content-type": "application/json",
@@ -265,6 +270,7 @@ class RawJupyterClient:
         *,
         session_id: typing.Optional[str] = OMIT,
         kernel_name: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseJupyterCreateSessionResponse]:
         """
@@ -277,6 +283,9 @@ class RawJupyterClient:
 
         kernel_name : typing.Optional[str]
             Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+
+        cwd : typing.Optional[str]
+            Current working directory for the session
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -292,6 +301,7 @@ class RawJupyterClient:
             json={
                 "session_id": session_id,
                 "kernel_name": kernel_name,
+                "cwd": cwd,
             },
             headers={
                 "content-type": "application/json",
@@ -337,6 +347,7 @@ class AsyncRawJupyterClient:
         timeout: typing.Optional[int] = OMIT,
         kernel_name: typing.Optional[str] = OMIT,
         session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseJupyterExecuteResponse]:
         """
@@ -361,6 +372,9 @@ class AsyncRawJupyterClient:
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
 
+        cwd : typing.Optional[str]
+            Current working directory for the kernel
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -377,6 +391,7 @@ class AsyncRawJupyterClient:
                 "timeout": timeout,
                 "kernel_name": kernel_name,
                 "session_id": session_id,
+                "cwd": cwd,
             },
             headers={
                 "content-type": "application/json",
@@ -572,6 +587,7 @@ class AsyncRawJupyterClient:
         *,
         session_id: typing.Optional[str] = OMIT,
         kernel_name: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseJupyterCreateSessionResponse]:
         """
@@ -584,6 +600,9 @@ class AsyncRawJupyterClient:
 
         kernel_name : typing.Optional[str]
             Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+
+        cwd : typing.Optional[str]
+            Current working directory for the session
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -599,6 +618,7 @@ class AsyncRawJupyterClient:
             json={
                 "session_id": session_id,
                 "kernel_name": kernel_name,
+                "cwd": cwd,
             },
             headers={
                 "content-type": "application/json",
