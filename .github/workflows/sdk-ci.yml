@@ -12,6 +12,9 @@ on:
       - 'sdk/js/**'
       - '.github/workflows/sdk-ci.yml'
 
+permissions:
+  contents: read
+
 jobs:
   js-sdk:
     name: JS SDK
