@@ -52,6 +52,11 @@ class CodeExecuteResponse(UniversalBaseModel):
     Captured error traceback lines when available
     """
 
+    session_id: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Session ID for stateful execution (only present when stateful=True)
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

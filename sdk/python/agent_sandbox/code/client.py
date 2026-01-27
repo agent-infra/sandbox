@@ -35,6 +35,8 @@ class CodeClient:
         code: str,
         timeout: typing.Optional[int] = OMIT,
         cwd: typing.Optional[str] = OMIT,
+        stateful: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseCodeExecuteResponse:
         """
@@ -53,6 +55,12 @@ class CodeClient:
 
         cwd : typing.Optional[str]
             Current working directory for code execution
+
+        stateful : typing.Optional[bool]
+            Enable stateful execution using Jupyter kernel. When True, variables and state persist across requests with the same session_id.
+
+        session_id : typing.Optional[str]
+            Session ID for stateful execution. Required when stateful=True to maintain state across requests. Auto-generated if not provided.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -75,7 +83,13 @@ class CodeClient:
         )
         """
         _response = self._raw_client.execute_code(
-            language=language, code=code, timeout=timeout, cwd=cwd, request_options=request_options
+            language=language,
+            code=code,
+            timeout=timeout,
+            cwd=cwd,
+            stateful=stateful,
+            session_id=session_id,
+            request_options=request_options,
         )
         return _response.data
 
@@ -128,6 +142,8 @@ class AsyncCodeClient:
         code: str,
         timeout: typing.Optional[int] = OMIT,
         cwd: typing.Optional[str] = OMIT,
+        stateful: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseCodeExecuteResponse:
         """
@@ -146,6 +162,12 @@ class AsyncCodeClient:
 
         cwd : typing.Optional[str]
             Current working directory for code execution
+
+        stateful : typing.Optional[bool]
+            Enable stateful execution using Jupyter kernel. When True, variables and state persist across requests with the same session_id.
+
+        session_id : typing.Optional[str]
+            Session ID for stateful execution. Required when stateful=True to maintain state across requests. Auto-generated if not provided.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -176,7 +198,13 @@ class AsyncCodeClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.execute_code(
-            language=language, code=code, timeout=timeout, cwd=cwd, request_options=request_options
+            language=language,
+            code=code,
+            timeout=timeout,
+            cwd=cwd,
+            stateful=stateful,
+            session_id=session_id,
+            request_options=request_options,
         )
         return _response.data
 

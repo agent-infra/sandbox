@@ -4,21 +4,15 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .action_data import ActionData
 
 
-class ActionResponse(UniversalBaseModel):
+class ActionData(UniversalBaseModel):
     """
-    Response model for browser actions.
-
-    Provides backward compatibility:
-    - Old format: resp.json()['status'], resp.json()['action_performed']
-    - New format: resp.json()['data']['status'], resp.json()['data']['action_performed']
+    Inner data for action response.
     """
 
     status: typing.Literal["success"] = "success"
     action_performed: str
-    data: typing.Optional[ActionData] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

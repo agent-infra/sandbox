@@ -15,4 +15,10 @@ export interface NodeJsExecuteRequest {
     stdin?: string;
     /** Additional files to create in execution directory */
     files?: Record<string, string | undefined>;
+    /** Enable stateful execution with persistent REPL session */
+    stateful?: boolean;
+    /** Session ID for stateful execution (reuse existing session) */
+    session_id?: string;
+    /** Working directory for code execution */
+    cwd?: string;
 }

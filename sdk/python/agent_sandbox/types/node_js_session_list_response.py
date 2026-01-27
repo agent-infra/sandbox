@@ -4,21 +4,14 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .action_data import ActionData
+from .node_js_session_info import NodeJsSessionInfo
 
 
-class ActionResponse(UniversalBaseModel):
+class NodeJsSessionListResponse(UniversalBaseModel):
+    sessions: typing.Optional[typing.Dict[str, NodeJsSessionInfo]] = pydantic.Field(default=None)
     """
-    Response model for browser actions.
-
-    Provides backward compatibility:
-    - Old format: resp.json()['status'], resp.json()['action_performed']
-    - New format: resp.json()['data']['status'], resp.json()['data']['action_performed']
+    Map of session ID to session info
     """
-
-    status: typing.Literal["success"] = "success"
-    action_performed: str
-    data: typing.Optional[ActionData] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

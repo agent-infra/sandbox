@@ -4,27 +4,21 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .bash_command_status import BashCommandStatus
 
 
-class ShellKillResult(UniversalBaseModel):
+class NodeJsPackageInfo(UniversalBaseModel):
     """
-    Process termination result model
-    """
-
-    status: BashCommandStatus = pydantic.Field()
-    """
-    Process status
+    Package information
     """
 
-    exit_code: typing.Optional[int] = pydantic.Field(default=None)
+    name: str = pydantic.Field()
     """
-    Process exit code before termination, None if process was still running
+    Package name
     """
 
-    returncode: typing.Optional[int] = pydantic.Field(default=None)
+    version: str = pydantic.Field()
     """
-    Deprecated: use exit_code instead. Kept for backward compatibility.
+    Package version
     """
 
     if IS_PYDANTIC_V2:

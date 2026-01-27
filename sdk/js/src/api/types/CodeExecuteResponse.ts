@@ -22,4 +22,6 @@ export interface CodeExecuteResponse {
     exit_code?: number;
     /** Captured error traceback lines when available */
     traceback?: string[];
+    /** Session ID for stateful execution (only present when stateful=True) */
+    session_id?: string;
 }

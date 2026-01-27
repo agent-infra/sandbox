@@ -29,6 +29,8 @@ class RawCodeClient:
         code: str,
         timeout: typing.Optional[int] = OMIT,
         cwd: typing.Optional[str] = OMIT,
+        stateful: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseCodeExecuteResponse]:
         """
@@ -48,6 +50,12 @@ class RawCodeClient:
         cwd : typing.Optional[str]
             Current working directory for code execution
 
+        stateful : typing.Optional[bool]
+            Enable stateful execution using Jupyter kernel. When True, variables and state persist across requests with the same session_id.
+
+        session_id : typing.Optional[str]
+            Session ID for stateful execution. Required when stateful=True to maintain state across requests. Auto-generated if not provided.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -64,6 +72,8 @@ class RawCodeClient:
                 "code": code,
                 "timeout": timeout,
                 "cwd": cwd,
+                "stateful": stateful,
+                "session_id": session_id,
             },
             headers={
                 "content-type": "application/json",
@@ -145,6 +155,8 @@ class AsyncRawCodeClient:
         code: str,
         timeout: typing.Optional[int] = OMIT,
         cwd: typing.Optional[str] = OMIT,
+        stateful: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseCodeExecuteResponse]:
         """
@@ -164,6 +176,12 @@ class AsyncRawCodeClient:
         cwd : typing.Optional[str]
             Current working directory for code execution
 
+        stateful : typing.Optional[bool]
+            Enable stateful execution using Jupyter kernel. When True, variables and state persist across requests with the same session_id.
+
+        session_id : typing.Optional[str]
+            Session ID for stateful execution. Required when stateful=True to maintain state across requests. Auto-generated if not provided.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -180,6 +198,8 @@ class AsyncRawCodeClient:
                 "code": code,
                 "timeout": timeout,
                 "cwd": cwd,
+                "stateful": stateful,
+                "session_id": session_id,
             },
             headers={
                 "content-type": "application/json",

@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .node_js_package_info import NodeJsPackageInfo
 
 
 class NodeJsRuntimeInfo(UniversalBaseModel):
@@ -34,6 +35,21 @@ class NodeJsRuntimeInfo(UniversalBaseModel):
     runtime_directory: typing.Optional[str] = pydantic.Field(default=None)
     """
     Runtime directory path
+    """
+
+    global_npm_directory: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Global npm directory path
+    """
+
+    runtime_packages: typing.Optional[typing.List[NodeJsPackageInfo]] = pydantic.Field(default=None)
+    """
+    Pre-installed runtime packages
+    """
+
+    global_packages: typing.Optional[typing.List[NodeJsPackageInfo]] = pydantic.Field(default=None)
+    """
+    Globally installed npm packages
     """
 
     error: typing.Optional[str] = pydantic.Field(default=None)

@@ -4,27 +4,28 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .bash_command_status import BashCommandStatus
+from .node_js_session_info import NodeJsSessionInfo
 
 
-class ShellKillResult(UniversalBaseModel):
+class NodeJsCreateSessionResponse(UniversalBaseModel):
+    session_id: str = pydantic.Field()
     """
-    Process termination result model
-    """
-
-    status: BashCommandStatus = pydantic.Field()
-    """
-    Process status
+    Session ID
     """
 
-    exit_code: typing.Optional[int] = pydantic.Field(default=None)
+    created: bool = pydantic.Field()
     """
-    Process exit code before termination, None if process was still running
+    Whether the session was newly created
     """
 
-    returncode: typing.Optional[int] = pydantic.Field(default=None)
+    message: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Deprecated: use exit_code instead. Kept for backward compatibility.
+    Additional message (e.g., if session already exists)
+    """
+
+    session: typing.Optional[NodeJsSessionInfo] = pydantic.Field(default=None)
+    """
+    Session information (if created)
     """
 
     if IS_PYDANTIC_V2:

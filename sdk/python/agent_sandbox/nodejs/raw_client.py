@@ -6,12 +6,18 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
+from ..core.jsonable_encoder import jsonable_encoder
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.http_validation_error import HttpValidationError
+from ..types.response_node_js_create_session_response import ResponseNodeJsCreateSessionResponse
+from ..types.response_node_js_delete_session_response import ResponseNodeJsDeleteSessionResponse
 from ..types.response_node_js_execute_response import ResponseNodeJsExecuteResponse
 from ..types.response_node_js_runtime_info import ResponseNodeJsRuntimeInfo
+from ..types.response_node_js_session_list_response import ResponseNodeJsSessionListResponse
+from ..types.response_node_js_session_response import ResponseNodeJsSessionResponse
+from ..types.response_node_js_update_session_response import ResponseNodeJsUpdateSessionResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -28,13 +34,25 @@ class RawNodejsClient:
         timeout: typing.Optional[int] = OMIT,
         stdin: typing.Optional[str] = OMIT,
         files: typing.Optional[typing.Dict[str, typing.Optional[str]]] = OMIT,
+        stateful: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseNodeJsExecuteResponse]:
         """
         Execute JavaScript code using Node.js
 
         This endpoint allows you to execute JavaScript code and get results back.
-        Each request creates a fresh execution environment that's cleaned up automatically.
+
+        For stateless execution (default):
+        - Each request creates a fresh execution environment
+        - Environment is cleaned up automatically after execution
+
+        For stateful execution (stateful=True):
+        - Uses persistent REPL session that maintains state between requests
+        - Variables, functions, and imports persist across calls
+        - Returns session_id to continue the session in subsequent requests
+        - Supports async/await at top level
 
         Parameters
         ----------
@@ -49,6 +67,15 @@ class RawNodejsClient:
 
         files : typing.Optional[typing.Dict[str, typing.Optional[str]]]
             Additional files to create in execution directory
+
+        stateful : typing.Optional[bool]
+            Enable stateful execution with persistent REPL session
+
+        session_id : typing.Optional[str]
+            Session ID for stateful execution (reuse existing session)
+
+        cwd : typing.Optional[str]
+            Working directory for code execution
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -66,6 +93,9 @@ class RawNodejsClient:
                 "timeout": timeout,
                 "stdin": stdin,
                 "files": files,
+                "stateful": stateful,
+                "session_id": session_id,
+                "cwd": cwd,
             },
             headers={
                 "content-type": "application/json",
@@ -103,7 +133,10 @@ class RawNodejsClient:
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResponseNodeJsRuntimeInfo]:
         """
-        Get information about Node.js runtime and available languages
+        Get information about Node.js REPL runtime, including installed packages
+
+        Returns Node.js version, npm version, and lists of installed packages
+        from both the runtime directory and global npm directory.
 
         Parameters
         ----------
@@ -135,6 +168,291 @@ class RawNodejsClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
+    def list_sessions(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[ResponseNodeJsSessionListResponse]:
+        """
+        List all active Node.js REPL sessions
+
+        Returns information about all active sessions including their state,
+        working directory, and idle time.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseNodeJsSessionListResponse]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/nodejs/sessions",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseNodeJsSessionListResponse,
+                    parse_obj_as(
+                        type_=ResponseNodeJsSessionListResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def create_session(
+        self,
+        *,
+        session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
+        max_idle_time: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[ResponseNodeJsCreateSessionResponse]:
+        """
+        Create a new Node.js REPL session
+
+        Creates a new persistent REPL session with configurable working directory
+        and idle timeout. Use the returned session_id in subsequent execute requests.
+
+        Parameters
+        ----------
+        session_id : typing.Optional[str]
+            Custom session ID (auto-generated if not provided)
+
+        cwd : typing.Optional[str]
+            Working directory for the session
+
+        max_idle_time : typing.Optional[int]
+            Maximum idle time in seconds (default 24 hours)
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseNodeJsCreateSessionResponse]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/nodejs/sessions",
+            method="POST",
+            json={
+                "session_id": session_id,
+                "cwd": cwd,
+                "max_idle_time": max_idle_time,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseNodeJsCreateSessionResponse,
+                    parse_obj_as(
+                        type_=ResponseNodeJsCreateSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def get_session(
+        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[ResponseNodeJsSessionResponse]:
+        """
+        Get information about a specific Node.js REPL session
+
+        Returns detailed information about a session including its state,
+        working directory, creation time, and idle time.
+
+        Parameters
+        ----------
+        session_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseNodeJsSessionResponse]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseNodeJsSessionResponse,
+                    parse_obj_as(
+                        type_=ResponseNodeJsSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def delete_session(
+        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[ResponseNodeJsDeleteSessionResponse]:
+        """
+        Delete a Node.js REPL session
+
+        Terminates the session and releases all associated resources.
+
+        Parameters
+        ----------
+        session_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseNodeJsDeleteSessionResponse]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
+            method="DELETE",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseNodeJsDeleteSessionResponse,
+                    parse_obj_as(
+                        type_=ResponseNodeJsDeleteSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def update_session(
+        self,
+        session_id: str,
+        *,
+        max_idle_time: typing.Optional[int] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[ResponseNodeJsUpdateSessionResponse]:
+        """
+        Update a Node.js REPL session configuration
+
+        Updates session properties like maximum idle time or working directory.
+
+        Parameters
+        ----------
+        session_id : str
+
+        max_idle_time : typing.Optional[int]
+            New maximum idle time in seconds
+
+        cwd : typing.Optional[str]
+            New working directory
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseNodeJsUpdateSessionResponse]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
+            method="PATCH",
+            json={
+                "max_idle_time": max_idle_time,
+                "cwd": cwd,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseNodeJsUpdateSessionResponse,
+                    parse_obj_as(
+                        type_=ResponseNodeJsUpdateSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
 
 class AsyncRawNodejsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -147,13 +465,25 @@ class AsyncRawNodejsClient:
         timeout: typing.Optional[int] = OMIT,
         stdin: typing.Optional[str] = OMIT,
         files: typing.Optional[typing.Dict[str, typing.Optional[str]]] = OMIT,
+        stateful: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseNodeJsExecuteResponse]:
         """
         Execute JavaScript code using Node.js
 
         This endpoint allows you to execute JavaScript code and get results back.
-        Each request creates a fresh execution environment that's cleaned up automatically.
+
+        For stateless execution (default):
+        - Each request creates a fresh execution environment
+        - Environment is cleaned up automatically after execution
+
+        For stateful execution (stateful=True):
+        - Uses persistent REPL session that maintains state between requests
+        - Variables, functions, and imports persist across calls
+        - Returns session_id to continue the session in subsequent requests
+        - Supports async/await at top level
 
         Parameters
         ----------
@@ -168,6 +498,15 @@ class AsyncRawNodejsClient:
 
         files : typing.Optional[typing.Dict[str, typing.Optional[str]]]
             Additional files to create in execution directory
+
+        stateful : typing.Optional[bool]
+            Enable stateful execution with persistent REPL session
+
+        session_id : typing.Optional[str]
+            Session ID for stateful execution (reuse existing session)
+
+        cwd : typing.Optional[str]
+            Working directory for code execution
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -185,6 +524,9 @@ class AsyncRawNodejsClient:
                 "timeout": timeout,
                 "stdin": stdin,
                 "files": files,
+                "stateful": stateful,
+                "session_id": session_id,
+                "cwd": cwd,
             },
             headers={
                 "content-type": "application/json",
@@ -222,7 +564,10 @@ class AsyncRawNodejsClient:
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResponseNodeJsRuntimeInfo]:
         """
-        Get information about Node.js runtime and available languages
+        Get information about Node.js REPL runtime, including installed packages
+
+        Returns Node.js version, npm version, and lists of installed packages
+        from both the runtime directory and global npm directory.
 
         Parameters
         ----------
@@ -249,6 +594,291 @@ class AsyncRawNodejsClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def list_sessions(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[ResponseNodeJsSessionListResponse]:
+        """
+        List all active Node.js REPL sessions
+
+        Returns information about all active sessions including their state,
+        working directory, and idle time.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseNodeJsSessionListResponse]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/nodejs/sessions",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseNodeJsSessionListResponse,
+                    parse_obj_as(
+                        type_=ResponseNodeJsSessionListResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def create_session(
+        self,
+        *,
+        session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
+        max_idle_time: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[ResponseNodeJsCreateSessionResponse]:
+        """
+        Create a new Node.js REPL session
+
+        Creates a new persistent REPL session with configurable working directory
+        and idle timeout. Use the returned session_id in subsequent execute requests.
+
+        Parameters
+        ----------
+        session_id : typing.Optional[str]
+            Custom session ID (auto-generated if not provided)
+
+        cwd : typing.Optional[str]
+            Working directory for the session
+
+        max_idle_time : typing.Optional[int]
+            Maximum idle time in seconds (default 24 hours)
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseNodeJsCreateSessionResponse]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/nodejs/sessions",
+            method="POST",
+            json={
+                "session_id": session_id,
+                "cwd": cwd,
+                "max_idle_time": max_idle_time,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseNodeJsCreateSessionResponse,
+                    parse_obj_as(
+                        type_=ResponseNodeJsCreateSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def get_session(
+        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[ResponseNodeJsSessionResponse]:
+        """
+        Get information about a specific Node.js REPL session
+
+        Returns detailed information about a session including its state,
+        working directory, creation time, and idle time.
+
+        Parameters
+        ----------
+        session_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseNodeJsSessionResponse]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseNodeJsSessionResponse,
+                    parse_obj_as(
+                        type_=ResponseNodeJsSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def delete_session(
+        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[ResponseNodeJsDeleteSessionResponse]:
+        """
+        Delete a Node.js REPL session
+
+        Terminates the session and releases all associated resources.
+
+        Parameters
+        ----------
+        session_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseNodeJsDeleteSessionResponse]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
+            method="DELETE",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseNodeJsDeleteSessionResponse,
+                    parse_obj_as(
+                        type_=ResponseNodeJsDeleteSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def update_session(
+        self,
+        session_id: str,
+        *,
+        max_idle_time: typing.Optional[int] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[ResponseNodeJsUpdateSessionResponse]:
+        """
+        Update a Node.js REPL session configuration
+
+        Updates session properties like maximum idle time or working directory.
+
+        Parameters
+        ----------
+        session_id : str
+
+        max_idle_time : typing.Optional[int]
+            New maximum idle time in seconds
+
+        cwd : typing.Optional[str]
+            New working directory
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseNodeJsUpdateSessionResponse]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
+            method="PATCH",
+            json={
+                "max_idle_time": max_idle_time,
+                "cwd": cwd,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseNodeJsUpdateSessionResponse,
+                    parse_obj_as(
+                        type_=ResponseNodeJsUpdateSessionResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)

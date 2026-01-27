@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.143"
+    "version": "1.0.0.160"
   },
   "paths": {
     "/v1/sandbox": {
@@ -956,7 +956,7 @@
       "post": {
         "tags": ["nodejs"],
         "summary": "Execute Nodejs Code",
-        "description": "Execute JavaScript code using Node.js\n\nThis endpoint allows you to execute JavaScript code and get results back.\nEach request creates a fresh execution environment that's cleaned up automatically.",
+        "description": "Execute JavaScript code using Node.js\n\nThis endpoint allows you to execute JavaScript code and get results back.\n\nFor stateless execution (default):\n- Each request creates a fresh execution environment\n- Environment is cleaned up automatically after execution\n\nFor stateful execution (stateful=True):\n- Uses persistent REPL session that maintains state between requests\n- Variables, functions, and imports persist across calls\n- Returns session_id to continue the session in subsequent requests\n- Supports async/await at top level",
         "operationId": "execute_nodejs_code",
         "requestBody": {
           "content": {
@@ -994,7 +994,7 @@
       "get": {
         "tags": ["nodejs"],
         "summary": "Nodejs Info",
-        "description": "Get information about Node.js runtime and available languages",
+        "description": "Get information about Node.js REPL runtime, including installed packages\n\nReturns Node.js version, npm version, and lists of installed packages\nfrom both the runtime directory and global npm directory.",
         "operationId": "get_nodejs_info",
         "responses": {
           "200": {
@@ -1010,6 +1010,186 @@
         },
         "x-fern-sdk-group-name": "nodejs",
         "x-fern-sdk-method-name": "get_info"
+      }
+    },
+    "/v1/nodejs/sessions": {
+      "get": {
+        "tags": ["nodejs"],
+        "summary": "List Nodejs Sessions",
+        "description": "List all active Node.js REPL sessions\n\nReturns information about all active sessions including their state,\nworking directory, and idle time.",
+        "operationId": "list_nodejs_sessions",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NodeJSSessionListResponse_"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "nodejs",
+        "x-fern-sdk-method-name": "list_sessions"
+      },
+      "post": {
+        "tags": ["nodejs"],
+        "summary": "Create Nodejs Session",
+        "description": "Create a new Node.js REPL session\n\nCreates a new persistent REPL session with configurable working directory\nand idle timeout. Use the returned session_id in subsequent execute requests.",
+        "operationId": "create_nodejs_session",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NodeJSCreateSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NodeJSCreateSessionResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "nodejs",
+        "x-fern-sdk-method-name": "create_session"
+      }
+    },
+    "/v1/nodejs/sessions/{session_id}": {
+      "get": {
+        "tags": ["nodejs"],
+        "summary": "Get Nodejs Session",
+        "description": "Get information about a specific Node.js REPL session\n\nReturns detailed information about a session including its state,\nworking directory, creation time, and idle time.",
+        "operationId": "get_nodejs_session",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Session Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NodeJSSessionResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "nodejs",
+        "x-fern-sdk-method-name": "get_session"
+      },
+      "patch": {
+        "tags": ["nodejs"],
+        "summary": "Update Nodejs Session",
+        "description": "Update a Node.js REPL session configuration\n\nUpdates session properties like maximum idle time or working directory.",
+        "operationId": "update_nodejs_session",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Session Id" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NodeJSUpdateSessionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NodeJSUpdateSessionResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "nodejs",
+        "x-fern-sdk-method-name": "update_session"
+      },
+      "delete": {
+        "tags": ["nodejs"],
+        "summary": "Delete Nodejs Session",
+        "description": "Delete a Node.js REPL session\n\nTerminates the session and releases all associated resources.",
+        "operationId": "delete_nodejs_session",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Session Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NodeJSDeleteSessionResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "nodejs",
+        "x-fern-sdk-method-name": "delete_session"
       }
     },
     "/v1/mcp/{server_name}/tools": {
@@ -1587,14 +1767,31 @@
   },
   "components": {
     "schemas": {
-      "ActionResponse": {
+      "ActionData": {
         "properties": {
           "status": { "type": "string", "const": "success", "title": "Status" },
           "action_performed": { "type": "string", "title": "Action Performed" }
         },
         "type": "object",
         "required": ["status", "action_performed"],
-        "title": "ActionResponse"
+        "title": "ActionData",
+        "description": "Inner data for action response."
+      },
+      "ActionResponse": {
+        "properties": {
+          "status": { "type": "string", "const": "success", "title": "Status" },
+          "action_performed": { "type": "string", "title": "Action Performed" },
+          "data": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/ActionData" },
+              { "type": "null" }
+            ]
+          }
+        },
+        "type": "object",
+        "required": ["status", "action_performed"],
+        "title": "ActionResponse",
+        "description": "Response model for browser actions.\n\nProvides backward compatibility:\n- Old format: resp.json()['status'], resp.json()['action_performed']\n- New format: resp.json()['data']['status'], resp.json()['data']['action_performed']"
       },
       "ActiveSessionsResult": {
         "properties": {
@@ -1879,6 +2076,17 @@
             "title": "Cwd",
             "description": "Current working directory for code execution",
             "default": "/tmp"
+          },
+          "stateful": {
+            "type": "boolean",
+            "title": "Stateful",
+            "description": "Enable stateful execution using Jupyter kernel. When True, variables and state persist across requests with the same session_id.",
+            "default": false
+          },
+          "session_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Session Id",
+            "description": "Session ID for stateful execution. Required when stateful=True to maintain state across requests. Auto-generated if not provided."
           }
         },
         "type": "object",
@@ -1930,6 +2138,11 @@
             ],
             "title": "Traceback",
             "description": "Captured error traceback lines when available"
+          },
+          "session_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Session Id",
+            "description": "Session ID for stateful execution (only present when stateful=True)"
           }
         },
         "type": "object",
@@ -2653,7 +2866,7 @@
           "kernel_name": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Kernel Name",
-            "description": "Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'",
+            "description": "Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'.",
             "default": "python3"
           },
           "cwd": {
@@ -2709,7 +2922,7 @@
           "kernel_name": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Kernel Name",
-            "description": "Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'",
+            "description": "Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'.",
             "default": "python3"
           },
           "session_id": {
@@ -3003,6 +3216,73 @@
         "required": ["x", "y"],
         "title": "MoveToAction"
       },
+      "NodeJSCreateSessionRequest": {
+        "properties": {
+          "session_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Session Id",
+            "description": "Custom session ID (auto-generated if not provided)"
+          },
+          "cwd": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Cwd",
+            "description": "Working directory for the session",
+            "default": "/tmp"
+          },
+          "max_idle_time": {
+            "anyOf": [
+              { "type": "integer", "maximum": 86400.0, "minimum": 60.0 },
+              { "type": "null" }
+            ],
+            "title": "Max Idle Time",
+            "description": "Maximum idle time in seconds (default 24 hours)",
+            "default": 86400
+          }
+        },
+        "type": "object",
+        "title": "NodeJSCreateSessionRequest"
+      },
+      "NodeJSCreateSessionResponse": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Session ID"
+          },
+          "created": {
+            "type": "boolean",
+            "title": "Created",
+            "description": "Whether the session was newly created"
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Additional message (e.g., if session already exists)"
+          },
+          "session": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/NodeJSSessionInfo" },
+              { "type": "null" }
+            ],
+            "description": "Session information (if created)"
+          }
+        },
+        "type": "object",
+        "required": ["session_id", "created"],
+        "title": "NodeJSCreateSessionResponse"
+      },
+      "NodeJSDeleteSessionResponse": {
+        "properties": {
+          "deleted": {
+            "type": "boolean",
+            "title": "Deleted",
+            "description": "Whether the session was deleted"
+          }
+        },
+        "type": "object",
+        "required": ["deleted"],
+        "title": "NodeJSDeleteSessionResponse"
+      },
       "NodeJSExecuteRequest": {
         "properties": {
           "code": {
@@ -3034,6 +3314,22 @@
             ],
             "title": "Files",
             "description": "Additional files to create in execution directory"
+          },
+          "stateful": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "Stateful",
+            "description": "Enable stateful execution with persistent REPL session",
+            "default": false
+          },
+          "session_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Session Id",
+            "description": "Session ID for stateful execution (reuse existing session)"
+          },
+          "cwd": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Cwd",
+            "description": "Working directory for code execution"
           }
         },
         "type": "object",
@@ -3086,6 +3382,11 @@
             "type": "integer",
             "title": "Exit Code",
             "description": "Process exit code"
+          },
+          "session_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Session Id",
+            "description": "Session ID for stateful execution (use this to continue the session)"
           }
         },
         "type": "object",
@@ -3148,6 +3449,24 @@
         "required": ["output_type"],
         "title": "NodeJSOutput"
       },
+      "NodeJSPackageInfo": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Package name"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Package version"
+          }
+        },
+        "type": "object",
+        "required": ["name", "version"],
+        "title": "NodeJSPackageInfo",
+        "description": "Package information"
+      },
       "NodeJSRuntimeInfo": {
         "properties": {
           "node_version": {
@@ -3176,6 +3495,25 @@
             "title": "Runtime Directory",
             "description": "Runtime directory path"
           },
+          "global_npm_directory": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Global Npm Directory",
+            "description": "Global npm directory path"
+          },
+          "runtime_packages": {
+            "items": { "$ref": "#/components/schemas/NodeJSPackageInfo" },
+            "type": "array",
+            "title": "Runtime Packages",
+            "description": "Pre-installed runtime packages",
+            "default": []
+          },
+          "global_packages": {
+            "items": { "$ref": "#/components/schemas/NodeJSPackageInfo" },
+            "type": "array",
+            "title": "Global Packages",
+            "description": "Globally installed npm packages",
+            "default": []
+          },
           "error": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Error",
@@ -3191,6 +3529,117 @@
         ],
         "title": "NodeJSRuntimeInfo",
         "description": "NodeJS runtime information model"
+      },
+      "NodeJSSessionInfo": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Session ID"
+          },
+          "cwd": {
+            "type": "string",
+            "title": "Cwd",
+            "description": "Working directory"
+          },
+          "created_at": {
+            "type": "number",
+            "title": "Created At",
+            "description": "Session creation timestamp (ms since epoch)"
+          },
+          "last_used": {
+            "type": "number",
+            "title": "Last Used",
+            "description": "Last activity timestamp (ms since epoch)"
+          },
+          "max_idle_time": {
+            "type": "integer",
+            "title": "Max Idle Time",
+            "description": "Maximum idle time in milliseconds"
+          },
+          "age_seconds": {
+            "type": "integer",
+            "title": "Age Seconds",
+            "description": "Seconds since last activity"
+          },
+          "state": {
+            "type": "string",
+            "title": "State",
+            "description": "Session state: IDLE or EXECUTING"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "cwd",
+          "created_at",
+          "last_used",
+          "max_idle_time",
+          "age_seconds",
+          "state"
+        ],
+        "title": "NodeJSSessionInfo"
+      },
+      "NodeJSSessionListResponse": {
+        "properties": {
+          "sessions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/NodeJSSessionInfo"
+            },
+            "type": "object",
+            "title": "Sessions",
+            "description": "Map of session ID to session info",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "title": "NodeJSSessionListResponse"
+      },
+      "NodeJSSessionResponse": {
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/NodeJSSessionInfo",
+            "description": "Session information"
+          }
+        },
+        "type": "object",
+        "required": ["session"],
+        "title": "NodeJSSessionResponse"
+      },
+      "NodeJSUpdateSessionRequest": {
+        "properties": {
+          "max_idle_time": {
+            "anyOf": [
+              { "type": "integer", "maximum": 86400.0, "minimum": 60.0 },
+              { "type": "null" }
+            ],
+            "title": "Max Idle Time",
+            "description": "New maximum idle time in seconds"
+          },
+          "cwd": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Cwd",
+            "description": "New working directory"
+          }
+        },
+        "type": "object",
+        "title": "NodeJSUpdateSessionRequest"
+      },
+      "NodeJSUpdateSessionResponse": {
+        "properties": {
+          "updated": {
+            "type": "boolean",
+            "title": "Updated",
+            "description": "Whether the update was successful"
+          },
+          "session": {
+            "$ref": "#/components/schemas/NodeJSSessionInfo",
+            "description": "Updated session information"
+          }
+        },
+        "type": "object",
+        "required": ["updated", "session"],
+        "title": "NodeJSUpdateSessionResponse"
       },
       "PressAction": {
         "properties": {
@@ -3826,6 +4275,56 @@
         "type": "object",
         "title": "Response[List[str]]"
       },
+      "Response_NodeJSCreateSessionResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/NodeJSCreateSessionResponse" },
+              { "type": "null" }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[NodeJSCreateSessionResponse]"
+      },
+      "Response_NodeJSDeleteSessionResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/NodeJSDeleteSessionResponse" },
+              { "type": "null" }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[NodeJSDeleteSessionResponse]"
+      },
       "Response_NodeJSExecuteResponse_": {
         "properties": {
           "success": {
@@ -3875,6 +4374,81 @@
         },
         "type": "object",
         "title": "Response[NodeJSRuntimeInfo]"
+      },
+      "Response_NodeJSSessionListResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/NodeJSSessionListResponse" },
+              { "type": "null" }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[NodeJSSessionListResponse]"
+      },
+      "Response_NodeJSSessionResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/NodeJSSessionResponse" },
+              { "type": "null" }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[NodeJSSessionResponse]"
+      },
+      "Response_NodeJSUpdateSessionResponse_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/NodeJSUpdateSessionResponse" },
+              { "type": "null" }
+            ],
+            "description": "Data returned from the operation"
+          }
+        },
+        "type": "object",
+        "title": "Response[NodeJSUpdateSessionResponse]"
       },
       "Response_ShellCommandResult_": {
         "properties": {
@@ -4475,14 +5049,19 @@
             "$ref": "#/components/schemas/BashCommandStatus",
             "description": "Process status"
           },
+          "exit_code": {
+            "anyOf": [{ "type": "integer" }, { "type": "null" }],
+            "title": "Exit Code",
+            "description": "Process exit code before termination, None if process was still running"
+          },
           "returncode": {
-            "type": "integer",
+            "anyOf": [{ "type": "integer" }, { "type": "null" }],
             "title": "Returncode",
-            "description": "Process return code"
+            "description": "Deprecated: use exit_code instead. Kept for backward compatibility."
           }
         },
         "type": "object",
-        "required": ["status", "returncode"],
+        "required": ["status"],
         "title": "ShellKillResult",
         "description": "Process termination result model"
       },

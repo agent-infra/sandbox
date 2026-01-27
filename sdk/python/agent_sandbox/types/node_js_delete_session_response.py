@@ -4,21 +4,13 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .action_data import ActionData
 
 
-class ActionResponse(UniversalBaseModel):
+class NodeJsDeleteSessionResponse(UniversalBaseModel):
+    deleted: bool = pydantic.Field()
     """
-    Response model for browser actions.
-
-    Provides backward compatibility:
-    - Old format: resp.json()['status'], resp.json()['action_performed']
-    - New format: resp.json()['data']['status'], resp.json()['data']['action_performed']
+    Whether the session was deleted
     """
-
-    status: typing.Literal["success"] = "success"
-    action_performed: str
-    data: typing.Optional[ActionData] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

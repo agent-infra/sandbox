@@ -6,6 +6,7 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
+    from .action_data import ActionData
     from .action_response import ActionResponse
     from .active_sessions_result import ActiveSessionsResult
     from .active_shell_sessions_result import ActiveShellSessionsResult
@@ -54,9 +55,16 @@ if typing.TYPE_CHECKING:
     from .mouse_up_action import MouseUpAction
     from .move_rel_action import MoveRelAction
     from .move_to_action import MoveToAction
+    from .node_js_create_session_response import NodeJsCreateSessionResponse
+    from .node_js_delete_session_response import NodeJsDeleteSessionResponse
     from .node_js_execute_response import NodeJsExecuteResponse
     from .node_js_output import NodeJsOutput
+    from .node_js_package_info import NodeJsPackageInfo
     from .node_js_runtime_info import NodeJsRuntimeInfo
+    from .node_js_session_info import NodeJsSessionInfo
+    from .node_js_session_list_response import NodeJsSessionListResponse
+    from .node_js_session_response import NodeJsSessionResponse
+    from .node_js_update_session_response import NodeJsUpdateSessionResponse
     from .press_action import PressAction
     from .resolution import Resolution
     from .resource import Resource
@@ -89,8 +97,13 @@ if typing.TYPE_CHECKING:
     from .response_jupyter_info_response import ResponseJupyterInfoResponse
     from .response_list_str import ResponseListStr
     from .response_list_tools_result_model import ResponseListToolsResultModel
+    from .response_node_js_create_session_response import ResponseNodeJsCreateSessionResponse
+    from .response_node_js_delete_session_response import ResponseNodeJsDeleteSessionResponse
     from .response_node_js_execute_response import ResponseNodeJsExecuteResponse
     from .response_node_js_runtime_info import ResponseNodeJsRuntimeInfo
+    from .response_node_js_session_list_response import ResponseNodeJsSessionListResponse
+    from .response_node_js_session_response import ResponseNodeJsSessionResponse
+    from .response_node_js_update_session_response import ResponseNodeJsUpdateSessionResponse
     from .response_shell_command_result import ResponseShellCommandResult
     from .response_shell_create_session_response import ResponseShellCreateSessionResponse
     from .response_shell_kill_result import ResponseShellKillResult
@@ -135,6 +148,7 @@ if typing.TYPE_CHECKING:
     from .validation_error_loc_item import ValidationErrorLocItem
     from .wait_action import WaitAction
 _dynamic_imports: typing.Dict[str, str] = {
+    "ActionData": ".action_data",
     "ActionResponse": ".action_response",
     "ActiveSessionsResult": ".active_sessions_result",
     "ActiveShellSessionsResult": ".active_shell_sessions_result",
@@ -183,9 +197,16 @@ _dynamic_imports: typing.Dict[str, str] = {
     "MouseUpAction": ".mouse_up_action",
     "MoveRelAction": ".move_rel_action",
     "MoveToAction": ".move_to_action",
+    "NodeJsCreateSessionResponse": ".node_js_create_session_response",
+    "NodeJsDeleteSessionResponse": ".node_js_delete_session_response",
     "NodeJsExecuteResponse": ".node_js_execute_response",
     "NodeJsOutput": ".node_js_output",
+    "NodeJsPackageInfo": ".node_js_package_info",
     "NodeJsRuntimeInfo": ".node_js_runtime_info",
+    "NodeJsSessionInfo": ".node_js_session_info",
+    "NodeJsSessionListResponse": ".node_js_session_list_response",
+    "NodeJsSessionResponse": ".node_js_session_response",
+    "NodeJsUpdateSessionResponse": ".node_js_update_session_response",
     "PressAction": ".press_action",
     "Resolution": ".resolution",
     "Resource": ".resource",
@@ -216,8 +237,13 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseJupyterInfoResponse": ".response_jupyter_info_response",
     "ResponseListStr": ".response_list_str",
     "ResponseListToolsResultModel": ".response_list_tools_result_model",
+    "ResponseNodeJsCreateSessionResponse": ".response_node_js_create_session_response",
+    "ResponseNodeJsDeleteSessionResponse": ".response_node_js_delete_session_response",
     "ResponseNodeJsExecuteResponse": ".response_node_js_execute_response",
     "ResponseNodeJsRuntimeInfo": ".response_node_js_runtime_info",
+    "ResponseNodeJsSessionListResponse": ".response_node_js_session_list_response",
+    "ResponseNodeJsSessionResponse": ".response_node_js_session_response",
+    "ResponseNodeJsUpdateSessionResponse": ".response_node_js_update_session_response",
     "ResponseShellCommandResult": ".response_shell_command_result",
     "ResponseShellCreateSessionResponse": ".response_shell_create_session_response",
     "ResponseShellKillResult": ".response_shell_kill_result",
@@ -284,6 +310,7 @@ def __dir__():
 
 
 __all__ = [
+    "ActionData",
     "ActionResponse",
     "ActiveSessionsResult",
     "ActiveShellSessionsResult",
@@ -332,9 +359,16 @@ __all__ = [
     "MouseUpAction",
     "MoveRelAction",
     "MoveToAction",
+    "NodeJsCreateSessionResponse",
+    "NodeJsDeleteSessionResponse",
     "NodeJsExecuteResponse",
     "NodeJsOutput",
+    "NodeJsPackageInfo",
     "NodeJsRuntimeInfo",
+    "NodeJsSessionInfo",
+    "NodeJsSessionListResponse",
+    "NodeJsSessionResponse",
+    "NodeJsUpdateSessionResponse",
     "PressAction",
     "Resolution",
     "Resource",
@@ -365,8 +399,13 @@ __all__ = [
     "ResponseJupyterInfoResponse",
     "ResponseListStr",
     "ResponseListToolsResultModel",
+    "ResponseNodeJsCreateSessionResponse",
+    "ResponseNodeJsDeleteSessionResponse",
     "ResponseNodeJsExecuteResponse",
     "ResponseNodeJsRuntimeInfo",
+    "ResponseNodeJsSessionListResponse",
+    "ResponseNodeJsSessionResponse",
+    "ResponseNodeJsUpdateSessionResponse",
     "ResponseShellCommandResult",
     "ResponseShellCreateSessionResponse",
     "ResponseShellKillResult",

@@ -4,27 +4,23 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .bash_command_status import BashCommandStatus
+from .node_js_session_list_response import NodeJsSessionListResponse
 
 
-class ShellKillResult(UniversalBaseModel):
+class ResponseNodeJsSessionListResponse(UniversalBaseModel):
+    success: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Process termination result model
-    """
-
-    status: BashCommandStatus = pydantic.Field()
-    """
-    Process status
+    Whether the operation was successful
     """
 
-    exit_code: typing.Optional[int] = pydantic.Field(default=None)
+    message: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Process exit code before termination, None if process was still running
+    Operation result message
     """
 
-    returncode: typing.Optional[int] = pydantic.Field(default=None)
+    data: typing.Optional[NodeJsSessionListResponse] = pydantic.Field(default=None)
     """
-    Deprecated: use exit_code instead. Kept for backward compatibility.
+    Data returned from the operation
     """
 
     if IS_PYDANTIC_V2:

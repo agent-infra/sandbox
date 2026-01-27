@@ -19,4 +19,6 @@ export interface NodeJsExecuteResponse {
     stderr?: string;
     /** Process exit code */
     exit_code: number;
+    /** Session ID for stateful execution (use this to continue the session) */
+    session_id?: string;
 }

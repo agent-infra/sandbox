@@ -4,8 +4,13 @@ import typing
 
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..types.response_node_js_create_session_response import ResponseNodeJsCreateSessionResponse
+from ..types.response_node_js_delete_session_response import ResponseNodeJsDeleteSessionResponse
 from ..types.response_node_js_execute_response import ResponseNodeJsExecuteResponse
 from ..types.response_node_js_runtime_info import ResponseNodeJsRuntimeInfo
+from ..types.response_node_js_session_list_response import ResponseNodeJsSessionListResponse
+from ..types.response_node_js_session_response import ResponseNodeJsSessionResponse
+from ..types.response_node_js_update_session_response import ResponseNodeJsUpdateSessionResponse
 from .raw_client import AsyncRawNodejsClient, RawNodejsClient
 
 # this is used as the default value for optional parameters
@@ -34,13 +39,25 @@ class NodejsClient:
         timeout: typing.Optional[int] = OMIT,
         stdin: typing.Optional[str] = OMIT,
         files: typing.Optional[typing.Dict[str, typing.Optional[str]]] = OMIT,
+        stateful: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseNodeJsExecuteResponse:
         """
         Execute JavaScript code using Node.js
 
         This endpoint allows you to execute JavaScript code and get results back.
-        Each request creates a fresh execution environment that's cleaned up automatically.
+
+        For stateless execution (default):
+        - Each request creates a fresh execution environment
+        - Environment is cleaned up automatically after execution
+
+        For stateful execution (stateful=True):
+        - Uses persistent REPL session that maintains state between requests
+        - Variables, functions, and imports persist across calls
+        - Returns session_id to continue the session in subsequent requests
+        - Supports async/await at top level
 
         Parameters
         ----------
@@ -55,6 +72,15 @@ class NodejsClient:
 
         files : typing.Optional[typing.Dict[str, typing.Optional[str]]]
             Additional files to create in execution directory
+
+        stateful : typing.Optional[bool]
+            Enable stateful execution with persistent REPL session
+
+        session_id : typing.Optional[str]
+            Session ID for stateful execution (reuse existing session)
+
+        cwd : typing.Optional[str]
+            Working directory for code execution
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -76,13 +102,23 @@ class NodejsClient:
         )
         """
         _response = self._raw_client.execute_code(
-            code=code, timeout=timeout, stdin=stdin, files=files, request_options=request_options
+            code=code,
+            timeout=timeout,
+            stdin=stdin,
+            files=files,
+            stateful=stateful,
+            session_id=session_id,
+            cwd=cwd,
+            request_options=request_options,
         )
         return _response.data
 
     def get_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseNodeJsRuntimeInfo:
         """
-        Get information about Node.js runtime and available languages
+        Get information about Node.js REPL runtime, including installed packages
+
+        Returns Node.js version, npm version, and lists of installed packages
+        from both the runtime directory and global npm directory.
 
         Parameters
         ----------
@@ -104,6 +140,200 @@ class NodejsClient:
         client.nodejs.get_info()
         """
         _response = self._raw_client.get_info(request_options=request_options)
+        return _response.data
+
+    def list_sessions(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseNodeJsSessionListResponse:
+        """
+        List all active Node.js REPL sessions
+
+        Returns information about all active sessions including their state,
+        working directory, and idle time.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseNodeJsSessionListResponse
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.nodejs.list_sessions()
+        """
+        _response = self._raw_client.list_sessions(request_options=request_options)
+        return _response.data
+
+    def create_session(
+        self,
+        *,
+        session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
+        max_idle_time: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseNodeJsCreateSessionResponse:
+        """
+        Create a new Node.js REPL session
+
+        Creates a new persistent REPL session with configurable working directory
+        and idle timeout. Use the returned session_id in subsequent execute requests.
+
+        Parameters
+        ----------
+        session_id : typing.Optional[str]
+            Custom session ID (auto-generated if not provided)
+
+        cwd : typing.Optional[str]
+            Working directory for the session
+
+        max_idle_time : typing.Optional[int]
+            Maximum idle time in seconds (default 24 hours)
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseNodeJsCreateSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.nodejs.create_session()
+        """
+        _response = self._raw_client.create_session(
+            session_id=session_id, cwd=cwd, max_idle_time=max_idle_time, request_options=request_options
+        )
+        return _response.data
+
+    def get_session(
+        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseNodeJsSessionResponse:
+        """
+        Get information about a specific Node.js REPL session
+
+        Returns detailed information about a session including its state,
+        working directory, creation time, and idle time.
+
+        Parameters
+        ----------
+        session_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseNodeJsSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.nodejs.get_session(
+            session_id="session_id",
+        )
+        """
+        _response = self._raw_client.get_session(session_id, request_options=request_options)
+        return _response.data
+
+    def delete_session(
+        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseNodeJsDeleteSessionResponse:
+        """
+        Delete a Node.js REPL session
+
+        Terminates the session and releases all associated resources.
+
+        Parameters
+        ----------
+        session_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseNodeJsDeleteSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.nodejs.delete_session(
+            session_id="session_id",
+        )
+        """
+        _response = self._raw_client.delete_session(session_id, request_options=request_options)
+        return _response.data
+
+    def update_session(
+        self,
+        session_id: str,
+        *,
+        max_idle_time: typing.Optional[int] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseNodeJsUpdateSessionResponse:
+        """
+        Update a Node.js REPL session configuration
+
+        Updates session properties like maximum idle time or working directory.
+
+        Parameters
+        ----------
+        session_id : str
+
+        max_idle_time : typing.Optional[int]
+            New maximum idle time in seconds
+
+        cwd : typing.Optional[str]
+            New working directory
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseNodeJsUpdateSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.nodejs.update_session(
+            session_id="session_id",
+        )
+        """
+        _response = self._raw_client.update_session(
+            session_id, max_idle_time=max_idle_time, cwd=cwd, request_options=request_options
+        )
         return _response.data
 
 
@@ -129,13 +359,25 @@ class AsyncNodejsClient:
         timeout: typing.Optional[int] = OMIT,
         stdin: typing.Optional[str] = OMIT,
         files: typing.Optional[typing.Dict[str, typing.Optional[str]]] = OMIT,
+        stateful: typing.Optional[bool] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseNodeJsExecuteResponse:
         """
         Execute JavaScript code using Node.js
 
         This endpoint allows you to execute JavaScript code and get results back.
-        Each request creates a fresh execution environment that's cleaned up automatically.
+
+        For stateless execution (default):
+        - Each request creates a fresh execution environment
+        - Environment is cleaned up automatically after execution
+
+        For stateful execution (stateful=True):
+        - Uses persistent REPL session that maintains state between requests
+        - Variables, functions, and imports persist across calls
+        - Returns session_id to continue the session in subsequent requests
+        - Supports async/await at top level
 
         Parameters
         ----------
@@ -150,6 +392,15 @@ class AsyncNodejsClient:
 
         files : typing.Optional[typing.Dict[str, typing.Optional[str]]]
             Additional files to create in execution directory
+
+        stateful : typing.Optional[bool]
+            Enable stateful execution with persistent REPL session
+
+        session_id : typing.Optional[str]
+            Session ID for stateful execution (reuse existing session)
+
+        cwd : typing.Optional[str]
+            Working directory for code execution
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -179,13 +430,23 @@ class AsyncNodejsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.execute_code(
-            code=code, timeout=timeout, stdin=stdin, files=files, request_options=request_options
+            code=code,
+            timeout=timeout,
+            stdin=stdin,
+            files=files,
+            stateful=stateful,
+            session_id=session_id,
+            cwd=cwd,
+            request_options=request_options,
         )
         return _response.data
 
     async def get_info(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseNodeJsRuntimeInfo:
         """
-        Get information about Node.js runtime and available languages
+        Get information about Node.js REPL runtime, including installed packages
+
+        Returns Node.js version, npm version, and lists of installed packages
+        from both the runtime directory and global npm directory.
 
         Parameters
         ----------
@@ -215,4 +476,238 @@ class AsyncNodejsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.get_info(request_options=request_options)
+        return _response.data
+
+    async def list_sessions(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseNodeJsSessionListResponse:
+        """
+        List all active Node.js REPL sessions
+
+        Returns information about all active sessions including their state,
+        working directory, and idle time.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseNodeJsSessionListResponse
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.nodejs.list_sessions()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.list_sessions(request_options=request_options)
+        return _response.data
+
+    async def create_session(
+        self,
+        *,
+        session_id: typing.Optional[str] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
+        max_idle_time: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseNodeJsCreateSessionResponse:
+        """
+        Create a new Node.js REPL session
+
+        Creates a new persistent REPL session with configurable working directory
+        and idle timeout. Use the returned session_id in subsequent execute requests.
+
+        Parameters
+        ----------
+        session_id : typing.Optional[str]
+            Custom session ID (auto-generated if not provided)
+
+        cwd : typing.Optional[str]
+            Working directory for the session
+
+        max_idle_time : typing.Optional[int]
+            Maximum idle time in seconds (default 24 hours)
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseNodeJsCreateSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.nodejs.create_session()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.create_session(
+            session_id=session_id, cwd=cwd, max_idle_time=max_idle_time, request_options=request_options
+        )
+        return _response.data
+
+    async def get_session(
+        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseNodeJsSessionResponse:
+        """
+        Get information about a specific Node.js REPL session
+
+        Returns detailed information about a session including its state,
+        working directory, creation time, and idle time.
+
+        Parameters
+        ----------
+        session_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseNodeJsSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.nodejs.get_session(
+                session_id="session_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.get_session(session_id, request_options=request_options)
+        return _response.data
+
+    async def delete_session(
+        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseNodeJsDeleteSessionResponse:
+        """
+        Delete a Node.js REPL session
+
+        Terminates the session and releases all associated resources.
+
+        Parameters
+        ----------
+        session_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseNodeJsDeleteSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.nodejs.delete_session(
+                session_id="session_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.delete_session(session_id, request_options=request_options)
+        return _response.data
+
+    async def update_session(
+        self,
+        session_id: str,
+        *,
+        max_idle_time: typing.Optional[int] = OMIT,
+        cwd: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseNodeJsUpdateSessionResponse:
+        """
+        Update a Node.js REPL session configuration
+
+        Updates session properties like maximum idle time or working directory.
+
+        Parameters
+        ----------
+        session_id : str
+
+        max_idle_time : typing.Optional[int]
+            New maximum idle time in seconds
+
+        cwd : typing.Optional[str]
+            New working directory
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseNodeJsUpdateSessionResponse
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.nodejs.update_session(
+                session_id="session_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.update_session(
+            session_id, max_idle_time=max_idle_time, cwd=cwd, request_options=request_options
+        )
         return _response.data

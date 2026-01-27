@@ -52,7 +52,7 @@ class RawJupyterClient:
             Execution timeout in seconds
 
         kernel_name : typing.Optional[str]
-            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'.
 
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
@@ -282,7 +282,7 @@ class RawJupyterClient:
             Unique identifier for the session, auto-generated if not provided
 
         kernel_name : typing.Optional[str]
-            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'.
 
         cwd : typing.Optional[str]
             Current working directory for the session
@@ -367,7 +367,7 @@ class AsyncRawJupyterClient:
             Execution timeout in seconds
 
         kernel_name : typing.Optional[str]
-            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'.
 
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
@@ -599,7 +599,7 @@ class AsyncRawJupyterClient:
             Unique identifier for the session, auto-generated if not provided
 
         kernel_name : typing.Optional[str]
-            Kernel name to use (e.g., 'python3', 'python3.11', 'python3.12'). Defaults to 'python3'
+            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'.
 
         cwd : typing.Optional[str]
             Current working directory for the session

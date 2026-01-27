@@ -8,6 +8,8 @@ import type * as Sandbox from "../index.js";
 export interface ShellKillResult {
     /** Process status */
     status: Sandbox.BashCommandStatus;
-    /** Process return code */
-    returncode: number;
+    /** Process exit code before termination, None if process was still running */
+    exit_code?: number;
+    /** Deprecated: use exit_code instead. Kept for backward compatibility. */
+    returncode?: number;
 }

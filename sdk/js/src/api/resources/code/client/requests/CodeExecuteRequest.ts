@@ -18,4 +18,8 @@ export interface CodeExecuteRequest {
     timeout?: number;
     /** Current working directory for code execution */
     cwd?: string;
+    /** Enable stateful execution using Jupyter kernel. When True, variables and state persist across requests with the same session_id. */
+    stateful?: boolean;
+    /** Session ID for stateful execution. Required when stateful=True to maintain state across requests. Auto-generated if not provided. */
+    session_id?: string;
 }
