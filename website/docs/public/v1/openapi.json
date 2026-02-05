@@ -1586,6 +1586,7 @@
       "post": {
         "tags": ["skills"],
         "summary": "Register Skills",
+        "description": "Register skills by uploading a ZIP compressed file containing skill definitions.\n\n**How to get skills:**\n- Clone the repository: `git clone https://github.com/yourcompany/skills`\n- Or download ZIP from Releases\n\n**How to install:**\n1. Compress the skill folder into a ZIP file\n2. Upload the ZIP file using this API endpoint\n\nThe ZIP file should contain skill files and metadata.",
         "operationId": "register_skills",
         "requestBody": {
           "content": {
