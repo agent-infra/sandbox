@@ -74,7 +74,7 @@ export class SandboxService {
     }
 
     /**
-     * Get installed packages by language
+     * Get installed Python packages
      *
      * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -129,7 +129,7 @@ export class SandboxService {
     }
 
     /**
-     * Get installed packages by language
+     * Get installed Node.js packages
      *
      * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
      *

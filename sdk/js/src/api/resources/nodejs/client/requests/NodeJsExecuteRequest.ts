@@ -21,4 +21,6 @@ export interface NodeJsExecuteRequest {
     session_id?: string;
     /** Working directory for code execution */
     cwd?: string;
+    /** Node.js version to use: "node20", "node22", "node24", or aliases "20", "22", "24" */
+    version?: string;
 }

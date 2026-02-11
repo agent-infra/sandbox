@@ -23,4 +23,6 @@ export interface ShellExecRequest {
     no_change_timeout?: number;
     /** If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility. */
     preserve_symlinks?: boolean;
+    /** If True, truncate output when it exceeds 30000 characters (default: True) */
+    truncate?: boolean;
 }

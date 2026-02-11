@@ -41,6 +41,11 @@ class StrReplaceEditorResult(UniversalBaseModel):
     New file content after operation
     """
 
+    metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    """
+    File metadata (only returned when enable_metadata=true for binary files)
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

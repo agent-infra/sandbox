@@ -11,14 +11,24 @@ class ActionResponse(UniversalBaseModel):
     """
     Response model for browser actions.
 
-    Provides backward compatibility:
+    Inherits from Response for unified API format, with backward compatibility:
     - Old format: resp.json()['status'], resp.json()['action_performed']
-    - New format: resp.json()['data']['status'], resp.json()['data']['action_performed']
+    - New format: resp.json()['success'], resp.json()['message'], resp.json()['data']
     """
 
-    status: typing.Literal["success"] = "success"
-    action_performed: str
-    data: typing.Optional[ActionData] = None
+    success: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Whether the operation was successful
+    """
+
+    message: typing.Optional[str] = None
+    data: typing.Optional[ActionData] = pydantic.Field(default=None)
+    """
+    Data returned from the operation
+    """
+
+    status: typing.Optional[typing.Literal["success"]] = None
+    action_performed: typing.Optional[str] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

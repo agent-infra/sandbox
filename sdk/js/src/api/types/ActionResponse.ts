@@ -5,12 +5,16 @@ import type * as Sandbox from "../index.js";
 /**
  * Response model for browser actions.
  *
- * Provides backward compatibility:
+ * Inherits from Response for unified API format, with backward compatibility:
  * - Old format: resp.json()['status'], resp.json()['action_performed']
- * - New format: resp.json()['data']['status'], resp.json()['data']['action_performed']
+ * - New format: resp.json()['success'], resp.json()['message'], resp.json()['data']
  */
 export interface ActionResponse {
-    status: "success";
-    action_performed: string;
+    /** Whether the operation was successful */
+    success?: boolean;
+    message?: string;
+    /** Data returned from the operation */
     data?: Sandbox.ActionData;
+    status?: "success";
+    action_performed?: string;
 }

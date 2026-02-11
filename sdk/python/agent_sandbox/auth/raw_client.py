@@ -8,17 +8,19 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
-from ..types.response import Response
-from ..types.sandbox_response import SandboxResponse
 
 
-class RawSandboxClient:
+class RawAuthClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def get_context(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[SandboxResponse]:
+    def create_ticket(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[typing.Dict[str, typing.Optional[typing.Any]]]:
         """
-        Get sandbox environment information
+        Create and return a short-lived authentication ticket.
+
+        This is a non-idempotent action; each call creates a new, unique ticket.
 
         Parameters
         ----------
@@ -27,20 +29,20 @@ class RawSandboxClient:
 
         Returns
         -------
-        HttpResponse[SandboxResponse]
+        HttpResponse[typing.Dict[str, typing.Optional[typing.Any]]]
             Successful Response
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v1/sandbox",
-            method="GET",
+            "tickets",
+            method="POST",
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    SandboxResponse,
+                    typing.Dict[str, typing.Optional[typing.Any]],
                     parse_obj_as(
-                        type_=SandboxResponse,  # type: ignore
+                        type_=typing.Dict[str, typing.Optional[typing.Any]],  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -50,9 +52,15 @@ class RawSandboxClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def get_python_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
+    def authenticate(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[typing.Dict[str, str]]:
         """
-        Get installed Python packages
+        Authenticate a request using ticket or JWT.
+
+        This endpoint receives authentication subrequests (e.g., from Nginx auth_request).
+        It validates the request based on either a ticket in the 'x-original-uri'
+        header or a JWT in the 'Authorization' header.
 
         Parameters
         ----------
@@ -61,54 +69,20 @@ class RawSandboxClient:
 
         Returns
         -------
-        HttpResponse[Response]
+        HttpResponse[typing.Dict[str, str]]
             Successful Response
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v1/sandbox/packages/python",
+            "auth",
             method="GET",
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    typing.Dict[str, str],
                     parse_obj_as(
-                        type_=Response,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return HttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    def get_nodejs_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
-        """
-        Get installed Node.js packages
-
-        Parameters
-        ----------
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        HttpResponse[Response]
-            Successful Response
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "v1/sandbox/packages/nodejs",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    Response,
-                    parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=typing.Dict[str, str],  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -119,15 +93,17 @@ class RawSandboxClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
-class AsyncRawSandboxClient:
+class AsyncRawAuthClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def get_context(
+    async def create_ticket(
         self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[SandboxResponse]:
+    ) -> AsyncHttpResponse[typing.Dict[str, typing.Optional[typing.Any]]]:
         """
-        Get sandbox environment information
+        Create and return a short-lived authentication ticket.
+
+        This is a non-idempotent action; each call creates a new, unique ticket.
 
         Parameters
         ----------
@@ -136,20 +112,20 @@ class AsyncRawSandboxClient:
 
         Returns
         -------
-        AsyncHttpResponse[SandboxResponse]
+        AsyncHttpResponse[typing.Dict[str, typing.Optional[typing.Any]]]
             Successful Response
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v1/sandbox",
-            method="GET",
+            "tickets",
+            method="POST",
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    SandboxResponse,
+                    typing.Dict[str, typing.Optional[typing.Any]],
                     parse_obj_as(
-                        type_=SandboxResponse,  # type: ignore
+                        type_=typing.Dict[str, typing.Optional[typing.Any]],  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -159,11 +135,15 @@ class AsyncRawSandboxClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def get_python_packages(
+    async def authenticate(
         self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[Response]:
+    ) -> AsyncHttpResponse[typing.Dict[str, str]]:
         """
-        Get installed Python packages
+        Authenticate a request using ticket or JWT.
+
+        This endpoint receives authentication subrequests (e.g., from Nginx auth_request).
+        It validates the request based on either a ticket in the 'x-original-uri'
+        header or a JWT in the 'Authorization' header.
 
         Parameters
         ----------
@@ -172,56 +152,20 @@ class AsyncRawSandboxClient:
 
         Returns
         -------
-        AsyncHttpResponse[Response]
+        AsyncHttpResponse[typing.Dict[str, str]]
             Successful Response
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v1/sandbox/packages/python",
+            "auth",
             method="GET",
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Response,
+                    typing.Dict[str, str],
                     parse_obj_as(
-                        type_=Response,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
-                return AsyncHttpResponse(response=_response, data=_data)
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
-        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
-
-    async def get_nodejs_packages(
-        self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AsyncHttpResponse[Response]:
-        """
-        Get installed Node.js packages
-
-        Parameters
-        ----------
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncHttpResponse[Response]
-            Successful Response
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "v1/sandbox/packages/nodejs",
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                _data = typing.cast(
-                    Response,
-                    parse_obj_as(
-                        type_=Response,  # type: ignore
+                        type_=typing.Dict[str, str],  # type: ignore
                         object_=_response.json(),
                     ),
                 )

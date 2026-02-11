@@ -1,3 +1,4 @@
+export * as auth from "./auth/index.js";
 export * from "./browser/client/requests/index.js";
 export * as browser from "./browser/index.js";
 export * from "./browser/types/index.js";

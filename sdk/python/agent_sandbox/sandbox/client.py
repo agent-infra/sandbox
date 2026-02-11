@@ -52,7 +52,7 @@ class SandboxClient:
 
     def get_python_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
-        Get installed packages by language
+        Get installed Python packages
 
         Parameters
         ----------
@@ -78,7 +78,7 @@ class SandboxClient:
 
     def get_nodejs_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
-        Get installed packages by language
+        Get installed Node.js packages
 
         Parameters
         ----------
@@ -154,7 +154,7 @@ class AsyncSandboxClient:
 
     async def get_python_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
-        Get installed packages by language
+        Get installed Python packages
 
         Parameters
         ----------
@@ -188,7 +188,7 @@ class AsyncSandboxClient:
 
     async def get_nodejs_packages(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
-        Get installed packages by language
+        Get installed Node.js packages
 
         Parameters
         ----------

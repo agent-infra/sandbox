@@ -22,7 +22,16 @@ export class Nodejs {
      * Execute JavaScript code using Node.js
      *
      * This endpoint allows you to execute JavaScript code and get results back.
-     * Each request creates a fresh execution environment that's cleaned up automatically.
+     *
+     * For stateless execution (default):
+     * - Each request creates a fresh execution environment
+     * - Environment is cleaned up automatically after execution
+     *
+     * For stateful execution (stateful=True):
+     * - Uses persistent REPL session that maintains state between requests
+     * - Variables, functions, and imports persist across calls
+     * - Returns session_id to continue the session in subsequent requests
+     * - Supports async/await at top level
      *
      * @param {Sandbox.NodeJsExecuteRequest} request
      * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
@@ -105,7 +114,10 @@ export class Nodejs {
     }
 
     /**
-     * Get information about Node.js runtime and available languages
+     * Get information about Node.js REPL runtime, including installed packages
+     *
+     * Returns Node.js version, npm version, and lists of installed packages
+     * from both the runtime directory and global npm directory.
      *
      * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -155,6 +167,407 @@ export class Nodejs {
             data: {
                 ok: false,
                 error: Sandbox.nodejs.getInfo.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * List all active Node.js REPL sessions
+     *
+     * Returns information about all active sessions including their state,
+     * working directory, and idle time.
+     *
+     * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.nodejs.listSessions()
+     */
+    public listSessions(
+        requestOptions?: Nodejs.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseNodeJsSessionListResponse, Sandbox.nodejs.listSessions.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__listSessions(requestOptions));
+    }
+
+    private async __listSessions(
+        requestOptions?: Nodejs.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseNodeJsSessionListResponse, Sandbox.nodejs.listSessions.Error>
+        >
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/nodejs/sessions",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseNodeJsSessionListResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.nodejs.listSessions.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * Create a new Node.js REPL session
+     *
+     * Creates a new persistent REPL session with configurable working directory
+     * and idle timeout. Use the returned session_id in subsequent execute requests.
+     *
+     * @param {Sandbox.NodeJsCreateSessionRequest} request
+     * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.nodejs.createSession()
+     */
+    public createSession(
+        request: Sandbox.NodeJsCreateSessionRequest = {},
+        requestOptions?: Nodejs.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseNodeJsCreateSessionResponse, Sandbox.nodejs.createSession.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__createSession(request, requestOptions));
+    }
+
+    private async __createSession(
+        request: Sandbox.NodeJsCreateSessionRequest = {},
+        requestOptions?: Nodejs.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseNodeJsCreateSessionResponse, Sandbox.nodejs.createSession.Error>
+        >
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/nodejs/sessions",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseNodeJsCreateSessionResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.nodejs.createSession.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.nodejs.createSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * Get information about a specific Node.js REPL session
+     *
+     * Returns detailed information about a session including its state,
+     * working directory, creation time, and idle time.
+     *
+     * @param {string} sessionId
+     * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.nodejs.getSession("session_id")
+     */
+    public getSession(
+        sessionId: string,
+        requestOptions?: Nodejs.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseNodeJsSessionResponse, Sandbox.nodejs.getSession.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__getSession(sessionId, requestOptions));
+    }
+
+    private async __getSession(
+        sessionId: string,
+        requestOptions?: Nodejs.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseNodeJsSessionResponse, Sandbox.nodejs.getSession.Error>>
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                `v1/nodejs/sessions/${core.url.encodePathParam(sessionId)}`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseNodeJsSessionResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.nodejs.getSession.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.nodejs.getSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * Delete a Node.js REPL session
+     *
+     * Terminates the session and releases all associated resources.
+     *
+     * @param {string} sessionId
+     * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.nodejs.deleteSession("session_id")
+     */
+    public deleteSession(
+        sessionId: string,
+        requestOptions?: Nodejs.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseNodeJsDeleteSessionResponse, Sandbox.nodejs.deleteSession.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__deleteSession(sessionId, requestOptions));
+    }
+
+    private async __deleteSession(
+        sessionId: string,
+        requestOptions?: Nodejs.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseNodeJsDeleteSessionResponse, Sandbox.nodejs.deleteSession.Error>
+        >
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                `v1/nodejs/sessions/${core.url.encodePathParam(sessionId)}`,
+            ),
+            method: "DELETE",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseNodeJsDeleteSessionResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.nodejs.deleteSession.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.nodejs.deleteSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * Update a Node.js REPL session configuration
+     *
+     * Updates session properties like maximum idle time or working directory.
+     *
+     * @param {string} sessionId
+     * @param {Sandbox.NodeJsUpdateSessionRequest} request
+     * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.nodejs.updateSession("session_id")
+     */
+    public updateSession(
+        sessionId: string,
+        request: Sandbox.NodeJsUpdateSessionRequest = {},
+        requestOptions?: Nodejs.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseNodeJsUpdateSessionResponse, Sandbox.nodejs.updateSession.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__updateSession(sessionId, request, requestOptions));
+    }
+
+    private async __updateSession(
+        sessionId: string,
+        request: Sandbox.NodeJsUpdateSessionRequest = {},
+        requestOptions?: Nodejs.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseNodeJsUpdateSessionResponse, Sandbox.nodejs.updateSession.Error>
+        >
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                `v1/nodejs/sessions/${core.url.encodePathParam(sessionId)}`,
+            ),
+            method: "PATCH",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseNodeJsUpdateSessionResponse,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.nodejs.updateSession.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.nodejs.updateSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

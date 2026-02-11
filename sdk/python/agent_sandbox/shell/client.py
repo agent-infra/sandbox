@@ -45,6 +45,7 @@ class ShellClient:
         strict: typing.Optional[bool] = OMIT,
         no_change_timeout: typing.Optional[int] = OMIT,
         preserve_symlinks: typing.Optional[bool] = OMIT,
+        truncate: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellCommandResult:
         """
@@ -77,6 +78,9 @@ class ShellClient:
         preserve_symlinks : typing.Optional[bool]
             If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
 
+        truncate : typing.Optional[bool]
+            If True, truncate output when it exceeds 30000 characters (default: True)
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -105,6 +109,7 @@ class ShellClient:
             strict=strict,
             no_change_timeout=no_change_timeout,
             preserve_symlinks=preserve_symlinks,
+            truncate=truncate,
             request_options=request_options,
         )
         return _response.data
@@ -495,6 +500,7 @@ class AsyncShellClient:
         strict: typing.Optional[bool] = OMIT,
         no_change_timeout: typing.Optional[int] = OMIT,
         preserve_symlinks: typing.Optional[bool] = OMIT,
+        truncate: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseShellCommandResult:
         """
@@ -526,6 +532,9 @@ class AsyncShellClient:
 
         preserve_symlinks : typing.Optional[bool]
             If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
+
+        truncate : typing.Optional[bool]
+            If True, truncate output when it exceeds 30000 characters (default: True)
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -563,6 +572,7 @@ class AsyncShellClient:
             strict=strict,
             no_change_timeout=no_change_timeout,
             preserve_symlinks=preserve_symlinks,
+            truncate=truncate,
             request_options=request_options,
         )
         return _response.data

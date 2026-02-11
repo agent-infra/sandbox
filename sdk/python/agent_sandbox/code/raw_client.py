@@ -113,6 +113,8 @@ class RawCodeClient:
         """
         Return metadata about supported code runtimes
 
+        Note: Version info is cached at service level (first call only runs subprocess).
+
         Parameters
         ----------
         request_options : typing.Optional[RequestOptions]
@@ -238,6 +240,8 @@ class AsyncRawCodeClient:
     ) -> AsyncHttpResponse[ResponseCodeInfoResponse]:
         """
         Return metadata about supported code runtimes
+
+        Note: Version info is cached at service level (first call only runs subprocess).
 
         Parameters
         ----------

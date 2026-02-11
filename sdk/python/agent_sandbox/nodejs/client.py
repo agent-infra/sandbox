@@ -42,6 +42,7 @@ class NodejsClient:
         stateful: typing.Optional[bool] = OMIT,
         session_id: typing.Optional[str] = OMIT,
         cwd: typing.Optional[str] = OMIT,
+        version: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseNodeJsExecuteResponse:
         """
@@ -82,6 +83,9 @@ class NodejsClient:
         cwd : typing.Optional[str]
             Working directory for code execution
 
+        version : typing.Optional[str]
+            Node.js version to use: "node20", "node22", "node24", or aliases "20", "22", "24"
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -109,6 +113,7 @@ class NodejsClient:
             stateful=stateful,
             session_id=session_id,
             cwd=cwd,
+            version=version,
             request_options=request_options,
         )
         return _response.data
@@ -362,6 +367,7 @@ class AsyncNodejsClient:
         stateful: typing.Optional[bool] = OMIT,
         session_id: typing.Optional[str] = OMIT,
         cwd: typing.Optional[str] = OMIT,
+        version: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseNodeJsExecuteResponse:
         """
@@ -402,6 +408,9 @@ class AsyncNodejsClient:
         cwd : typing.Optional[str]
             Working directory for code execution
 
+        version : typing.Optional[str]
+            Node.js version to use: "node20", "node22", "node24", or aliases "20", "22", "24"
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -437,6 +446,7 @@ class AsyncNodejsClient:
             stateful=stateful,
             session_id=session_id,
             cwd=cwd,
+            version=version,
             request_options=request_options,
         )
         return _response.data

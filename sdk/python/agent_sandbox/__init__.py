@@ -148,7 +148,7 @@ if typing.TYPE_CHECKING:
         WaitAction,
     )
     from .errors import UnprocessableEntityError
-    from . import browser, code, file, jupyter, mcp, nodejs, sandbox, shell, skills, util
+    from . import auth, browser, code, file, jupyter, mcp, nodejs, sandbox, shell, skills, util
     from .browser import (
         Action,
         Action_Click,
@@ -332,6 +332,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ValidationError": ".types",
     "ValidationErrorLocItem": ".types",
     "WaitAction": ".types",
+    "auth": ".",
     "browser": ".",
     "code": ".",
     "file": ".",
@@ -526,6 +527,7 @@ __all__ = [
     "ValidationError",
     "ValidationErrorLocItem",
     "WaitAction",
+    "auth",
     "browser",
     "code",
     "file",

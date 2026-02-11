@@ -24,4 +24,8 @@ export interface NodeJsRuntimeInfo {
     global_packages?: Sandbox.NodeJsPackageInfo[];
     /** Error message if runtime info retrieval failed */
     error?: string;
+    /** Available Node.js versions (e.g., node20, node22, node24) */
+    available_versions?: string[];
+    /** Currently active Node.js version */
+    current_version?: string;
 }
