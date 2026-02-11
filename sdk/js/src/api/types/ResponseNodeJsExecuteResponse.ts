@@ -9,4 +9,6 @@ export interface ResponseNodeJsExecuteResponse {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.NodeJsExecuteResponse;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

@@ -1,6 +1,8 @@
 export type { BodyUploadFile } from "./BodyUploadFile.js";
 export type { FileDownloadFileRequest } from "./FileDownloadFileRequest.js";
 export type { FileFindRequest } from "./FileFindRequest.js";
+export type { FileGlobRequest } from "./FileGlobRequest.js";
+export type { FileGrepRequest } from "./FileGrepRequest.js";
 export type { FileListRequest } from "./FileListRequest.js";
 export type { FileReadRequest } from "./FileReadRequest.js";
 export type { FileReplaceRequest } from "./FileReplaceRequest.js";

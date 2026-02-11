@@ -9,4 +9,6 @@ export interface ResponseFileUploadResult {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.FileUploadResult;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

@@ -1,6 +1,6 @@
 {
   "name": "@agent-infra/sandbox",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Node.js SDK for AIO Sandbox integration providing tools and interfaces",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.mjs",

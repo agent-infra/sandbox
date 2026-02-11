@@ -1,5 +1,7 @@
 export * as downloadFile from "./downloadFile.js";
 export * as findFiles from "./findFiles.js";
+export * as globFiles from "./globFiles.js";
+export * as grepFiles from "./grepFiles.js";
 export * as listPath from "./listPath.js";
 export * as readFile from "./readFile.js";
 export * as replaceInFile from "./replaceInFile.js";

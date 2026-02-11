@@ -426,6 +426,166 @@ export class File_ {
     }
 
     /**
+     * Multi-file content search (grep) with regex or fixed string support
+     *
+     * @param {Sandbox.FileGrepRequest} request
+     * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.file.grepFiles({
+     *         path: "path",
+     *         pattern: "pattern"
+     *     })
+     */
+    public grepFiles(
+        request: Sandbox.FileGrepRequest,
+        requestOptions?: File_.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileGrepResult, Sandbox.file.grepFiles.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__grepFiles(request, requestOptions));
+    }
+
+    private async __grepFiles(
+        request: Sandbox.FileGrepRequest,
+        requestOptions?: File_.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileGrepResult, Sandbox.file.grepFiles.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/file/grep",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseFileGrepResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.grepFiles.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.grepFiles.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * Enhanced file glob matching with optional metadata
+     *
+     * @param {Sandbox.FileGlobRequest} request
+     * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.file.globFiles({
+     *         path: "path",
+     *         pattern: "pattern"
+     *     })
+     */
+    public globFiles(
+        request: Sandbox.FileGlobRequest,
+        requestOptions?: File_.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileGlobResult, Sandbox.file.globFiles.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__globFiles(request, requestOptions));
+    }
+
+    private async __globFiles(
+        request: Sandbox.FileGlobRequest,
+        requestOptions?: File_.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileGlobResult, Sandbox.file.globFiles.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/file/glob",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseFileGlobResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.globFiles.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.globFiles.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
      * Upload file using streaming
      *
      * @param {Sandbox.BodyUploadFile} request

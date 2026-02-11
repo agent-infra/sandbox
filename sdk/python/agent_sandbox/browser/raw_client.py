@@ -16,6 +16,7 @@ from ..types.http_validation_error import HttpValidationError
 from ..types.resolution import Resolution
 from ..types.response import Response
 from ..types.response_browser_info_result import ResponseBrowserInfoResult
+from ..types.restart_request import RestartRequest
 from .types.action import Action
 
 # this is used as the default value for optional parameters
@@ -218,6 +219,93 @@ class RawBrowserClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
+    def restart(
+        self,
+        *,
+        request: typing.Optional[RestartRequest] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[Response]:
+        """
+        Restart the browser session.
+
+        - **soft** (default): Reconnect the Playwright session only.
+        - **hard**: Restart the browser process via supervisorctl, optionally
+          updating URL blocklist/allowlist policies before restart.
+
+        Parameters
+        ----------
+        request : typing.Optional[RestartRequest]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[Response]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/browser/restart",
+            method="POST",
+            json=convert_and_respect_annotation_metadata(object_=request, annotation=RestartRequest, direction="write"),
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Response,
+                    parse_obj_as(
+                        type_=Response,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def get_proxy_pac(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[None]:
+        """
+        Return the current PAC file for proxy split-routing (if configured).
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[None]
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/browser/proxy.pac",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return HttpResponse(response=_response, data=None)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
 
 class AsyncRawBrowserClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -411,6 +499,95 @@ class AsyncRawBrowserClient:
                         ),
                     ),
                 )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def restart(
+        self,
+        *,
+        request: typing.Optional[RestartRequest] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[Response]:
+        """
+        Restart the browser session.
+
+        - **soft** (default): Reconnect the Playwright session only.
+        - **hard**: Restart the browser process via supervisorctl, optionally
+          updating URL blocklist/allowlist policies before restart.
+
+        Parameters
+        ----------
+        request : typing.Optional[RestartRequest]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[Response]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/browser/restart",
+            method="POST",
+            json=convert_and_respect_annotation_metadata(object_=request, annotation=RestartRequest, direction="write"),
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Response,
+                    parse_obj_as(
+                        type_=Response,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def get_proxy_pac(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[None]:
+        """
+        Return the current PAC file for proxy split-routing (if configured).
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[None]
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/browser/proxy.pac",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return AsyncHttpResponse(response=_response, data=None)
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)

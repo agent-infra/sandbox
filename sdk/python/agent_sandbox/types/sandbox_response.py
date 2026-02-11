@@ -23,6 +23,11 @@ class SandboxResponse(UniversalBaseModel):
     Data returned from the operation
     """
 
+    hint: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Context hint for AI agents (e.g. tab changes)
+    """
+
     home_dir: str
     version: str
     detail: SandboxDetail

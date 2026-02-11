@@ -27,6 +27,11 @@ class ActionResponse(UniversalBaseModel):
     Data returned from the operation
     """
 
+    hint: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Context hint for AI agents (e.g. tab changes)
+    """
+
     status: typing.Optional[typing.Literal["success"]] = None
     action_performed: typing.Optional[str] = None
 

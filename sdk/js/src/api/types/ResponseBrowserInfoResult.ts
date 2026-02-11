@@ -9,4 +9,6 @@ export interface ResponseBrowserInfoResult {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.BrowserInfoResult;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

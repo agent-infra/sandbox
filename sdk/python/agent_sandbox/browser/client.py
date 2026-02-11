@@ -8,6 +8,7 @@ from ..types.action_response import ActionResponse
 from ..types.resolution import Resolution
 from ..types.response import Response
 from ..types.response_browser_info_result import ResponseBrowserInfoResult
+from ..types.restart_request import RestartRequest
 from .raw_client import AsyncRawBrowserClient, RawBrowserClient
 from .types.action import Action
 
@@ -141,6 +142,70 @@ class BrowserClient:
         client.browser.set_config()
         """
         _response = self._raw_client.set_config(resolution=resolution, request_options=request_options)
+        return _response.data
+
+    def restart(
+        self,
+        *,
+        request: typing.Optional[RestartRequest] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Response:
+        """
+        Restart the browser session.
+
+        - **soft** (default): Reconnect the Playwright session only.
+        - **hard**: Restart the browser process via supervisorctl, optionally
+          updating URL blocklist/allowlist policies before restart.
+
+        Parameters
+        ----------
+        request : typing.Optional[RestartRequest]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import RestartRequest, Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.browser.restart(
+            request=RestartRequest(),
+        )
+        """
+        _response = self._raw_client.restart(request=request, request_options=request_options)
+        return _response.data
+
+    def get_proxy_pac(self, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+        """
+        Return the current PAC file for proxy split-routing (if configured).
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.browser.get_proxy_pac()
+        """
+        _response = self._raw_client.get_proxy_pac(request_options=request_options)
         return _response.data
 
 
@@ -297,4 +362,84 @@ class AsyncBrowserClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.set_config(resolution=resolution, request_options=request_options)
+        return _response.data
+
+    async def restart(
+        self,
+        *,
+        request: typing.Optional[RestartRequest] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Response:
+        """
+        Restart the browser session.
+
+        - **soft** (default): Reconnect the Playwright session only.
+        - **hard**: Restart the browser process via supervisorctl, optionally
+          updating URL blocklist/allowlist policies before restart.
+
+        Parameters
+        ----------
+        request : typing.Optional[RestartRequest]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox, RestartRequest
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.browser.restart(
+                request=RestartRequest(),
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.restart(request=request, request_options=request_options)
+        return _response.data
+
+    async def get_proxy_pac(self, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+        """
+        Return the current PAC file for proxy split-routing (if configured).
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.browser.get_proxy_pac()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.get_proxy_pac(request_options=request_options)
         return _response.data

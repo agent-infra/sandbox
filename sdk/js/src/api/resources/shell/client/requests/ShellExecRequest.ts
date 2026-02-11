@@ -21,6 +21,8 @@ export interface ShellExecRequest {
     strict?: boolean;
     /** Timeout (seconds) for detecting no new output from a command. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status. Overrides session-level setting for this command only. */
     no_change_timeout?: number;
+    /** Hard timeout (seconds) for command execution. When reached, the command is forcefully stopped and current console output is returned with HARD_TIMEOUT status. Unlike timeout (which only affects HTTP response timing), this actually terminates the command. */
+    hard_timeout?: number;
     /** If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility. */
     preserve_symlinks?: boolean;
     /** If True, truncate output when it exceeds 30000 characters (default: True) */

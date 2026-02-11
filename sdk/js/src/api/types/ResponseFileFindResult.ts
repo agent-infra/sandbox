@@ -9,4 +9,6 @@ export interface ResponseFileFindResult {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.FileFindResult;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

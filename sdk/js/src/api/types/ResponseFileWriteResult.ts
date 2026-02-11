@@ -9,4 +9,6 @@ export interface ResponseFileWriteResult {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.FileWriteResult;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

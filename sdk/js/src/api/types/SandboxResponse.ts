@@ -9,6 +9,8 @@ export interface SandboxResponse {
     message?: string;
     /** Data returned from the operation */
     data?: unknown;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
     home_dir: string;
     version: string;
     detail: Sandbox.SandboxDetail;

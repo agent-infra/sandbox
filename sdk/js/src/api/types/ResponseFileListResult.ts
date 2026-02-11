@@ -9,4 +9,6 @@ export interface ResponseFileListResult {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.FileListResult;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

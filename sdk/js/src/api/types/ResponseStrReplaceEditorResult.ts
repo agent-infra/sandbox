@@ -9,4 +9,6 @@ export interface ResponseStrReplaceEditorResult {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.StrReplaceEditorResult;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

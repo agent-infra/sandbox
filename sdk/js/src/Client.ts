@@ -2,6 +2,12 @@
 
 import { Auth } from "./api/resources/auth/client/Client.js";
 import { Browser } from "./api/resources/browser/client/Client.js";
+import { BrowserCaptcha } from "./api/resources/browserCaptcha/client/Client.js";
+import { BrowserCookies } from "./api/resources/browserCookies/client/Client.js";
+import { BrowserNetwork } from "./api/resources/browserNetwork/client/Client.js";
+import { BrowserPage } from "./api/resources/browserPage/client/Client.js";
+import { BrowserState } from "./api/resources/browserState/client/Client.js";
+import { BrowserTabs } from "./api/resources/browserTabs/client/Client.js";
 import { Code } from "./api/resources/code/client/Client.js";
 import { File_ } from "./api/resources/file/client/Client.js";
 import { Jupyter } from "./api/resources/jupyter/client/Client.js";
@@ -23,6 +29,7 @@ export declare namespace SandboxClient {
 
 export class SandboxClient {
     protected readonly _options: SandboxClient.Options;
+    protected _auth: Auth | undefined;
     protected _sandbox: SandboxService | undefined;
     protected _shell: Shell | undefined;
     protected _file: File_ | undefined;
@@ -30,10 +37,15 @@ export class SandboxClient {
     protected _nodejs: Nodejs | undefined;
     protected _mcp: Mcp | undefined;
     protected _browser: Browser | undefined;
+    protected _browserPage: BrowserPage | undefined;
+    protected _browserCaptcha: BrowserCaptcha | undefined;
+    protected _browserCookies: BrowserCookies | undefined;
+    protected _browserNetwork: BrowserNetwork | undefined;
+    protected _browserState: BrowserState | undefined;
+    protected _browserTabs: BrowserTabs | undefined;
     protected _code: Code | undefined;
     protected _util: Util | undefined;
     protected _skills: Skills | undefined;
-    protected _auth: Auth | undefined;
 
     constructor(_options: SandboxClient.Options) {
         this._options = {
@@ -48,6 +60,10 @@ export class SandboxClient {
                 _options?.headers,
             ),
         };
+    }
+
+    public get auth(): Auth {
+        return (this._auth ??= new Auth(this._options));
     }
 
     public get sandbox(): SandboxService {
@@ -78,6 +94,30 @@ export class SandboxClient {
         return (this._browser ??= new Browser(this._options));
     }
 
+    public get browserPage(): BrowserPage {
+        return (this._browserPage ??= new BrowserPage(this._options));
+    }
+
+    public get browserCaptcha(): BrowserCaptcha {
+        return (this._browserCaptcha ??= new BrowserCaptcha(this._options));
+    }
+
+    public get browserCookies(): BrowserCookies {
+        return (this._browserCookies ??= new BrowserCookies(this._options));
+    }
+
+    public get browserNetwork(): BrowserNetwork {
+        return (this._browserNetwork ??= new BrowserNetwork(this._options));
+    }
+
+    public get browserState(): BrowserState {
+        return (this._browserState ??= new BrowserState(this._options));
+    }
+
+    public get browserTabs(): BrowserTabs {
+        return (this._browserTabs ??= new BrowserTabs(this._options));
+    }
+
     public get code(): Code {
         return (this._code ??= new Code(this._options));
     }
@@ -88,10 +128,6 @@ export class SandboxClient {
 
     public get skills(): Skills {
         return (this._skills ??= new Skills(this._options));
-    }
-
-    public get auth(): Auth {
-        return (this._auth ??= new Auth(this._options));
     }
 
 }

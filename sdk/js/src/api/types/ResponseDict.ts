@@ -7,4 +7,6 @@ export interface ResponseDict {
     message?: string;
     /** Data returned from the operation */
     data?: Record<string, unknown>;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

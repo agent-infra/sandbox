@@ -9,4 +9,6 @@ export interface ResponseShellCreateSessionResponse {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.ShellCreateSessionResponse;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

@@ -15,6 +15,8 @@ export interface ActionResponse {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.ActionData;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
     status?: "success";
     action_performed?: string;
 }

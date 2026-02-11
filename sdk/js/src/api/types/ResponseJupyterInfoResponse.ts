@@ -9,4 +9,6 @@ export interface ResponseJupyterInfoResponse {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.JupyterInfoResponse;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

@@ -286,4 +286,140 @@ export class Browser {
             rawResponse: _response.rawResponse,
         };
     }
+
+    /**
+     * Restart the browser session.
+     *
+     * - **soft** (default): Reconnect the Playwright session only.
+     * - **hard**: Restart the browser process via supervisorctl, optionally
+     *   updating URL blocklist/allowlist policies before restart.
+     *
+     * @param {Sandbox.RestartRequest} request
+     * @param {Browser.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.browser.restart()
+     */
+    public restart(
+        request?: Sandbox.RestartRequest,
+        requestOptions?: Browser.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.browser.restart.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__restart(request, requestOptions));
+    }
+
+    private async __restart(
+        request?: Sandbox.RestartRequest,
+        requestOptions?: Browser.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.browser.restart.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/browser/restart",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request != null ? request : undefined,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.browser.restart.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.browser.restart.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * Return the current PAC file for proxy split-routing (if configured).
+     *
+     * @param {Browser.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.browser.getProxyPac()
+     */
+    public getProxyPac(
+        requestOptions?: Browser.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<void, Sandbox.browser.getProxyPac.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__getProxyPac(requestOptions));
+    }
+
+    private async __getProxyPac(
+        requestOptions?: Browser.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<void, Sandbox.browser.getProxyPac.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/browser/proxy.pac",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: undefined,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.browser.getProxyPac.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
 }

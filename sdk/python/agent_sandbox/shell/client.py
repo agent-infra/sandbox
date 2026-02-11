@@ -44,6 +44,7 @@ class ShellClient:
         timeout: typing.Optional[float] = OMIT,
         strict: typing.Optional[bool] = OMIT,
         no_change_timeout: typing.Optional[int] = OMIT,
+        hard_timeout: typing.Optional[float] = OMIT,
         preserve_symlinks: typing.Optional[bool] = OMIT,
         truncate: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -74,6 +75,9 @@ class ShellClient:
 
         no_change_timeout : typing.Optional[int]
             Timeout (seconds) for detecting no new output from a command. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status. Overrides session-level setting for this command only.
+
+        hard_timeout : typing.Optional[float]
+            Hard timeout (seconds) for command execution. When reached, the command is forcefully stopped and current console output is returned with HARD_TIMEOUT status. Unlike timeout (which only affects HTTP response timing), this actually terminates the command.
 
         preserve_symlinks : typing.Optional[bool]
             If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
@@ -108,6 +112,7 @@ class ShellClient:
             timeout=timeout,
             strict=strict,
             no_change_timeout=no_change_timeout,
+            hard_timeout=hard_timeout,
             preserve_symlinks=preserve_symlinks,
             truncate=truncate,
             request_options=request_options,
@@ -499,6 +504,7 @@ class AsyncShellClient:
         timeout: typing.Optional[float] = OMIT,
         strict: typing.Optional[bool] = OMIT,
         no_change_timeout: typing.Optional[int] = OMIT,
+        hard_timeout: typing.Optional[float] = OMIT,
         preserve_symlinks: typing.Optional[bool] = OMIT,
         truncate: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -529,6 +535,9 @@ class AsyncShellClient:
 
         no_change_timeout : typing.Optional[int]
             Timeout (seconds) for detecting no new output from a command. If no output change is detected within this time, command returns with NO_CHANGE_TIMEOUT status. Overrides session-level setting for this command only.
+
+        hard_timeout : typing.Optional[float]
+            Hard timeout (seconds) for command execution. When reached, the command is forcefully stopped and current console output is returned with HARD_TIMEOUT status. Unlike timeout (which only affects HTTP response timing), this actually terminates the command.
 
         preserve_symlinks : typing.Optional[bool]
             If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
@@ -571,6 +580,7 @@ class AsyncShellClient:
             timeout=timeout,
             strict=strict,
             no_change_timeout=no_change_timeout,
+            hard_timeout=hard_timeout,
             preserve_symlinks=preserve_symlinks,
             truncate=truncate,
             request_options=request_options,

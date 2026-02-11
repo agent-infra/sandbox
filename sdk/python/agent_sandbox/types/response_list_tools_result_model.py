@@ -23,6 +23,11 @@ class ResponseListToolsResultModel(UniversalBaseModel):
     Data returned from the operation
     """
 
+    hint: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Context hint for AI agents (e.g. tab changes)
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

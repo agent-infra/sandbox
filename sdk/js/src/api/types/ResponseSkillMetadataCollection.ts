@@ -9,4 +9,6 @@ export interface ResponseSkillMetadataCollection {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.SkillMetadataCollection;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

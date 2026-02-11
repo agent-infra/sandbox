@@ -9,4 +9,6 @@ export interface ResponseListToolsResultModel {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.ListToolsResult;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }

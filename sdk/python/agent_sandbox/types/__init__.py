@@ -20,6 +20,8 @@ if typing.TYPE_CHECKING:
     from .browser_viewport import BrowserViewport
     from .button import Button
     from .call_tool_result import CallToolResult
+    from .captcha_wait_result import CaptchaWaitResult
+    from .check_request import CheckRequest
     from .click_action import ClickAction
     from .code_execute_response import CodeExecuteResponse
     from .code_info_response import CodeInfoResponse
@@ -32,6 +34,8 @@ if typing.TYPE_CHECKING:
     from .embedded_resource import EmbeddedResource
     from .file_content_encoding import FileContentEncoding
     from .file_find_result import FileFindResult
+    from .file_glob_result import FileGlobResult
+    from .file_grep_result import FileGrepResult
     from .file_info import FileInfo
     from .file_list_result import FileListResult
     from .file_read_result import FileReadResult
@@ -39,6 +43,8 @@ if typing.TYPE_CHECKING:
     from .file_search_result import FileSearchResult
     from .file_upload_result import FileUploadResult
     from .file_write_result import FileWriteResult
+    from .glob_file_info import GlobFileInfo
+    from .grep_match import GrepMatch
     from .hotkey_action import HotkeyAction
     from .http_validation_error import HttpValidationError
     from .icon import Icon
@@ -51,6 +57,7 @@ if typing.TYPE_CHECKING:
     from .key_up_action import KeyUpAction
     from .language import Language
     from .list_tools_result import ListToolsResult
+    from .mode import Mode
     from .mouse_down_action import MouseDownAction
     from .mouse_up_action import MouseUpAction
     from .move_rel_action import MoveRelAction
@@ -82,10 +89,13 @@ if typing.TYPE_CHECKING:
         ResponseCallToolResultModelDataContentItem_ResourceLink,
         ResponseCallToolResultModelDataContentItem_Text,
     )
+    from .response_captcha_wait_result import ResponseCaptchaWaitResult
     from .response_code_execute_response import ResponseCodeExecuteResponse
     from .response_code_info_response import ResponseCodeInfoResponse
     from .response_dict import ResponseDict
     from .response_file_find_result import ResponseFileFindResult
+    from .response_file_glob_result import ResponseFileGlobResult
+    from .response_file_grep_result import ResponseFileGrepResult
     from .response_file_list_result import ResponseFileListResult
     from .response_file_read_result import ResponseFileReadResult
     from .response_file_replace_result import ResponseFileReplaceResult
@@ -95,6 +105,7 @@ if typing.TYPE_CHECKING:
     from .response_jupyter_create_session_response import ResponseJupyterCreateSessionResponse
     from .response_jupyter_execute_response import ResponseJupyterExecuteResponse
     from .response_jupyter_info_response import ResponseJupyterInfoResponse
+    from .response_list import ResponseList
     from .response_list_str import ResponseListStr
     from .response_list_tools_result_model import ResponseListToolsResultModel
     from .response_node_js_create_session_response import ResponseNodeJsCreateSessionResponse
@@ -116,7 +127,9 @@ if typing.TYPE_CHECKING:
     from .response_skill_registration_result import ResponseSkillRegistrationResult
     from .response_str import ResponseStr
     from .response_str_replace_editor_result import ResponseStrReplaceEditorResult
+    from .restart_request import RestartRequest
     from .right_click_action import RightClickAction
+    from .route_response_model import RouteResponseModel
     from .runtime_env import RuntimeEnv
     from .sandbox_detail import SandboxDetail
     from .sandbox_response import SandboxResponse
@@ -162,6 +175,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "BrowserViewport": ".browser_viewport",
     "Button": ".button",
     "CallToolResult": ".call_tool_result",
+    "CaptchaWaitResult": ".captcha_wait_result",
+    "CheckRequest": ".check_request",
     "ClickAction": ".click_action",
     "CodeExecuteResponse": ".code_execute_response",
     "CodeInfoResponse": ".code_info_response",
@@ -174,6 +189,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "EmbeddedResource": ".embedded_resource",
     "FileContentEncoding": ".file_content_encoding",
     "FileFindResult": ".file_find_result",
+    "FileGlobResult": ".file_glob_result",
+    "FileGrepResult": ".file_grep_result",
     "FileInfo": ".file_info",
     "FileListResult": ".file_list_result",
     "FileReadResult": ".file_read_result",
@@ -181,6 +198,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "FileSearchResult": ".file_search_result",
     "FileUploadResult": ".file_upload_result",
     "FileWriteResult": ".file_write_result",
+    "GlobFileInfo": ".glob_file_info",
+    "GrepMatch": ".grep_match",
     "HotkeyAction": ".hotkey_action",
     "HttpValidationError": ".http_validation_error",
     "Icon": ".icon",
@@ -193,6 +212,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "KeyUpAction": ".key_up_action",
     "Language": ".language",
     "ListToolsResult": ".list_tools_result",
+    "Mode": ".mode",
     "MouseDownAction": ".mouse_down_action",
     "MouseUpAction": ".mouse_up_action",
     "MoveRelAction": ".move_rel_action",
@@ -222,10 +242,13 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseCallToolResultModelDataContentItem_Resource": ".response_call_tool_result_model_data_content_item",
     "ResponseCallToolResultModelDataContentItem_ResourceLink": ".response_call_tool_result_model_data_content_item",
     "ResponseCallToolResultModelDataContentItem_Text": ".response_call_tool_result_model_data_content_item",
+    "ResponseCaptchaWaitResult": ".response_captcha_wait_result",
     "ResponseCodeExecuteResponse": ".response_code_execute_response",
     "ResponseCodeInfoResponse": ".response_code_info_response",
     "ResponseDict": ".response_dict",
     "ResponseFileFindResult": ".response_file_find_result",
+    "ResponseFileGlobResult": ".response_file_glob_result",
+    "ResponseFileGrepResult": ".response_file_grep_result",
     "ResponseFileListResult": ".response_file_list_result",
     "ResponseFileReadResult": ".response_file_read_result",
     "ResponseFileReplaceResult": ".response_file_replace_result",
@@ -235,6 +258,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseJupyterCreateSessionResponse": ".response_jupyter_create_session_response",
     "ResponseJupyterExecuteResponse": ".response_jupyter_execute_response",
     "ResponseJupyterInfoResponse": ".response_jupyter_info_response",
+    "ResponseList": ".response_list",
     "ResponseListStr": ".response_list_str",
     "ResponseListToolsResultModel": ".response_list_tools_result_model",
     "ResponseNodeJsCreateSessionResponse": ".response_node_js_create_session_response",
@@ -256,7 +280,9 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseSkillRegistrationResult": ".response_skill_registration_result",
     "ResponseStr": ".response_str",
     "ResponseStrReplaceEditorResult": ".response_str_replace_editor_result",
+    "RestartRequest": ".restart_request",
     "RightClickAction": ".right_click_action",
+    "RouteResponseModel": ".route_response_model",
     "RuntimeEnv": ".runtime_env",
     "SandboxDetail": ".sandbox_detail",
     "SandboxResponse": ".sandbox_response",
@@ -324,6 +350,8 @@ __all__ = [
     "BrowserViewport",
     "Button",
     "CallToolResult",
+    "CaptchaWaitResult",
+    "CheckRequest",
     "ClickAction",
     "CodeExecuteResponse",
     "CodeInfoResponse",
@@ -336,6 +364,8 @@ __all__ = [
     "EmbeddedResource",
     "FileContentEncoding",
     "FileFindResult",
+    "FileGlobResult",
+    "FileGrepResult",
     "FileInfo",
     "FileListResult",
     "FileReadResult",
@@ -343,6 +373,8 @@ __all__ = [
     "FileSearchResult",
     "FileUploadResult",
     "FileWriteResult",
+    "GlobFileInfo",
+    "GrepMatch",
     "HotkeyAction",
     "HttpValidationError",
     "Icon",
@@ -355,6 +387,7 @@ __all__ = [
     "KeyUpAction",
     "Language",
     "ListToolsResult",
+    "Mode",
     "MouseDownAction",
     "MouseUpAction",
     "MoveRelAction",
@@ -384,10 +417,13 @@ __all__ = [
     "ResponseCallToolResultModelDataContentItem_Resource",
     "ResponseCallToolResultModelDataContentItem_ResourceLink",
     "ResponseCallToolResultModelDataContentItem_Text",
+    "ResponseCaptchaWaitResult",
     "ResponseCodeExecuteResponse",
     "ResponseCodeInfoResponse",
     "ResponseDict",
     "ResponseFileFindResult",
+    "ResponseFileGlobResult",
+    "ResponseFileGrepResult",
     "ResponseFileListResult",
     "ResponseFileReadResult",
     "ResponseFileReplaceResult",
@@ -397,6 +433,7 @@ __all__ = [
     "ResponseJupyterCreateSessionResponse",
     "ResponseJupyterExecuteResponse",
     "ResponseJupyterInfoResponse",
+    "ResponseList",
     "ResponseListStr",
     "ResponseListToolsResultModel",
     "ResponseNodeJsCreateSessionResponse",
@@ -418,7 +455,9 @@ __all__ = [
     "ResponseSkillRegistrationResult",
     "ResponseStr",
     "ResponseStrReplaceEditorResult",
+    "RestartRequest",
     "RightClickAction",
+    "RouteResponseModel",
     "RuntimeEnv",
     "SandboxDetail",
     "SandboxResponse",

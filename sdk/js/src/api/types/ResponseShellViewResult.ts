@@ -9,4 +9,6 @@ export interface ResponseShellViewResult {
     message?: string;
     /** Data returned from the operation */
     data?: Sandbox.ShellViewResult;
+    /** Context hint for AI agents (e.g. tab changes) */
+    hint?: string;
 }
