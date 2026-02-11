@@ -40,6 +40,7 @@ class RawShellClient:
         strict: typing.Optional[bool] = OMIT,
         no_change_timeout: typing.Optional[int] = OMIT,
         preserve_symlinks: typing.Optional[bool] = OMIT,
+        truncate: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseShellCommandResult]:
         """
@@ -72,6 +73,9 @@ class RawShellClient:
         preserve_symlinks : typing.Optional[bool]
             If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
 
+        truncate : typing.Optional[bool]
+            If True, truncate output when it exceeds 30000 characters (default: True)
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -92,6 +96,7 @@ class RawShellClient:
                 "strict": strict,
                 "no_change_timeout": no_change_timeout,
                 "preserve_symlinks": preserve_symlinks,
+                "truncate": truncate,
             },
             headers={
                 "content-type": "application/json",
@@ -687,6 +692,7 @@ class AsyncRawShellClient:
         strict: typing.Optional[bool] = OMIT,
         no_change_timeout: typing.Optional[int] = OMIT,
         preserve_symlinks: typing.Optional[bool] = OMIT,
+        truncate: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseShellCommandResult]:
         """
@@ -719,6 +725,9 @@ class AsyncRawShellClient:
         preserve_symlinks : typing.Optional[bool]
             If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.
 
+        truncate : typing.Optional[bool]
+            If True, truncate output when it exceeds 30000 characters (default: True)
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -739,6 +748,7 @@ class AsyncRawShellClient:
                 "strict": strict,
                 "no_change_timeout": no_change_timeout,
                 "preserve_symlinks": preserve_symlinks,
+                "truncate": truncate,
             },
             headers={
                 "content-type": "application/json",

@@ -26,4 +26,14 @@ export interface StrReplaceEditorRequest {
     view_range?: number[];
     /** Optional parameter of `str_replace` command. When specified, controls how multiple occurrences are handled: 'ALL' replaces all occurrences, 'FIRST' replaces only the first, 'LAST' replaces only the last. If not specified, requires unique match (original behavior). */
     replace_mode?: Sandbox.StrReplaceEditorRequestReplaceMode;
+    /** Optional parameter for `view` command on PDF files. Specifies page range [start, end] (1-indexed). E.g., [1, 5] reads pages 1-5. */
+    page_range?: number[];
+    /** Optional parameter for `view` command on Excel files. Specifies which sheet to read. If not provided, all sheets are returned. */
+    sheet_name?: string;
+    /** Optional parameter for `view` command on Excel files. Specifies row range [start, end] (1-indexed). E.g., [1, 100] reads rows 1-100. */
+    row_range?: number[];
+    /** Optional parameter for `view` command on PPTX files. Specifies slide range [start, end] (1-indexed). E.g., [1, 5] reads slides 1-5. */
+    slide_range?: number[];
+    /** Optional parameter for `view` command. If true, returns file metadata (total pages, sheets, slides, etc.) in the response. */
+    enable_metadata?: boolean;
 }

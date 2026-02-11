@@ -16,4 +16,6 @@ export interface StrReplaceEditorResult {
     old_content?: string;
     /** New file content after operation */
     new_content?: string;
+    /** File metadata (only returned when enable_metadata=true for binary files) */
+    metadata?: Record<string, unknown>;
 }

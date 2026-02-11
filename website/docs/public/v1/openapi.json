@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.160"
+    "version": "1.1.0"
   },
   "paths": {
     "/v1/sandbox": {
@@ -30,7 +30,7 @@
       "get": {
         "tags": ["sandbox"],
         "summary": "Python Packages",
-        "description": "Get installed packages by language",
+        "description": "Get installed Python packages",
         "operationId": "python_packages_v1_sandbox_packages_python_get",
         "responses": {
           "200": {
@@ -50,7 +50,7 @@
       "get": {
         "tags": ["sandbox"],
         "summary": "Nodejs Packages",
-        "description": "Get installed packages by language",
+        "description": "Get installed Node.js packages",
         "operationId": "nodejs_packages_v1_sandbox_packages_nodejs_get",
         "responses": {
           "200": {
@@ -1526,7 +1526,7 @@
       "get": {
         "tags": ["code"],
         "summary": "Code Info",
-        "description": "Return metadata about supported code runtimes",
+        "description": "Return metadata about supported code runtimes\n\nNote: Version info is cached at service level (first call only runs subprocess).",
         "operationId": "code_info_v1_code_info_get",
         "responses": {
           "200": {
@@ -1751,11 +1751,237 @@
         "x-fern-sdk-method-name": "get_content"
       }
     },
+    "/tickets": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Create Ticket",
+        "description": "Create and return a short-lived authentication ticket.\n\nThis is a non-idempotent action; each call creates a new, unique ticket.",
+        "operationId": "create_ticket_tickets_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Create Ticket Tickets Post"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "auth",
+        "x-fern-sdk-method-name": "create_ticket"
+      }
+    },
+    "/auth": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Authenticate Request",
+        "description": "Authenticate a request using ticket or JWT.\n\nThis endpoint receives authentication subrequests (e.g., from Nginx auth_request).\nIt validates the request based on either a ticket in the 'x-original-uri'\nheader or a JWT in the 'Authorization' header.",
+        "operationId": "authenticate_request_auth_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": { "type": "string" },
+                  "type": "object",
+                  "title": "Response Authenticate Request Auth Get"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "auth",
+        "x-fern-sdk-method-name": "authenticate"
+      }
+    },
+    "/cdp/json": {
+      "get": {
+        "tags": ["cdp"],
+        "summary": "Cdp Json",
+        "description": "Get list of inspectable pages with rewritten URLs.",
+        "operationId": "cdp_json_cdp_json_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        },
+        "x-fern-sdk-group-name": "cdp",
+        "x-fern-sdk-method-name": "get_pages"
+      }
+    },
+    "/cdp/json/version": {
+      "get": {
+        "tags": ["cdp"],
+        "summary": "Cdp Json Version",
+        "description": "Get browser version information with rewritten URLs.",
+        "operationId": "cdp_json_version_cdp_json_version_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        },
+        "x-fern-sdk-group-name": "cdp",
+        "x-fern-sdk-method-name": "get_version"
+      }
+    },
+    "/cdp/json/list": {
+      "get": {
+        "tags": ["cdp"],
+        "summary": "Cdp Json List",
+        "description": "Get list of inspectable pages (alias for /json).",
+        "operationId": "cdp_json_list_cdp_json_list_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        },
+        "x-fern-sdk-group-name": "cdp",
+        "x-fern-sdk-method-name": "list_pages"
+      }
+    },
+    "/cdp/json/protocol": {
+      "get": {
+        "tags": ["cdp"],
+        "summary": "Cdp Json Protocol",
+        "description": "Get the Chrome DevTools Protocol schema.",
+        "operationId": "cdp_json_protocol_cdp_json_protocol_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        },
+        "x-fern-sdk-group-name": "cdp",
+        "x-fern-sdk-method-name": "get_protocol"
+      }
+    },
+    "/cdp/json/new": {
+      "put": {
+        "tags": ["cdp"],
+        "summary": "Cdp Json New",
+        "description": "Open a new tab/page.",
+        "operationId": "cdp_json_new_cdp_json_new_put",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Url"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "cdp",
+        "x-fern-sdk-method-name": "new_page"
+      }
+    },
+    "/cdp/json/activate/{target_id}": {
+      "get": {
+        "tags": ["cdp"],
+        "summary": "Cdp Json Activate",
+        "description": "Activate (bring to front) a page.",
+        "operationId": "cdp_json_activate_cdp_json_activate__target_id__get",
+        "parameters": [
+          {
+            "name": "target_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Target Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "cdp",
+        "x-fern-sdk-method-name": "activate_page"
+      }
+    },
+    "/cdp/json/close/{target_id}": {
+      "get": {
+        "tags": ["cdp"],
+        "summary": "Cdp Json Close",
+        "description": "Close a page.",
+        "operationId": "cdp_json_close_cdp_json_close__target_id__get",
+        "parameters": [
+          {
+            "name": "target_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Target Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "cdp",
+        "x-fern-sdk-method-name": "close_page"
+      }
+    },
     "/terminal": {
       "get": {
+        "tags": ["web-ui"],
         "summary": "Serve Terminal",
         "description": "Serve the terminal HTML page",
         "operationId": "serve_terminal_terminal_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    },
+    "/browser-ui": {
+      "get": {
+        "tags": ["web-ui"],
+        "summary": "Serve Browser Ui",
+        "description": "Serve the browser-ui HTML page (CDP remote casting)",
+        "operationId": "serve_browser_ui_browser_ui_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1779,19 +2005,38 @@
       },
       "ActionResponse": {
         "properties": {
-          "status": { "type": "string", "const": "success", "title": "Status" },
-          "action_performed": { "type": "string", "title": "Action Performed" },
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message"
+          },
           "data": {
             "anyOf": [
               { "$ref": "#/components/schemas/ActionData" },
               { "type": "null" }
-            ]
+            ],
+            "description": "Data returned from the operation"
+          },
+          "status": {
+            "type": "string",
+            "const": "success",
+            "title": "Status",
+            "default": "success"
+          },
+          "action_performed": {
+            "type": "string",
+            "title": "Action Performed",
+            "default": ""
           }
         },
         "type": "object",
-        "required": ["status", "action_performed"],
         "title": "ActionResponse",
-        "description": "Response model for browser actions.\n\nProvides backward compatibility:\n- Old format: resp.json()['status'], resp.json()['action_performed']\n- New format: resp.json()['data']['status'], resp.json()['data']['action_performed']"
+        "description": "Response model for browser actions.\n\nInherits from Response for unified API format, with backward compatibility:\n- Old format: resp.json()['status'], resp.json()['action_performed']\n- New format: resp.json()['success'], resp.json()['message'], resp.json()['data']"
       },
       "ActiveSessionsResult": {
         "properties": {
@@ -1993,13 +2238,31 @@
             "title": "Vnc Url",
             "description": "VNC URL"
           },
+          "cdp_ui_url": {
+            "type": "string",
+            "title": "Cdp Ui Url",
+            "description": "CDP UI URL (browser-ui)"
+          },
           "viewport": {
             "$ref": "#/components/schemas/BrowserViewport",
-            "description": "Viewport size"
+            "description": "Display size (from xrandr / env vars)"
+          },
+          "page_viewport": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/BrowserViewport" },
+              { "type": "null" }
+            ],
+            "description": "Actual Chrome page viewport (window.innerWidth/Height via CDP). Smaller than viewport because Chrome UI chrome takes space."
           }
         },
         "type": "object",
-        "required": ["user_agent", "cdp_url", "vnc_url", "viewport"],
+        "required": [
+          "user_agent",
+          "cdp_url",
+          "vnc_url",
+          "cdp_ui_url",
+          "viewport"
+        ],
         "title": "BrowserInfoResult",
         "description": "Browser Info result"
       },
@@ -3330,6 +3593,11 @@
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Cwd",
             "description": "Working directory for code execution"
+          },
+          "version": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Version",
+            "description": "Node.js version to use: \"node20\", \"node22\", \"node24\", or aliases \"20\", \"22\", \"24\""
           }
         },
         "type": "object",
@@ -3518,6 +3786,18 @@
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Error",
             "description": "Error message if runtime info retrieval failed"
+          },
+          "available_versions": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Available Versions",
+            "description": "Available Node.js versions (e.g., node20, node22, node24)",
+            "default": []
+          },
+          "current_version": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Current Version",
+            "description": "Currently active Node.js version"
           }
         },
         "type": "object",
@@ -5023,6 +5303,12 @@
             "title": "Preserve Symlinks",
             "description": "If True, preserve symlinks in working directory path (pwd shows symlink path). If False, symlinks are resolved to physical paths. Defaults to False for backward compatibility.",
             "default": false
+          },
+          "truncate": {
+            "type": "boolean",
+            "title": "Truncate",
+            "description": "If True, truncate output when it exceeds 30000 characters (default: True)",
+            "default": true
           }
         },
         "type": "object",
@@ -5385,6 +5671,41 @@
             ],
             "title": "Replace Mode",
             "description": "Optional parameter of `str_replace` command. When specified, controls how multiple occurrences are handled: 'ALL' replaces all occurrences, 'FIRST' replaces only the first, 'LAST' replaces only the last. If not specified, requires unique match (original behavior)."
+          },
+          "page_range": {
+            "anyOf": [
+              { "items": { "type": "integer" }, "type": "array" },
+              { "type": "null" }
+            ],
+            "title": "Page Range",
+            "description": "Optional parameter for `view` command on PDF files. Specifies page range [start, end] (1-indexed). E.g., [1, 5] reads pages 1-5."
+          },
+          "sheet_name": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Sheet Name",
+            "description": "Optional parameter for `view` command on Excel files. Specifies which sheet to read. If not provided, all sheets are returned."
+          },
+          "row_range": {
+            "anyOf": [
+              { "items": { "type": "integer" }, "type": "array" },
+              { "type": "null" }
+            ],
+            "title": "Row Range",
+            "description": "Optional parameter for `view` command on Excel files. Specifies row range [start, end] (1-indexed). E.g., [1, 100] reads rows 1-100."
+          },
+          "slide_range": {
+            "anyOf": [
+              { "items": { "type": "integer" }, "type": "array" },
+              { "type": "null" }
+            ],
+            "title": "Slide Range",
+            "description": "Optional parameter for `view` command on PPTX files. Specifies slide range [start, end] (1-indexed). E.g., [1, 5] reads slides 1-5."
+          },
+          "enable_metadata": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "Enable Metadata",
+            "description": "Optional parameter for `view` command. If true, returns file metadata (total pages, sheets, slides, etc.) in the response.",
+            "default": false
           }
         },
         "type": "object",
@@ -5423,6 +5744,13 @@
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "New Content",
             "description": "New file content after operation"
+          },
+          "metadata": {
+            "anyOf": [
+              { "additionalProperties": true, "type": "object" },
+              { "type": "null" }
+            ],
+            "description": "File metadata (only returned when enable_metadata=true for binary files)"
           }
         },
         "type": "object",

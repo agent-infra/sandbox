@@ -6,10 +6,9 @@ import typing
 
 import httpx
 from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
-from .core.request_options import RequestOptions
-from .raw_client import AsyncRawSandbox, RawSandbox
 
 if typing.TYPE_CHECKING:
+    from .auth.client import AsyncAuthClient, AuthClient
     from .browser.client import AsyncBrowserClient, BrowserClient
     from .code.client import AsyncCodeClient, CodeClient
     from .file.client import AsyncFileClient, FileClient
@@ -74,7 +73,6 @@ class Sandbox:
             else httpx.Client(timeout=_defaulted_timeout),
             timeout=_defaulted_timeout,
         )
-        self._raw_client = RawSandbox(client_wrapper=self._client_wrapper)
         self._sandbox: typing.Optional[SandboxClient] = None
         self._shell: typing.Optional[ShellClient] = None
         self._file: typing.Optional[FileClient] = None
@@ -85,45 +83,7 @@ class Sandbox:
         self._code: typing.Optional[CodeClient] = None
         self._util: typing.Optional[UtilClient] = None
         self._skills: typing.Optional[SkillsClient] = None
-
-    @property
-    def with_raw_response(self) -> RawSandbox:
-        """
-        Retrieves a raw implementation of this client that returns raw responses.
-
-        Returns
-        -------
-        RawSandbox
-        """
-        return self._raw_client
-
-    def serve_terminal_terminal_get(
-        self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.Optional[typing.Any]:
-        """
-        Serve the terminal HTML page
-
-        Parameters
-        ----------
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        typing.Optional[typing.Any]
-            Successful Response
-
-        Examples
-        --------
-        from agent_sandbox import Sandbox
-
-        client = Sandbox(
-            base_url="https://yourhost.com/path/to/api",
-        )
-        client.serve_terminal_terminal_get()
-        """
-        _response = self._raw_client.serve_terminal_terminal_get(request_options=request_options)
-        return _response.data
+        self._auth: typing.Optional[AuthClient] = None
 
     @property
     def sandbox(self):
@@ -205,6 +165,15 @@ class Sandbox:
             self._skills = SkillsClient(client_wrapper=self._client_wrapper)
         return self._skills
 
+    @property
+    def auth(self):
+        if self._auth is None:
+            from .auth.client import AuthClient  # noqa: E402
+
+            self._auth = AuthClient(client_wrapper=self._client_wrapper)
+        return self._auth
+
+
 
 class AsyncSandbox:
     """
@@ -258,7 +227,6 @@ class AsyncSandbox:
             else httpx.AsyncClient(timeout=_defaulted_timeout),
             timeout=_defaulted_timeout,
         )
-        self._raw_client = AsyncRawSandbox(client_wrapper=self._client_wrapper)
         self._sandbox: typing.Optional[AsyncSandboxClient] = None
         self._shell: typing.Optional[AsyncShellClient] = None
         self._file: typing.Optional[AsyncFileClient] = None
@@ -269,53 +237,7 @@ class AsyncSandbox:
         self._code: typing.Optional[AsyncCodeClient] = None
         self._util: typing.Optional[AsyncUtilClient] = None
         self._skills: typing.Optional[AsyncSkillsClient] = None
-
-    @property
-    def with_raw_response(self) -> AsyncRawSandbox:
-        """
-        Retrieves a raw implementation of this client that returns raw responses.
-
-        Returns
-        -------
-        AsyncRawSandbox
-        """
-        return self._raw_client
-
-    async def serve_terminal_terminal_get(
-        self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> typing.Optional[typing.Any]:
-        """
-        Serve the terminal HTML page
-
-        Parameters
-        ----------
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        typing.Optional[typing.Any]
-            Successful Response
-
-        Examples
-        --------
-        import asyncio
-
-        from agent_sandbox import AsyncSandbox
-
-        client = AsyncSandbox(
-            base_url="https://yourhost.com/path/to/api",
-        )
-
-
-        async def main() -> None:
-            await client.serve_terminal_terminal_get()
-
-
-        asyncio.run(main())
-        """
-        _response = await self._raw_client.serve_terminal_terminal_get(request_options=request_options)
-        return _response.data
+        self._auth: typing.Optional[AsyncAuthClient] = None
 
     @property
     def sandbox(self):
@@ -396,3 +318,12 @@ class AsyncSandbox:
 
             self._skills = AsyncSkillsClient(client_wrapper=self._client_wrapper)
         return self._skills
+
+    @property
+    def auth(self):
+        if self._auth is None:
+            from .auth.client import AsyncAuthClient  # noqa: E402
+
+            self._auth = AsyncAuthClient(client_wrapper=self._client_wrapper)
+        return self._auth
+

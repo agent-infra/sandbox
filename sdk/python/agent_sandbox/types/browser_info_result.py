@@ -27,9 +27,19 @@ class BrowserInfoResult(UniversalBaseModel):
     VNC URL
     """
 
+    cdp_ui_url: str = pydantic.Field()
+    """
+    CDP UI URL (browser-ui)
+    """
+
     viewport: BrowserViewport = pydantic.Field()
     """
-    Viewport size
+    Display size (from xrandr / env vars)
+    """
+
+    page_viewport: typing.Optional[BrowserViewport] = pydantic.Field(default=None)
+    """
+    Actual Chrome page viewport (window.innerWidth/Height via CDP). Smaller than viewport because Chrome UI chrome takes space.
     """
 
     if IS_PYDANTIC_V2:

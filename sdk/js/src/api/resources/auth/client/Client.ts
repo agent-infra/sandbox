@@ -5,57 +5,48 @@ import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import * as Sandbox from "../../../index.js";
 
-export declare namespace Code {
+export declare namespace Auth {
     export interface Options extends BaseClientOptions {}
 
     export interface RequestOptions extends BaseRequestOptions {}
 }
 
-export class Code {
-    protected readonly _options: Code.Options;
+export class Auth {
+    protected readonly _options: Auth.Options;
 
-    constructor(_options: Code.Options) {
+    constructor(_options: Auth.Options) {
         this._options = _options;
     }
 
     /**
-     * Run code through the unified runtime, dispatching to Python, Node.js, or future language executors
+     * Create and return a short-lived authentication ticket.
      *
-     * @param {Sandbox.CodeExecuteRequest} request
-     * @param {Code.RequestOptions} requestOptions - Request-specific configuration.
+     * This is a non-idempotent action; each call creates a new, unique ticket.
+     *
+     * @param {Auth.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.code.executeCode({
-     *         language: "python",
-     *         code: "code"
-     *     })
+     *     await client.auth.createTicket()
      */
-    public executeCode(
-        request: Sandbox.CodeExecuteRequest,
-        requestOptions?: Code.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseCodeExecuteResponse, Sandbox.code.executeCode.Error>> {
-        return core.HttpResponsePromise.fromPromise(this.__executeCode(request, requestOptions));
+    public createTicket(
+        requestOptions?: Auth.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Record<string, unknown>, Sandbox.auth.createTicket.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__createTicket(requestOptions));
     }
 
-    private async __executeCode(
-        request: Sandbox.CodeExecuteRequest,
-        requestOptions?: Code.RequestOptions,
-    ): Promise<
-        core.WithRawResponse<core.APIResponse<Sandbox.ResponseCodeExecuteResponse, Sandbox.code.executeCode.Error>>
-    > {
+    private async __createTicket(
+        requestOptions?: Auth.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<Record<string, unknown>, Sandbox.auth.createTicket.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)),
-                "v1/code/execute",
+                "tickets",
             ),
             method: "POST",
             headers: _headers,
-            contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -66,7 +57,7 @@ export class Code {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseCodeExecuteResponse,
+                    body: _response.body as Record<string, unknown>,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -74,26 +65,10 @@ export class Code {
             };
         }
 
-        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 422:
-                    return {
-                        data: {
-                            ok: false,
-                            error: Sandbox.code.executeCode.Error.unprocessableEntityError(
-                                _response.error.body as Sandbox.HttpValidationError,
-                            ),
-                            rawResponse: _response.rawResponse,
-                        },
-                        rawResponse: _response.rawResponse,
-                    };
-            }
-        }
-
         return {
             data: {
                 ok: false,
-                error: Sandbox.code.executeCode.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                error: Sandbox.auth.createTicket.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -101,30 +76,32 @@ export class Code {
     }
 
     /**
-     * Return metadata about supported code runtimes
+     * Authenticate a request using ticket or JWT.
      *
-     * Note: Version info is cached at service level (first call only runs subprocess).
+     * This endpoint receives authentication subrequests (e.g., from Nginx auth_request).
+     * It validates the request based on either a ticket in the 'x-original-uri'
+     * header or a JWT in the 'Authorization' header.
      *
-     * @param {Code.RequestOptions} requestOptions - Request-specific configuration.
+     * @param {Auth.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.code.getInfo()
+     *     await client.auth.authenticate()
      */
-    public getInfo(
-        requestOptions?: Code.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseCodeInfoResponse, Sandbox.code.getInfo.Error>> {
-        return core.HttpResponsePromise.fromPromise(this.__getInfo(requestOptions));
+    public authenticate(
+        requestOptions?: Auth.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Record<string, string>, Sandbox.auth.authenticate.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__authenticate(requestOptions));
     }
 
-    private async __getInfo(
-        requestOptions?: Code.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseCodeInfoResponse, Sandbox.code.getInfo.Error>>> {
+    private async __authenticate(
+        requestOptions?: Auth.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<Record<string, string>, Sandbox.auth.authenticate.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)),
-                "v1/code/info",
+                "auth",
             ),
             method: "GET",
             headers: _headers,
@@ -139,7 +116,7 @@ export class Code {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseCodeInfoResponse,
+                    body: _response.body as Record<string, string>,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -150,7 +127,7 @@ export class Code {
         return {
             data: {
                 ok: false,
-                error: Sandbox.code.getInfo.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                error: Sandbox.auth.authenticate.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

@@ -637,6 +637,11 @@ class RawFileClient:
         insert_line: typing.Optional[int] = OMIT,
         view_range: typing.Optional[typing.Sequence[int]] = OMIT,
         replace_mode: typing.Optional[StrReplaceEditorRequestReplaceMode] = OMIT,
+        page_range: typing.Optional[typing.Sequence[int]] = OMIT,
+        sheet_name: typing.Optional[str] = OMIT,
+        row_range: typing.Optional[typing.Sequence[int]] = OMIT,
+        slide_range: typing.Optional[typing.Sequence[int]] = OMIT,
+        enable_metadata: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseStrReplaceEditorResult]:
         """
@@ -673,6 +678,21 @@ class RawFileClient:
         replace_mode : typing.Optional[StrReplaceEditorRequestReplaceMode]
             Optional parameter of `str_replace` command. When specified, controls how multiple occurrences are handled: 'ALL' replaces all occurrences, 'FIRST' replaces only the first, 'LAST' replaces only the last. If not specified, requires unique match (original behavior).
 
+        page_range : typing.Optional[typing.Sequence[int]]
+            Optional parameter for `view` command on PDF files. Specifies page range [start, end] (1-indexed). E.g., [1, 5] reads pages 1-5.
+
+        sheet_name : typing.Optional[str]
+            Optional parameter for `view` command on Excel files. Specifies which sheet to read. If not provided, all sheets are returned.
+
+        row_range : typing.Optional[typing.Sequence[int]]
+            Optional parameter for `view` command on Excel files. Specifies row range [start, end] (1-indexed). E.g., [1, 100] reads rows 1-100.
+
+        slide_range : typing.Optional[typing.Sequence[int]]
+            Optional parameter for `view` command on PPTX files. Specifies slide range [start, end] (1-indexed). E.g., [1, 5] reads slides 1-5.
+
+        enable_metadata : typing.Optional[bool]
+            Optional parameter for `view` command. If true, returns file metadata (total pages, sheets, slides, etc.) in the response.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -693,6 +713,11 @@ class RawFileClient:
                 "insert_line": insert_line,
                 "view_range": view_range,
                 "replace_mode": replace_mode,
+                "page_range": page_range,
+                "sheet_name": sheet_name,
+                "row_range": row_range,
+                "slide_range": slide_range,
+                "enable_metadata": enable_metadata,
             },
             headers={
                 "content-type": "application/json",
@@ -1337,6 +1362,11 @@ class AsyncRawFileClient:
         insert_line: typing.Optional[int] = OMIT,
         view_range: typing.Optional[typing.Sequence[int]] = OMIT,
         replace_mode: typing.Optional[StrReplaceEditorRequestReplaceMode] = OMIT,
+        page_range: typing.Optional[typing.Sequence[int]] = OMIT,
+        sheet_name: typing.Optional[str] = OMIT,
+        row_range: typing.Optional[typing.Sequence[int]] = OMIT,
+        slide_range: typing.Optional[typing.Sequence[int]] = OMIT,
+        enable_metadata: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseStrReplaceEditorResult]:
         """
@@ -1373,6 +1403,21 @@ class AsyncRawFileClient:
         replace_mode : typing.Optional[StrReplaceEditorRequestReplaceMode]
             Optional parameter of `str_replace` command. When specified, controls how multiple occurrences are handled: 'ALL' replaces all occurrences, 'FIRST' replaces only the first, 'LAST' replaces only the last. If not specified, requires unique match (original behavior).
 
+        page_range : typing.Optional[typing.Sequence[int]]
+            Optional parameter for `view` command on PDF files. Specifies page range [start, end] (1-indexed). E.g., [1, 5] reads pages 1-5.
+
+        sheet_name : typing.Optional[str]
+            Optional parameter for `view` command on Excel files. Specifies which sheet to read. If not provided, all sheets are returned.
+
+        row_range : typing.Optional[typing.Sequence[int]]
+            Optional parameter for `view` command on Excel files. Specifies row range [start, end] (1-indexed). E.g., [1, 100] reads rows 1-100.
+
+        slide_range : typing.Optional[typing.Sequence[int]]
+            Optional parameter for `view` command on PPTX files. Specifies slide range [start, end] (1-indexed). E.g., [1, 5] reads slides 1-5.
+
+        enable_metadata : typing.Optional[bool]
+            Optional parameter for `view` command. If true, returns file metadata (total pages, sheets, slides, etc.) in the response.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1393,6 +1438,11 @@ class AsyncRawFileClient:
                 "insert_line": insert_line,
                 "view_range": view_range,
                 "replace_mode": replace_mode,
+                "page_range": page_range,
+                "sheet_name": sheet_name,
+                "row_range": row_range,
+                "slide_range": slide_range,
+                "enable_metadata": enable_metadata,
             },
             headers={
                 "content-type": "application/json",

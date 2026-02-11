@@ -57,6 +57,16 @@ class NodeJsRuntimeInfo(UniversalBaseModel):
     Error message if runtime info retrieval failed
     """
 
+    available_versions: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
+    """
+    Available Node.js versions (e.g., node20, node22, node24)
+    """
+
+    current_version: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Currently active Node.js version
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:
