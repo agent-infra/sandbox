@@ -84,14 +84,14 @@ async def cleanup_global_mcp_session():
     if _mcp_session:
         try:
             await _mcp_session.__aexit__(None, None, None)
-        except:
+        except Exception:
             pass
         _mcp_session = None
 
     if _mcp_streams:
         try:
             await _mcp_streams.__aexit__(None, None, None)
-        except:
+        except Exception:
             pass
         _mcp_streams = None
 
