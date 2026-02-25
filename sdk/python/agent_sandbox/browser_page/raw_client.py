@@ -16,7 +16,7 @@ from ..types.response_dict import ResponseDict
 from ..types.response_list import ResponseList
 from ..types.response_str import ResponseStr
 from .types.navigate_request_wait_until import NavigateRequestWaitUntil
-from .types.record_action import RecordAction
+from .types.record_request_action import RecordRequestAction
 from .types.type import Type
 
 # this is used as the default value for optional parameters
@@ -1135,7 +1135,7 @@ class RawBrowserPageClient:
     def record(
         self,
         *,
-        action: typing.Optional[RecordAction] = OMIT,
+        action: typing.Optional[RecordRequestAction] = OMIT,
         save_path: typing.Optional[str] = OMIT,
         duration: typing.Optional[float] = OMIT,
         fps: typing.Optional[int] = OMIT,
@@ -1147,7 +1147,7 @@ class RawBrowserPageClient:
 
         Parameters
         ----------
-        action : typing.Optional[RecordAction]
+        action : typing.Optional[RecordRequestAction]
 
         save_path : typing.Optional[str]
 
@@ -2795,7 +2795,7 @@ class AsyncRawBrowserPageClient:
     async def record(
         self,
         *,
-        action: typing.Optional[RecordAction] = OMIT,
+        action: typing.Optional[RecordRequestAction] = OMIT,
         save_path: typing.Optional[str] = OMIT,
         duration: typing.Optional[float] = OMIT,
         fps: typing.Optional[int] = OMIT,
@@ -2807,7 +2807,7 @@ class AsyncRawBrowserPageClient:
 
         Parameters
         ----------
-        action : typing.Optional[RecordAction]
+        action : typing.Optional[RecordRequestAction]
 
         save_path : typing.Optional[str]
 

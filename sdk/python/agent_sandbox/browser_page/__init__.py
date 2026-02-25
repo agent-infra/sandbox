@@ -6,10 +6,10 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .types import NavigateRequestWaitUntil, RecordAction, Type
+    from .types import NavigateRequestWaitUntil, RecordRequestAction, Type
 _dynamic_imports: typing.Dict[str, str] = {
     "NavigateRequestWaitUntil": ".types",
-    "RecordAction": ".types",
+    "RecordRequestAction": ".types",
     "Type": ".types",
 }
 
@@ -33,4 +33,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["NavigateRequestWaitUntil", "RecordAction", "Type"]
+__all__ = ["NavigateRequestWaitUntil", "RecordRequestAction", "Type"]

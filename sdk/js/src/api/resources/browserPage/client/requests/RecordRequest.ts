@@ -7,7 +7,7 @@ import type * as Sandbox from "../../../../index.js";
  *     {}
  */
 export interface RecordRequest {
-    action?: Sandbox.RecordAction;
+    action?: Sandbox.RecordRequestAction;
     save_path?: string;
     duration?: number;
     fps?: number;

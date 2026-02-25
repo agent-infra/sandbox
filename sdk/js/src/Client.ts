@@ -29,7 +29,6 @@ export declare namespace SandboxClient {
 
 export class SandboxClient {
     protected readonly _options: SandboxClient.Options;
-    protected _auth: Auth | undefined;
     protected _sandbox: SandboxService | undefined;
     protected _shell: Shell | undefined;
     protected _file: File_ | undefined;
@@ -38,14 +37,15 @@ export class SandboxClient {
     protected _mcp: Mcp | undefined;
     protected _browser: Browser | undefined;
     protected _browserPage: BrowserPage | undefined;
-    protected _browserCaptcha: BrowserCaptcha | undefined;
-    protected _browserCookies: BrowserCookies | undefined;
-    protected _browserNetwork: BrowserNetwork | undefined;
-    protected _browserState: BrowserState | undefined;
     protected _browserTabs: BrowserTabs | undefined;
+    protected _browserCookies: BrowserCookies | undefined;
+    protected _browserState: BrowserState | undefined;
+    protected _browserNetwork: BrowserNetwork | undefined;
+    protected _browserCaptcha: BrowserCaptcha | undefined;
     protected _code: Code | undefined;
     protected _util: Util | undefined;
     protected _skills: Skills | undefined;
+    protected _auth: Auth | undefined;
 
     constructor(_options: SandboxClient.Options) {
         this._options = {
@@ -60,10 +60,6 @@ export class SandboxClient {
                 _options?.headers,
             ),
         };
-    }
-
-    public get auth(): Auth {
-        return (this._auth ??= new Auth(this._options));
     }
 
     public get sandbox(): SandboxService {
@@ -98,24 +94,24 @@ export class SandboxClient {
         return (this._browserPage ??= new BrowserPage(this._options));
     }
 
-    public get browserCaptcha(): BrowserCaptcha {
-        return (this._browserCaptcha ??= new BrowserCaptcha(this._options));
+    public get browserTabs(): BrowserTabs {
+        return (this._browserTabs ??= new BrowserTabs(this._options));
     }
 
     public get browserCookies(): BrowserCookies {
         return (this._browserCookies ??= new BrowserCookies(this._options));
     }
 
-    public get browserNetwork(): BrowserNetwork {
-        return (this._browserNetwork ??= new BrowserNetwork(this._options));
-    }
-
     public get browserState(): BrowserState {
         return (this._browserState ??= new BrowserState(this._options));
     }
 
-    public get browserTabs(): BrowserTabs {
-        return (this._browserTabs ??= new BrowserTabs(this._options));
+    public get browserNetwork(): BrowserNetwork {
+        return (this._browserNetwork ??= new BrowserNetwork(this._options));
+    }
+
+    public get browserCaptcha(): BrowserCaptcha {
+        return (this._browserCaptcha ??= new BrowserCaptcha(this._options));
     }
 
     public get code(): Code {
@@ -130,4 +126,7 @@ export class SandboxClient {
         return (this._skills ??= new Skills(this._options));
     }
 
+    public get auth(): Auth {
+        return (this._auth ??= new Auth(this._options));
+    }
 }

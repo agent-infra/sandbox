@@ -13,7 +13,7 @@ export interface BrowserInfoResult {
     /** VNC URL */
     vnc_url: string;
     /** CDP UI URL (browser-ui) */
-    cdp_ui_url: string;
+    cdp_ui_url?: string;
     /** Display size (from xrandr / env vars) */
     viewport: Sandbox.BrowserViewport;
     /** Actual Chrome page viewport (window.innerWidth/Height via CDP). Smaller than viewport because Chrome UI chrome takes space. */

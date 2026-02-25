@@ -27,7 +27,7 @@ class BrowserInfoResult(UniversalBaseModel):
     VNC URL
     """
 
-    cdp_ui_url: str = pydantic.Field()
+    cdp_ui_url: typing.Optional[str] = pydantic.Field(default=None)
     """
     CDP UI URL (browser-ui)
     """

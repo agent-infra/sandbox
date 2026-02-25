@@ -199,7 +199,7 @@ if typing.TYPE_CHECKING:
         Action_Typing,
         Action_Wait,
     )
-    from .browser_page import NavigateRequestWaitUntil, RecordAction, Type
+    from .browser_page import NavigateRequestWaitUntil, RecordRequestAction, Type
     from .client import AsyncSandbox, Sandbox
     from .file import Command, StrReplaceEditorRequestReplaceMode
 _dynamic_imports: typing.Dict[str, str] = {
@@ -290,7 +290,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "NodeJsSessionResponse": ".types",
     "NodeJsUpdateSessionResponse": ".types",
     "PressAction": ".types",
-    "RecordAction": ".browser_page",
+    "RecordRequestAction": ".browser_page",
     "Resolution": ".types",
     "Resource": ".types",
     "ResourceLink": ".types",
@@ -507,7 +507,7 @@ __all__ = [
     "NodeJsSessionResponse",
     "NodeJsUpdateSessionResponse",
     "PressAction",
-    "RecordAction",
+    "RecordRequestAction",
     "Resolution",
     "Resource",
     "ResourceLink",
