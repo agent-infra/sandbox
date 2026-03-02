@@ -437,9 +437,9 @@
     "/v1/bash/exec": {
       "post": {
         "tags": ["bash"],
-        "summary": "Bash Exec",
+        "summary": "Exec",
         "description": "Execute a bash command.\n\n- async_mode=true: returns immediately with RUNNING status\n- async_mode=false + timeout: waits up to timeout, then returns RUNNING if not done\n- async_mode=false + no timeout: waits until command completes\n- hard_timeout: kills the process after this many seconds\n- env: extra environment variables for this command only",
-        "operationId": "bash_exec_v1_bash_exec_post",
+        "operationId": "exec",
         "requestBody": {
           "content": {
             "application/json": {
@@ -467,15 +467,17 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "bash",
+        "x-fern-sdk-method-name": "exec"
       }
     },
     "/v1/bash/output": {
       "post": {
         "tags": ["bash"],
-        "summary": "Bash Output",
+        "summary": "Output",
         "description": "Read output from a bash session using offset-based streaming.\n\n- offset/stderr_offset: byte offsets to read from (use values from previous response)\n- wait=true: long-poll until new output arrives or wait_timeout",
-        "operationId": "bash_output_v1_bash_output_post",
+        "operationId": "output",
         "requestBody": {
           "content": {
             "application/json": {
@@ -503,15 +505,17 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "bash",
+        "x-fern-sdk-method-name": "output"
       }
     },
     "/v1/bash/write": {
       "post": {
         "tags": ["bash"],
-        "summary": "Bash Write",
+        "summary": "Write",
         "description": "Write input to a bash session's stdin.",
-        "operationId": "bash_write_v1_bash_write_post",
+        "operationId": "write",
         "requestBody": {
           "content": {
             "application/json": {
@@ -537,15 +541,17 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "bash",
+        "x-fern-sdk-method-name": "write"
       }
     },
     "/v1/bash/kill": {
       "post": {
         "tags": ["bash"],
-        "summary": "Bash Kill",
+        "summary": "Kill",
         "description": "Send a signal to a bash session's process.",
-        "operationId": "bash_kill_v1_bash_kill_post",
+        "operationId": "kill",
         "requestBody": {
           "content": {
             "application/json": {
@@ -571,15 +577,17 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "bash",
+        "x-fern-sdk-method-name": "kill"
       }
     },
     "/v1/bash/sessions": {
       "get": {
         "tags": ["bash"],
-        "summary": "Bash Sessions",
+        "summary": "Sessions",
         "description": "List all active bash sessions.",
-        "operationId": "bash_sessions_v1_bash_sessions_get",
+        "operationId": "sessions",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -591,15 +599,17 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "bash",
+        "x-fern-sdk-method-name": "sessions"
       }
     },
     "/v1/bash/sessions/create": {
       "post": {
         "tags": ["bash"],
-        "summary": "Bash Create Session",
+        "summary": "Create Session",
         "description": "Create a new bash session.",
-        "operationId": "bash_create_session_v1_bash_sessions_create_post",
+        "operationId": "create_session",
         "requestBody": {
           "content": {
             "application/json": {
@@ -629,15 +639,17 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "bash",
+        "x-fern-sdk-method-name": "create_session"
       }
     },
     "/v1/bash/sessions/{session_id}/close": {
       "post": {
         "tags": ["bash"],
-        "summary": "Bash Close Session",
+        "summary": "Close Session",
         "description": "Close a bash session.",
-        "operationId": "bash_close_session_v1_bash_sessions__session_id__close_post",
+        "operationId": "close_session",
         "parameters": [
           {
             "name": "session_id",
@@ -663,7 +675,9 @@
               }
             }
           }
-        }
+        },
+        "x-fern-sdk-group-name": "bash",
+        "x-fern-sdk-method-name": "close_session"
       }
     },
     "/v1/file/read": {

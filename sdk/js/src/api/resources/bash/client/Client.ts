@@ -31,21 +31,21 @@ export class Bash {
      * @param {Bash.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.bash.bashExec({
+     *     await client.bash.exec({
      *         command: "command"
      *     })
      */
-    public bashExec(
+    public exec(
         request: Sandbox.BashExecRequest,
         requestOptions?: Bash.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseBashExecResult, Sandbox.bash.bashExec.Error>> {
-        return core.HttpResponsePromise.fromPromise(this.__bashExec(request, requestOptions));
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseBashExecResult, Sandbox.bash.exec.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__exec(request, requestOptions));
     }
 
-    private async __bashExec(
+    private async __exec(
         request: Sandbox.BashExecRequest,
         requestOptions?: Bash.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseBashExecResult, Sandbox.bash.bashExec.Error>>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseBashExecResult, Sandbox.bash.exec.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -83,7 +83,7 @@ export class Bash {
                     return {
                         data: {
                             ok: false,
-                            error: Sandbox.bash.bashExec.Error.unprocessableEntityError(
+                            error: Sandbox.bash.exec.Error.unprocessableEntityError(
                                 _response.error.body as Sandbox.HttpValidationError,
                             ),
                             rawResponse: _response.rawResponse,
@@ -96,7 +96,7 @@ export class Bash {
         return {
             data: {
                 ok: false,
-                error: Sandbox.bash.bashExec.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                error: Sandbox.bash.exec.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -113,23 +113,21 @@ export class Bash {
      * @param {Bash.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.bash.bashOutput({
+     *     await client.bash.output({
      *         session_id: "session_id"
      *     })
      */
-    public bashOutput(
+    public output(
         request: Sandbox.BashOutputRequest,
         requestOptions?: Bash.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseBashOutputResult, Sandbox.bash.bashOutput.Error>> {
-        return core.HttpResponsePromise.fromPromise(this.__bashOutput(request, requestOptions));
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseBashOutputResult, Sandbox.bash.output.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__output(request, requestOptions));
     }
 
-    private async __bashOutput(
+    private async __output(
         request: Sandbox.BashOutputRequest,
         requestOptions?: Bash.RequestOptions,
-    ): Promise<
-        core.WithRawResponse<core.APIResponse<Sandbox.ResponseBashOutputResult, Sandbox.bash.bashOutput.Error>>
-    > {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseBashOutputResult, Sandbox.bash.output.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -167,7 +165,7 @@ export class Bash {
                     return {
                         data: {
                             ok: false,
-                            error: Sandbox.bash.bashOutput.Error.unprocessableEntityError(
+                            error: Sandbox.bash.output.Error.unprocessableEntityError(
                                 _response.error.body as Sandbox.HttpValidationError,
                             ),
                             rawResponse: _response.rawResponse,
@@ -180,7 +178,7 @@ export class Bash {
         return {
             data: {
                 ok: false,
-                error: Sandbox.bash.bashOutput.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                error: Sandbox.bash.output.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -194,22 +192,22 @@ export class Bash {
      * @param {Bash.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.bash.bashWrite({
+     *     await client.bash.write({
      *         session_id: "session_id",
      *         input: "input"
      *     })
      */
-    public bashWrite(
+    public write(
         request: Sandbox.BashWriteRequest,
         requestOptions?: Bash.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.bash.bashWrite.Error>> {
-        return core.HttpResponsePromise.fromPromise(this.__bashWrite(request, requestOptions));
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.bash.write.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__write(request, requestOptions));
     }
 
-    private async __bashWrite(
+    private async __write(
         request: Sandbox.BashWriteRequest,
         requestOptions?: Bash.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.bash.bashWrite.Error>>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.bash.write.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -247,7 +245,7 @@ export class Bash {
                     return {
                         data: {
                             ok: false,
-                            error: Sandbox.bash.bashWrite.Error.unprocessableEntityError(
+                            error: Sandbox.bash.write.Error.unprocessableEntityError(
                                 _response.error.body as Sandbox.HttpValidationError,
                             ),
                             rawResponse: _response.rawResponse,
@@ -260,7 +258,7 @@ export class Bash {
         return {
             data: {
                 ok: false,
-                error: Sandbox.bash.bashWrite.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                error: Sandbox.bash.write.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -274,21 +272,21 @@ export class Bash {
      * @param {Bash.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.bash.bashKill({
+     *     await client.bash.kill({
      *         session_id: "session_id"
      *     })
      */
-    public bashKill(
+    public kill(
         request: Sandbox.BashKillRequest,
         requestOptions?: Bash.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.bash.bashKill.Error>> {
-        return core.HttpResponsePromise.fromPromise(this.__bashKill(request, requestOptions));
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.bash.kill.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__kill(request, requestOptions));
     }
 
-    private async __bashKill(
+    private async __kill(
         request: Sandbox.BashKillRequest,
         requestOptions?: Bash.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.bash.bashKill.Error>>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.bash.kill.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -326,7 +324,7 @@ export class Bash {
                     return {
                         data: {
                             ok: false,
-                            error: Sandbox.bash.bashKill.Error.unprocessableEntityError(
+                            error: Sandbox.bash.kill.Error.unprocessableEntityError(
                                 _response.error.body as Sandbox.HttpValidationError,
                             ),
                             rawResponse: _response.rawResponse,
@@ -339,7 +337,7 @@ export class Bash {
         return {
             data: {
                 ok: false,
-                error: Sandbox.bash.bashKill.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                error: Sandbox.bash.kill.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -352,20 +350,18 @@ export class Bash {
      * @param {Bash.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.bash.bashSessions()
+     *     await client.bash.sessions()
      */
-    public bashSessions(
+    public sessions(
         requestOptions?: Bash.RequestOptions,
-    ): core.HttpResponsePromise<
-        core.APIResponse<Sandbox.ResponseListBashSessionInfo, Sandbox.bash.bashSessions.Error>
-    > {
-        return core.HttpResponsePromise.fromPromise(this.__bashSessions(requestOptions));
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseListBashSessionInfo, Sandbox.bash.sessions.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__sessions(requestOptions));
     }
 
-    private async __bashSessions(
+    private async __sessions(
         requestOptions?: Bash.RequestOptions,
     ): Promise<
-        core.WithRawResponse<core.APIResponse<Sandbox.ResponseListBashSessionInfo, Sandbox.bash.bashSessions.Error>>
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseListBashSessionInfo, Sandbox.bash.sessions.Error>>
     > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
@@ -398,7 +394,7 @@ export class Bash {
         return {
             data: {
                 ok: false,
-                error: Sandbox.bash.bashSessions.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                error: Sandbox.bash.sessions.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -412,22 +408,20 @@ export class Bash {
      * @param {Bash.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.bash.bashCreateSession()
+     *     await client.bash.createSession()
      */
-    public bashCreateSession(
+    public createSession(
         request: Sandbox.BashSessionCreateRequest = {},
         requestOptions?: Bash.RequestOptions,
-    ): core.HttpResponsePromise<
-        core.APIResponse<Sandbox.ResponseBashSessionInfo, Sandbox.bash.bashCreateSession.Error>
-    > {
-        return core.HttpResponsePromise.fromPromise(this.__bashCreateSession(request, requestOptions));
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseBashSessionInfo, Sandbox.bash.createSession.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__createSession(request, requestOptions));
     }
 
-    private async __bashCreateSession(
+    private async __createSession(
         request: Sandbox.BashSessionCreateRequest = {},
         requestOptions?: Bash.RequestOptions,
     ): Promise<
-        core.WithRawResponse<core.APIResponse<Sandbox.ResponseBashSessionInfo, Sandbox.bash.bashCreateSession.Error>>
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseBashSessionInfo, Sandbox.bash.createSession.Error>>
     > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
@@ -466,7 +460,7 @@ export class Bash {
                     return {
                         data: {
                             ok: false,
-                            error: Sandbox.bash.bashCreateSession.Error.unprocessableEntityError(
+                            error: Sandbox.bash.createSession.Error.unprocessableEntityError(
                                 _response.error.body as Sandbox.HttpValidationError,
                             ),
                             rawResponse: _response.rawResponse,
@@ -479,7 +473,7 @@ export class Bash {
         return {
             data: {
                 ok: false,
-                error: Sandbox.bash.bashCreateSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                error: Sandbox.bash.createSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,
@@ -493,19 +487,19 @@ export class Bash {
      * @param {Bash.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.bash.bashCloseSession("session_id")
+     *     await client.bash.closeSession("session_id")
      */
-    public bashCloseSession(
+    public closeSession(
         sessionId: string,
         requestOptions?: Bash.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.bash.bashCloseSession.Error>> {
-        return core.HttpResponsePromise.fromPromise(this.__bashCloseSession(sessionId, requestOptions));
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.bash.closeSession.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__closeSession(sessionId, requestOptions));
     }
 
-    private async __bashCloseSession(
+    private async __closeSession(
         sessionId: string,
         requestOptions?: Bash.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.bash.bashCloseSession.Error>>> {
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.bash.closeSession.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -540,7 +534,7 @@ export class Bash {
                     return {
                         data: {
                             ok: false,
-                            error: Sandbox.bash.bashCloseSession.Error.unprocessableEntityError(
+                            error: Sandbox.bash.closeSession.Error.unprocessableEntityError(
                                 _response.error.body as Sandbox.HttpValidationError,
                             ),
                             rawResponse: _response.rawResponse,
@@ -553,7 +547,7 @@ export class Bash {
         return {
             data: {
                 ok: false,
-                error: Sandbox.bash.bashCloseSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                error: Sandbox.bash.closeSession.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
                 rawResponse: _response.rawResponse,
             },
             rawResponse: _response.rawResponse,

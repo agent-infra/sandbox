@@ -25,7 +25,7 @@ class RawBashClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def bash_exec(
+    def exec(
         self,
         *,
         command: str,
@@ -126,7 +126,7 @@ class RawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def bash_output(
+    def output(
         self,
         *,
         session_id: str,
@@ -214,7 +214,7 @@ class RawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def bash_write(
+    def write(
         self,
         *,
         session_id: str,
@@ -284,7 +284,7 @@ class RawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def bash_kill(
+    def kill(
         self,
         *,
         session_id: str,
@@ -349,7 +349,7 @@ class RawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def bash_sessions(
+    def sessions(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResponseListBashSessionInfo]:
         """
@@ -385,7 +385,7 @@ class RawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def bash_create_session(
+    def create_session(
         self,
         *,
         session_id: typing.Optional[str] = OMIT,
@@ -455,7 +455,7 @@ class RawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def bash_close_session(
+    def close_session(
         self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[Response]:
         """
@@ -509,7 +509,7 @@ class AsyncRawBashClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def bash_exec(
+    async def exec(
         self,
         *,
         command: str,
@@ -610,7 +610,7 @@ class AsyncRawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def bash_output(
+    async def output(
         self,
         *,
         session_id: str,
@@ -698,7 +698,7 @@ class AsyncRawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def bash_write(
+    async def write(
         self,
         *,
         session_id: str,
@@ -768,7 +768,7 @@ class AsyncRawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def bash_kill(
+    async def kill(
         self,
         *,
         session_id: str,
@@ -833,7 +833,7 @@ class AsyncRawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def bash_sessions(
+    async def sessions(
         self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResponseListBashSessionInfo]:
         """
@@ -869,7 +869,7 @@ class AsyncRawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def bash_create_session(
+    async def create_session(
         self,
         *,
         session_id: typing.Optional[str] = OMIT,
@@ -939,7 +939,7 @@ class AsyncRawBashClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    async def bash_close_session(
+    async def close_session(
         self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Response]:
         """

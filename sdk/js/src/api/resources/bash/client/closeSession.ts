@@ -3,7 +3,7 @@
 import type * as core from "../../../../core/index.js";
 import type * as Sandbox from "../../../index.js";
 
-export type Error = Sandbox.bash.bashKill.Error.UnprocessableEntityError | Sandbox.bash.bashKill.Error._Unknown;
+export type Error = Sandbox.bash.closeSession.Error.UnprocessableEntityError | Sandbox.bash.closeSession.Error._Unknown;
 
 export namespace Error {
     export interface UnprocessableEntityError {
@@ -25,14 +25,14 @@ export namespace Error {
 export const Error = {
     unprocessableEntityError: (
         value: Sandbox.HttpValidationError,
-    ): Sandbox.bash.bashKill.Error.UnprocessableEntityError => {
+    ): Sandbox.bash.closeSession.Error.UnprocessableEntityError => {
         return {
             content: value,
             statusCode: 422,
         };
     },
 
-    _unknown: (fetcherError: core.Fetcher.Error): Sandbox.bash.bashKill.Error._Unknown => {
+    _unknown: (fetcherError: core.Fetcher.Error): Sandbox.bash.closeSession.Error._Unknown => {
         return {
             statusCode: undefined,
             content: fetcherError,
@@ -40,8 +40,8 @@ export const Error = {
     },
 
     _visit: <_Result>(
-        value: Sandbox.bash.bashKill.Error,
-        visitor: Sandbox.bash.bashKill.Error._Visitor<_Result>,
+        value: Sandbox.bash.closeSession.Error,
+        visitor: Sandbox.bash.closeSession.Error._Visitor<_Result>,
     ): _Result => {
         switch (value.statusCode) {
             case 422:

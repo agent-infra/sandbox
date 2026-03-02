@@ -3,9 +3,7 @@
 import type * as core from "../../../../core/index.js";
 import type * as Sandbox from "../../../index.js";
 
-export type Error =
-    | Sandbox.bash.bashCreateSession.Error.UnprocessableEntityError
-    | Sandbox.bash.bashCreateSession.Error._Unknown;
+export type Error = Sandbox.bash.output.Error.UnprocessableEntityError | Sandbox.bash.output.Error._Unknown;
 
 export namespace Error {
     export interface UnprocessableEntityError {
@@ -27,14 +25,14 @@ export namespace Error {
 export const Error = {
     unprocessableEntityError: (
         value: Sandbox.HttpValidationError,
-    ): Sandbox.bash.bashCreateSession.Error.UnprocessableEntityError => {
+    ): Sandbox.bash.output.Error.UnprocessableEntityError => {
         return {
             content: value,
             statusCode: 422,
         };
     },
 
-    _unknown: (fetcherError: core.Fetcher.Error): Sandbox.bash.bashCreateSession.Error._Unknown => {
+    _unknown: (fetcherError: core.Fetcher.Error): Sandbox.bash.output.Error._Unknown => {
         return {
             statusCode: undefined,
             content: fetcherError,
@@ -42,8 +40,8 @@ export const Error = {
     },
 
     _visit: <_Result>(
-        value: Sandbox.bash.bashCreateSession.Error,
-        visitor: Sandbox.bash.bashCreateSession.Error._Visitor<_Result>,
+        value: Sandbox.bash.output.Error,
+        visitor: Sandbox.bash.output.Error._Visitor<_Result>,
     ): _Result => {
         switch (value.statusCode) {
             case 422:

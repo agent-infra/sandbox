@@ -3,7 +3,7 @@
 import type * as core from "../../../../core/index.js";
 import type * as Sandbox from "../../../index.js";
 
-export type Error = Sandbox.bash.bashSessions.Error._Unknown;
+export type Error = Sandbox.bash.sessions.Error._Unknown;
 
 export namespace Error {
     export interface _Unknown {
@@ -17,7 +17,7 @@ export namespace Error {
 }
 
 export const Error = {
-    _unknown: (fetcherError: core.Fetcher.Error): Sandbox.bash.bashSessions.Error._Unknown => {
+    _unknown: (fetcherError: core.Fetcher.Error): Sandbox.bash.sessions.Error._Unknown => {
         return {
             statusCode: undefined,
             content: fetcherError,
@@ -25,8 +25,8 @@ export const Error = {
     },
 
     _visit: <_Result>(
-        value: Sandbox.bash.bashSessions.Error,
-        visitor: Sandbox.bash.bashSessions.Error._Visitor<_Result>,
+        value: Sandbox.bash.sessions.Error,
+        visitor: Sandbox.bash.sessions.Error._Visitor<_Result>,
     ): _Result => {
         switch (value.statusCode) {
             default:

@@ -30,7 +30,7 @@ class BashClient:
         """
         return self._raw_client
 
-    def bash_exec(
+    def exec(
         self,
         *,
         command: str,
@@ -93,11 +93,11 @@ class BashClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.bash.bash_exec(
+        client.bash.exec(
             command="command",
         )
         """
-        _response = self._raw_client.bash_exec(
+        _response = self._raw_client.exec(
             command=command,
             session_id=session_id,
             exec_dir=exec_dir,
@@ -110,7 +110,7 @@ class BashClient:
         )
         return _response.data
 
-    def bash_output(
+    def output(
         self,
         *,
         session_id: str,
@@ -162,11 +162,11 @@ class BashClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.bash.bash_output(
+        client.bash.output(
             session_id="session_id",
         )
         """
-        _response = self._raw_client.bash_output(
+        _response = self._raw_client.output(
             session_id=session_id,
             command_id=command_id,
             offset=offset,
@@ -177,7 +177,7 @@ class BashClient:
         )
         return _response.data
 
-    def bash_write(
+    def write(
         self,
         *,
         session_id: str,
@@ -214,17 +214,17 @@ class BashClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.bash.bash_write(
+        client.bash.write(
             session_id="session_id",
             input="input",
         )
         """
-        _response = self._raw_client.bash_write(
+        _response = self._raw_client.write(
             session_id=session_id, input=input, command_id=command_id, request_options=request_options
         )
         return _response.data
 
-    def bash_kill(
+    def kill(
         self,
         *,
         session_id: str,
@@ -257,14 +257,14 @@ class BashClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.bash.bash_kill(
+        client.bash.kill(
             session_id="session_id",
         )
         """
-        _response = self._raw_client.bash_kill(session_id=session_id, signal=signal, request_options=request_options)
+        _response = self._raw_client.kill(session_id=session_id, signal=signal, request_options=request_options)
         return _response.data
 
-    def bash_sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseListBashSessionInfo:
+    def sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseListBashSessionInfo:
         """
         List all active bash sessions.
 
@@ -285,12 +285,12 @@ class BashClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.bash.bash_sessions()
+        client.bash.sessions()
         """
-        _response = self._raw_client.bash_sessions(request_options=request_options)
+        _response = self._raw_client.sessions(request_options=request_options)
         return _response.data
 
-    def bash_create_session(
+    def create_session(
         self,
         *,
         session_id: typing.Optional[str] = OMIT,
@@ -327,16 +327,14 @@ class BashClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.bash.bash_create_session()
+        client.bash.create_session()
         """
-        _response = self._raw_client.bash_create_session(
+        _response = self._raw_client.create_session(
             session_id=session_id, exec_dir=exec_dir, snapshot_path=snapshot_path, request_options=request_options
         )
         return _response.data
 
-    def bash_close_session(
-        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> Response:
+    def close_session(self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
         """
         Close a bash session.
 
@@ -359,11 +357,11 @@ class BashClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.bash.bash_close_session(
+        client.bash.close_session(
             session_id="session_id",
         )
         """
-        _response = self._raw_client.bash_close_session(session_id, request_options=request_options)
+        _response = self._raw_client.close_session(session_id, request_options=request_options)
         return _response.data
 
 
@@ -382,7 +380,7 @@ class AsyncBashClient:
         """
         return self._raw_client
 
-    async def bash_exec(
+    async def exec(
         self,
         *,
         command: str,
@@ -450,14 +448,14 @@ class AsyncBashClient:
 
 
         async def main() -> None:
-            await client.bash.bash_exec(
+            await client.bash.exec(
                 command="command",
             )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.bash_exec(
+        _response = await self._raw_client.exec(
             command=command,
             session_id=session_id,
             exec_dir=exec_dir,
@@ -470,7 +468,7 @@ class AsyncBashClient:
         )
         return _response.data
 
-    async def bash_output(
+    async def output(
         self,
         *,
         session_id: str,
@@ -527,14 +525,14 @@ class AsyncBashClient:
 
 
         async def main() -> None:
-            await client.bash.bash_output(
+            await client.bash.output(
                 session_id="session_id",
             )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.bash_output(
+        _response = await self._raw_client.output(
             session_id=session_id,
             command_id=command_id,
             offset=offset,
@@ -545,7 +543,7 @@ class AsyncBashClient:
         )
         return _response.data
 
-    async def bash_write(
+    async def write(
         self,
         *,
         session_id: str,
@@ -587,7 +585,7 @@ class AsyncBashClient:
 
 
         async def main() -> None:
-            await client.bash.bash_write(
+            await client.bash.write(
                 session_id="session_id",
                 input="input",
             )
@@ -595,12 +593,12 @@ class AsyncBashClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.bash_write(
+        _response = await self._raw_client.write(
             session_id=session_id, input=input, command_id=command_id, request_options=request_options
         )
         return _response.data
 
-    async def bash_kill(
+    async def kill(
         self,
         *,
         session_id: str,
@@ -638,21 +636,17 @@ class AsyncBashClient:
 
 
         async def main() -> None:
-            await client.bash.bash_kill(
+            await client.bash.kill(
                 session_id="session_id",
             )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.bash_kill(
-            session_id=session_id, signal=signal, request_options=request_options
-        )
+        _response = await self._raw_client.kill(session_id=session_id, signal=signal, request_options=request_options)
         return _response.data
 
-    async def bash_sessions(
-        self, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> ResponseListBashSessionInfo:
+    async def sessions(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseListBashSessionInfo:
         """
         List all active bash sessions.
 
@@ -678,15 +672,15 @@ class AsyncBashClient:
 
 
         async def main() -> None:
-            await client.bash.bash_sessions()
+            await client.bash.sessions()
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.bash_sessions(request_options=request_options)
+        _response = await self._raw_client.sessions(request_options=request_options)
         return _response.data
 
-    async def bash_create_session(
+    async def create_session(
         self,
         *,
         session_id: typing.Optional[str] = OMIT,
@@ -728,17 +722,17 @@ class AsyncBashClient:
 
 
         async def main() -> None:
-            await client.bash.bash_create_session()
+            await client.bash.create_session()
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.bash_create_session(
+        _response = await self._raw_client.create_session(
             session_id=session_id, exec_dir=exec_dir, snapshot_path=snapshot_path, request_options=request_options
         )
         return _response.data
 
-    async def bash_close_session(
+    async def close_session(
         self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> Response:
         """
@@ -768,12 +762,12 @@ class AsyncBashClient:
 
 
         async def main() -> None:
-            await client.bash.bash_close_session(
+            await client.bash.close_session(
                 session_id="session_id",
             )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.bash_close_session(session_id, request_options=request_options)
+        _response = await self._raw_client.close_session(session_id, request_options=request_options)
         return _response.data
