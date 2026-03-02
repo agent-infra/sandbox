@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.0.0.143"
+    "version": "1.3.0"
   },
   "paths": {
     "/v1/sandbox": {
@@ -432,6 +432,238 @@
         },
         "x-fern-sdk-group-name": "shell",
         "x-fern-sdk-method-name": "cleanup_session"
+      }
+    },
+    "/v1/bash/exec": {
+      "post": {
+        "tags": ["bash"],
+        "summary": "Bash Exec",
+        "description": "Execute a bash command.\n\n- async_mode=true: returns immediately with RUNNING status\n- async_mode=false + timeout: waits up to timeout, then returns RUNNING if not done\n- async_mode=false + no timeout: waits until command completes\n- hard_timeout: kills the process after this many seconds\n- env: extra environment variables for this command only",
+        "operationId": "bash_exec_v1_bash_exec_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BashExecRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_BashExecResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bash/output": {
+      "post": {
+        "tags": ["bash"],
+        "summary": "Bash Output",
+        "description": "Read output from a bash session using offset-based streaming.\n\n- offset/stderr_offset: byte offsets to read from (use values from previous response)\n- wait=true: long-poll until new output arrives or wait_timeout",
+        "operationId": "bash_output_v1_bash_output_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BashOutputRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_BashOutputResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bash/write": {
+      "post": {
+        "tags": ["bash"],
+        "summary": "Bash Write",
+        "description": "Write input to a bash session's stdin.",
+        "operationId": "bash_write_v1_bash_write_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BashWriteRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bash/kill": {
+      "post": {
+        "tags": ["bash"],
+        "summary": "Bash Kill",
+        "description": "Send a signal to a bash session's process.",
+        "operationId": "bash_kill_v1_bash_kill_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/BashKillRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bash/sessions": {
+      "get": {
+        "tags": ["bash"],
+        "summary": "Bash Sessions",
+        "description": "List all active bash sessions.",
+        "operationId": "bash_sessions_v1_bash_sessions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_list_BashSessionInfo__"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bash/sessions/create": {
+      "post": {
+        "tags": ["bash"],
+        "summary": "Bash Create Session",
+        "description": "Create a new bash session.",
+        "operationId": "bash_create_session_v1_bash_sessions_create_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BashSessionCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_BashSessionInfo_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bash/sessions/{session_id}/close": {
+      "post": {
+        "tags": ["bash"],
+        "summary": "Bash Close Session",
+        "description": "Close a bash session.",
+        "operationId": "bash_close_session_v1_bash_sessions__session_id__close_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Session Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
       }
     },
     "/v1/file/read": {
@@ -3624,6 +3856,33 @@
         "title": "AvailableTool",
         "description": "Describe an available command-line tool."
       },
+      "BashCommandInfo": {
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "title": "Command Id",
+            "description": "Unique command identifier"
+          },
+          "command": {
+            "type": "string",
+            "title": "Command",
+            "description": "The command string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CommandStatus",
+            "description": "Command execution status"
+          },
+          "exit_code": {
+            "anyOf": [{ "type": "integer" }, { "type": "null" }],
+            "title": "Exit Code",
+            "description": "Exit code (when completed)"
+          }
+        },
+        "type": "object",
+        "required": ["command_id", "command", "status"],
+        "title": "BashCommandInfo",
+        "description": "Serializable command status info (for API responses)."
+      },
       "BashCommandStatus": {
         "type": "string",
         "enum": [
@@ -3635,6 +3894,317 @@
         ],
         "title": "BashCommandStatus",
         "description": "Shell command execution status (compatible with OpenHands)"
+      },
+      "BashExecRequest": {
+        "properties": {
+          "session_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Session Id",
+            "description": "Target session ID. If not provided, a new session is created automatically."
+          },
+          "command": {
+            "type": "string",
+            "title": "Command",
+            "description": "Shell command to execute"
+          },
+          "exec_dir": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Exec Dir",
+            "description": "Working directory for command execution (absolute path)"
+          },
+          "env": {
+            "anyOf": [
+              {
+                "additionalProperties": { "type": "string" },
+                "type": "object"
+              },
+              { "type": "null" }
+            ],
+            "title": "Env",
+            "description": "Extra environment variables to inject for this command only."
+          },
+          "async_mode": {
+            "type": "boolean",
+            "title": "Async Mode",
+            "description": "If true, return immediately with running status. Use /output to poll results.",
+            "default": false
+          },
+          "timeout": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Timeout",
+            "description": "HTTP timeout (seconds). Only effective when async_mode=false. If the command does not complete within this time, HTTP returns running status and the command continues in the background. Use /output to get results."
+          },
+          "hard_timeout": {
+            "anyOf": [{ "type": "number" }, { "type": "null" }],
+            "title": "Hard Timeout",
+            "description": "Hard execution timeout (seconds). When reached, the process is killed and status becomes timed_out. None means no limit."
+          },
+          "max_output_length": {
+            "type": "integer",
+            "title": "Max Output Length",
+            "description": "Maximum character length for stdout/stderr in the response. When output exceeds this limit, middle truncation is applied (head and tail preserved, middle replaced with a marker). Only effective in sync mode (async_mode=false). Set to 0 to disable truncation.",
+            "default": 50000
+          }
+        },
+        "type": "object",
+        "required": ["command"],
+        "title": "BashExecRequest",
+        "description": "Request for POST /v1/bash/exec — execute a command."
+      },
+      "BashExecResult": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Session identifier"
+          },
+          "command_id": {
+            "type": "string",
+            "title": "Command Id",
+            "description": "Unique command identifier"
+          },
+          "command": {
+            "type": "string",
+            "title": "Command",
+            "description": "The executed command"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CommandStatus",
+            "description": "Command status"
+          },
+          "stdout": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Stdout",
+            "description": "Stdout output up to this point"
+          },
+          "stderr": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Stderr",
+            "description": "Stderr output up to this point"
+          },
+          "exit_code": {
+            "anyOf": [{ "type": "integer" }, { "type": "null" }],
+            "title": "Exit Code",
+            "description": "Exit code (when completed)"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Current stdout offset for subsequent /output calls",
+            "default": 0
+          },
+          "stderr_offset": {
+            "type": "integer",
+            "title": "Stderr Offset",
+            "description": "Current stderr offset",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": ["session_id", "command_id", "command", "status"],
+        "title": "BashExecResult",
+        "description": "Result of exec_command — returned by POST /v1/bash/exec."
+      },
+      "BashKillRequest": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Target session ID"
+          },
+          "signal": {
+            "type": "string",
+            "title": "Signal",
+            "description": "Signal to send: SIGTERM, SIGKILL, or SIGINT",
+            "default": "SIGTERM"
+          }
+        },
+        "type": "object",
+        "required": ["session_id"],
+        "title": "BashKillRequest",
+        "description": "Request for POST /v1/bash/kill — kill a session or its current command."
+      },
+      "BashOutputRequest": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Target session ID"
+          },
+          "command_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Command Id",
+            "description": "Target a specific async command. If not set, uses session-level output."
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Stdout byte offset to read from",
+            "default": 0
+          },
+          "stderr_offset": {
+            "type": "integer",
+            "title": "Stderr Offset",
+            "description": "Stderr byte offset to read from",
+            "default": 0
+          },
+          "wait": {
+            "type": "boolean",
+            "title": "Wait",
+            "description": "If true, long-poll until new output is available or wait_timeout is reached.",
+            "default": false
+          },
+          "wait_timeout": {
+            "type": "number",
+            "title": "Wait Timeout",
+            "description": "Max seconds to wait for new output when wait=true.",
+            "default": 30.0
+          }
+        },
+        "type": "object",
+        "required": ["session_id"],
+        "title": "BashOutputRequest",
+        "description": "Request for POST /v1/bash/output — read output with offset."
+      },
+      "BashOutputResult": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Session identifier"
+          },
+          "stdout": {
+            "type": "string",
+            "title": "Stdout",
+            "description": "New stdout data since last offset",
+            "default": ""
+          },
+          "stderr": {
+            "type": "string",
+            "title": "Stderr",
+            "description": "New stderr data since last offset",
+            "default": ""
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Current stdout offset (use for next request)",
+            "default": 0
+          },
+          "stderr_offset": {
+            "type": "integer",
+            "title": "Stderr Offset",
+            "description": "Current stderr offset (use for next request)",
+            "default": 0
+          },
+          "command": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/BashCommandInfo" },
+              { "type": "null" }
+            ],
+            "description": "Current or most recent command status"
+          }
+        },
+        "type": "object",
+        "required": ["session_id"],
+        "title": "BashOutputResult",
+        "description": "Result of get_output — returned by POST /v1/bash/output."
+      },
+      "BashSessionCreateRequest": {
+        "properties": {
+          "session_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Session Id",
+            "description": "Session ID. Auto-generated if not provided."
+          },
+          "exec_dir": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Exec Dir",
+            "description": "Working directory for the new session (absolute path)"
+          },
+          "snapshot_path": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Snapshot Path",
+            "description": "Path to a shell snapshot script to source on session init"
+          }
+        },
+        "type": "object",
+        "title": "BashSessionCreateRequest",
+        "description": "Request for POST /v1/bash/sessions/create — create a new session."
+      },
+      "BashSessionInfo": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Session identifier"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SessionStatus",
+            "description": "Session status"
+          },
+          "working_dir": {
+            "type": "string",
+            "title": "Working Dir",
+            "description": "Working directory"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Creation timestamp"
+          },
+          "last_used_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Used At",
+            "description": "Last used timestamp"
+          },
+          "current_command": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Current Command",
+            "description": "Currently executing command"
+          },
+          "command_count": {
+            "type": "integer",
+            "title": "Command Count",
+            "description": "Total commands executed",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "status",
+          "working_dir",
+          "created_at",
+          "last_used_at"
+        ],
+        "title": "BashSessionInfo",
+        "description": "Session info for listing — returned by GET /v1/bash/sessions."
+      },
+      "BashWriteRequest": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id",
+            "description": "Target session ID"
+          },
+          "command_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Command Id",
+            "description": "Target a specific async command. If not set, writes to current command."
+          },
+          "input": {
+            "type": "string",
+            "title": "Input",
+            "description": "Content to write to the process stdin"
+          }
+        },
+        "type": "object",
+        "required": ["session_id", "input"],
+        "title": "BashWriteRequest",
+        "description": "Request for POST /v1/bash/write — write to stdin."
       },
       "BlobResourceContents": {
         "properties": {
@@ -4004,6 +4574,12 @@
         "required": ["language", "description"],
         "title": "CodeLanguageInfo",
         "description": "Metadata about a supported code runtime"
+      },
+      "CommandStatus": {
+        "type": "string",
+        "enum": ["pending", "running", "completed", "timed_out", "killed"],
+        "title": "CommandStatus",
+        "description": "Status of a bash command execution."
       },
       "ConsoleRecord": {
         "properties": {
@@ -6146,6 +6722,96 @@
         "type": "object",
         "title": "Response[ActiveShellSessionsResult]"
       },
+      "Response_BashExecResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/BashExecResult" },
+              { "type": "null" }
+            ],
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[BashExecResult]"
+      },
+      "Response_BashOutputResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/BashOutputResult" },
+              { "type": "null" }
+            ],
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[BashOutputResult]"
+      },
+      "Response_BashSessionInfo_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/BashSessionInfo" },
+              { "type": "null" }
+            ],
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[BashSessionInfo]"
+      },
       "Response_BrowserInfoResult_": {
         "properties": {
           "success": {
@@ -7382,6 +8048,40 @@
         "type": "object",
         "title": "Response[list]"
       },
+      "Response_list_BashSessionInfo__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": { "$ref": "#/components/schemas/BashSessionInfo" },
+                "type": "array"
+              },
+              { "type": "null" }
+            ],
+            "title": "Data",
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[BashSessionInfo]]"
+      },
       "Response_str_": {
         "properties": {
           "success": {
@@ -7638,6 +8338,12 @@
         "required": ["kernel_name", "last_used", "age_seconds"],
         "title": "SessionInfo",
         "description": "Active session information"
+      },
+      "SessionStatus": {
+        "type": "string",
+        "enum": ["ready", "closed"],
+        "title": "SessionStatus",
+        "description": "Status of a pipe bash session."
       },
       "ShellCommandResult": {
         "properties": {

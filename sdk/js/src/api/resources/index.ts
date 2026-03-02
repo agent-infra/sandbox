@@ -1,4 +1,6 @@
 export * as auth from "./auth/index.js";
+export * from "./bash/client/requests/index.js";
+export * as bash from "./bash/index.js";
 export * from "./browser/client/requests/index.js";
 export * as browser from "./browser/index.js";
 export * from "./browser/types/index.js";

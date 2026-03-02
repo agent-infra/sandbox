@@ -9,6 +9,7 @@ from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 
 if typing.TYPE_CHECKING:
     from .auth.client import AsyncAuthClient, AuthClient
+    from .bash.client import AsyncBashClient, BashClient
     from .browser.client import AsyncBrowserClient, BrowserClient
     from .browser_captcha.client import AsyncBrowserCaptchaClient, BrowserCaptchaClient
     from .browser_cookies.client import AsyncBrowserCookiesClient, BrowserCookiesClient
@@ -81,6 +82,7 @@ class Sandbox:
         )
         self._sandbox: typing.Optional[SandboxClient] = None
         self._shell: typing.Optional[ShellClient] = None
+        self._bash: typing.Optional[BashClient] = None
         self._file: typing.Optional[FileClient] = None
         self._jupyter: typing.Optional[JupyterClient] = None
         self._nodejs: typing.Optional[NodejsClient] = None
@@ -112,6 +114,14 @@ class Sandbox:
 
             self._shell = ShellClient(client_wrapper=self._client_wrapper)
         return self._shell
+
+    @property
+    def bash(self):
+        if self._bash is None:
+            from .bash.client import BashClient  # noqa: E402
+
+            self._bash = BashClient(client_wrapper=self._client_wrapper)
+        return self._bash
 
     @property
     def file(self):
@@ -288,6 +298,7 @@ class AsyncSandbox:
         )
         self._sandbox: typing.Optional[AsyncSandboxClient] = None
         self._shell: typing.Optional[AsyncShellClient] = None
+        self._bash: typing.Optional[AsyncBashClient] = None
         self._file: typing.Optional[AsyncFileClient] = None
         self._jupyter: typing.Optional[AsyncJupyterClient] = None
         self._nodejs: typing.Optional[AsyncNodejsClient] = None
@@ -319,6 +330,14 @@ class AsyncSandbox:
 
             self._shell = AsyncShellClient(client_wrapper=self._client_wrapper)
         return self._shell
+
+    @property
+    def bash(self):
+        if self._bash is None:
+            from .bash.client import AsyncBashClient  # noqa: E402
+
+            self._bash = AsyncBashClient(client_wrapper=self._client_wrapper)
+        return self._bash
 
     @property
     def file(self):

@@ -14,7 +14,11 @@ if typing.TYPE_CHECKING:
     from .annotations_audience_item import AnnotationsAudienceItem
     from .audio_content import AudioContent
     from .available_tool import AvailableTool
+    from .bash_command_info import BashCommandInfo
     from .bash_command_status import BashCommandStatus
+    from .bash_exec_result import BashExecResult
+    from .bash_output_result import BashOutputResult
+    from .bash_session_info import BashSessionInfo
     from .blob_resource_contents import BlobResourceContents
     from .browser_info_result import BrowserInfoResult
     from .browser_viewport import BrowserViewport
@@ -26,6 +30,7 @@ if typing.TYPE_CHECKING:
     from .code_execute_response import CodeExecuteResponse
     from .code_info_response import CodeInfoResponse
     from .code_language_info import CodeLanguageInfo
+    from .command_status import CommandStatus
     from .console_record import ConsoleRecord
     from .dependency_command_result import DependencyCommandResult
     from .double_click_action import DoubleClickAction
@@ -79,6 +84,9 @@ if typing.TYPE_CHECKING:
     from .response import Response
     from .response_active_sessions_result import ResponseActiveSessionsResult
     from .response_active_shell_sessions_result import ResponseActiveShellSessionsResult
+    from .response_bash_exec_result import ResponseBashExecResult
+    from .response_bash_output_result import ResponseBashOutputResult
+    from .response_bash_session_info import ResponseBashSessionInfo
     from .response_browser_info_result import ResponseBrowserInfoResult
     from .response_call_tool_result_model import ResponseCallToolResultModel
     from .response_call_tool_result_model_data_content_item import (
@@ -106,6 +114,7 @@ if typing.TYPE_CHECKING:
     from .response_jupyter_execute_response import ResponseJupyterExecuteResponse
     from .response_jupyter_info_response import ResponseJupyterInfoResponse
     from .response_list import ResponseList
+    from .response_list_bash_session_info import ResponseListBashSessionInfo
     from .response_list_str import ResponseListStr
     from .response_list_tools_result_model import ResponseListToolsResultModel
     from .response_node_js_create_session_response import ResponseNodeJsCreateSessionResponse
@@ -135,6 +144,7 @@ if typing.TYPE_CHECKING:
     from .sandbox_response import SandboxResponse
     from .scroll_action import ScrollAction
     from .session_info import SessionInfo
+    from .session_status import SessionStatus
     from .shell_command_result import ShellCommandResult
     from .shell_create_session_response import ShellCreateSessionResponse
     from .shell_kill_result import ShellKillResult
@@ -169,7 +179,11 @@ _dynamic_imports: typing.Dict[str, str] = {
     "AnnotationsAudienceItem": ".annotations_audience_item",
     "AudioContent": ".audio_content",
     "AvailableTool": ".available_tool",
+    "BashCommandInfo": ".bash_command_info",
     "BashCommandStatus": ".bash_command_status",
+    "BashExecResult": ".bash_exec_result",
+    "BashOutputResult": ".bash_output_result",
+    "BashSessionInfo": ".bash_session_info",
     "BlobResourceContents": ".blob_resource_contents",
     "BrowserInfoResult": ".browser_info_result",
     "BrowserViewport": ".browser_viewport",
@@ -181,6 +195,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "CodeExecuteResponse": ".code_execute_response",
     "CodeInfoResponse": ".code_info_response",
     "CodeLanguageInfo": ".code_language_info",
+    "CommandStatus": ".command_status",
     "ConsoleRecord": ".console_record",
     "DependencyCommandResult": ".dependency_command_result",
     "DoubleClickAction": ".double_click_action",
@@ -234,6 +249,9 @@ _dynamic_imports: typing.Dict[str, str] = {
     "Response": ".response",
     "ResponseActiveSessionsResult": ".response_active_sessions_result",
     "ResponseActiveShellSessionsResult": ".response_active_shell_sessions_result",
+    "ResponseBashExecResult": ".response_bash_exec_result",
+    "ResponseBashOutputResult": ".response_bash_output_result",
+    "ResponseBashSessionInfo": ".response_bash_session_info",
     "ResponseBrowserInfoResult": ".response_browser_info_result",
     "ResponseCallToolResultModel": ".response_call_tool_result_model",
     "ResponseCallToolResultModelDataContentItem": ".response_call_tool_result_model_data_content_item",
@@ -259,6 +277,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseJupyterExecuteResponse": ".response_jupyter_execute_response",
     "ResponseJupyterInfoResponse": ".response_jupyter_info_response",
     "ResponseList": ".response_list",
+    "ResponseListBashSessionInfo": ".response_list_bash_session_info",
     "ResponseListStr": ".response_list_str",
     "ResponseListToolsResultModel": ".response_list_tools_result_model",
     "ResponseNodeJsCreateSessionResponse": ".response_node_js_create_session_response",
@@ -288,6 +307,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "SandboxResponse": ".sandbox_response",
     "ScrollAction": ".scroll_action",
     "SessionInfo": ".session_info",
+    "SessionStatus": ".session_status",
     "ShellCommandResult": ".shell_command_result",
     "ShellCreateSessionResponse": ".shell_create_session_response",
     "ShellKillResult": ".shell_kill_result",
@@ -344,7 +364,11 @@ __all__ = [
     "AnnotationsAudienceItem",
     "AudioContent",
     "AvailableTool",
+    "BashCommandInfo",
     "BashCommandStatus",
+    "BashExecResult",
+    "BashOutputResult",
+    "BashSessionInfo",
     "BlobResourceContents",
     "BrowserInfoResult",
     "BrowserViewport",
@@ -356,6 +380,7 @@ __all__ = [
     "CodeExecuteResponse",
     "CodeInfoResponse",
     "CodeLanguageInfo",
+    "CommandStatus",
     "ConsoleRecord",
     "DependencyCommandResult",
     "DoubleClickAction",
@@ -409,6 +434,9 @@ __all__ = [
     "Response",
     "ResponseActiveSessionsResult",
     "ResponseActiveShellSessionsResult",
+    "ResponseBashExecResult",
+    "ResponseBashOutputResult",
+    "ResponseBashSessionInfo",
     "ResponseBrowserInfoResult",
     "ResponseCallToolResultModel",
     "ResponseCallToolResultModelDataContentItem",
@@ -434,6 +462,7 @@ __all__ = [
     "ResponseJupyterExecuteResponse",
     "ResponseJupyterInfoResponse",
     "ResponseList",
+    "ResponseListBashSessionInfo",
     "ResponseListStr",
     "ResponseListToolsResultModel",
     "ResponseNodeJsCreateSessionResponse",
@@ -463,6 +492,7 @@ __all__ = [
     "SandboxResponse",
     "ScrollAction",
     "SessionInfo",
+    "SessionStatus",
     "ShellCommandResult",
     "ShellCreateSessionResponse",
     "ShellKillResult",
