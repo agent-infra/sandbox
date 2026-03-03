@@ -9,7 +9,7 @@ hero:
   tagline: |
     🌐 浏览器 | 💻 终端 | 📁 文件
 
-    🔧 VSCode | 📊 Jupyter | 🤖 MCP
+    🔧 VSCode | 📊 Jupyter | <img src="/icons/mcp.png" style="display: inline-block; width: 1.2em; height: 1.2em; vertical-align: -0.25em; margin-right: 4px;" /> MCP
   actions:
     - theme: brand
       text: 开始使用
