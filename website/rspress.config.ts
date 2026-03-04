@@ -106,6 +106,15 @@ export default defineConfig({
     },
     locales: [
       {
+        lang: 'en',
+        label: 'English',
+        editLink: {
+          docRepoBaseUrl:
+            'https://github.com/agent-infra/sandbox/tree/main/site/docs',
+          text: '📝 Edit this page on GitHub',
+        },
+      },
+      {
         lang: 'zh',
         label: '简体中文',
         editLink: {
@@ -117,15 +126,6 @@ export default defineConfig({
           filterNameText: '过滤',
           filterPlaceholderText: '输入关键词',
           filterNoResultText: '未找到匹配的 API',
-        },
-      },
-      {
-        lang: 'en',
-        label: 'English',
-        editLink: {
-          docRepoBaseUrl:
-            'https://github.com/agent-infra/sandbox/tree/main/site/docs',
-          text: '📝 Edit this page on GitHub',
         },
       },
     ],
