@@ -1,53 +1,40 @@
+export * from '@rspress/theme-default';
+import { useI18n } from '@rspress/core/runtime';
 import {
-  // HomeLayout as BasicHomeLayout,
-  // Layout as BasicLayout,
   getCustomMDXComponent as basicGetCustomMDXComponent,
 } from '@rspress/core/theme';
-// import { useI18n } from '@rspress/core/runtime';
 import {
   LlmsContainer,
   LlmsCopyButton,
   LlmsViewOptions,
 } from '@rspress/plugin-llms/runtime';
 
-// function HomeLayout() {
-//   const { pre: PreWithCodeButtonGroup, code: Code } =
-//     basicGetCustomMDXComponent();
-//   const t = useI18n();
+export function HomeFooter() {
+  const t = useI18n();
+  const message = t('footerMessage');
+  if (!message) return null;
+  return (
+    <footer
+      className="rp-absolute rp-bottom-0 rp-mt-12 rp-py-8 rp-px-6 sm:rp-p-8 rp-w-full rp-border-t rp-border-solid rp-border-divider-light"
+    >
+      <div className="rp-m-auto rp-w-full rp-text-center">
+        <div
+          className="rp-font-medium rp-text-sm rp-text-text-2"
+          dangerouslySetInnerHTML={{ __html: message }}
+        />
+      </div>
+    </footer>
+  );
+}
 
-//   return (
-//     <BasicHomeLayout
-//       afterHeroActions={
-//         <div
-//           className="rspress-doc"
-//           style={{ minHeight: 'auto', width: '100%', maxWidth: 400 }}
-//         >
-//           <PreWithCodeButtonGroup
-//             containerElementClassName="language-bash"
-//             codeButtonGroupProps={{
-//               showCodeWrapButton: false,
-//             }}
-//           >
-//             <Code className="language-bash" style={{ textAlign: 'center' }}>
-//               {t('oneLineCommand')}
-//             </Code>
-//           </PreWithCodeButtonGroup>
-//         </div>
-//       }
-//     />
-//   );
-// }
-
-function getCustomMDXComponent() {
+export function getCustomMDXComponent() {
   const { h1: H1, ...mdxComponents } = basicGetCustomMDXComponent();
-
   const MyH1 = ({ ...props }) => {
     return (
       <>
         <H1 {...props} />
         <LlmsContainer>
           <LlmsCopyButton />
-          {/* LlmsViewOptions 组件可根据需要添加  */}
           <LlmsViewOptions />
         </LlmsContainer>
       </>
@@ -58,6 +45,3 @@ function getCustomMDXComponent() {
     h1: MyH1,
   };
 }
-
-export { getCustomMDXComponent };
-export * from '@rspress/core/theme';

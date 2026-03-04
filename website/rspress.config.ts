@@ -27,6 +27,7 @@ export default defineConfig({
     dark: '/aio-icon.png',
     light: '/aio-icon.png',
   },
+  themeDir: path.join(__dirname, 'theme'),
   route: {
     cleanUrls: true,
   },
@@ -102,7 +103,7 @@ export default defineConfig({
       },
     ],
     footer: {
-      message: 'Built with ❤️ for AI Agents · AIO Sandbox © 2025',
+      message: 'Built with ❤️ for AI Agents · AIO Sandbox © 2026',
     },
     locales: [
       {

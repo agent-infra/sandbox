@@ -46,5 +46,9 @@
   "searchSuggestedQueryText": {
     "zh": "尝试搜索其他关键词",
     "en": "Try searching for different keywords"
+  },
+  "footerMessage": {
+    "zh": "为 AI Agents 打造 · AIO Sandbox © 2026",
+    "en": "Built with ❤️ for AI Agents · AIO Sandbox © 2026"
   }
 }
