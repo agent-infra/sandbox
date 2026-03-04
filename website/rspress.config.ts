@@ -113,6 +113,10 @@ export default defineConfig({
             'https://github.com/agent-infra/sandbox/tree/main/site/docs',
           text: '📝 Edit this page on GitHub',
         },
+        searchPlaceholderText: 'Search',
+        searchPanelCancelText: 'Cancel',
+        searchNoResultsText: 'No matching results',
+        searchSuggestedQueryText: 'Try searching for different keywords',
       },
       {
         lang: 'zh',
@@ -122,6 +126,10 @@ export default defineConfig({
             'https://github.com/agent-infra/sandbox/tree/main/site/docs',
           text: '📝 在 GitHub 上编辑此页',
         },
+        searchPlaceholderText: '搜索',
+        searchPanelCancelText: '取消',
+        searchNoResultsText: '未找到匹配的结果',
+        searchSuggestedQueryText: '尝试搜索其他关键词',
         overview: {
           filterNameText: '过滤',
           filterPlaceholderText: '输入关键词',

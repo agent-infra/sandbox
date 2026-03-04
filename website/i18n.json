@@ -30,5 +30,21 @@
   "loadingApiReference": {
     "zh": "正在加载 API 文档...",
     "en": "Loading API Reference..."
+  },
+  "searchPlaceholderText": {
+    "zh": "搜索",
+    "en": "Search"
+  },
+  "searchPanelCancelText": {
+    "zh": "取消",
+    "en": "Cancel"
+  },
+  "searchNoResultsText": {
+    "zh": "未找到匹配的结果",
+    "en": "No matching results"
+  },
+  "searchSuggestedQueryText": {
+    "zh": "尝试搜索其他关键词",
+    "en": "Try searching for different keywords"
   }
 }
