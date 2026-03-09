@@ -3,8 +3,8 @@ export const frontmatter = {
 };
 
 import { useDark, useI18n } from '@rspress/core/runtime';
-import { Suspense } from 'react';
 import { ApiReferenceReact } from '@scalar/api-reference-react';
+import { Suspense } from 'react';
 import './index.scss';
 
 import '@scalar/api-reference-react/style.css';

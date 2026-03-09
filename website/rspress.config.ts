@@ -1,5 +1,7 @@
 import * as path from 'node:path';
 import { pluginSass } from '@rsbuild/plugin-sass';
+import { pluginSvgr } from '@rsbuild/plugin-svgr';
+import { defineConfig } from '@rspress/core';
 import { pluginLlms } from '@rspress/plugin-llms';
 import { pluginSitemap } from '@rspress/plugin-sitemap';
 import { pluginTwoslash } from '@rspress/plugin-twoslash';
@@ -9,7 +11,6 @@ import {
   transformerNotationFocus,
   transformerNotationHighlight,
 } from '@shikijs/transformers';
-import { defineConfig } from '@rspress/core';
 import { pluginGoogleAnalytics } from 'rsbuild-plugin-google-analytics';
 import { pluginOpenGraph } from 'rsbuild-plugin-open-graph';
 import { pluginFontOpenSans } from 'rspress-plugin-font-open-sans';
@@ -67,6 +68,7 @@ export default defineConfig({
     },
     plugins: [
       pluginSass(),
+      pluginSvgr({ svgrOptions: { exportType: 'default' } }),
       pluginGoogleAnalytics({ id: 'G-VDPJE6PYSN' }),
       pluginOpenGraph({
         url: siteUrl,

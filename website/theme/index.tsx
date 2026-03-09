@@ -1,8 +1,7 @@
 export * from '@rspress/theme-default';
+export { default as HomeLayout } from './components/HomeLayout';
 import { useI18n } from '@rspress/core/runtime';
-import {
-  getCustomMDXComponent as basicGetCustomMDXComponent,
-} from '@rspress/core/theme';
+import { getCustomMDXComponent as basicGetCustomMDXComponent } from '@rspress/core/theme';
 import {
   LlmsContainer,
   LlmsCopyButton,
@@ -14,12 +13,11 @@ export function HomeFooter() {
   const message = t('footerMessage');
   if (!message) return null;
   return (
-    <footer
-      className="rp-absolute rp-bottom-0 rp-mt-12 rp-py-8 rp-px-6 sm:rp-p-8 rp-w-full rp-border-t rp-border-solid rp-border-divider-light"
-    >
+    <footer className="rp-absolute rp-bottom-0 rp-mt-12 rp-py-8 rp-px-6 sm:rp-p-8 rp-w-full rp-border-t rp-border-solid rp-border-divider-light">
       <div className="rp-m-auto rp-w-full rp-text-center">
         <div
           className="rp-font-medium rp-text-sm rp-text-text-2"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
           dangerouslySetInnerHTML={{ __html: message }}
         />
       </div>
