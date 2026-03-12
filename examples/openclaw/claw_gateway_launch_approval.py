@@ -1,3 +1,18 @@
+"""
+Example: Launch OpenClaw gateway inside Sandbox and approve device pairing.
+
+Requirements:
+- agent_sandbox Python SDK
+- OpenAI API key
+- OpenClaw CLI available inside sandbox
+
+Workflow:
+1. Launch gateway
+2. Open dashboard URL
+3. Trigger pairing request
+4. Approve device programmatically
+"""
+
 from agent_sandbox import Sandbox
 import re, os, json, shlex
 
