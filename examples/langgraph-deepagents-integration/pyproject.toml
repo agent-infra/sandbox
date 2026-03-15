@@ -5,13 +5,12 @@ description = "An example project integrating LangGraph and DeepAgents with aio-
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "dotenv>=0.9.9",
+    "python-dotenv>=1.0.0",
     "httpx[socks]>=0.27.2",
     "agent-sandbox",
-    "deepagents>=0.1.2",
+    "deepagents>=0.4.0",
     "langchain>=1.0.0",
-    "langchain-mcp-adapters>=0.1.11",
-    "langchain-openai>=0.3.0"
+    "langchain-openai>=0.3.0",
 ]
 
 [tool.uv.sources]
