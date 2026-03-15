@@ -17,7 +17,6 @@ from deepagents.backends.protocol import (
     FileDownloadResponse,
     FileInfo,
     FileUploadResponse,
-    GrepMatch,
     WriteResult,
 )
 from deepagents.backends.sandbox import BaseSandbox
@@ -204,15 +203,7 @@ class AIOSandboxBackend(BaseSandbox):
         except Exception:
             return []
 
-    def grep_raw(
-        self,
-        pattern: str,
-        path: str | None = None,
-        glob: str | None = None,
-    ) -> list[GrepMatch] | str:
-        """Search files via shell grep (single-line command, clean output)."""
-        # Delegate to BaseSandbox's default grep implementation which uses execute()
-        return super().grep_raw(pattern, path, glob)
+    # grep_raw: inherits BaseSandbox default (shell grep via execute())
 
     # --- File transfer: file API ---
 
@@ -233,21 +224,20 @@ class AIOSandboxBackend(BaseSandbox):
         return responses
 
     def download_files(self, paths: list[str]) -> list[FileDownloadResponse]:
-        """Download files via file API."""
+        """Download files via file API. Supports both text and binary files."""
         responses = []
         for path in paths:
             try:
                 resp = self.client.file.read_file(file=path)
                 content_str = getattr(resp.data, "content", "") or ""
-                responses.append(FileDownloadResponse(
-                    path=path,
-                    content=content_str.encode("utf-8"),
-                ))
+                encoding = getattr(resp.data, "encoding", None)
+                if encoding == "base64":
+                    content = base64.b64decode(content_str)
+                else:
+                    content = content_str.encode("utf-8")
+                responses.append(FileDownloadResponse(path=path, content=content))
             except Exception:
-                responses.append(FileDownloadResponse(
-                    path=path,
-                    error="file_not_found",
-                ))
+                responses.append(FileDownloadResponse(path=path, error="file_not_found"))
         return responses
 
     def close(self):
