@@ -1,13 +1,12 @@
 # aio-deepagents
 
-A LangGraph-based deep agent implementation that uses the AIO (All-in-One) sandbox for enhanced research capabilities. This project integrates the DeepAgents framework with MCP (Model Context Protocol) tools to create a powerful research assistant.
+A LangGraph-based deep agent implementation that uses AIO Sandbox as a native DeepAgents sandbox backend, implementing the `BaseSandbox` protocol (`execute`, `upload_files`, `download_files`).
 
 ## Features
 
-- **Deep Research Agent**: Uses the DeepAgents framework for advanced reasoning and research capabilities
-- **MCP Integration**: Connects to AIO sandbox through MCP for tool access
+- **Native Sandbox Backend**: Direct integration via DeepAgents sandbox protocol
 - **OpenAI Compatible**: Supports various LLM providers through OpenAI-compatible API
-- **Streaming Support**: Real-time response streaming for better user experience
+- **Streaming Support**: Real-time response streaming
 
 ## Prerequisites
 
@@ -19,11 +18,9 @@ A LangGraph-based deep agent implementation that uses the AIO (All-in-One) sandb
 
 ### 1. Start AIO Docker Sandbox
 
-The AIO sandbox provides various tools and capabilities that the agent can use. Start it first:
-
 **For International Users:**
 ```bash
-docker run --security-opt seccomp=unconfined --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 **For Users in Mainland China:**
@@ -33,11 +30,9 @@ docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-pu
 
 More information:
 - [AIO Sandbox Guide](https://sandbox.agent-infra.com/)
-- [MCP Integration](https://sandbox.agent-infra.com/guide/basic/mcp)
 
 ### 2. Setup Environment
 
-Create a virtual environment and install dependencies:
 ```bash
 uv venv
 uv sync
@@ -45,16 +40,16 @@ uv sync
 
 ### 3. Configure Environment Variables
 
-Copy the example environment file and configure your API credentials:
 ```bash
 cp .env.example .env
 ```
 
 Edit `.env` with your API details:
 ```bash
-OPENAI_API_KEY=sk-xxxxx                    # Your API key
-OPENAI_MODEL=anthropic/claude-sonnet-4    # Model to use
-OPENAI_BASEURL=https://openrouter.ai/api/v1  # API endpoint
+OPENAI_API_KEY=sk-xxxxx
+OPENAI_MODEL_ID=anthropic/claude-sonnet-4
+OPENAI_BASEURL=https://openrouter.ai/api/v1
+SANDBOX_URL=http://localhost:8080
 ```
 
 ### 4. Run the Agent
@@ -63,34 +58,35 @@ OPENAI_BASEURL=https://openrouter.ai/api/v1  # API endpoint
 uv run main.py
 ```
 
-The agent will connect to the sandbox and answer the example question "what is langgraph?".
+## Architecture
+
+```
+DeepAgents Agent
+    └── AIOSandboxBackend (sandbox_backend.py)
+        ├── execute(cmd)       → client.bash.exec()
+        ├── upload_files()     → client.file.write_file()
+        └── download_files()   → client.file.read_file()
+            └── agent-sandbox SDK → AIO Sandbox HTTP API
+```
+
+This follows the same pattern as `langchain-daytona`, `langchain-runloop`, etc.
 
 ## Project Structure
 
 ```
 aio-deepagents/
-├── main.py           # Main application entry point
-├── pyproject.toml    # Project configuration and dependencies
-├── .env.example      # Environment variables template
-└── README.md         # This file
+├── main.py              # Main entry point
+├── sandbox_backend.py   # AIOSandboxBackend — DeepAgents sandbox protocol impl
+├── pyproject.toml       # Project configuration and dependencies
+├── .env.example         # Environment variables template
+└── README.md            # This file
 ```
-
-## Dependencies
-
-- **deepagents**: Core deep agent framework (≥0.0.5)
-- **langchain**: LangChain framework for LLM applications (≥0.3.27)
-- **langchain-mcp-adapters**: MCP integration for LangChain (≥0.1.10)
-- **langchain-openai**: OpenAI provider for LangChain (≥0.3.0)
-- **httpx**: HTTP client with SOCKS proxy support (≥0.27.2)
 
 ## Customization
 
-You can customize the agent by modifying `main.py`:
-
-- **Change the question**: Modify the content in the `astream` call
-- **Update instructions**: Change the agent's behavior by updating the `instructions` parameter
-- **Add more tools**: Connect additional MCP servers in the `MultiServerMCPClient` configuration
-- **Switch models**: Update the `OPENAI_MODEL` environment variable
+- **Change the question**: Modify the content in the `astream` call in `main.py`
+- **Update instructions**: Change the `system_prompt` parameter
+- **Switch models**: Update the `OPENAI_MODEL_ID` environment variable
 
 ## License
 
