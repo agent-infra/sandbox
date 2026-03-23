@@ -19,31 +19,28 @@ Write and execute code to answer questions."""
 async def main():
     sandbox_url = os.getenv("SANDBOX_URL", "http://localhost:8080")
     client = Sandbox(base_url=sandbox_url)
-    backend = AIOSandboxBackend(client)
 
-    model = init_chat_model(
-        model=f"openai:{os.getenv('OPENAI_MODEL_ID')}",
-        base_url=os.getenv("OPENAI_BASEURL"),
-        api_key=os.getenv("OPENAI_API_KEY"),
-    )
+    with AIOSandboxBackend(client) as backend:
+        model = init_chat_model(
+            model=f"openai:{os.getenv('OPENAI_MODEL_ID')}",
+            base_url=os.getenv("OPENAI_BASEURL"),
+            api_key=os.getenv("OPENAI_API_KEY"),
+        )
 
-    agent = create_deep_agent(
-        system_prompt=SYSTEM_PROMPT,
-        model=model,
-        backend=backend,
-    )
+        agent = create_deep_agent(
+            system_prompt=SYSTEM_PROMPT,
+            model=model,
+            backend=backend,
+        )
 
-    prompt = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "Write a Python script that calculates the first 20 Fibonacci numbers, then run it."
+        prompt = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "Write a Python script that calculates the first 20 Fibonacci numbers, then run it."
 
-    try:
         async for chunk in agent.astream(
             {"messages": [{"role": "user", "content": prompt}]},
             stream_mode="values"
         ):
             if "messages" in chunk:
                 chunk["messages"][-1].pretty_print()
-    finally:
-        backend.close()
 
 
 if __name__ == "__main__":
