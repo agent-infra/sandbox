@@ -16,6 +16,8 @@ from ..types.response_list_proxy_mapping_route import ResponseListProxyMappingRo
 from ..types.response_list_str import ResponseListStr
 from ..types.response_proxy_diagnose_result import ResponseProxyDiagnoseResult
 from ..types.response_proxy_mapping_route import ResponseProxyMappingRoute
+from ..types.response_proxy_upstream_info import ResponseProxyUpstreamInfo
+from ..types.response_union_proxy_upstream_info_none_type import ResponseUnionProxyUpstreamInfoNoneType
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -374,6 +376,143 @@ class RawProxyClient:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
+    def get_upstream(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[ResponseUnionProxyUpstreamInfoNoneType]:
+        """
+        Get the current upstream proxy configuration.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseUnionProxyUpstreamInfoNoneType]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/proxy/upstream",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseUnionProxyUpstreamInfoNoneType,
+                    parse_obj_as(
+                        type_=ResponseUnionProxyUpstreamInfoNoneType,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def set_upstream(
+        self,
+        *,
+        server: str,
+        auth_cmd: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[ResponseProxyUpstreamInfo]:
+        """
+        Set or update the upstream proxy. Supports user:pass@host:port format.
+
+        Takes effect immediately — no browser restart needed.
+
+        Parameters
+        ----------
+        server : str
+            Upstream proxy server. Supports plain host:port or user:pass@host:port
+
+        auth_cmd : typing.Optional[str]
+            Optional shell command to obtain proxy credentials. The command stdout should be "username:password". When set, the result is injected into the server URL, replacing any inline credentials.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseProxyUpstreamInfo]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/proxy/upstream",
+            method="PUT",
+            json={
+                "server": server,
+                "auth_cmd": auth_cmd,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseProxyUpstreamInfo,
+                    parse_obj_as(
+                        type_=ResponseProxyUpstreamInfo,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def remove_upstream(self, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Response]:
+        """
+        Remove upstream proxy (switch to direct mode).
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[Response]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/proxy/upstream",
+            method="DELETE",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Response,
+                    parse_obj_as(
+                        type_=Response,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
 
 class AsyncRawProxyClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -723,6 +862,145 @@ class AsyncRawProxyClient:
                         ),
                     ),
                 )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def get_upstream(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[ResponseUnionProxyUpstreamInfoNoneType]:
+        """
+        Get the current upstream proxy configuration.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseUnionProxyUpstreamInfoNoneType]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/proxy/upstream",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseUnionProxyUpstreamInfoNoneType,
+                    parse_obj_as(
+                        type_=ResponseUnionProxyUpstreamInfoNoneType,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def set_upstream(
+        self,
+        *,
+        server: str,
+        auth_cmd: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[ResponseProxyUpstreamInfo]:
+        """
+        Set or update the upstream proxy. Supports user:pass@host:port format.
+
+        Takes effect immediately — no browser restart needed.
+
+        Parameters
+        ----------
+        server : str
+            Upstream proxy server. Supports plain host:port or user:pass@host:port
+
+        auth_cmd : typing.Optional[str]
+            Optional shell command to obtain proxy credentials. The command stdout should be "username:password". When set, the result is injected into the server URL, replacing any inline credentials.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseProxyUpstreamInfo]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/proxy/upstream",
+            method="PUT",
+            json={
+                "server": server,
+                "auth_cmd": auth_cmd,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseProxyUpstreamInfo,
+                    parse_obj_as(
+                        type_=ResponseProxyUpstreamInfo,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def remove_upstream(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[Response]:
+        """
+        Remove upstream proxy (switch to direct mode).
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[Response]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/proxy/upstream",
+            method="DELETE",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Response,
+                    parse_obj_as(
+                        type_=Response,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
