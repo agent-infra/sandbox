@@ -5,8 +5,13 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
 from ..types.response import Response
+from ..types.response_list_sandbox_hook import ResponseListSandboxHook
+from ..types.response_sandbox_hook import ResponseSandboxHook
 from ..types.sandbox_response import SandboxResponse
 from .raw_client import AsyncRawSandboxClient, RawSandboxClient
+
+# this is used as the default value for optional parameters
+OMIT = typing.cast(typing.Any, ...)
 
 
 class SandboxClient:
@@ -100,6 +105,123 @@ class SandboxClient:
         client.sandbox.get_nodejs_packages()
         """
         _response = self._raw_client.get_nodejs_packages(request_options=request_options)
+        return _response.data
+
+    def list_hooks(
+        self, *, event: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseListSandboxHook:
+        """
+        List registered lifecycle hooks, optionally filtered by event.
+
+        Parameters
+        ----------
+        event : typing.Optional[str]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseListSandboxHook
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.list_hooks(
+            event="event",
+        )
+        """
+        _response = self._raw_client.list_hooks(event=event, request_options=request_options)
+        return _response.data
+
+    def register_hook(
+        self,
+        *,
+        name: str,
+        command: str,
+        event: typing.Optional[str] = OMIT,
+        timeout: typing.Optional[float] = OMIT,
+        priority: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseSandboxHook:
+        """
+        Register a lifecycle hook. Currently supported events: shutdown.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for this hook
+
+        command : str
+            Shell command to execute
+
+        event : typing.Optional[str]
+            Lifecycle event: "shutdown"
+
+        timeout : typing.Optional[float]
+            Per-hook timeout in seconds
+
+        priority : typing.Optional[int]
+            Execution priority (lower = earlier). Same priority hooks run in parallel
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseSandboxHook
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.register_hook(
+            name="name",
+            command="command",
+        )
+        """
+        _response = self._raw_client.register_hook(
+            name=name, command=command, event=event, timeout=timeout, priority=priority, request_options=request_options
+        )
+        return _response.data
+
+    def remove_hook(self, name: str, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+        """
+        Remove a hook by name. ENV hooks cannot be removed.
+
+        Parameters
+        ----------
+        name : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.remove_hook(
+            name="name",
+        )
+        """
+        _response = self._raw_client.remove_hook(name, request_options=request_options)
         return _response.data
 
 
@@ -218,4 +340,145 @@ class AsyncSandboxClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.get_nodejs_packages(request_options=request_options)
+        return _response.data
+
+    async def list_hooks(
+        self, *, event: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseListSandboxHook:
+        """
+        List registered lifecycle hooks, optionally filtered by event.
+
+        Parameters
+        ----------
+        event : typing.Optional[str]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseListSandboxHook
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.list_hooks(
+                event="event",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.list_hooks(event=event, request_options=request_options)
+        return _response.data
+
+    async def register_hook(
+        self,
+        *,
+        name: str,
+        command: str,
+        event: typing.Optional[str] = OMIT,
+        timeout: typing.Optional[float] = OMIT,
+        priority: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseSandboxHook:
+        """
+        Register a lifecycle hook. Currently supported events: shutdown.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for this hook
+
+        command : str
+            Shell command to execute
+
+        event : typing.Optional[str]
+            Lifecycle event: "shutdown"
+
+        timeout : typing.Optional[float]
+            Per-hook timeout in seconds
+
+        priority : typing.Optional[int]
+            Execution priority (lower = earlier). Same priority hooks run in parallel
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseSandboxHook
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.register_hook(
+                name="name",
+                command="command",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.register_hook(
+            name=name, command=command, event=event, timeout=timeout, priority=priority, request_options=request_options
+        )
+        return _response.data
+
+    async def remove_hook(self, name: str, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+        """
+        Remove a hook by name. ENV hooks cannot be removed.
+
+        Parameters
+        ----------
+        name : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.remove_hook(
+                name="name",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.remove_hook(name, request_options=request_options)
         return _response.data

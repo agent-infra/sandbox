@@ -18,6 +18,7 @@ if typing.TYPE_CHECKING:
     from .browser_state.client import AsyncBrowserStateClient, BrowserStateClient
     from .browser_tabs.client import AsyncBrowserTabsClient, BrowserTabsClient
     from .code.client import AsyncCodeClient, CodeClient
+    from .display.client import AsyncDisplayClient, DisplayClient
     from .file.client import AsyncFileClient, FileClient
     from .jupyter.client import AsyncJupyterClient, JupyterClient
     from .mcp.client import AsyncMcpClient, McpClient
@@ -99,6 +100,7 @@ class Sandbox:
         self._util: typing.Optional[UtilClient] = None
         self._skills: typing.Optional[SkillsClient] = None
         self._proxy: typing.Optional[ProxyClient] = None
+        self._display: typing.Optional[DisplayClient] = None
         self._auth: typing.Optional[AuthClient] = None
 
     @property
@@ -246,6 +248,14 @@ class Sandbox:
         return self._proxy
 
     @property
+    def display(self):
+        if self._display is None:
+            from .display.client import DisplayClient  # noqa: E402
+
+            self._display = DisplayClient(client_wrapper=self._client_wrapper)
+        return self._display
+
+    @property
     def auth(self):
         if self._auth is None:
             from .auth.client import AuthClient  # noqa: E402
@@ -324,6 +334,7 @@ class AsyncSandbox:
         self._util: typing.Optional[AsyncUtilClient] = None
         self._skills: typing.Optional[AsyncSkillsClient] = None
         self._proxy: typing.Optional[AsyncProxyClient] = None
+        self._display: typing.Optional[AsyncDisplayClient] = None
         self._auth: typing.Optional[AsyncAuthClient] = None
 
     @property
@@ -469,6 +480,14 @@ class AsyncSandbox:
 
             self._proxy = AsyncProxyClient(client_wrapper=self._client_wrapper)
         return self._proxy
+
+    @property
+    def display(self):
+        if self._display is None:
+            from .display.client import AsyncDisplayClient  # noqa: E402
+
+            self._display = AsyncDisplayClient(client_wrapper=self._client_wrapper)
+        return self._display
 
     @property
     def auth(self):

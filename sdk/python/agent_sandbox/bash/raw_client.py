@@ -53,10 +53,10 @@ class RawBashClient:
             Shell command to execute
 
         session_id : typing.Optional[str]
-            Target session ID. If not provided, a new session is created automatically.
+            Target session ID. If not provided, a new session is created automatically. Reuse the same session_id to maintain state (env vars, cwd, etc.) across commands.
 
         exec_dir : typing.Optional[str]
-            Working directory for command execution (absolute path)
+            Working directory (absolute path). Takes effect on every call — if the session already exists, the working directory is updated persistently.
 
         env : typing.Optional[typing.Dict[str, typing.Optional[str]]]
             Extra environment variables to inject for this command only.
@@ -537,10 +537,10 @@ class AsyncRawBashClient:
             Shell command to execute
 
         session_id : typing.Optional[str]
-            Target session ID. If not provided, a new session is created automatically.
+            Target session ID. If not provided, a new session is created automatically. Reuse the same session_id to maintain state (env vars, cwd, etc.) across commands.
 
         exec_dir : typing.Optional[str]
-            Working directory for command execution (absolute path)
+            Working directory (absolute path). Takes effect on every call — if the session already exists, the working directory is updated persistently.
 
         env : typing.Optional[typing.Dict[str, typing.Optional[str]]]
             Extra environment variables to inject for this command only.

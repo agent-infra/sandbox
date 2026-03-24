@@ -646,6 +646,65 @@ export class Shell {
     }
 
     /**
+     * Return aggregate statistics for shell sessions.
+     *
+     * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.shell.getSessionStats()
+     */
+    public getSessionStats(
+        requestOptions?: Shell.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseShellSessionStats, Sandbox.shell.getSessionStats.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__getSessionStats(requestOptions));
+    }
+
+    private async __getSessionStats(
+        requestOptions?: Shell.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseShellSessionStats, Sandbox.shell.getSessionStats.Error>>
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/shell/sessions/stats",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseShellSessionStats,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.shell.getSessionStats.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
      * List all active shell sessions
      *
      * @param {Shell.RequestOptions} requestOptions - Request-specific configuration.

@@ -2,8 +2,10 @@
 
 import * as Sandbox from "./api/index.js";
 import { Auth } from "./api/resources/auth/client/Client.js";
+import { Bash } from "./api/resources/bash/client/Client.js";
 import { Browser } from "./api/resources/browser/client/Client.js";
 import { Code } from "./api/resources/code/client/Client.js";
+import { Display } from "./api/resources/display/client/Client.js";
 import { File_ } from "./api/resources/file/client/Client.js";
 import { Jupyter } from "./api/resources/jupyter/client/Client.js";
 import { Mcp } from "./api/resources/mcp/client/Client.js";
@@ -25,6 +27,8 @@ export declare namespace SandboxClient {
 
 export class SandboxClient {
     protected readonly _options: SandboxClient.Options;
+    protected _auth: Auth | undefined;
+    protected _bash: Bash | undefined;
     protected _sandbox: SandboxService | undefined;
     protected _shell: Shell | undefined;
     protected _file: File_ | undefined;
@@ -33,10 +37,10 @@ export class SandboxClient {
     protected _mcp: Mcp | undefined;
     protected _browser: Browser | undefined;
     protected _code: Code | undefined;
+    protected _display: Display | undefined;
+    protected _proxy: Proxy | undefined;
     protected _util: Util | undefined;
     protected _skills: Skills | undefined;
-    protected _proxy: Proxy | undefined;
-    protected _auth: Auth | undefined;
 
     constructor(_options: SandboxClient.Options) {
         this._options = {
@@ -51,6 +55,14 @@ export class SandboxClient {
                 _options?.headers,
             ),
         };
+    }
+
+    public get auth(): Auth {
+        return (this._auth ??= new Auth(this._options));
+    }
+
+    public get bash(): Bash {
+        return (this._bash ??= new Bash(this._options));
     }
 
     public get sandbox(): SandboxService {
@@ -85,19 +97,19 @@ export class SandboxClient {
         return (this._code ??= new Code(this._options));
     }
 
-    public get util(): Util {
-        return (this._util ??= new Util(this._options));
-    }
-
-    public get skills(): Skills {
-        return (this._skills ??= new Skills(this._options));
+    public get display(): Display {
+        return (this._display ??= new Display(this._options));
     }
 
     public get proxy(): Proxy {
         return (this._proxy ??= new Proxy(this._options));
     }
 
-    public get auth(): Auth {
-        return (this._auth ??= new Auth(this._options));
+    public get util(): Util {
+        return (this._util ??= new Util(this._options));
+    }
+
+    public get skills(): Skills {
+        return (this._skills ??= new Skills(this._options));
     }
 }
