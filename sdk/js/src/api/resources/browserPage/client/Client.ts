@@ -2092,7 +2092,7 @@ export class BrowserPage {
     /**
      * Unified wait: selector, load, url, network_idle, download, function, response, request, or timeout.
      *
-     * @param {Sandbox.WaitRequest} request
+     * @param {Sandbox.BrowserWaitRequest} request
      * @param {BrowserPage.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
@@ -2101,14 +2101,14 @@ export class BrowserPage {
      *     })
      */
     public wait(
-        request: Sandbox.WaitRequest,
+        request: Sandbox.BrowserWaitRequest,
         requestOptions?: BrowserPage.RequestOptions,
     ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.browserPage.wait.Error>> {
         return core.HttpResponsePromise.fromPromise(this.__wait(request, requestOptions));
     }
 
     private async __wait(
-        request: Sandbox.WaitRequest,
+        request: Sandbox.BrowserWaitRequest,
         requestOptions?: BrowserPage.RequestOptions,
     ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.browserPage.wait.Error>>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);

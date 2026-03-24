@@ -8,7 +8,7 @@ import type * as Sandbox from "../../../../index.js";
  *         type: "selector"
  *     }
  */
-export interface WaitRequest {
+export interface BrowserWaitRequest {
     type: Sandbox.Type;
     selector?: string;
     state?: string;

@@ -18,6 +18,7 @@ from ..types.response_file_write_result import ResponseFileWriteResult
 from ..types.response_str_replace_editor_result import ResponseStrReplaceEditorResult
 from .raw_client import AsyncRawFileClient, RawFileClient
 from .types.command import Command
+from .types.file_watch_wait_request_event_types_item import FileWatchWaitRequestEventTypesItem
 from .types.str_replace_editor_request_replace_mode import StrReplaceEditorRequestReplaceMode
 
 # this is used as the default value for optional parameters
@@ -732,6 +733,238 @@ class FileClient:
             enable_metadata=enable_metadata,
             request_options=request_options,
         )
+        return _response.data
+
+    def watch_list(self, *, request_options: typing.Optional[RequestOptions] = None) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.file.watch_list()
+        """
+        _response = self._raw_client.watch_list(request_options=request_options)
+        return _response.data
+
+    def watch_create(
+        self,
+        *,
+        path: str,
+        recursive: typing.Optional[bool] = OMIT,
+        exclude: typing.Optional[typing.Sequence[str]] = OMIT,
+        debounce: typing.Optional[int] = OMIT,
+        include_patterns: typing.Optional[typing.Sequence[str]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        path : str
+            监听目录路径
+
+        recursive : typing.Optional[bool]
+            是否递归子目录
+
+        exclude : typing.Optional[typing.Sequence[str]]
+            排除的目录/glob 模式
+
+        debounce : typing.Optional[int]
+            去抖动窗口(ms)
+
+        include_patterns : typing.Optional[typing.Sequence[str]]
+            glob 过滤，空=全部通过
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.file.watch_create(
+            path="path",
+        )
+        """
+        _response = self._raw_client.watch_create(
+            path=path,
+            recursive=recursive,
+            exclude=exclude,
+            debounce=debounce,
+            include_patterns=include_patterns,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def watch_events(
+        self, watcher_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        watcher_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.file.watch_events(
+            watcher_id="watcher_id",
+        )
+        """
+        _response = self._raw_client.watch_events(watcher_id, request_options=request_options)
+        return _response.data
+
+    def watch_poll(
+        self,
+        watcher_id: str,
+        *,
+        since: typing.Optional[int] = OMIT,
+        limit: typing.Optional[int] = OMIT,
+        timeout: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        watcher_id : str
+
+        since : typing.Optional[int]
+            上次游标
+
+        limit : typing.Optional[int]
+            最多返回条数
+
+        timeout : typing.Optional[int]
+            长轮询等待秒数，0=立即返回
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.file.watch_poll(
+            watcher_id="watcher_id",
+        )
+        """
+        _response = self._raw_client.watch_poll(
+            watcher_id, since=since, limit=limit, timeout=timeout, request_options=request_options
+        )
+        return _response.data
+
+    def watch_wait(
+        self,
+        *,
+        path: str,
+        timeout: typing.Optional[int] = OMIT,
+        event_types: typing.Optional[typing.Sequence[FileWatchWaitRequestEventTypesItem]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        path : str
+            等待的文件路径（精确匹配）
+
+        timeout : typing.Optional[int]
+            最大等待秒数
+
+        event_types : typing.Optional[typing.Sequence[FileWatchWaitRequestEventTypesItem]]
+            关注的事件类型
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.file.watch_wait(
+            path="path",
+        )
+        """
+        _response = self._raw_client.watch_wait(
+            path=path, timeout=timeout, event_types=event_types, request_options=request_options
+        )
+        return _response.data
+
+    def watch_stop(
+        self, watcher_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        watcher_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.file.watch_stop(
+            watcher_id="watcher_id",
+        )
+        """
+        _response = self._raw_client.watch_stop(watcher_id, request_options=request_options)
         return _response.data
 
 
@@ -1534,4 +1767,286 @@ class AsyncFileClient:
             enable_metadata=enable_metadata,
             request_options=request_options,
         )
+        return _response.data
+
+    async def watch_list(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.file.watch_list()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.watch_list(request_options=request_options)
+        return _response.data
+
+    async def watch_create(
+        self,
+        *,
+        path: str,
+        recursive: typing.Optional[bool] = OMIT,
+        exclude: typing.Optional[typing.Sequence[str]] = OMIT,
+        debounce: typing.Optional[int] = OMIT,
+        include_patterns: typing.Optional[typing.Sequence[str]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        path : str
+            监听目录路径
+
+        recursive : typing.Optional[bool]
+            是否递归子目录
+
+        exclude : typing.Optional[typing.Sequence[str]]
+            排除的目录/glob 模式
+
+        debounce : typing.Optional[int]
+            去抖动窗口(ms)
+
+        include_patterns : typing.Optional[typing.Sequence[str]]
+            glob 过滤，空=全部通过
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.file.watch_create(
+                path="path",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.watch_create(
+            path=path,
+            recursive=recursive,
+            exclude=exclude,
+            debounce=debounce,
+            include_patterns=include_patterns,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def watch_events(
+        self, watcher_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        watcher_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.file.watch_events(
+                watcher_id="watcher_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.watch_events(watcher_id, request_options=request_options)
+        return _response.data
+
+    async def watch_poll(
+        self,
+        watcher_id: str,
+        *,
+        since: typing.Optional[int] = OMIT,
+        limit: typing.Optional[int] = OMIT,
+        timeout: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        watcher_id : str
+
+        since : typing.Optional[int]
+            上次游标
+
+        limit : typing.Optional[int]
+            最多返回条数
+
+        timeout : typing.Optional[int]
+            长轮询等待秒数，0=立即返回
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.file.watch_poll(
+                watcher_id="watcher_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.watch_poll(
+            watcher_id, since=since, limit=limit, timeout=timeout, request_options=request_options
+        )
+        return _response.data
+
+    async def watch_wait(
+        self,
+        *,
+        path: str,
+        timeout: typing.Optional[int] = OMIT,
+        event_types: typing.Optional[typing.Sequence[FileWatchWaitRequestEventTypesItem]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        path : str
+            等待的文件路径（精确匹配）
+
+        timeout : typing.Optional[int]
+            最大等待秒数
+
+        event_types : typing.Optional[typing.Sequence[FileWatchWaitRequestEventTypesItem]]
+            关注的事件类型
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.file.watch_wait(
+                path="path",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.watch_wait(
+            path=path, timeout=timeout, event_types=event_types, request_options=request_options
+        )
+        return _response.data
+
+    async def watch_stop(
+        self, watcher_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.Optional[typing.Any]:
+        """
+        Parameters
+        ----------
+        watcher_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Optional[typing.Any]
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.file.watch_stop(
+                watcher_id="watcher_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.watch_stop(watcher_id, request_options=request_options)
         return _response.data

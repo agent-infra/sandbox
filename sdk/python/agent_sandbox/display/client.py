@@ -6,7 +6,7 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
 from ..types.response_display_record_result import ResponseDisplayRecordResult
 from .raw_client import AsyncRawDisplayClient, RawDisplayClient
-from .types.record_action import RecordAction
+from .types.display_action import DisplayAction
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -30,7 +30,7 @@ class DisplayClient:
     def record(
         self,
         *,
-        action: RecordAction,
+        action: DisplayAction,
         save_path: typing.Optional[str] = OMIT,
         fps: typing.Optional[int] = OMIT,
         crf: typing.Optional[int] = OMIT,
@@ -47,7 +47,7 @@ class DisplayClient:
 
         Parameters
         ----------
-        action : RecordAction
+        action : DisplayAction
             Recording action: start, stop, or status
 
         save_path : typing.Optional[str]
@@ -118,7 +118,7 @@ class AsyncDisplayClient:
     async def record(
         self,
         *,
-        action: RecordAction,
+        action: DisplayAction,
         save_path: typing.Optional[str] = OMIT,
         fps: typing.Optional[int] = OMIT,
         crf: typing.Optional[int] = OMIT,
@@ -135,7 +135,7 @@ class AsyncDisplayClient:
 
         Parameters
         ----------
-        action : RecordAction
+        action : DisplayAction
             Recording action: start, stop, or status
 
         save_path : typing.Optional[str]
