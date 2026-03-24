@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.4.2"
+    "version": "1.5.1"
   },
   "paths": {
     "/v1/sandbox": {
@@ -3777,6 +3777,80 @@
         "x-fern-sdk-method-name": "diagnose"
       }
     },
+    "/v1/proxy/upstream": {
+      "get": {
+        "tags": [ "proxy" ],
+        "summary": "Get Upstream",
+        "description": "Get the current upstream proxy configuration.",
+        "operationId": "get_proxy_upstream",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Union_ProxyUpstreamInfo__NoneType__"
+                }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "proxy",
+        "x-fern-sdk-method-name": "get_upstream"
+      },
+      "put": {
+        "tags": [ "proxy" ],
+        "summary": "Set Upstream",
+        "description": "Set or update the upstream proxy. Supports user:pass@host:port format.\n\nTakes effect immediately — no browser restart needed.",
+        "operationId": "set_proxy_upstream",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProxyUpstreamUpdateRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response_ProxyUpstreamInfo_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "proxy",
+        "x-fern-sdk-method-name": "set_upstream"
+      },
+      "delete": {
+        "tags": [ "proxy" ],
+        "summary": "Remove Upstream",
+        "description": "Remove upstream proxy (switch to direct mode).",
+        "operationId": "remove_proxy_upstream",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "proxy",
+        "x-fern-sdk-method-name": "remove_upstream"
+      }
+    },
     "/tickets": {
       "post": {
         "tags": [ "auth" ],
@@ -6481,6 +6555,51 @@
         "required": [ "source", "target", "source_host", "internal_port" ],
         "title": "ProxyMappingRoute"
       },
+      "ProxyUpstreamInfo": {
+        "properties": {
+          "addr": {
+            "type": "string",
+            "title": "Addr",
+            "description": "Upstream proxy address (host:port)",
+            "examples": [ "proxy.example.com:3128" ]
+          },
+          "username": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Username",
+            "description": "Proxy auth username (if authenticated)"
+          },
+          "password": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Password",
+            "description": "Proxy auth password (if authenticated)"
+          }
+        },
+        "type": "object",
+        "required": [ "addr" ],
+        "title": "ProxyUpstreamInfo"
+      },
+      "ProxyUpstreamUpdateRequest": {
+        "properties": {
+          "server": {
+            "type": "string",
+            "title": "Server",
+            "description": "Upstream proxy server. Supports plain host:port or user:pass@host:port",
+            "examples": [ "proxy.example.com:3128", "user:token@proxy.example.com:8080" ]
+          },
+          "auth_cmd": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Auth Cmd",
+            "description": "Optional shell command to obtain proxy credentials. The command stdout should be \"username:password\". When set, the result is injected into the server URL, replacing any inline credentials.",
+            "examples": [
+              "echo -n \"ZTI_${TCE_PSM}:$(cat $SEC_TOKEN_PATH)\"",
+              "/opt/scripts/get-proxy-auth.sh"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [ "server" ],
+        "title": "ProxyUpstreamUpdateRequest"
+      },
       "RecordRequest": {
         "properties": {
           "action": {
@@ -7597,6 +7716,33 @@
         "type": "object",
         "title": "Response[ProxyMappingRoute]"
       },
+      "Response_ProxyUpstreamInfo_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [{ "$ref": "#/components/schemas/ProxyUpstreamInfo" }, { "type": "null" }],
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[ProxyUpstreamInfo]"
+      },
       "Response_ShellCommandResult_": {
         "properties": {
           "success": {
@@ -7905,6 +8051,33 @@
         },
         "type": "object",
         "title": "Response[StrReplaceEditorResult]"
+      },
+      "Response_Union_ProxyUpstreamInfo__NoneType__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [{ "$ref": "#/components/schemas/ProxyUpstreamInfo" }, { "type": "null" }],
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[Union[ProxyUpstreamInfo, NoneType]]"
       },
       "Response_dict_": {
         "properties": {

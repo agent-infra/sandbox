@@ -81,6 +81,7 @@ if typing.TYPE_CHECKING:
     from .proxy_bypass_request import ProxyBypassRequest
     from .proxy_diagnose_result import ProxyDiagnoseResult
     from .proxy_mapping_route import ProxyMappingRoute
+    from .proxy_upstream_info import ProxyUpstreamInfo
     from .resolution import Resolution
     from .resource import Resource
     from .resource_link import ResourceLink
@@ -130,6 +131,11 @@ if typing.TYPE_CHECKING:
     from .response_node_js_update_session_response import ResponseNodeJsUpdateSessionResponse
     from .response_proxy_diagnose_result import ResponseProxyDiagnoseResult
     from .response_proxy_mapping_route import ResponseProxyMappingRoute
+<<<<<<< HEAD
+||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+=======
+    from .response_proxy_upstream_info import ResponseProxyUpstreamInfo
+>>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     from .response_shell_command_result import ResponseShellCommandResult
     from .response_shell_create_session_response import ResponseShellCreateSessionResponse
     from .response_shell_kill_result import ResponseShellKillResult
@@ -142,6 +148,7 @@ if typing.TYPE_CHECKING:
     from .response_skill_registration_result import ResponseSkillRegistrationResult
     from .response_str import ResponseStr
     from .response_str_replace_editor_result import ResponseStrReplaceEditorResult
+    from .response_union_proxy_upstream_info_none_type import ResponseUnionProxyUpstreamInfoNoneType
     from .restart_request import RestartRequest
     from .right_click_action import RightClickAction
     from .route_response_model import RouteResponseModel
@@ -252,6 +259,11 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ProxyBypassRequest": ".proxy_bypass_request",
     "ProxyDiagnoseResult": ".proxy_diagnose_result",
     "ProxyMappingRoute": ".proxy_mapping_route",
+<<<<<<< HEAD
+||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+=======
+    "ProxyUpstreamInfo": ".proxy_upstream_info",
+>>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     "Resolution": ".resolution",
     "Resource": ".resource",
     "ResourceLink": ".resource_link",
@@ -299,6 +311,11 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseNodeJsUpdateSessionResponse": ".response_node_js_update_session_response",
     "ResponseProxyDiagnoseResult": ".response_proxy_diagnose_result",
     "ResponseProxyMappingRoute": ".response_proxy_mapping_route",
+<<<<<<< HEAD
+||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+=======
+    "ResponseProxyUpstreamInfo": ".response_proxy_upstream_info",
+>>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     "ResponseShellCommandResult": ".response_shell_command_result",
     "ResponseShellCreateSessionResponse": ".response_shell_create_session_response",
     "ResponseShellKillResult": ".response_shell_kill_result",
@@ -311,6 +328,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseSkillRegistrationResult": ".response_skill_registration_result",
     "ResponseStr": ".response_str",
     "ResponseStrReplaceEditorResult": ".response_str_replace_editor_result",
+    "ResponseUnionProxyUpstreamInfoNoneType": ".response_union_proxy_upstream_info_none_type",
     "RestartRequest": ".restart_request",
     "RightClickAction": ".right_click_action",
     "RouteResponseModel": ".route_response_model",
@@ -443,6 +461,11 @@ __all__ = [
     "ProxyBypassRequest",
     "ProxyDiagnoseResult",
     "ProxyMappingRoute",
+<<<<<<< HEAD
+||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+=======
+    "ProxyUpstreamInfo",
+>>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     "Resolution",
     "Resource",
     "ResourceLink",
@@ -490,6 +513,11 @@ __all__ = [
     "ResponseNodeJsUpdateSessionResponse",
     "ResponseProxyDiagnoseResult",
     "ResponseProxyMappingRoute",
+<<<<<<< HEAD
+||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+=======
+    "ResponseProxyUpstreamInfo",
+>>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     "ResponseShellCommandResult",
     "ResponseShellCreateSessionResponse",
     "ResponseShellKillResult",
@@ -502,6 +530,7 @@ __all__ = [
     "ResponseSkillRegistrationResult",
     "ResponseStr",
     "ResponseStrReplaceEditorResult",
+    "ResponseUnionProxyUpstreamInfoNoneType",
     "RestartRequest",
     "RightClickAction",
     "RouteResponseModel",

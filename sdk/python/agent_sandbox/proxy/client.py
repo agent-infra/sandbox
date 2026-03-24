@@ -9,6 +9,8 @@ from ..types.response_list_proxy_mapping_route import ResponseListProxyMappingRo
 from ..types.response_list_str import ResponseListStr
 from ..types.response_proxy_diagnose_result import ResponseProxyDiagnoseResult
 from ..types.response_proxy_mapping_route import ResponseProxyMappingRoute
+from ..types.response_proxy_upstream_info import ResponseProxyUpstreamInfo
+from ..types.response_union_proxy_upstream_info_none_type import ResponseUnionProxyUpstreamInfoNoneType
 from .raw_client import AsyncRawProxyClient, RawProxyClient
 
 # this is used as the default value for optional parameters
@@ -244,6 +246,102 @@ class ProxyClient:
         )
         """
         _response = self._raw_client.diagnose(url=url, request_options=request_options)
+        return _response.data
+
+    def get_upstream(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseUnionProxyUpstreamInfoNoneType:
+        """
+        Get the current upstream proxy configuration.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseUnionProxyUpstreamInfoNoneType
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.proxy.get_upstream()
+        """
+        _response = self._raw_client.get_upstream(request_options=request_options)
+        return _response.data
+
+    def set_upstream(
+        self,
+        *,
+        server: str,
+        auth_cmd: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseProxyUpstreamInfo:
+        """
+        Set or update the upstream proxy. Supports user:pass@host:port format.
+
+        Takes effect immediately — no browser restart needed.
+
+        Parameters
+        ----------
+        server : str
+            Upstream proxy server. Supports plain host:port or user:pass@host:port
+
+        auth_cmd : typing.Optional[str]
+            Optional shell command to obtain proxy credentials. The command stdout should be "username:password". When set, the result is injected into the server URL, replacing any inline credentials.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseProxyUpstreamInfo
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.proxy.set_upstream(
+            server="proxy.example.com:3128",
+        )
+        """
+        _response = self._raw_client.set_upstream(server=server, auth_cmd=auth_cmd, request_options=request_options)
+        return _response.data
+
+    def remove_upstream(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+        """
+        Remove upstream proxy (switch to direct mode).
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.proxy.remove_upstream()
+        """
+        _response = self._raw_client.remove_upstream(request_options=request_options)
         return _response.data
 
 
@@ -534,4 +632,126 @@ class AsyncProxyClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.diagnose(url=url, request_options=request_options)
+        return _response.data
+
+    async def get_upstream(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseUnionProxyUpstreamInfoNoneType:
+        """
+        Get the current upstream proxy configuration.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseUnionProxyUpstreamInfoNoneType
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.proxy.get_upstream()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.get_upstream(request_options=request_options)
+        return _response.data
+
+    async def set_upstream(
+        self,
+        *,
+        server: str,
+        auth_cmd: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseProxyUpstreamInfo:
+        """
+        Set or update the upstream proxy. Supports user:pass@host:port format.
+
+        Takes effect immediately — no browser restart needed.
+
+        Parameters
+        ----------
+        server : str
+            Upstream proxy server. Supports plain host:port or user:pass@host:port
+
+        auth_cmd : typing.Optional[str]
+            Optional shell command to obtain proxy credentials. The command stdout should be "username:password". When set, the result is injected into the server URL, replacing any inline credentials.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseProxyUpstreamInfo
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.proxy.set_upstream(
+                server="proxy.example.com:3128",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.set_upstream(
+            server=server, auth_cmd=auth_cmd, request_options=request_options
+        )
+        return _response.data
+
+    async def remove_upstream(self, *, request_options: typing.Optional[RequestOptions] = None) -> Response:
+        """
+        Remove upstream proxy (switch to direct mode).
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Response
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.proxy.remove_upstream()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.remove_upstream(request_options=request_options)
         return _response.data

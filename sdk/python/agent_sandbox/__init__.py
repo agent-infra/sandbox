@@ -82,6 +82,7 @@ if typing.TYPE_CHECKING:
         ProxyBypassRequest,
         ProxyDiagnoseResult,
         ProxyMappingRoute,
+        ProxyUpstreamInfo,
         Resolution,
         Resource,
         ResourceLink,
@@ -129,6 +130,11 @@ if typing.TYPE_CHECKING:
         ResponseNodeJsUpdateSessionResponse,
         ResponseProxyDiagnoseResult,
         ResponseProxyMappingRoute,
+<<<<<<< HEAD
+||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+=======
+        ResponseProxyUpstreamInfo,
+>>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
         ResponseShellCommandResult,
         ResponseShellCreateSessionResponse,
         ResponseShellKillResult,
@@ -141,6 +147,7 @@ if typing.TYPE_CHECKING:
         ResponseSkillRegistrationResult,
         ResponseStr,
         ResponseStrReplaceEditorResult,
+        ResponseUnionProxyUpstreamInfoNoneType,
         RestartRequest,
         RightClickAction,
         RouteResponseModel,
@@ -316,6 +323,11 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ProxyBypassRequest": ".types",
     "ProxyDiagnoseResult": ".types",
     "ProxyMappingRoute": ".types",
+<<<<<<< HEAD
+||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+=======
+    "ProxyUpstreamInfo": ".types",
+>>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     "RecordRequestAction": ".browser_page",
     "Resolution": ".types",
     "Resource": ".types",
@@ -364,6 +376,11 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseNodeJsUpdateSessionResponse": ".types",
     "ResponseProxyDiagnoseResult": ".types",
     "ResponseProxyMappingRoute": ".types",
+<<<<<<< HEAD
+||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+=======
+    "ResponseProxyUpstreamInfo": ".types",
+>>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     "ResponseShellCommandResult": ".types",
     "ResponseShellCreateSessionResponse": ".types",
     "ResponseShellKillResult": ".types",
@@ -376,6 +393,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseSkillRegistrationResult": ".types",
     "ResponseStr": ".types",
     "ResponseStrReplaceEditorResult": ".types",
+    "ResponseUnionProxyUpstreamInfoNoneType": ".types",
     "RestartRequest": ".types",
     "RightClickAction": ".types",
     "RouteResponseModel": ".types",
@@ -551,6 +569,11 @@ __all__ = [
     "ProxyBypassRequest",
     "ProxyDiagnoseResult",
     "ProxyMappingRoute",
+<<<<<<< HEAD
+||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+=======
+    "ProxyUpstreamInfo",
+>>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     "RecordRequestAction",
     "Resolution",
     "Resource",
@@ -599,6 +622,11 @@ __all__ = [
     "ResponseNodeJsUpdateSessionResponse",
     "ResponseProxyDiagnoseResult",
     "ResponseProxyMappingRoute",
+<<<<<<< HEAD
+||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+=======
+    "ResponseProxyUpstreamInfo",
+>>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     "ResponseShellCommandResult",
     "ResponseShellCreateSessionResponse",
     "ResponseShellKillResult",
@@ -611,6 +639,7 @@ __all__ = [
     "ResponseSkillRegistrationResult",
     "ResponseStr",
     "ResponseStrReplaceEditorResult",
+    "ResponseUnionProxyUpstreamInfoNoneType",
     "RestartRequest",
     "RightClickAction",
     "RouteResponseModel",
