@@ -6,10 +6,18 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
+from ..core.jsonable_encoder import jsonable_encoder
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
+from ..errors.unprocessable_entity_error import UnprocessableEntityError
+from ..types.http_validation_error import HttpValidationError
 from ..types.response import Response
+from ..types.response_list_sandbox_hook import ResponseListSandboxHook
+from ..types.response_sandbox_hook import ResponseSandboxHook
 from ..types.sandbox_response import SandboxResponse
+
+# this is used as the default value for optional parameters
+OMIT = typing.cast(typing.Any, ...)
 
 
 class RawSandboxClient:
@@ -113,6 +121,187 @@ class RawSandboxClient:
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def list_hooks(
+        self, *, event: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[ResponseListSandboxHook]:
+        """
+        List registered lifecycle hooks, optionally filtered by event.
+
+        Parameters
+        ----------
+        event : typing.Optional[str]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseListSandboxHook]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/sandbox/hooks",
+            method="GET",
+            params={
+                "event": event,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseListSandboxHook,
+                    parse_obj_as(
+                        type_=ResponseListSandboxHook,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def register_hook(
+        self,
+        *,
+        name: str,
+        command: str,
+        event: typing.Optional[str] = OMIT,
+        timeout: typing.Optional[float] = OMIT,
+        priority: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[ResponseSandboxHook]:
+        """
+        Register a lifecycle hook. Currently supported events: shutdown.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for this hook
+
+        command : str
+            Shell command to execute
+
+        event : typing.Optional[str]
+            Lifecycle event: "shutdown"
+
+        timeout : typing.Optional[float]
+            Per-hook timeout in seconds
+
+        priority : typing.Optional[int]
+            Execution priority (lower = earlier). Same priority hooks run in parallel
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseSandboxHook]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/sandbox/hooks",
+            method="POST",
+            json={
+                "name": name,
+                "event": event,
+                "command": command,
+                "timeout": timeout,
+                "priority": priority,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseSandboxHook,
+                    parse_obj_as(
+                        type_=ResponseSandboxHook,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def remove_hook(
+        self, name: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[Response]:
+        """
+        Remove a hook by name. ENV hooks cannot be removed.
+
+        Parameters
+        ----------
+        name : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[Response]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v1/sandbox/hooks/{jsonable_encoder(name)}",
+            method="DELETE",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Response,
+                    parse_obj_as(
+                        type_=Response,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -226,6 +415,187 @@ class AsyncRawSandboxClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def list_hooks(
+        self, *, event: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[ResponseListSandboxHook]:
+        """
+        List registered lifecycle hooks, optionally filtered by event.
+
+        Parameters
+        ----------
+        event : typing.Optional[str]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseListSandboxHook]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/sandbox/hooks",
+            method="GET",
+            params={
+                "event": event,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseListSandboxHook,
+                    parse_obj_as(
+                        type_=ResponseListSandboxHook,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def register_hook(
+        self,
+        *,
+        name: str,
+        command: str,
+        event: typing.Optional[str] = OMIT,
+        timeout: typing.Optional[float] = OMIT,
+        priority: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[ResponseSandboxHook]:
+        """
+        Register a lifecycle hook. Currently supported events: shutdown.
+
+        Parameters
+        ----------
+        name : str
+            Unique name for this hook
+
+        command : str
+            Shell command to execute
+
+        event : typing.Optional[str]
+            Lifecycle event: "shutdown"
+
+        timeout : typing.Optional[float]
+            Per-hook timeout in seconds
+
+        priority : typing.Optional[int]
+            Execution priority (lower = earlier). Same priority hooks run in parallel
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseSandboxHook]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/sandbox/hooks",
+            method="POST",
+            json={
+                "name": name,
+                "event": event,
+                "command": command,
+                "timeout": timeout,
+                "priority": priority,
+            },
+            headers={
+                "content-type": "application/json",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseSandboxHook,
+                    parse_obj_as(
+                        type_=ResponseSandboxHook,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def remove_hook(
+        self, name: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[Response]:
+        """
+        Remove a hook by name. ENV hooks cannot be removed.
+
+        Parameters
+        ----------
+        name : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[Response]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v1/sandbox/hooks/{jsonable_encoder(name)}",
+            method="DELETE",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Response,
+                    parse_obj_as(
+                        type_=Response,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)

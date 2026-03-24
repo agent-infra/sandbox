@@ -182,4 +182,244 @@ export class SandboxService {
             rawResponse: _response.rawResponse,
         };
     }
+
+    /**
+     * List registered lifecycle hooks, optionally filtered by event.
+     *
+     * @param {Sandbox.SandboxListHooksRequest} request
+     * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.sandbox.listHooks({
+     *         event: "event"
+     *     })
+     */
+    public listHooks(
+        request: Sandbox.SandboxListHooksRequest = {},
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseListSandboxHook, Sandbox.sandbox.listHooks.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__listHooks(request, requestOptions));
+    }
+
+    private async __listHooks(
+        request: Sandbox.SandboxListHooksRequest = {},
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseListSandboxHook, Sandbox.sandbox.listHooks.Error>>
+    > {
+        const { event } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (event != null) {
+            _queryParams.event = event;
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/sandbox/hooks",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseListSandboxHook,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.sandbox.listHooks.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.listHooks.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * Register a lifecycle hook. Currently supported events: shutdown.
+     *
+     * @param {Sandbox.RegisterHookRequest} request
+     * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.sandbox.registerHook({
+     *         name: "name",
+     *         command: "command"
+     *     })
+     */
+    public registerHook(
+        request: Sandbox.RegisterHookRequest,
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseSandboxHook, Sandbox.sandbox.registerHook.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__registerHook(request, requestOptions));
+    }
+
+    private async __registerHook(
+        request: Sandbox.RegisterHookRequest,
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseSandboxHook, Sandbox.sandbox.registerHook.Error>>
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/sandbox/hooks",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseSandboxHook,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.sandbox.registerHook.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.registerHook.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * Remove a hook by name. ENV hooks cannot be removed.
+     *
+     * @param {string} name
+     * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.sandbox.removeHook("name")
+     */
+    public removeHook(
+        name: string,
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.Response, Sandbox.sandbox.removeHook.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__removeHook(name, requestOptions));
+    }
+
+    private async __removeHook(
+        name: string,
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.Response, Sandbox.sandbox.removeHook.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                `v1/sandbox/hooks/${core.url.encodePathParam(name)}`,
+            ),
+            method: "DELETE",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.Response,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.sandbox.removeHook.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.removeHook.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
 }

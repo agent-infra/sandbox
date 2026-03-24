@@ -309,6 +309,9 @@ class FileClient:
         context_after: typing.Optional[int] = OMIT,
         max_results: typing.Optional[int] = OMIT,
         max_file_size: typing.Optional[str] = OMIT,
+        multiline: typing.Optional[bool] = OMIT,
+        offset: typing.Optional[int] = OMIT,
+        type: typing.Optional[str] = OMIT,
         recursive: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseFileGrepResult:
@@ -318,7 +321,7 @@ class FileClient:
         Parameters
         ----------
         path : str
-            Directory path to search
+            File or directory path to search
 
         pattern : str
             Search pattern (regex or fixed string)
@@ -346,6 +349,15 @@ class FileClient:
 
         max_file_size : typing.Optional[str]
             Skip files larger than this size (e.g., 1M, 500K)
+
+        multiline : typing.Optional[bool]
+            Enable multiline matching where . matches newlines and patterns can span lines (rg -U --multiline-dotall)
+
+        offset : typing.Optional[int]
+            Skip first N matches before returning results (for pagination)
+
+        type : typing.Optional[str]
+            File type filter using ripgrep type aliases (e.g., "py", "js", "rust", "go"). Maps to rg --type.
 
         recursive : typing.Optional[bool]
             Search recursively
@@ -381,6 +393,9 @@ class FileClient:
             context_after=context_after,
             max_results=max_results,
             max_file_size=max_file_size,
+            multiline=multiline,
+            offset=offset,
+            type=type,
             recursive=recursive,
             request_options=request_options,
         )
@@ -1047,6 +1062,9 @@ class AsyncFileClient:
         context_after: typing.Optional[int] = OMIT,
         max_results: typing.Optional[int] = OMIT,
         max_file_size: typing.Optional[str] = OMIT,
+        multiline: typing.Optional[bool] = OMIT,
+        offset: typing.Optional[int] = OMIT,
+        type: typing.Optional[str] = OMIT,
         recursive: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseFileGrepResult:
@@ -1056,7 +1074,7 @@ class AsyncFileClient:
         Parameters
         ----------
         path : str
-            Directory path to search
+            File or directory path to search
 
         pattern : str
             Search pattern (regex or fixed string)
@@ -1084,6 +1102,15 @@ class AsyncFileClient:
 
         max_file_size : typing.Optional[str]
             Skip files larger than this size (e.g., 1M, 500K)
+
+        multiline : typing.Optional[bool]
+            Enable multiline matching where . matches newlines and patterns can span lines (rg -U --multiline-dotall)
+
+        offset : typing.Optional[int]
+            Skip first N matches before returning results (for pagination)
+
+        type : typing.Optional[str]
+            File type filter using ripgrep type aliases (e.g., "py", "js", "rust", "go"). Maps to rg --type.
 
         recursive : typing.Optional[bool]
             Search recursively
@@ -1127,6 +1154,9 @@ class AsyncFileClient:
             context_after=context_after,
             max_results=max_results,
             max_file_size=max_file_size,
+            multiline=multiline,
+            offset=offset,
+            type=type,
             recursive=recursive,
             request_options=request_options,
         )

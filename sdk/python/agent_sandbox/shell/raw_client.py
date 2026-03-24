@@ -16,6 +16,7 @@ from ..types.response_active_shell_sessions_result import ResponseActiveShellSes
 from ..types.response_shell_command_result import ResponseShellCommandResult
 from ..types.response_shell_create_session_response import ResponseShellCreateSessionResponse
 from ..types.response_shell_kill_result import ResponseShellKillResult
+from ..types.response_shell_session_stats import ResponseShellSessionStats
 from ..types.response_shell_view_result import ResponseShellViewResult
 from ..types.response_shell_wait_result import ResponseShellWaitResult
 from ..types.response_shell_write_result import ResponseShellWriteResult
@@ -551,6 +552,42 @@ class RawShellClient:
                     ResponseStr,
                     parse_obj_as(
                         type_=ResponseStr,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def get_session_stats(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[ResponseShellSessionStats]:
+        """
+        Return aggregate statistics for shell sessions.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseShellSessionStats]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/shell/sessions/stats",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseShellSessionStats,
+                    parse_obj_as(
+                        type_=ResponseShellSessionStats,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1210,6 +1247,42 @@ class AsyncRawShellClient:
                     ResponseStr,
                     parse_obj_as(
                         type_=ResponseStr,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def get_session_stats(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[ResponseShellSessionStats]:
+        """
+        Return aggregate statistics for shell sessions.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseShellSessionStats]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/shell/sessions/stats",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseShellSessionStats,
+                    parse_obj_as(
+                        type_=ResponseShellSessionStats,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

@@ -9,6 +9,7 @@ from ..types.response_active_shell_sessions_result import ResponseActiveShellSes
 from ..types.response_shell_command_result import ResponseShellCommandResult
 from ..types.response_shell_create_session_response import ResponseShellCreateSessionResponse
 from ..types.response_shell_kill_result import ResponseShellKillResult
+from ..types.response_shell_session_stats import ResponseShellSessionStats
 from ..types.response_shell_view_result import ResponseShellViewResult
 from ..types.response_shell_wait_result import ResponseShellWaitResult
 from ..types.response_shell_write_result import ResponseShellWriteResult
@@ -392,6 +393,34 @@ class ShellClient:
         client.shell.get_terminal_url()
         """
         _response = self._raw_client.get_terminal_url(request_options=request_options)
+        return _response.data
+
+    def get_session_stats(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseShellSessionStats:
+        """
+        Return aggregate statistics for shell sessions.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseShellSessionStats
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.shell.get_session_stats()
+        """
+        _response = self._raw_client.get_session_stats(request_options=request_options)
         return _response.data
 
     def list_sessions(
@@ -918,6 +947,42 @@ class AsyncShellClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.get_terminal_url(request_options=request_options)
+        return _response.data
+
+    async def get_session_stats(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseShellSessionStats:
+        """
+        Return aggregate statistics for shell sessions.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseShellSessionStats
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.shell.get_session_stats()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.get_session_stats(request_options=request_options)
         return _response.data
 
     async def list_sessions(

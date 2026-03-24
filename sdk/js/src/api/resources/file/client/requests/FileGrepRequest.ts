@@ -8,7 +8,7 @@
  *     }
  */
 export interface FileGrepRequest {
-    /** Directory path to search */
+    /** File or directory path to search */
     path: string;
     /** Search pattern (regex or fixed string) */
     pattern: string;
@@ -28,6 +28,12 @@ export interface FileGrepRequest {
     max_results?: number;
     /** Skip files larger than this size (e.g., 1M, 500K) */
     max_file_size?: string;
+    /** Enable multiline matching where . matches newlines and patterns can span lines (rg -U --multiline-dotall) */
+    multiline?: boolean;
+    /** Skip first N matches before returning results (for pagination) */
+    offset?: number;
+    /** File type filter using ripgrep type aliases (e.g., "py", "js", "rust", "go"). Maps to rg --type. */
+    type?: string;
     /** Search recursively */
     recursive?: boolean;
 }

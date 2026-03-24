@@ -34,6 +34,7 @@ if typing.TYPE_CHECKING:
         CommandStatus,
         ConsoleRecord,
         DependencyCommandResult,
+        DisplayRecordResult,
         DoubleClickAction,
         DragRelAction,
         DragToAction,
@@ -104,6 +105,7 @@ if typing.TYPE_CHECKING:
         ResponseCodeExecuteResponse,
         ResponseCodeInfoResponse,
         ResponseDict,
+        ResponseDisplayRecordResult,
         ResponseFileFindResult,
         ResponseFileGlobResult,
         ResponseFileGrepResult,
@@ -119,6 +121,7 @@ if typing.TYPE_CHECKING:
         ResponseList,
         ResponseListBashSessionInfo,
         ResponseListProxyMappingRoute,
+        ResponseListSandboxHook,
         ResponseListStr,
         ResponseListToolsResultModel,
         ResponseNodeJsCreateSessionResponse,
@@ -130,14 +133,12 @@ if typing.TYPE_CHECKING:
         ResponseNodeJsUpdateSessionResponse,
         ResponseProxyDiagnoseResult,
         ResponseProxyMappingRoute,
-<<<<<<< HEAD
-||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
-=======
         ResponseProxyUpstreamInfo,
->>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+        ResponseSandboxHook,
         ResponseShellCommandResult,
         ResponseShellCreateSessionResponse,
         ResponseShellKillResult,
+        ResponseShellSessionStats,
         ResponseShellViewResult,
         ResponseShellWaitResult,
         ResponseShellWriteResult,
@@ -153,6 +154,7 @@ if typing.TYPE_CHECKING:
         RouteResponseModel,
         RuntimeEnv,
         SandboxDetail,
+        SandboxHook,
         SandboxResponse,
         ScrollAction,
         SessionInfo,
@@ -161,6 +163,7 @@ if typing.TYPE_CHECKING:
         ShellCreateSessionResponse,
         ShellKillResult,
         ShellSessionInfo,
+        ShellSessionStats,
         ShellViewResult,
         ShellWaitResult,
         ShellWriteResult,
@@ -168,6 +171,7 @@ if typing.TYPE_CHECKING:
         SkillMetadata,
         SkillMetadataCollection,
         SkillRegistrationResult,
+        Status,
         StrReplaceEditorResult,
         SystemEnv,
         TextContent,
@@ -195,6 +199,7 @@ if typing.TYPE_CHECKING:
         browser_state,
         browser_tabs,
         code,
+        display,
         file,
         jupyter,
         mcp,
@@ -226,6 +231,7 @@ if typing.TYPE_CHECKING:
     )
     from .browser_page import NavigateRequestWaitUntil, RecordRequestAction, Type
     from .client import AsyncSandbox, Sandbox
+    from .display import RecordAction
     from .file import Command, StrReplaceEditorRequestReplaceMode
 _dynamic_imports: typing.Dict[str, str] = {
     "Action": ".browser",
@@ -274,6 +280,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "CommandStatus": ".types",
     "ConsoleRecord": ".types",
     "DependencyCommandResult": ".types",
+    "DisplayRecordResult": ".types",
     "DoubleClickAction": ".types",
     "DragRelAction": ".types",
     "DragToAction": ".types",
@@ -323,11 +330,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ProxyBypassRequest": ".types",
     "ProxyDiagnoseResult": ".types",
     "ProxyMappingRoute": ".types",
-<<<<<<< HEAD
-||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
-=======
     "ProxyUpstreamInfo": ".types",
->>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+    "RecordAction": ".display",
     "RecordRequestAction": ".browser_page",
     "Resolution": ".types",
     "Resource": ".types",
@@ -350,6 +354,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseCodeExecuteResponse": ".types",
     "ResponseCodeInfoResponse": ".types",
     "ResponseDict": ".types",
+    "ResponseDisplayRecordResult": ".types",
     "ResponseFileFindResult": ".types",
     "ResponseFileGlobResult": ".types",
     "ResponseFileGrepResult": ".types",
@@ -365,6 +370,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseList": ".types",
     "ResponseListBashSessionInfo": ".types",
     "ResponseListProxyMappingRoute": ".types",
+    "ResponseListSandboxHook": ".types",
     "ResponseListStr": ".types",
     "ResponseListToolsResultModel": ".types",
     "ResponseNodeJsCreateSessionResponse": ".types",
@@ -376,14 +382,12 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseNodeJsUpdateSessionResponse": ".types",
     "ResponseProxyDiagnoseResult": ".types",
     "ResponseProxyMappingRoute": ".types",
-<<<<<<< HEAD
-||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
-=======
     "ResponseProxyUpstreamInfo": ".types",
->>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+    "ResponseSandboxHook": ".types",
     "ResponseShellCommandResult": ".types",
     "ResponseShellCreateSessionResponse": ".types",
     "ResponseShellKillResult": ".types",
+    "ResponseShellSessionStats": ".types",
     "ResponseShellViewResult": ".types",
     "ResponseShellWaitResult": ".types",
     "ResponseShellWriteResult": ".types",
@@ -400,6 +404,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "RuntimeEnv": ".types",
     "Sandbox": ".client",
     "SandboxDetail": ".types",
+    "SandboxHook": ".types",
     "SandboxResponse": ".types",
     "ScrollAction": ".types",
     "SessionInfo": ".types",
@@ -408,6 +413,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ShellCreateSessionResponse": ".types",
     "ShellKillResult": ".types",
     "ShellSessionInfo": ".types",
+    "ShellSessionStats": ".types",
     "ShellViewResult": ".types",
     "ShellWaitResult": ".types",
     "ShellWriteResult": ".types",
@@ -415,6 +421,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "SkillMetadata": ".types",
     "SkillMetadataCollection": ".types",
     "SkillRegistrationResult": ".types",
+    "Status": ".types",
     "StrReplaceEditorRequestReplaceMode": ".file",
     "StrReplaceEditorResult": ".types",
     "SystemEnv": ".types",
@@ -442,6 +449,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "browser_state": ".",
     "browser_tabs": ".",
     "code": ".",
+    "display": ".",
     "file": ".",
     "jupyter": ".",
     "mcp": ".",
@@ -520,6 +528,7 @@ __all__ = [
     "CommandStatus",
     "ConsoleRecord",
     "DependencyCommandResult",
+    "DisplayRecordResult",
     "DoubleClickAction",
     "DragRelAction",
     "DragToAction",
@@ -569,11 +578,8 @@ __all__ = [
     "ProxyBypassRequest",
     "ProxyDiagnoseResult",
     "ProxyMappingRoute",
-<<<<<<< HEAD
-||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
-=======
     "ProxyUpstreamInfo",
->>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+    "RecordAction",
     "RecordRequestAction",
     "Resolution",
     "Resource",
@@ -596,6 +602,7 @@ __all__ = [
     "ResponseCodeExecuteResponse",
     "ResponseCodeInfoResponse",
     "ResponseDict",
+    "ResponseDisplayRecordResult",
     "ResponseFileFindResult",
     "ResponseFileGlobResult",
     "ResponseFileGrepResult",
@@ -611,6 +618,7 @@ __all__ = [
     "ResponseList",
     "ResponseListBashSessionInfo",
     "ResponseListProxyMappingRoute",
+    "ResponseListSandboxHook",
     "ResponseListStr",
     "ResponseListToolsResultModel",
     "ResponseNodeJsCreateSessionResponse",
@@ -622,14 +630,12 @@ __all__ = [
     "ResponseNodeJsUpdateSessionResponse",
     "ResponseProxyDiagnoseResult",
     "ResponseProxyMappingRoute",
-<<<<<<< HEAD
-||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
-=======
     "ResponseProxyUpstreamInfo",
->>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+    "ResponseSandboxHook",
     "ResponseShellCommandResult",
     "ResponseShellCreateSessionResponse",
     "ResponseShellKillResult",
+    "ResponseShellSessionStats",
     "ResponseShellViewResult",
     "ResponseShellWaitResult",
     "ResponseShellWriteResult",
@@ -646,6 +652,7 @@ __all__ = [
     "RuntimeEnv",
     "Sandbox",
     "SandboxDetail",
+    "SandboxHook",
     "SandboxResponse",
     "ScrollAction",
     "SessionInfo",
@@ -654,6 +661,7 @@ __all__ = [
     "ShellCreateSessionResponse",
     "ShellKillResult",
     "ShellSessionInfo",
+    "ShellSessionStats",
     "ShellViewResult",
     "ShellWaitResult",
     "ShellWriteResult",
@@ -661,6 +669,7 @@ __all__ = [
     "SkillMetadata",
     "SkillMetadataCollection",
     "SkillRegistrationResult",
+    "Status",
     "StrReplaceEditorRequestReplaceMode",
     "StrReplaceEditorResult",
     "SystemEnv",
@@ -688,6 +697,7 @@ __all__ = [
     "browser_state",
     "browser_tabs",
     "code",
+    "display",
     "file",
     "jupyter",
     "mcp",

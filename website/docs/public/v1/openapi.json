@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.5.1"
+    "version": "1.6.3"
   },
   "paths": {
     "/v1/sandbox": {
@@ -64,6 +64,112 @@
         },
         "x-fern-sdk-group-name": "sandbox",
         "x-fern-sdk-method-name": "get_nodejs_packages"
+      }
+    },
+    "/v1/sandbox/hooks": {
+      "post": {
+        "tags": [ "sandbox" ],
+        "summary": "Register Hook",
+        "description": "Register a lifecycle hook. Currently supported events: shutdown.",
+        "operationId": "register_hook_v1_sandbox_hooks_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterHookRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response_SandboxHook_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "sandbox",
+        "x-fern-sdk-method-name": "register_hook"
+      },
+      "get": {
+        "tags": [ "sandbox" ],
+        "summary": "List Hooks",
+        "description": "List registered lifecycle hooks, optionally filtered by event.",
+        "operationId": "list_hooks_v1_sandbox_hooks_get",
+        "parameters": [
+          {
+            "name": "event",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "default": "shutdown", "title": "Event" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response_list_SandboxHook__" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "sandbox",
+        "x-fern-sdk-method-name": "list_hooks"
+      }
+    },
+    "/v1/sandbox/hooks/{name}": {
+      "delete": {
+        "tags": [ "sandbox" ],
+        "summary": "Remove Hook",
+        "description": "Remove a hook by name. ENV hooks cannot be removed.",
+        "operationId": "remove_hook_v1_sandbox_hooks__name__delete",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Name" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "sandbox",
+        "x-fern-sdk-method-name": "remove_hook"
       }
     },
     "/v1/shell/exec": {
@@ -336,6 +442,26 @@
         },
         "x-fern-sdk-group-name": "shell",
         "x-fern-sdk-method-name": "get_terminal_url"
+      }
+    },
+    "/v1/shell/sessions/stats": {
+      "get": {
+        "tags": [ "shell" ],
+        "summary": "Get Session Stats",
+        "description": "Return aggregate statistics for shell sessions.",
+        "operationId": "get_shell_session_stats",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response_ShellSessionStats_" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "shell",
+        "x-fern-sdk-method-name": "get_session_stats"
       }
     },
     "/v1/shell/sessions": {
@@ -3851,6 +3977,42 @@
         "x-fern-sdk-method-name": "remove_upstream"
       }
     },
+    "/v1/display/record": {
+      "post": {
+        "tags": [ "display" ],
+        "summary": "Record",
+        "description": "Control display screen recording (start/stop/status).\n\nRecords the entire X11 desktop using ffmpeg x11grab,\nincluding browser UI, multiple tabs, popups, terminal, etc.",
+        "operationId": "record_v1_display_record_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DisplayRecordRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response_DisplayRecordResult_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "display",
+        "x-fern-sdk-method-name": "record"
+      }
+    },
     "/tickets": {
       "post": {
         "tags": [ "auth" ],
@@ -4069,7 +4231,7 @@
           "session_id": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Session Id",
-            "description": "Target session ID. If not provided, a new session is created automatically."
+            "description": "Target session ID. If not provided, a new session is created automatically. Reuse the same session_id to maintain state (env vars, cwd, etc.) across commands."
           },
           "command": {
             "type": "string",
@@ -4079,7 +4241,7 @@
           "exec_dir": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Exec Dir",
-            "description": "Working directory for command execution (absolute path)"
+            "description": "Working directory (absolute path). Takes effect on every call — if the session already exists, the working directory is updated persistently."
           },
           "env": {
             "anyOf": [
@@ -4755,6 +4917,78 @@
         "required": [ "command", "success" ],
         "title": "DependencyCommandResult"
       },
+      "DisplayRecordRequest": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [ "start", "stop", "status" ],
+            "title": "Action",
+            "description": "Recording action: start, stop, or status"
+          },
+          "save_path": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Save Path",
+            "description": "Output file path (default: /tmp/recordings/recording_{timestamp}.mp4)"
+          },
+          "fps": {
+            "type": "integer",
+            "maximum": 30.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Fps",
+            "description": "Frames per second",
+            "default": 5
+          },
+          "crf": {
+            "type": "integer",
+            "maximum": 51.0,
+            "minimum": 0.0,
+            "title": "Crf",
+            "description": "H.264 CRF quality (0=lossless, 51=worst)",
+            "default": 28
+          },
+          "max_duration": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Max Duration",
+            "description": "Max recording duration in seconds",
+            "default": 600.0
+          },
+          "width": {
+            "anyOf": [{ "type": "integer", "exclusiveMinimum": 0.0 }, { "type": "null" }],
+            "title": "Width",
+            "description": "Video width in pixels (auto-detected from X11 if omitted)"
+          },
+          "height": {
+            "anyOf": [{ "type": "integer", "exclusiveMinimum": 0.0 }, { "type": "null" }],
+            "title": "Height",
+            "description": "Video height in pixels (auto-detected from X11 if omitted)"
+          }
+        },
+        "type": "object",
+        "required": [ "action" ],
+        "title": "DisplayRecordRequest"
+      },
+      "DisplayRecordResult": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [ "idle", "recording", "stopped" ],
+            "title": "Status"
+          },
+          "save_path": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Save Path"
+          },
+          "duration": { "type": "number", "title": "Duration", "default": 0.0 },
+          "file_size_bytes": {
+            "anyOf": [{ "type": "integer" }, { "type": "null" }],
+            "title": "File Size Bytes"
+          }
+        },
+        "type": "object",
+        "required": [ "status" ],
+        "title": "DisplayRecordResult"
+      },
       "DoubleClickAction": {
         "properties": {
           "action_type": {
@@ -4997,7 +5231,11 @@
       },
       "FileGrepRequest": {
         "properties": {
-          "path": { "type": "string", "title": "Path", "description": "Directory path to search" },
+          "path": {
+            "type": "string",
+            "title": "Path",
+            "description": "File or directory path to search"
+          },
           "pattern": {
             "type": "string",
             "title": "Pattern",
@@ -5063,6 +5301,23 @@
             "title": "Max File Size",
             "description": "Skip files larger than this size (e.g., 1M, 500K)",
             "default": "1M"
+          },
+          "multiline": {
+            "anyOf": [{ "type": "boolean" }, { "type": "null" }],
+            "title": "Multiline",
+            "description": "Enable multiline matching where . matches newlines and patterns can span lines (rg -U --multiline-dotall)",
+            "default": false
+          },
+          "offset": {
+            "anyOf": [{ "type": "integer", "minimum": 0.0 }, { "type": "null" }],
+            "title": "Offset",
+            "description": "Skip first N matches before returning results (for pagination)",
+            "default": 0
+          },
+          "type": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Type",
+            "description": "File type filter using ripgrep type aliases (e.g., \"py\", \"js\", \"rust\", \"go\"). Maps to rg --type."
           },
           "recursive": {
             "anyOf": [{ "type": "boolean" }, { "type": "null" }],
@@ -6630,6 +6885,44 @@
         "type": "object",
         "title": "RecordRequest"
       },
+      "RegisterHookRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "title": "Name",
+            "description": "Unique name for this hook"
+          },
+          "event": {
+            "type": "string",
+            "title": "Event",
+            "description": "Lifecycle event: \"shutdown\"",
+            "default": "shutdown"
+          },
+          "command": {
+            "type": "string",
+            "maxLength": 4096,
+            "title": "Command",
+            "description": "Shell command to execute"
+          },
+          "timeout": {
+            "type": "number",
+            "title": "Timeout",
+            "description": "Per-hook timeout in seconds",
+            "default": 10
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Priority",
+            "description": "Execution priority (lower = earlier). Same priority hooks run in parallel",
+            "default": 100
+          }
+        },
+        "type": "object",
+        "required": [ "name", "command" ],
+        "title": "RegisterHookRequest"
+      },
       "Resolution": {
         "properties": {
           "width": {
@@ -7035,6 +7328,33 @@
         },
         "type": "object",
         "title": "Response[CodeInfoResponse]"
+      },
+      "Response_DisplayRecordResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [{ "$ref": "#/components/schemas/DisplayRecordResult" }, { "type": "null" }],
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[DisplayRecordResult]"
       },
       "Response_FileFindResult_": {
         "properties": {
@@ -7743,6 +8063,33 @@
         "type": "object",
         "title": "Response[ProxyUpstreamInfo]"
       },
+      "Response_SandboxHook_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [{ "$ref": "#/components/schemas/SandboxHook" }, { "type": "null" }],
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[SandboxHook]"
+      },
       "Response_ShellCommandResult_": {
         "properties": {
           "success": {
@@ -7826,6 +8173,33 @@
         },
         "type": "object",
         "title": "Response[ShellKillResult]"
+      },
+      "Response_ShellSessionStats_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [{ "$ref": "#/components/schemas/ShellSessionStats" }, { "type": "null" }],
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[ShellSessionStats]"
       },
       "Response_ShellViewResult_": {
         "properties": {
@@ -8209,6 +8583,40 @@
         "type": "object",
         "title": "Response[list[ProxyMappingRoute]]"
       },
+      "Response_list_SandboxHook__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": { "$ref": "#/components/schemas/SandboxHook" },
+                "type": "array"
+              },
+              { "type": "null" }
+            ],
+            "title": "Data",
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[SandboxHook]]"
+      },
       "Response_list_str__": {
         "properties": {
           "success": {
@@ -8373,6 +8781,49 @@
         "required": [ "system", "runtime", "utils" ],
         "title": "SandboxDetail",
         "description": "system environment info"
+      },
+      "SandboxHook": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Unique name for this hook"
+          },
+          "event": {
+            "type": "string",
+            "title": "Event",
+            "description": "Lifecycle event: \"shutdown\"",
+            "default": "shutdown"
+          },
+          "command": {
+            "type": "string",
+            "maxLength": 4096,
+            "title": "Command",
+            "description": "Shell command to execute"
+          },
+          "timeout": {
+            "type": "number",
+            "title": "Timeout",
+            "description": "Per-hook timeout in seconds",
+            "default": 10
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Priority",
+            "description": "Execution priority (lower = earlier). Same priority hooks run in parallel",
+            "default": 100
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Registration source: \"env\" or \"api\"",
+            "default": "api"
+          }
+        },
+        "type": "object",
+        "required": [ "name", "command" ],
+        "title": "SandboxHook",
+        "description": "A registered lifecycle hook."
       },
       "SandboxResponse": {
         "properties": {
@@ -8726,6 +9177,51 @@
         "required": [ "working_dir", "created_at", "last_used_at", "age_seconds", "status" ],
         "title": "ShellSessionInfo",
         "description": "Shell session information"
+      },
+      "ShellSessionStats": {
+        "properties": {
+          "total_sessions": {
+            "type": "integer",
+            "title": "Total Sessions",
+            "description": "Total number of sessions"
+          },
+          "active_sessions": {
+            "type": "integer",
+            "title": "Active Sessions",
+            "description": "Number of active sessions (used within last 5 minutes)"
+          },
+          "idle_sessions": {
+            "type": "integer",
+            "title": "Idle Sessions",
+            "description": "Number of idle sessions"
+          },
+          "max_sessions": {
+            "type": "integer",
+            "title": "Max Sessions",
+            "description": "Maximum allowed sessions"
+          },
+          "session_timeout": {
+            "type": "integer",
+            "title": "Session Timeout",
+            "description": "Session timeout in seconds"
+          },
+          "usage_ratio": {
+            "type": "number",
+            "title": "Usage Ratio",
+            "description": "Session usage ratio (0.0 to 1.0)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_sessions",
+          "active_sessions",
+          "idle_sessions",
+          "max_sessions",
+          "session_timeout",
+          "usage_ratio"
+        ],
+        "title": "ShellSessionStats",
+        "description": "Shell session statistics model"
       },
       "ShellUpdateSessionRequest": {
         "properties": {

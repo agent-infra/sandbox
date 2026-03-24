@@ -7,11 +7,11 @@
  *     }
  */
 export interface BashExecRequest {
-    /** Target session ID. If not provided, a new session is created automatically. */
+    /** Target session ID. If not provided, a new session is created automatically. Reuse the same session_id to maintain state (env vars, cwd, etc.) across commands. */
     session_id?: string;
     /** Shell command to execute */
     command: string;
-    /** Working directory for command execution (absolute path) */
+    /** Working directory (absolute path). Takes effect on every call — if the session already exists, the working directory is updated persistently. */
     exec_dir?: string;
     /** Extra environment variables to inject for this command only. */
     env?: Record<string, string | undefined>;

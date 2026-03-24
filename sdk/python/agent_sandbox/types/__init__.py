@@ -33,6 +33,7 @@ if typing.TYPE_CHECKING:
     from .command_status import CommandStatus
     from .console_record import ConsoleRecord
     from .dependency_command_result import DependencyCommandResult
+    from .display_record_result import DisplayRecordResult
     from .double_click_action import DoubleClickAction
     from .drag_rel_action import DragRelAction
     from .drag_to_action import DragToAction
@@ -105,6 +106,7 @@ if typing.TYPE_CHECKING:
     from .response_code_execute_response import ResponseCodeExecuteResponse
     from .response_code_info_response import ResponseCodeInfoResponse
     from .response_dict import ResponseDict
+    from .response_display_record_result import ResponseDisplayRecordResult
     from .response_file_find_result import ResponseFileFindResult
     from .response_file_glob_result import ResponseFileGlobResult
     from .response_file_grep_result import ResponseFileGrepResult
@@ -120,6 +122,7 @@ if typing.TYPE_CHECKING:
     from .response_list import ResponseList
     from .response_list_bash_session_info import ResponseListBashSessionInfo
     from .response_list_proxy_mapping_route import ResponseListProxyMappingRoute
+    from .response_list_sandbox_hook import ResponseListSandboxHook
     from .response_list_str import ResponseListStr
     from .response_list_tools_result_model import ResponseListToolsResultModel
     from .response_node_js_create_session_response import ResponseNodeJsCreateSessionResponse
@@ -131,14 +134,12 @@ if typing.TYPE_CHECKING:
     from .response_node_js_update_session_response import ResponseNodeJsUpdateSessionResponse
     from .response_proxy_diagnose_result import ResponseProxyDiagnoseResult
     from .response_proxy_mapping_route import ResponseProxyMappingRoute
-<<<<<<< HEAD
-||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
-=======
     from .response_proxy_upstream_info import ResponseProxyUpstreamInfo
->>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+    from .response_sandbox_hook import ResponseSandboxHook
     from .response_shell_command_result import ResponseShellCommandResult
     from .response_shell_create_session_response import ResponseShellCreateSessionResponse
     from .response_shell_kill_result import ResponseShellKillResult
+    from .response_shell_session_stats import ResponseShellSessionStats
     from .response_shell_view_result import ResponseShellViewResult
     from .response_shell_wait_result import ResponseShellWaitResult
     from .response_shell_write_result import ResponseShellWriteResult
@@ -154,6 +155,7 @@ if typing.TYPE_CHECKING:
     from .route_response_model import RouteResponseModel
     from .runtime_env import RuntimeEnv
     from .sandbox_detail import SandboxDetail
+    from .sandbox_hook import SandboxHook
     from .sandbox_response import SandboxResponse
     from .scroll_action import ScrollAction
     from .session_info import SessionInfo
@@ -162,6 +164,7 @@ if typing.TYPE_CHECKING:
     from .shell_create_session_response import ShellCreateSessionResponse
     from .shell_kill_result import ShellKillResult
     from .shell_session_info import ShellSessionInfo
+    from .shell_session_stats import ShellSessionStats
     from .shell_view_result import ShellViewResult
     from .shell_wait_result import ShellWaitResult
     from .shell_write_result import ShellWriteResult
@@ -169,6 +172,7 @@ if typing.TYPE_CHECKING:
     from .skill_metadata import SkillMetadata
     from .skill_metadata_collection import SkillMetadataCollection
     from .skill_registration_result import SkillRegistrationResult
+    from .status import Status
     from .str_replace_editor_result import StrReplaceEditorResult
     from .system_env import SystemEnv
     from .text_content import TextContent
@@ -211,6 +215,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "CommandStatus": ".command_status",
     "ConsoleRecord": ".console_record",
     "DependencyCommandResult": ".dependency_command_result",
+    "DisplayRecordResult": ".display_record_result",
     "DoubleClickAction": ".double_click_action",
     "DragRelAction": ".drag_rel_action",
     "DragToAction": ".drag_to_action",
@@ -259,11 +264,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ProxyBypassRequest": ".proxy_bypass_request",
     "ProxyDiagnoseResult": ".proxy_diagnose_result",
     "ProxyMappingRoute": ".proxy_mapping_route",
-<<<<<<< HEAD
-||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
-=======
     "ProxyUpstreamInfo": ".proxy_upstream_info",
->>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     "Resolution": ".resolution",
     "Resource": ".resource",
     "ResourceLink": ".resource_link",
@@ -285,6 +286,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseCodeExecuteResponse": ".response_code_execute_response",
     "ResponseCodeInfoResponse": ".response_code_info_response",
     "ResponseDict": ".response_dict",
+    "ResponseDisplayRecordResult": ".response_display_record_result",
     "ResponseFileFindResult": ".response_file_find_result",
     "ResponseFileGlobResult": ".response_file_glob_result",
     "ResponseFileGrepResult": ".response_file_grep_result",
@@ -300,6 +302,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseList": ".response_list",
     "ResponseListBashSessionInfo": ".response_list_bash_session_info",
     "ResponseListProxyMappingRoute": ".response_list_proxy_mapping_route",
+    "ResponseListSandboxHook": ".response_list_sandbox_hook",
     "ResponseListStr": ".response_list_str",
     "ResponseListToolsResultModel": ".response_list_tools_result_model",
     "ResponseNodeJsCreateSessionResponse": ".response_node_js_create_session_response",
@@ -311,14 +314,12 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseNodeJsUpdateSessionResponse": ".response_node_js_update_session_response",
     "ResponseProxyDiagnoseResult": ".response_proxy_diagnose_result",
     "ResponseProxyMappingRoute": ".response_proxy_mapping_route",
-<<<<<<< HEAD
-||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
-=======
     "ResponseProxyUpstreamInfo": ".response_proxy_upstream_info",
->>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+    "ResponseSandboxHook": ".response_sandbox_hook",
     "ResponseShellCommandResult": ".response_shell_command_result",
     "ResponseShellCreateSessionResponse": ".response_shell_create_session_response",
     "ResponseShellKillResult": ".response_shell_kill_result",
+    "ResponseShellSessionStats": ".response_shell_session_stats",
     "ResponseShellViewResult": ".response_shell_view_result",
     "ResponseShellWaitResult": ".response_shell_wait_result",
     "ResponseShellWriteResult": ".response_shell_write_result",
@@ -334,6 +335,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "RouteResponseModel": ".route_response_model",
     "RuntimeEnv": ".runtime_env",
     "SandboxDetail": ".sandbox_detail",
+    "SandboxHook": ".sandbox_hook",
     "SandboxResponse": ".sandbox_response",
     "ScrollAction": ".scroll_action",
     "SessionInfo": ".session_info",
@@ -342,6 +344,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ShellCreateSessionResponse": ".shell_create_session_response",
     "ShellKillResult": ".shell_kill_result",
     "ShellSessionInfo": ".shell_session_info",
+    "ShellSessionStats": ".shell_session_stats",
     "ShellViewResult": ".shell_view_result",
     "ShellWaitResult": ".shell_wait_result",
     "ShellWriteResult": ".shell_write_result",
@@ -349,6 +352,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "SkillMetadata": ".skill_metadata",
     "SkillMetadataCollection": ".skill_metadata_collection",
     "SkillRegistrationResult": ".skill_registration_result",
+    "Status": ".status",
     "StrReplaceEditorResult": ".str_replace_editor_result",
     "SystemEnv": ".system_env",
     "TextContent": ".text_content",
@@ -413,6 +417,7 @@ __all__ = [
     "CommandStatus",
     "ConsoleRecord",
     "DependencyCommandResult",
+    "DisplayRecordResult",
     "DoubleClickAction",
     "DragRelAction",
     "DragToAction",
@@ -461,11 +466,7 @@ __all__ = [
     "ProxyBypassRequest",
     "ProxyDiagnoseResult",
     "ProxyMappingRoute",
-<<<<<<< HEAD
-||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
-=======
     "ProxyUpstreamInfo",
->>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
     "Resolution",
     "Resource",
     "ResourceLink",
@@ -487,6 +488,7 @@ __all__ = [
     "ResponseCodeExecuteResponse",
     "ResponseCodeInfoResponse",
     "ResponseDict",
+    "ResponseDisplayRecordResult",
     "ResponseFileFindResult",
     "ResponseFileGlobResult",
     "ResponseFileGrepResult",
@@ -502,6 +504,7 @@ __all__ = [
     "ResponseList",
     "ResponseListBashSessionInfo",
     "ResponseListProxyMappingRoute",
+    "ResponseListSandboxHook",
     "ResponseListStr",
     "ResponseListToolsResultModel",
     "ResponseNodeJsCreateSessionResponse",
@@ -513,14 +516,12 @@ __all__ = [
     "ResponseNodeJsUpdateSessionResponse",
     "ResponseProxyDiagnoseResult",
     "ResponseProxyMappingRoute",
-<<<<<<< HEAD
-||||||| parent of 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
-=======
     "ResponseProxyUpstreamInfo",
->>>>>>> 98489ea (feat(sdk): Python and JS SDKs for API v1.5.0)
+    "ResponseSandboxHook",
     "ResponseShellCommandResult",
     "ResponseShellCreateSessionResponse",
     "ResponseShellKillResult",
+    "ResponseShellSessionStats",
     "ResponseShellViewResult",
     "ResponseShellWaitResult",
     "ResponseShellWriteResult",
@@ -536,6 +537,7 @@ __all__ = [
     "RouteResponseModel",
     "RuntimeEnv",
     "SandboxDetail",
+    "SandboxHook",
     "SandboxResponse",
     "ScrollAction",
     "SessionInfo",
@@ -544,6 +546,7 @@ __all__ = [
     "ShellCreateSessionResponse",
     "ShellKillResult",
     "ShellSessionInfo",
+    "ShellSessionStats",
     "ShellViewResult",
     "ShellWaitResult",
     "ShellWriteResult",
@@ -551,6 +554,7 @@ __all__ = [
     "SkillMetadata",
     "SkillMetadataCollection",
     "SkillRegistrationResult",
+    "Status",
     "StrReplaceEditorResult",
     "SystemEnv",
     "TextContent",
