@@ -27,6 +27,8 @@ export * as jupyter from "./jupyter/index.js";
 export * as mcp from "./mcp/index.js";
 export * from "./nodejs/client/requests/index.js";
 export * as nodejs from "./nodejs/index.js";
+export * from "./proxy/client/requests/index.js";
+export * as proxy from "./proxy/index.js";
 export * as sandbox from "./sandbox/index.js";
 export * from "./shell/client/requests/index.js";
 export * as shell from "./shell/index.js";

@@ -14,6 +14,7 @@ import { File_ } from "./api/resources/file/client/Client.js";
 import { Jupyter } from "./api/resources/jupyter/client/Client.js";
 import { Mcp } from "./api/resources/mcp/client/Client.js";
 import { Nodejs } from "./api/resources/nodejs/client/Client.js";
+import { Proxy } from "./api/resources/proxy/client/Client.js";
 import { SandboxService } from "./api/resources/sandbox/client/Client.js";
 import { Shell } from "./api/resources/shell/client/Client.js";
 import { Skills } from "./api/resources/skills/client/Client.js";
@@ -47,6 +48,7 @@ export class SandboxClient {
     protected _code: Code | undefined;
     protected _util: Util | undefined;
     protected _skills: Skills | undefined;
+    protected _proxy: Proxy | undefined;
     protected _auth: Auth | undefined;
 
     constructor(_options: SandboxClient.Options) {
@@ -130,6 +132,10 @@ export class SandboxClient {
 
     public get skills(): Skills {
         return (this._skills ??= new Skills(this._options));
+    }
+
+    public get proxy(): Proxy {
+        return (this._proxy ??= new Proxy(this._options));
     }
 
     public get auth(): Auth {

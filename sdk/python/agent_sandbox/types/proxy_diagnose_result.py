@@ -4,17 +4,15 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .proxy_mapping_route import ProxyMappingRoute
 
 
-class SystemEnv(UniversalBaseModel):
-    os: str
-    os_version: str
-    arch: str
-    user: str
-    home_dir: str
-    workspace: typing.Optional[str] = None
-    timezone: str
-    occupied_ports: typing.List[str]
+class ProxyDiagnoseResult(UniversalBaseModel):
+    url: str
+    matched_mapping: typing.Optional[ProxyMappingRoute] = None
+    resolved_target: typing.Optional[str] = None
+    target_reachable: typing.Optional[bool] = None
+    route: str
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

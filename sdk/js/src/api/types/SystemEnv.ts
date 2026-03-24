@@ -6,6 +6,7 @@ export interface SystemEnv {
     arch: string;
     user: string;
     home_dir: string;
+    workspace?: string;
     timezone: string;
     occupied_ports: string[];
 }

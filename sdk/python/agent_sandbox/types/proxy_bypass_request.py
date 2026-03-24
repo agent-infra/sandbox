@@ -6,15 +6,11 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
-class SystemEnv(UniversalBaseModel):
-    os: str
-    os_version: str
-    arch: str
-    user: str
-    home_dir: str
-    workspace: typing.Optional[str] = None
-    timezone: str
-    occupied_ports: typing.List[str]
+class ProxyBypassRequest(UniversalBaseModel):
+    pattern: str = pydantic.Field()
+    """
+    Bypass pattern: domain (*.example.com, .example.com) or CIDR (10.0.0.0/8)
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

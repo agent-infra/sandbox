@@ -3,12 +3,12 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.3.0"
+    "version": "1.4.2"
   },
   "paths": {
     "/v1/sandbox": {
       "get": {
-        "tags": ["sandbox"],
+        "tags": [ "sandbox" ],
         "summary": "Get Sandbox Context",
         "description": "Get sandbox environment information",
         "operationId": "get_sandbox_context_v1_sandbox_get",
@@ -28,7 +28,7 @@
     },
     "/v1/sandbox/packages/python": {
       "get": {
-        "tags": ["sandbox"],
+        "tags": [ "sandbox" ],
         "summary": "Python Packages",
         "description": "Get installed Python packages",
         "operationId": "python_packages_v1_sandbox_packages_python_get",
@@ -48,7 +48,7 @@
     },
     "/v1/sandbox/packages/nodejs": {
       "get": {
-        "tags": ["sandbox"],
+        "tags": [ "sandbox" ],
         "summary": "Nodejs Packages",
         "description": "Get installed Node.js packages",
         "operationId": "nodejs_packages_v1_sandbox_packages_nodejs_get",
@@ -68,7 +68,7 @@
     },
     "/v1/shell/exec": {
       "post": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "Exec Command",
         "description": "Execute command in the specified shell session\nSupports SSE streaming if Accept header contains 'text/event-stream'",
         "operationId": "exec_command_v1_shell_exec_post",
@@ -85,9 +85,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_ShellCommandResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_ShellCommandResult_" }
               }
             }
           },
@@ -106,7 +104,7 @@
     },
     "/v1/shell/view": {
       "post": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "View Shell",
         "description": "View output of the specified shell session\nSupports SSE streaming if Accept header contains 'text/event-stream'",
         "operationId": "view_shell_v1_shell_view_post",
@@ -123,9 +121,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_ShellViewResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_ShellViewResult_" }
               }
             }
           },
@@ -144,7 +140,7 @@
     },
     "/v1/shell/wait": {
       "post": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "Wait For Process",
         "description": "Wait for the process in the specified shell session to return",
         "operationId": "wait_for_process",
@@ -161,9 +157,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_ShellWaitResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_ShellWaitResult_" }
               }
             }
           },
@@ -182,16 +176,14 @@
     },
     "/v1/shell/write": {
       "post": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "Write To Process",
         "description": "Write input to the process in the specified shell session",
         "operationId": "write_to_process",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShellWriteToProcessRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/ShellWriteToProcessRequest" }
             }
           },
           "required": true
@@ -201,9 +193,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_ShellWriteResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_ShellWriteResult_" }
               }
             }
           },
@@ -222,16 +212,14 @@
     },
     "/v1/shell/kill": {
       "post": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "Kill Process",
         "description": "Terminate the process in the specified shell session",
         "operationId": "kill_shell_process",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShellKillProcessRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/ShellKillProcessRequest" }
             }
           },
           "required": true
@@ -241,9 +229,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_ShellKillResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_ShellKillResult_" }
               }
             }
           },
@@ -262,16 +248,14 @@
     },
     "/v1/shell/sessions/create": {
       "post": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "Create Session",
         "description": "Create a new shell session and return its ID\nIf id already exists, return the existing session",
         "operationId": "create_shell_session",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShellCreateSessionRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/ShellCreateSessionRequest" }
             }
           },
           "required": true
@@ -281,9 +265,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_ShellCreateSessionResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_ShellCreateSessionResponse_" }
               }
             }
           },
@@ -302,16 +284,14 @@
     },
     "/v1/shell/sessions/update": {
       "post": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "Update Session",
         "description": "Update shell session configuration (e.g., no_change_timeout)",
         "operationId": "update_shell_session",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShellUpdateSessionRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/ShellUpdateSessionRequest" }
             }
           },
           "required": true
@@ -340,7 +320,7 @@
     },
     "/v1/shell/terminal-url": {
       "get": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "Get Terminal Url",
         "description": "Create a new shell session and return the terminal URL",
         "operationId": "get_terminal_url",
@@ -360,7 +340,7 @@
     },
     "/v1/shell/sessions": {
       "get": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "List Sessions",
         "description": "List all active shell sessions",
         "operationId": "list_shell_sessions",
@@ -369,9 +349,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_ActiveShellSessionsResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_ActiveShellSessionsResult_" }
               }
             }
           }
@@ -380,7 +358,7 @@
         "x-fern-sdk-method-name": "list_sessions"
       },
       "delete": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "Cleanup All Sessions",
         "description": "Cleanup all active shell sessions",
         "operationId": "cleanup_all_sessions",
@@ -400,7 +378,7 @@
     },
     "/v1/shell/sessions/{session_id}": {
       "delete": {
-        "tags": ["shell"],
+        "tags": [ "shell" ],
         "summary": "Cleanup Session",
         "description": "Manually cleanup a specific shell session",
         "operationId": "cleanup_shell_session",
@@ -436,7 +414,7 @@
     },
     "/v1/bash/exec": {
       "post": {
-        "tags": ["bash"],
+        "tags": [ "bash" ],
         "summary": "Exec",
         "description": "Execute a bash command.\n\n- async_mode=true: returns immediately with RUNNING status\n- async_mode=false + timeout: waits up to timeout, then returns RUNNING if not done\n- async_mode=false + no timeout: waits until command completes\n- hard_timeout: kills the process after this many seconds\n- env: extra environment variables for this command only",
         "operationId": "exec",
@@ -453,9 +431,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_BashExecResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_BashExecResult_" }
               }
             }
           },
@@ -474,7 +450,7 @@
     },
     "/v1/bash/output": {
       "post": {
-        "tags": ["bash"],
+        "tags": [ "bash" ],
         "summary": "Output",
         "description": "Read output from a bash session using offset-based streaming.\n\n- offset/stderr_offset: byte offsets to read from (use values from previous response)\n- wait=true: long-poll until new output arrives or wait_timeout",
         "operationId": "output",
@@ -491,9 +467,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_BashOutputResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_BashOutputResult_" }
               }
             }
           },
@@ -512,7 +486,7 @@
     },
     "/v1/bash/write": {
       "post": {
-        "tags": ["bash"],
+        "tags": [ "bash" ],
         "summary": "Write",
         "description": "Write input to a bash session's stdin.",
         "operationId": "write",
@@ -548,7 +522,7 @@
     },
     "/v1/bash/kill": {
       "post": {
-        "tags": ["bash"],
+        "tags": [ "bash" ],
         "summary": "Kill",
         "description": "Send a signal to a bash session's process.",
         "operationId": "kill",
@@ -584,7 +558,7 @@
     },
     "/v1/bash/sessions": {
       "get": {
-        "tags": ["bash"],
+        "tags": [ "bash" ],
         "summary": "Sessions",
         "description": "List all active bash sessions.",
         "operationId": "sessions",
@@ -593,9 +567,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_list_BashSessionInfo__"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_list_BashSessionInfo__" }
               }
             }
           }
@@ -606,16 +578,14 @@
     },
     "/v1/bash/sessions/create": {
       "post": {
-        "tags": ["bash"],
+        "tags": [ "bash" ],
         "summary": "Create Session",
         "description": "Create a new bash session.",
         "operationId": "create_session",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BashSessionCreateRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/BashSessionCreateRequest" }
             }
           },
           "required": true
@@ -625,9 +595,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_BashSessionInfo_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_BashSessionInfo_" }
               }
             }
           },
@@ -646,7 +614,7 @@
     },
     "/v1/bash/sessions/{session_id}/close": {
       "post": {
-        "tags": ["bash"],
+        "tags": [ "bash" ],
         "summary": "Close Session",
         "description": "Close a bash session.",
         "operationId": "close_session",
@@ -682,7 +650,7 @@
     },
     "/v1/file/read": {
       "post": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "Read File",
         "description": "Read file content",
         "operationId": "read_file",
@@ -699,9 +667,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_FileReadResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_FileReadResult_" }
               }
             }
           },
@@ -720,7 +686,7 @@
     },
     "/v1/file/write": {
       "post": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "Write File",
         "description": "Write file content (supports both text and binary files)\n\nFor binary files, set encoding to 'base64' and provide base64-encoded content.\nFor text files, use default 'utf-8' encoding.",
         "operationId": "write_file",
@@ -737,9 +703,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_FileWriteResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_FileWriteResult_" }
               }
             }
           },
@@ -758,7 +722,7 @@
     },
     "/v1/file/replace": {
       "post": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "Replace In File",
         "description": "Replace string in file",
         "operationId": "replace_in_file",
@@ -775,9 +739,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_FileReplaceResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_FileReplaceResult_" }
               }
             }
           },
@@ -796,7 +758,7 @@
     },
     "/v1/file/search": {
       "post": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "Search In File",
         "description": "Search in file content",
         "operationId": "search_in_file",
@@ -813,9 +775,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_FileSearchResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_FileSearchResult_" }
               }
             }
           },
@@ -834,7 +794,7 @@
     },
     "/v1/file/find": {
       "post": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "Find Files",
         "description": "Find files by name pattern",
         "operationId": "find_files_v1_file_find_post",
@@ -851,9 +811,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_FileFindResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_FileFindResult_" }
               }
             }
           },
@@ -872,7 +830,7 @@
     },
     "/v1/file/grep": {
       "post": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "Grep Files",
         "description": "Multi-file content search (grep) with regex or fixed string support",
         "operationId": "grep_files",
@@ -889,9 +847,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_FileGrepResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_FileGrepResult_" }
               }
             }
           },
@@ -910,7 +866,7 @@
     },
     "/v1/file/glob": {
       "post": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "Glob Files",
         "description": "Enhanced file glob matching with optional metadata",
         "operationId": "glob_files",
@@ -927,9 +883,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_FileGlobResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_FileGlobResult_" }
               }
             }
           },
@@ -948,7 +902,7 @@
     },
     "/v1/file/upload": {
       "post": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "Upload File",
         "description": "Upload file using streaming",
         "operationId": "upload_file",
@@ -965,9 +919,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_FileUploadResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_FileUploadResult_" }
               }
             }
           },
@@ -986,7 +938,7 @@
     },
     "/v1/file/download": {
       "get": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "Download File",
         "description": "Download file using FileResponse",
         "operationId": "download_file",
@@ -1022,7 +974,7 @@
     },
     "/v1/file/list": {
       "post": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "List Path",
         "description": "List path contents with flexible options",
         "operationId": "list_path_v1_file_list_post",
@@ -1039,9 +991,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_FileListResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_FileListResult_" }
               }
             }
           },
@@ -1060,16 +1010,14 @@
     },
     "/v1/file/str_replace_editor": {
       "post": {
-        "tags": ["file"],
+        "tags": [ "file" ],
         "summary": "Str Replace Editor",
         "description": "An filesystem editor tool that allows the agent to\n- view\n- create\n- navigate\n- edit files\nThe tool parameters are defined by Anthropic and are not editable.",
         "operationId": "str_replace_editor_v1_file_str_replace_editor_post",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StrReplaceEditorRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/StrReplaceEditorRequest" }
             }
           },
           "required": true
@@ -1079,9 +1027,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_StrReplaceEditorResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_StrReplaceEditorResult_" }
               }
             }
           },
@@ -1100,7 +1046,7 @@
     },
     "/v1/jupyter/execute": {
       "post": {
-        "tags": ["jupyter"],
+        "tags": [ "jupyter" ],
         "summary": "Execute Jupyter Code",
         "description": "Execute Python code using Jupyter kernel with session persistence\n\nThis endpoint allows you to execute Python code and get results back.\nYou can optionally specify a kernel_name (defaults to 'python3').\nUse session_id to maintain variable state across multiple requests.\nSessions automatically expire after 30 minutes of inactivity.",
         "operationId": "jupyter_execute_code",
@@ -1117,9 +1063,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_JupyterExecuteResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_JupyterExecuteResponse_" }
               }
             }
           },
@@ -1138,7 +1082,7 @@
     },
     "/v1/jupyter/info": {
       "get": {
-        "tags": ["jupyter"],
+        "tags": [ "jupyter" ],
         "summary": "Jupyter Info",
         "description": "Get information about available Jupyter kernels",
         "operationId": "get_jupyter_info",
@@ -1147,9 +1091,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_JupyterInfoResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_JupyterInfoResponse_" }
               }
             }
           }
@@ -1160,7 +1102,7 @@
     },
     "/v1/jupyter/sessions": {
       "get": {
-        "tags": ["jupyter"],
+        "tags": [ "jupyter" ],
         "summary": "List Sessions",
         "description": "List all active Jupyter sessions",
         "operationId": "list_jupyter_sessions",
@@ -1169,9 +1111,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_ActiveSessionsResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_ActiveSessionsResult_" }
               }
             }
           }
@@ -1180,7 +1120,7 @@
         "x-fern-sdk-method-name": "list_sessions"
       },
       "delete": {
-        "tags": ["jupyter"],
+        "tags": [ "jupyter" ],
         "summary": "Cleanup All Sessions",
         "description": "Cleanup all active sessions",
         "operationId": "delete_jupyter_sessions",
@@ -1200,7 +1140,7 @@
     },
     "/v1/jupyter/sessions/{session_id}": {
       "delete": {
-        "tags": ["jupyter"],
+        "tags": [ "jupyter" ],
         "summary": "Cleanup Session",
         "description": "Manually cleanup a specific session",
         "operationId": "delete_jupyter_session",
@@ -1236,16 +1176,14 @@
     },
     "/v1/jupyter/sessions/create": {
       "post": {
-        "tags": ["jupyter"],
+        "tags": [ "jupyter" ],
         "summary": "Create Jupyter Session",
         "description": "Create a new Jupyter session",
         "operationId": "create_jupyter_session",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/JupyterCreateSessionRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/JupyterCreateSessionRequest" }
             }
           },
           "required": true
@@ -1255,9 +1193,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_JupyterCreateSessionResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_JupyterCreateSessionResponse_" }
               }
             }
           },
@@ -1276,7 +1212,7 @@
     },
     "/v1/nodejs/execute": {
       "post": {
-        "tags": ["nodejs"],
+        "tags": [ "nodejs" ],
         "summary": "Execute Nodejs Code",
         "description": "Execute JavaScript code using Node.js\n\nThis endpoint allows you to execute JavaScript code and get results back.\n\nFor stateless execution (default):\n- Each request creates a fresh execution environment\n- Environment is cleaned up automatically after execution\n\nFor stateful execution (stateful=True):\n- Uses persistent REPL session that maintains state between requests\n- Variables, functions, and imports persist across calls\n- Returns session_id to continue the session in subsequent requests\n- Supports async/await at top level",
         "operationId": "execute_nodejs_code",
@@ -1293,9 +1229,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_NodeJSExecuteResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_NodeJSExecuteResponse_" }
               }
             }
           },
@@ -1314,7 +1248,7 @@
     },
     "/v1/nodejs/info": {
       "get": {
-        "tags": ["nodejs"],
+        "tags": [ "nodejs" ],
         "summary": "Nodejs Info",
         "description": "Get information about Node.js REPL runtime, including installed packages\n\nReturns Node.js version, npm version, and lists of installed packages\nfrom both the runtime directory and global npm directory.",
         "operationId": "get_nodejs_info",
@@ -1323,9 +1257,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_NodeJSRuntimeInfo_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_NodeJSRuntimeInfo_" }
               }
             }
           }
@@ -1336,7 +1268,7 @@
     },
     "/v1/nodejs/sessions": {
       "get": {
-        "tags": ["nodejs"],
+        "tags": [ "nodejs" ],
         "summary": "List Nodejs Sessions",
         "description": "List all active Node.js REPL sessions\n\nReturns information about all active sessions including their state,\nworking directory, and idle time.",
         "operationId": "list_nodejs_sessions",
@@ -1345,9 +1277,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_NodeJSSessionListResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_NodeJSSessionListResponse_" }
               }
             }
           }
@@ -1356,16 +1286,14 @@
         "x-fern-sdk-method-name": "list_sessions"
       },
       "post": {
-        "tags": ["nodejs"],
+        "tags": [ "nodejs" ],
         "summary": "Create Nodejs Session",
         "description": "Create a new Node.js REPL session\n\nCreates a new persistent REPL session with configurable working directory\nand idle timeout. Use the returned session_id in subsequent execute requests.",
         "operationId": "create_nodejs_session",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NodeJSCreateSessionRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/NodeJSCreateSessionRequest" }
             }
           },
           "required": true
@@ -1375,9 +1303,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_NodeJSCreateSessionResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_NodeJSCreateSessionResponse_" }
               }
             }
           },
@@ -1396,7 +1322,7 @@
     },
     "/v1/nodejs/sessions/{session_id}": {
       "get": {
-        "tags": ["nodejs"],
+        "tags": [ "nodejs" ],
         "summary": "Get Nodejs Session",
         "description": "Get information about a specific Node.js REPL session\n\nReturns detailed information about a session including its state,\nworking directory, creation time, and idle time.",
         "operationId": "get_nodejs_session",
@@ -1413,9 +1339,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_NodeJSSessionResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_NodeJSSessionResponse_" }
               }
             }
           },
@@ -1432,7 +1356,7 @@
         "x-fern-sdk-method-name": "get_session"
       },
       "patch": {
-        "tags": ["nodejs"],
+        "tags": [ "nodejs" ],
         "summary": "Update Nodejs Session",
         "description": "Update a Node.js REPL session configuration\n\nUpdates session properties like maximum idle time or working directory.",
         "operationId": "update_nodejs_session",
@@ -1448,9 +1372,7 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NodeJSUpdateSessionRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/NodeJSUpdateSessionRequest" }
             }
           }
         },
@@ -1459,9 +1381,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_NodeJSUpdateSessionResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_NodeJSUpdateSessionResponse_" }
               }
             }
           },
@@ -1478,7 +1398,7 @@
         "x-fern-sdk-method-name": "update_session"
       },
       "delete": {
-        "tags": ["nodejs"],
+        "tags": [ "nodejs" ],
         "summary": "Delete Nodejs Session",
         "description": "Delete a Node.js REPL session\n\nTerminates the session and releases all associated resources.",
         "operationId": "delete_nodejs_session",
@@ -1495,9 +1415,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_NodeJSDeleteSessionResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_NodeJSDeleteSessionResponse_" }
               }
             }
           },
@@ -1516,7 +1434,7 @@
     },
     "/v1/mcp/{server_name}/tools": {
       "get": {
-        "tags": ["mcp"],
+        "tags": [ "mcp" ],
         "summary": "List Mcp Tools",
         "description": "List all available tools from the specified MCP server\n\nArgs:\n    server_name: The name of the MCP server as defined in mcp-servers.json\n\nReturns:\n    Response containing the list of available tools with their descriptions and parameters",
         "operationId": "list_mcp_tools_v1_mcp__server_name__tools_get",
@@ -1538,9 +1456,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_ListToolsResultModel_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_ListToolsResultModel_" }
               }
             }
           },
@@ -1557,7 +1473,7 @@
     },
     "/v1/mcp/{server_name}/tools/{tool_name}": {
       "post": {
-        "tags": ["mcp"],
+        "tags": [ "mcp" ],
         "summary": "Execute Mcp Tool",
         "description": "Execute a specific tool on the specified MCP server\n\nArgs:\n    server_name: The name of the MCP server as defined in mcp-servers.json\n    tool_name: The name of the tool to execute\n    arguments: Tool arguments dictionary\n\nReturns:\n    Response containing the tool execution results",
         "operationId": "execute_mcp_tool_v1_mcp__server_name__tools__tool_name__post",
@@ -1602,9 +1518,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_CallToolResultModel_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_CallToolResultModel_" }
               }
             }
           },
@@ -1621,7 +1535,7 @@
     },
     "/v1/mcp/servers": {
       "get": {
-        "tags": ["mcp"],
+        "tags": [ "mcp" ],
         "summary": "List Mcp Servers",
         "description": "List all configured MCP servers\n\nReturns:\n    Response containing the list of configured and filtered MCP servers",
         "operationId": "list_mcp_servers_v1_mcp_servers_get",
@@ -1639,7 +1553,7 @@
     },
     "/v1/browser/info": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Get Browser Info",
         "description": "Get information about browser, like cdp url, viewport size, etc.",
         "operationId": "get_browser_info_v1_browser_info_get",
@@ -1648,9 +1562,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_BrowserInfoResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_BrowserInfoResult_" }
               }
             }
           }
@@ -1661,7 +1573,7 @@
     },
     "/v1/browser/screenshot": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Take Screenshot",
         "description": "Take a screenshot of the current display.\n\nReturns:\n    StreamingResponse: PNG image data with proper headers including display and screenshot dimensions",
         "operationId": "take_screenshot_v1_browser_screenshot_get",
@@ -1686,7 +1598,9 @@
                 "schema": { "type": "string" }
               }
             },
-            "content": { "image/png": {} }
+            "content": {
+              "image/png": {}
+            }
           }
         },
         "x-fern-sdk-group-name": "browser",
@@ -1695,7 +1609,7 @@
     },
     "/v1/browser/actions": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Execute Action",
         "description": "Execute a validated action on the current display.",
         "operationId": "execute_action_v1_browser_actions_post",
@@ -1772,7 +1686,7 @@
     },
     "/v1/browser/config": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Set Config",
         "description": "Execute a validated action on the current display.",
         "operationId": "set_config_v1_browser_config_post",
@@ -1808,7 +1722,7 @@
     },
     "/v1/browser/page/navigate": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Navigate",
         "description": "Navigate the current page to a URL.",
         "operationId": "navigate_v1_browser_page_navigate_post",
@@ -1844,7 +1758,7 @@
     },
     "/v1/browser/page/back": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Go Back",
         "description": "Go back in browser history.",
         "operationId": "go_back_v1_browser_page_back_post",
@@ -1864,7 +1778,7 @@
     },
     "/v1/browser/page/forward": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Go Forward",
         "description": "Go forward in browser history.",
         "operationId": "go_forward_v1_browser_page_forward_post",
@@ -1884,7 +1798,7 @@
     },
     "/v1/browser/page/reload": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Reload",
         "description": "Reload the current page.",
         "operationId": "reload_v1_browser_page_reload_post",
@@ -1904,7 +1818,7 @@
     },
     "/v1/browser/page/click": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Click",
         "description": "Click an element by selector, index, or coordinates.",
         "operationId": "click_v1_browser_page_click_post",
@@ -1940,7 +1854,7 @@
     },
     "/v1/browser/page/fill": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Fill",
         "description": "Fill an input field.",
         "operationId": "fill_v1_browser_page_fill_post",
@@ -1976,7 +1890,7 @@
     },
     "/v1/browser/page/type": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Type Text",
         "description": "Type text with optional delay between keystrokes.",
         "operationId": "type_text_v1_browser_page_type_post",
@@ -2012,7 +1926,7 @@
     },
     "/v1/browser/page/press_key": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Press Key",
         "description": "Press a single key.",
         "operationId": "press_key_v1_browser_page_press_key_post",
@@ -2048,7 +1962,7 @@
     },
     "/v1/browser/page/hot_key": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Hot Key",
         "description": "Press a key combination.",
         "operationId": "hot_key_v1_browser_page_hot_key_post",
@@ -2084,7 +1998,7 @@
     },
     "/v1/browser/page/hover": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Hover",
         "description": "Hover over an element by selector or coordinates.",
         "operationId": "hover_v1_browser_page_hover_post",
@@ -2120,7 +2034,7 @@
     },
     "/v1/browser/page/select_option": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Select Option",
         "description": "Select an option in a dropdown.",
         "operationId": "select_option_v1_browser_page_select_option_post",
@@ -2156,7 +2070,7 @@
     },
     "/v1/browser/page/check": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Check",
         "description": "Check a checkbox.",
         "operationId": "check_v1_browser_page_check_post",
@@ -2192,7 +2106,7 @@
     },
     "/v1/browser/page/uncheck": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Uncheck",
         "description": "Uncheck a checkbox.",
         "operationId": "uncheck_v1_browser_page_uncheck_post",
@@ -2228,7 +2142,7 @@
     },
     "/v1/browser/page/upload_file": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Upload File",
         "description": "Upload files to a file input element.",
         "operationId": "upload_file_v1_browser_page_upload_file_post",
@@ -2264,7 +2178,7 @@
     },
     "/v1/browser/page/fill_form": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Fill Form",
         "description": "Batch fill multiple form fields.",
         "operationId": "fill_form_v1_browser_page_fill_form_post",
@@ -2300,7 +2214,7 @@
     },
     "/v1/browser/page/scroll": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Scroll",
         "description": "Scroll the page in a direction.",
         "operationId": "scroll_v1_browser_page_scroll_post",
@@ -2336,7 +2250,7 @@
     },
     "/v1/browser/page/scroll_to": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Scroll To",
         "description": "Scroll to an absolute position.",
         "operationId": "scroll_to_v1_browser_page_scroll_to_post",
@@ -2372,16 +2286,14 @@
     },
     "/v1/browser/page/scroll_to_element": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Scroll To Element",
         "description": "Scroll an element into view.",
         "operationId": "scroll_to_element_v1_browser_page_scroll_to_element_post",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ScrollToElementRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/ScrollToElementRequest" }
             }
           },
           "required": true
@@ -2410,7 +2322,7 @@
     },
     "/v1/browser/page/screenshot": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Page Screenshot",
         "description": "Capture a page screenshot.",
         "operationId": "page_screenshot_v1_browser_page_screenshot_get",
@@ -2419,11 +2331,7 @@
             "name": "full_page",
             "in": "query",
             "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": false,
-              "title": "Full Page"
-            }
+            "schema": { "type": "boolean", "default": false, "title": "Full Page" }
           },
           {
             "name": "format",
@@ -2444,7 +2352,9 @@
         "responses": {
           "200": {
             "description": "Page-level screenshot via Playwright",
-            "content": { "image/png": {} }
+            "content": {
+              "image/png": {}
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -2461,7 +2371,7 @@
     },
     "/v1/browser/page/record": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Page Record",
         "description": "Record page screencast (once/start/pause/resume/stop/status).",
         "operationId": "page_record_v1_browser_page_record_post",
@@ -2497,7 +2407,7 @@
     },
     "/v1/browser/page/html": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Get Html",
         "description": "Get the page HTML content.",
         "operationId": "get_html_v1_browser_page_html_get",
@@ -2533,7 +2443,7 @@
     },
     "/v1/browser/page/text": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Get Text",
         "description": "Get all visible text from the page.",
         "operationId": "get_text_v1_browser_page_text_get",
@@ -2553,7 +2463,7 @@
     },
     "/v1/browser/page/markdown": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Get Markdown",
         "description": "Get the page content as Markdown using Readability and Turndown.",
         "operationId": "get_markdown_v1_browser_page_markdown_get",
@@ -2573,7 +2483,7 @@
     },
     "/v1/browser/page/elements": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Get Interactive Elements",
         "description": "Get all interactive elements on the page.",
         "operationId": "get_interactive_elements_v1_browser_page_elements_get",
@@ -2593,7 +2503,7 @@
     },
     "/v1/browser/page/console": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Get Console Logs",
         "description": "Get captured browser console log messages.",
         "operationId": "get_console_logs_v1_browser_page_console_get",
@@ -2629,16 +2539,14 @@
     },
     "/v1/browser/page/console/export": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Export Console Logs",
         "description": "Export console logs to a JSON file.",
         "operationId": "export_console_logs_v1_browser_page_console_export_post",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ExportConsoleLogsRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/ExportConsoleLogsRequest" }
             }
           },
           "required": true
@@ -2667,7 +2575,7 @@
     },
     "/v1/browser/page/evaluate": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Evaluate",
         "description": "Execute JavaScript and return the result.",
         "operationId": "evaluate_v1_browser_page_evaluate_post",
@@ -2703,7 +2611,7 @@
     },
     "/v1/browser/page/find_text": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Find Text",
         "description": "Find text occurrences on the page.",
         "operationId": "find_text_v1_browser_page_find_text_post",
@@ -2739,7 +2647,7 @@
     },
     "/v1/browser/page/wait": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Wait",
         "description": "Unified wait: selector, load, url, network_idle, download, function, response, request, or timeout.",
         "operationId": "wait_v1_browser_page_wait_post",
@@ -2775,7 +2683,7 @@
     },
     "/v1/browser/tabs": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "List Tabs",
         "description": "List all open browser tabs.",
         "operationId": "list_tabs_v1_browser_tabs_get",
@@ -2793,7 +2701,7 @@
         "x-fern-sdk-method-name": "list"
       },
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Create Tab",
         "description": "Create a new browser tab.",
         "operationId": "create_tab_v1_browser_tabs_post",
@@ -2829,7 +2737,7 @@
     },
     "/v1/browser/tabs/{index}": {
       "delete": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Close Tab",
         "description": "Close a browser tab by index.",
         "operationId": "close_tab_v1_browser_tabs__index__delete",
@@ -2865,7 +2773,7 @@
     },
     "/v1/browser/tabs/{index}/activate": {
       "put": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Activate Tab",
         "description": "Activate (bring to front) a browser tab by index.",
         "operationId": "activate_tab_v1_browser_tabs__index__activate_put",
@@ -2901,7 +2809,7 @@
     },
     "/v1/browser/cookies": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Get Cookies",
         "description": "Get browser cookies, optionally filtered by URLs (comma-separated).",
         "operationId": "get_cookies_v1_browser_cookies_get",
@@ -2938,7 +2846,7 @@
         "x-fern-sdk-method-name": "get_cookies"
       },
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Set Cookies",
         "description": "Set browser cookies.",
         "operationId": "set_cookies_v1_browser_cookies_post",
@@ -2972,7 +2880,7 @@
         "x-fern-sdk-method-name": "set_cookies"
       },
       "delete": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Clear Cookies",
         "description": "Clear all browser cookies.",
         "operationId": "clear_cookies_v1_browser_cookies_delete",
@@ -2992,7 +2900,7 @@
     },
     "/v1/browser/state/save": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Save State",
         "description": "Save browser state (cookies, localStorage, etc.) to a file.",
         "operationId": "save_state_v1_browser_state_save_post",
@@ -3028,7 +2936,7 @@
     },
     "/v1/browser/state/load": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Load State",
         "description": "Load browser state from a previously saved file.",
         "operationId": "load_state_v1_browser_state_load_post",
@@ -3064,7 +2972,7 @@
     },
     "/v1/browser/network/headers": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Set Extra Headers",
         "description": "Set extra HTTP headers for all subsequent requests.",
         "operationId": "set_extra_headers_v1_browser_network_headers_post",
@@ -3100,7 +3008,7 @@
     },
     "/v1/browser/network/scoped_headers": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Set Scoped Headers",
         "description": "Set HTTP headers scoped to a specific origin.",
         "operationId": "set_scoped_headers_v1_browser_network_scoped_headers_post",
@@ -3136,7 +3044,7 @@
     },
     "/v1/browser/network/route": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Add Route",
         "description": "Add a network route to mock or abort matching requests.",
         "operationId": "add_route_v1_browser_network_route_post",
@@ -3170,16 +3078,14 @@
         "x-fern-sdk-method-name": "add_route"
       },
       "delete": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Remove Route",
         "description": "Remove a previously added network route.",
         "operationId": "remove_route_v1_browser_network_route_delete",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NetworkRouteRemoveRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/NetworkRouteRemoveRequest" }
             }
           },
           "required": true
@@ -3208,7 +3114,7 @@
     },
     "/v1/browser/network/requests": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Get Requests",
         "description": "Get tracked network requests.",
         "operationId": "get_requests_v1_browser_network_requests_get",
@@ -3253,7 +3159,7 @@
     },
     "/v1/browser/network/export_har": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Export Har",
         "description": "Export tracked network requests as a HAR file.",
         "operationId": "export_har_v1_browser_network_export_har_post",
@@ -3289,7 +3195,7 @@
     },
     "/v1/browser/captcha/detect": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Detect Captcha",
         "description": "Detect CAPTCHA on the current page.",
         "operationId": "detect_captcha_v1_browser_captcha_detect_get",
@@ -3309,7 +3215,7 @@
     },
     "/v1/browser/captcha/wait": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Wait For Captcha",
         "description": "Wait for CAPTCHA to be resolved.",
         "operationId": "wait_for_captcha_v1_browser_captcha_wait_post",
@@ -3326,9 +3232,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_CaptchaWaitResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_CaptchaWaitResult_" }
               }
             }
           },
@@ -3347,7 +3251,7 @@
     },
     "/v1/browser/restart": {
       "post": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Restart",
         "description": "Restart the browser session.\n\n- **soft** (default): Reconnect the Playwright session only.\n- **hard**: Restart the browser process via supervisorctl, optionally\n  updating URL blocklist/allowlist policies before restart.",
         "operationId": "restart_v1_browser_restart_post",
@@ -3355,10 +3259,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "anyOf": [
-                  { "$ref": "#/components/schemas/RestartRequest" },
-                  { "type": "null" }
-                ],
+                "anyOf": [{ "$ref": "#/components/schemas/RestartRequest" }, { "type": "null" }],
                 "title": "Req"
               }
             }
@@ -3388,14 +3289,16 @@
     },
     "/v1/browser/proxy.pac": {
       "get": {
-        "tags": ["browser"],
+        "tags": [ "browser" ],
         "summary": "Get Proxy Pac",
         "description": "Return the current PAC file for proxy split-routing (if configured).",
         "operationId": "get_proxy_pac_v1_browser_proxy_pac_get",
         "responses": {
           "200": {
             "description": "Proxy Auto-Configuration file",
-            "content": { "application/x-ns-proxy-autoconfig": {} }
+            "content": {
+              "application/x-ns-proxy-autoconfig": {}
+            }
           }
         },
         "x-fern-sdk-group-name": "browser",
@@ -3404,7 +3307,7 @@
     },
     "/v1/code/execute": {
       "post": {
-        "tags": ["code"],
+        "tags": [ "code" ],
         "summary": "Execute Code",
         "description": "Run code through the unified runtime, dispatching to Python, Node.js, or future language executors",
         "operationId": "execute_code_v1_code_execute_post",
@@ -3421,9 +3324,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_CodeExecuteResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_CodeExecuteResponse_" }
               }
             }
           },
@@ -3442,7 +3343,7 @@
     },
     "/v1/code/info": {
       "get": {
-        "tags": ["code"],
+        "tags": [ "code" ],
         "summary": "Code Info",
         "description": "Return metadata about supported code runtimes\n\nNote: Version info is cached at service level (first call only runs subprocess).",
         "operationId": "code_info_v1_code_info_get",
@@ -3451,9 +3352,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_CodeInfoResponse_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_CodeInfoResponse_" }
               }
             }
           }
@@ -3464,16 +3363,14 @@
     },
     "/v1/util/convert_to_markdown": {
       "post": {
-        "tags": ["util"],
+        "tags": [ "util" ],
         "summary": "Convert To Markdown",
         "description": "Convert a given URI to Markdown format",
         "operationId": "convert_to_markdown_v1_util_convert_to_markdown_post",
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UtilConvertToMarkdownRequest"
-              }
+              "schema": { "$ref": "#/components/schemas/UtilConvertToMarkdownRequest" }
             }
           },
           "required": true
@@ -3502,7 +3399,7 @@
     },
     "/v1/skills/register": {
       "post": {
-        "tags": ["skills"],
+        "tags": [ "skills" ],
         "summary": "Register Skills",
         "operationId": "register_skills",
         "requestBody": {
@@ -3517,9 +3414,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_SkillRegistrationResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_SkillRegistrationResult_" }
               }
             }
           },
@@ -3538,7 +3433,7 @@
     },
     "/v1/skills/metadatas": {
       "get": {
-        "tags": ["skills"],
+        "tags": [ "skills" ],
         "summary": "List Skills Metadata",
         "operationId": "list_skills_metadata",
         "parameters": [
@@ -3557,9 +3452,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_SkillMetadataCollection_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_SkillMetadataCollection_" }
               }
             }
           },
@@ -3578,7 +3471,7 @@
     },
     "/v1/skills": {
       "delete": {
-        "tags": ["skills"],
+        "tags": [ "skills" ],
         "summary": "Clear Skills",
         "operationId": "clear_skills",
         "responses": {
@@ -3597,7 +3490,7 @@
     },
     "/v1/skills/{name}": {
       "delete": {
-        "tags": ["skills"],
+        "tags": [ "skills" ],
         "summary": "Delete Skill",
         "operationId": "delete_skill",
         "parameters": [
@@ -3613,9 +3506,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_SkillMetadata_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_SkillMetadata_" }
               }
             }
           },
@@ -3634,7 +3525,7 @@
     },
     "/v1/skills/{name}/content": {
       "get": {
-        "tags": ["skills"],
+        "tags": [ "skills" ],
         "summary": "Get Skill Content",
         "operationId": "get_skill_content",
         "parameters": [
@@ -3650,9 +3541,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Response_SkillContentResult_"
-                }
+                "schema": { "$ref": "#/components/schemas/Response_SkillContentResult_" }
               }
             }
           },
@@ -3669,9 +3558,228 @@
         "x-fern-sdk-method-name": "get_content"
       }
     },
+    "/v1/proxy/mappings": {
+      "get": {
+        "tags": [ "proxy" ],
+        "summary": "List Mappings",
+        "description": "List all proxy domain-to-port mappings.",
+        "operationId": "list_proxy_mappings",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response_list_ProxyMappingRoute__" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "proxy",
+        "x-fern-sdk-method-name": "list_mappings"
+      },
+      "post": {
+        "tags": [ "proxy" ],
+        "summary": "Add Mapping",
+        "description": "Add or update a proxy mapping. Supports wildcards in host (*.example.com).",
+        "operationId": "add_proxy_mapping",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProxyMappingAddRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response_ProxyMappingRoute_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "proxy",
+        "x-fern-sdk-method-name": "add_mapping"
+      }
+    },
+    "/v1/proxy/mappings/{source}": {
+      "delete": {
+        "tags": [ "proxy" ],
+        "summary": "Remove Mapping",
+        "description": "Remove a proxy mapping by source pattern.",
+        "operationId": "remove_proxy_mapping",
+        "parameters": [
+          {
+            "name": "source",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Source" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "proxy",
+        "x-fern-sdk-method-name": "remove_mapping"
+      }
+    },
+    "/v1/proxy/excludes": {
+      "get": {
+        "tags": [ "proxy" ],
+        "summary": "List Excludes",
+        "description": "List all proxy bypass/exclude patterns.",
+        "operationId": "list_proxy_excludes",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response_list_str__" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "proxy",
+        "x-fern-sdk-method-name": "list_excludes"
+      },
+      "post": {
+        "tags": [ "proxy" ],
+        "summary": "Add Exclude",
+        "description": "Add a bypass/exclude pattern. Matched domains connect directly.",
+        "operationId": "add_proxy_exclude",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProxyBypassRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "proxy",
+        "x-fern-sdk-method-name": "add_exclude"
+      },
+      "delete": {
+        "tags": [ "proxy" ],
+        "summary": "Remove Exclude",
+        "description": "Remove a bypass/exclude pattern.",
+        "operationId": "remove_proxy_exclude",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProxyBypassRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "proxy",
+        "x-fern-sdk-method-name": "remove_exclude"
+      }
+    },
+    "/v1/proxy/diagnose": {
+      "get": {
+        "tags": [ "proxy" ],
+        "summary": "Diagnose",
+        "description": "Diagnose how a URL would be routed through the proxy.",
+        "operationId": "diagnose_proxy",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "URL to diagnose routing for",
+              "title": "Url"
+            },
+            "description": "URL to diagnose routing for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Response_ProxyDiagnoseResult_" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "proxy",
+        "x-fern-sdk-method-name": "diagnose"
+      }
+    },
     "/tickets": {
       "post": {
-        "tags": ["auth"],
+        "tags": [ "auth" ],
         "summary": "Create Ticket",
         "description": "Create and return a short-lived authentication ticket.\n\nThis is a non-idempotent action; each call creates a new, unique ticket.",
         "operationId": "create_ticket_tickets_post",
@@ -3695,7 +3803,7 @@
     },
     "/auth": {
       "get": {
-        "tags": ["auth"],
+        "tags": [ "auth" ],
         "summary": "Authenticate Request",
         "description": "Authenticate a request using ticket or JWT.\n\nThis endpoint receives authentication subrequests (e.g., from Nginx auth_request).\nIt validates the request based on either a ticket in the 'x-original-uri'\nheader or a JWT in the 'Authorization' header.",
         "operationId": "authenticate_request_auth_get",
@@ -3726,7 +3834,7 @@
           "action_performed": { "type": "string", "title": "Action Performed" }
         },
         "type": "object",
-        "required": ["status", "action_performed"],
+        "required": [ "status", "action_performed" ],
         "title": "ActionData",
         "description": "Inner data for action response."
       },
@@ -3743,10 +3851,7 @@
             "title": "Message"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/ActionData" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/ActionData" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -3760,11 +3865,7 @@
             "title": "Status",
             "default": "success"
           },
-          "action_performed": {
-            "type": "string",
-            "title": "Action Performed",
-            "default": ""
-          }
+          "action_performed": { "type": "string", "title": "Action Performed", "default": "" }
         },
         "type": "object",
         "title": "ActionResponse",
@@ -3773,32 +3874,28 @@
       "ActiveSessionsResult": {
         "properties": {
           "sessions": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/SessionInfo"
-            },
+            "additionalProperties": { "$ref": "#/components/schemas/SessionInfo" },
             "type": "object",
             "title": "Sessions",
             "description": "Map of session ID to session info"
           }
         },
         "type": "object",
-        "required": ["sessions"],
+        "required": [ "sessions" ],
         "title": "ActiveSessionsResult",
         "description": "Active sessions result"
       },
       "ActiveShellSessionsResult": {
         "properties": {
           "sessions": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/ShellSessionInfo"
-            },
+            "additionalProperties": { "$ref": "#/components/schemas/ShellSessionInfo" },
             "type": "object",
             "title": "Sessions",
             "description": "Map of session ID to session info"
           }
         },
         "type": "object",
-        "required": ["sessions"],
+        "required": [ "sessions" ],
         "title": "ActiveShellSessionsResult",
         "description": "Active shell sessions result"
       },
@@ -3807,7 +3904,10 @@
           "audience": {
             "anyOf": [
               {
-                "items": { "type": "string", "enum": ["user", "assistant"] },
+                "items": {
+                  "type": "string",
+                  "enum": [ "user", "assistant" ]
+                },
                 "type": "array"
               },
               { "type": "null" }
@@ -3815,10 +3915,7 @@
             "title": "Audience"
           },
           "priority": {
-            "anyOf": [
-              { "type": "number", "maximum": 1.0, "minimum": 0.0 },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "type": "number", "maximum": 1.0, "minimum": 0.0 }, { "type": "null" }],
             "title": "Priority"
           }
         },
@@ -3832,22 +3929,16 @@
           "data": { "type": "string", "title": "Data" },
           "mimeType": { "type": "string", "title": "Mimetype" },
           "annotations": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/Annotations" },
-              { "type": "null" }
-            ]
+            "anyOf": [{ "$ref": "#/components/schemas/Annotations" }, { "type": "null" }]
           },
           "_meta": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Meta"
           }
         },
         "additionalProperties": true,
         "type": "object",
-        "required": ["type", "data", "mimeType"],
+        "required": [ "type", "data", "mimeType" ],
         "title": "AudioContent",
         "description": "Audio content for a message."
       },
@@ -3866,7 +3957,7 @@
           }
         },
         "type": "object",
-        "required": ["name"],
+        "required": [ "name" ],
         "title": "AvailableTool",
         "description": "Describe an available command-line tool."
       },
@@ -3877,11 +3968,7 @@
             "title": "Command Id",
             "description": "Unique command identifier"
           },
-          "command": {
-            "type": "string",
-            "title": "Command",
-            "description": "The command string"
-          },
+          "command": { "type": "string", "title": "Command", "description": "The command string" },
           "status": {
             "$ref": "#/components/schemas/CommandStatus",
             "description": "Command execution status"
@@ -3893,19 +3980,13 @@
           }
         },
         "type": "object",
-        "required": ["command_id", "command", "status"],
+        "required": [ "command_id", "command", "status" ],
         "title": "BashCommandInfo",
         "description": "Serializable command status info (for API responses)."
       },
       "BashCommandStatus": {
         "type": "string",
-        "enum": [
-          "running",
-          "completed",
-          "no_change_timeout",
-          "hard_timeout",
-          "terminated"
-        ],
+        "enum": [ "running", "completed", "no_change_timeout", "hard_timeout", "terminated" ],
         "title": "BashCommandStatus",
         "description": "Shell command execution status (compatible with OpenHands)"
       },
@@ -3961,7 +4042,7 @@
           }
         },
         "type": "object",
-        "required": ["command"],
+        "required": [ "command" ],
         "title": "BashExecRequest",
         "description": "Request for POST /v1/bash/exec — execute a command."
       },
@@ -4015,7 +4096,7 @@
           }
         },
         "type": "object",
-        "required": ["session_id", "command_id", "command", "status"],
+        "required": [ "session_id", "command_id", "command", "status" ],
         "title": "BashExecResult",
         "description": "Result of exec_command — returned by POST /v1/bash/exec."
       },
@@ -4034,7 +4115,7 @@
           }
         },
         "type": "object",
-        "required": ["session_id"],
+        "required": [ "session_id" ],
         "title": "BashKillRequest",
         "description": "Request for POST /v1/bash/kill — kill a session or its current command."
       },
@@ -4076,7 +4157,7 @@
           }
         },
         "type": "object",
-        "required": ["session_id"],
+        "required": [ "session_id" ],
         "title": "BashOutputRequest",
         "description": "Request for POST /v1/bash/output — read output with offset."
       },
@@ -4112,15 +4193,12 @@
             "default": 0
           },
           "command": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/BashCommandInfo" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/BashCommandInfo" }, { "type": "null" }],
             "description": "Current or most recent command status"
           }
         },
         "type": "object",
-        "required": ["session_id"],
+        "required": [ "session_id" ],
         "title": "BashOutputResult",
         "description": "Result of get_output — returned by POST /v1/bash/output."
       },
@@ -4187,13 +4265,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "session_id",
-          "status",
-          "working_dir",
-          "created_at",
-          "last_used_at"
-        ],
+        "required": [ "session_id", "status", "working_dir", "created_at", "last_used_at" ],
         "title": "BashSessionInfo",
         "description": "Session info for listing — returned by GET /v1/bash/sessions."
       },
@@ -4216,44 +4288,33 @@
           }
         },
         "type": "object",
-        "required": ["session_id", "input"],
+        "required": [ "session_id", "input" ],
         "title": "BashWriteRequest",
         "description": "Request for POST /v1/bash/write — write to stdin."
       },
       "BlobResourceContents": {
         "properties": {
-          "uri": {
-            "type": "string",
-            "minLength": 1,
-            "format": "uri",
-            "title": "Uri"
-          },
+          "uri": { "type": "string", "minLength": 1, "format": "uri", "title": "Uri" },
           "mimeType": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Mimetype"
           },
           "_meta": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Meta"
           },
           "blob": { "type": "string", "title": "Blob" }
         },
         "additionalProperties": true,
         "type": "object",
-        "required": ["uri", "blob"],
+        "required": [ "uri", "blob" ],
         "title": "BlobResourceContents",
         "description": "Binary contents of a resource."
       },
       "Body_register_skills": {
         "properties": {
           "file": {
-            "anyOf": [
-              { "type": "string", "format": "binary" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "type": "string", "format": "binary" }, { "type": "null" }],
             "title": "File"
           },
           "path": {
@@ -4274,16 +4335,13 @@
           "path": { "type": "string", "title": "Path" }
         },
         "type": "object",
-        "required": ["file"],
+        "required": [ "file" ],
         "title": "Body_upload_file"
       },
       "BrowserConfigRequest": {
         "properties": {
           "resolution": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/Resolution" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/Resolution" }, { "type": "null" }],
             "description": "The desired screen resolution, allowed values are: 1920x1080, 640x480, 1360x768, 1280x720, 800x600, 1024x768, 1280x800, 1920x1200, 1280x960, 1400x1050, 1680x1050, 1280x1024, 1600x1200."
           }
         },
@@ -4293,21 +4351,9 @@
       },
       "BrowserInfoResult": {
         "properties": {
-          "user_agent": {
-            "type": "string",
-            "title": "User Agent",
-            "description": "User agent"
-          },
-          "cdp_url": {
-            "type": "string",
-            "title": "Cdp Url",
-            "description": "Browser CDP URL"
-          },
-          "vnc_url": {
-            "type": "string",
-            "title": "Vnc Url",
-            "description": "VNC URL"
-          },
+          "user_agent": { "type": "string", "title": "User Agent", "description": "User agent" },
+          "cdp_url": { "type": "string", "title": "Cdp Url", "description": "Browser CDP URL" },
+          "vnc_url": { "type": "string", "title": "Vnc Url", "description": "VNC URL" },
           "cdp_ui_url": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Cdp Ui Url",
@@ -4318,43 +4364,28 @@
             "description": "Display size (from xrandr / env vars)"
           },
           "page_viewport": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/BrowserViewport" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/BrowserViewport" }, { "type": "null" }],
             "description": "Actual Chrome page viewport (window.innerWidth/Height via CDP). Smaller than viewport because Chrome UI chrome takes space."
           }
         },
         "type": "object",
-        "required": ["user_agent", "cdp_url", "vnc_url", "viewport"],
+        "required": [ "user_agent", "cdp_url", "vnc_url", "viewport" ],
         "title": "BrowserInfoResult",
         "description": "Browser Info result"
       },
       "BrowserViewport": {
         "properties": {
-          "width": {
-            "type": "integer",
-            "title": "Width",
-            "description": "Viewport width"
-          },
-          "height": {
-            "type": "integer",
-            "title": "Height",
-            "description": "Viewport height"
-          }
+          "width": { "type": "integer", "title": "Width", "description": "Viewport width" },
+          "height": { "type": "integer", "title": "Height", "description": "Viewport height" }
         },
         "type": "object",
-        "required": ["width", "height"],
+        "required": [ "width", "height" ],
         "title": "BrowserViewport"
       },
       "CaptchaWaitRequest": {
         "properties": {
           "timeout": { "type": "number", "title": "Timeout", "default": 60.0 },
-          "poll_interval": {
-            "type": "number",
-            "title": "Poll Interval",
-            "default": 2.0
-          }
+          "poll_interval": { "type": "number", "title": "Poll Interval", "default": 2.0 }
         },
         "type": "object",
         "title": "CaptchaWaitRequest"
@@ -4364,13 +4395,15 @@
           "resolved": { "type": "boolean", "title": "Resolved" }
         },
         "type": "object",
-        "required": ["resolved"],
+        "required": [ "resolved" ],
         "title": "CaptchaWaitResult"
       },
       "CheckRequest": {
-        "properties": { "selector": { "type": "string", "title": "Selector" } },
+        "properties": {
+          "selector": { "type": "string", "title": "Selector" }
+        },
         "type": "object",
-        "required": ["selector"],
+        "required": [ "selector" ],
         "title": "CheckRequest"
       },
       "ClickAction": {
@@ -4391,13 +4424,13 @@
           },
           "button": {
             "type": "string",
-            "enum": ["left", "right", "middle"],
+            "enum": [ "left", "right", "middle" ],
             "title": "Button",
             "default": "left"
           },
           "num_clicks": {
             "type": "integer",
-            "enum": [1, 2, 3],
+            "enum": [ 1, 2, 3 ],
             "title": "Num Clicks",
             "default": 1
           }
@@ -4424,11 +4457,7 @@
             "title": "Y"
           },
           "button": { "type": "string", "title": "Button", "default": "left" },
-          "click_count": {
-            "type": "integer",
-            "title": "Click Count",
-            "default": 1
-          }
+          "click_count": { "type": "integer", "title": "Click Count", "default": 1 }
         },
         "type": "object",
         "title": "ClickRequest"
@@ -4439,24 +4468,16 @@
             "$ref": "#/components/schemas/Language",
             "description": "Target runtime language"
           },
-          "code": {
-            "type": "string",
-            "title": "Code",
-            "description": "Source code to execute"
-          },
+          "code": { "type": "string", "title": "Code", "description": "Source code to execute" },
           "timeout": {
-            "anyOf": [
-              { "type": "integer", "maximum": 300.0, "minimum": 1.0 },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "type": "integer", "maximum": 300.0, "minimum": 1.0 }, { "type": "null" }],
             "title": "Timeout",
             "description": "Execution timeout in seconds"
           },
           "cwd": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Cwd",
-            "description": "Current working directory for code execution",
-            "default": "/tmp"
+            "description": "Current working directory for code execution"
           },
           "stateful": {
             "type": "boolean",
@@ -4471,7 +4492,7 @@
           }
         },
         "type": "object",
-        "required": ["language", "code"],
+        "required": [ "language", "code" ],
         "title": "CodeExecuteRequest",
         "description": "Unified code execution request model"
       },
@@ -4492,11 +4513,7 @@
             "title": "Outputs",
             "description": "Structured execution outputs"
           },
-          "code": {
-            "type": "string",
-            "title": "Code",
-            "description": "Echo of executed code"
-          },
+          "code": { "type": "string", "title": "Code", "description": "Echo of executed code" },
           "stdout": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Stdout",
@@ -4514,7 +4531,10 @@
           },
           "traceback": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Traceback",
@@ -4527,7 +4547,7 @@
           }
         },
         "type": "object",
-        "required": ["language", "status", "code"],
+        "required": [ "language", "status", "code" ],
         "title": "CodeExecuteResponse",
         "description": "Unified code execution response model"
       },
@@ -4541,7 +4561,7 @@
           }
         },
         "type": "object",
-        "required": ["languages"],
+        "required": [ "languages" ],
         "title": "CodeInfoResponse",
         "description": "Unified code information response"
       },
@@ -4585,28 +4605,20 @@
           }
         },
         "type": "object",
-        "required": ["language", "description"],
+        "required": [ "language", "description" ],
         "title": "CodeLanguageInfo",
         "description": "Metadata about a supported code runtime"
       },
       "CommandStatus": {
         "type": "string",
-        "enum": ["pending", "running", "completed", "timed_out", "killed"],
+        "enum": [ "pending", "running", "completed", "timed_out", "killed" ],
         "title": "CommandStatus",
         "description": "Status of a bash command execution."
       },
       "ConsoleRecord": {
         "properties": {
-          "ps1": {
-            "type": "string",
-            "title": "Ps1",
-            "description": "Command prompt"
-          },
-          "command": {
-            "type": "string",
-            "title": "Command",
-            "description": "Executed command"
-          },
+          "ps1": { "type": "string", "title": "Ps1", "description": "Command prompt" },
+          "command": { "type": "string", "title": "Command", "description": "Executed command" },
           "output": {
             "type": "string",
             "title": "Output",
@@ -4615,7 +4627,7 @@
           }
         },
         "type": "object",
-        "required": ["ps1", "command"],
+        "required": [ "ps1", "command" ],
         "title": "ConsoleRecord",
         "description": "Shell command console record model"
       },
@@ -4628,7 +4640,7 @@
           }
         },
         "type": "object",
-        "required": ["cookies"],
+        "required": [ "cookies" ],
         "title": "CookieSetRequest"
       },
       "CreatePageRequest": {
@@ -4666,7 +4678,7 @@
           }
         },
         "type": "object",
-        "required": ["command", "success"],
+        "required": [ "command", "success" ],
         "title": "DependencyCommandResult"
       },
       "DoubleClickAction": {
@@ -4709,7 +4721,7 @@
           }
         },
         "type": "object",
-        "required": ["x_offset", "y_offset"],
+        "required": [ "x_offset", "y_offset" ],
         "title": "DragRelAction"
       },
       "DragToAction": {
@@ -4720,19 +4732,11 @@
             "title": "Action Type",
             "default": "DRAG_TO"
           },
-          "x": {
-            "type": "number",
-            "title": "X",
-            "description": "Target x-coordinate for drag"
-          },
-          "y": {
-            "type": "number",
-            "title": "Y",
-            "description": "Target y-coordinate for drag"
-          }
+          "x": { "type": "number", "title": "X", "description": "Target x-coordinate for drag" },
+          "y": { "type": "number", "title": "Y", "description": "Target y-coordinate for drag" }
         },
         "type": "object",
-        "required": ["x", "y"],
+        "required": [ "x", "y" ],
         "title": "DragToAction"
       },
       "EmbeddedResource": {
@@ -4746,22 +4750,16 @@
             "title": "Resource"
           },
           "annotations": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/Annotations" },
-              { "type": "null" }
-            ]
+            "anyOf": [{ "$ref": "#/components/schemas/Annotations" }, { "type": "null" }]
           },
           "_meta": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Meta"
           }
         },
         "additionalProperties": true,
         "type": "object",
-        "required": ["type", "resource"],
+        "required": [ "type", "resource" ],
         "title": "EmbeddedResource",
         "description": "The contents of a resource, embedded into a prompt or tool call result.\n\nIt is up to the client how best to render embedded resources for the benefit\nof the LLM and/or the user."
       },
@@ -4770,7 +4768,7 @@
           "expression": { "type": "string", "title": "Expression" }
         },
         "type": "object",
-        "required": ["expression"],
+        "required": [ "expression" ],
         "title": "EvaluateRequest"
       },
       "ExportConsoleLogsRequest": {
@@ -4779,7 +4777,7 @@
           "clear": { "type": "boolean", "title": "Clear", "default": false }
         },
         "type": "object",
-        "required": ["save_path"],
+        "required": [ "save_path" ],
         "title": "ExportConsoleLogsRequest"
       },
       "ExportHarRequest": {
@@ -4787,22 +4785,18 @@
           "save_path": { "type": "string", "title": "Save Path" }
         },
         "type": "object",
-        "required": ["save_path"],
+        "required": [ "save_path" ],
         "title": "ExportHarRequest"
       },
       "FileContentEncoding": {
         "type": "string",
-        "enum": ["utf-8", "base64", "raw"],
+        "enum": [ "utf-8", "base64", "raw" ],
         "title": "FileContentEncoding",
         "description": "File content encoding type"
       },
       "FileFindRequest": {
         "properties": {
-          "path": {
-            "type": "string",
-            "title": "Path",
-            "description": "Directory path to search"
-          },
+          "path": { "type": "string", "title": "Path", "description": "Directory path to search" },
           "glob": {
             "type": "string",
             "title": "Glob",
@@ -4810,7 +4804,7 @@
           }
         },
         "type": "object",
-        "required": ["path", "glob"],
+        "required": [ "path", "glob" ],
         "title": "FileFindRequest",
         "description": "File find request"
       },
@@ -4830,17 +4824,13 @@
           }
         },
         "type": "object",
-        "required": ["path"],
+        "required": [ "path" ],
         "title": "FileFindResult",
         "description": "File find result"
       },
       "FileGlobRequest": {
         "properties": {
-          "path": {
-            "type": "string",
-            "title": "Path",
-            "description": "Base directory path"
-          },
+          "path": { "type": "string", "title": "Path", "description": "Base directory path" },
           "pattern": {
             "type": "string",
             "title": "Pattern",
@@ -4848,7 +4838,10 @@
           },
           "exclude": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Exclude",
@@ -4895,22 +4888,14 @@
           }
         },
         "type": "object",
-        "required": ["path", "pattern"],
+        "required": [ "path", "pattern" ],
         "title": "FileGlobRequest",
         "description": "Enhanced file glob request"
       },
       "FileGlobResult": {
         "properties": {
-          "path": {
-            "type": "string",
-            "title": "Path",
-            "description": "Base directory path"
-          },
-          "pattern": {
-            "type": "string",
-            "title": "Pattern",
-            "description": "Glob pattern used"
-          },
+          "path": { "type": "string", "title": "Path", "description": "Base directory path" },
+          "pattern": { "type": "string", "title": "Pattern", "description": "Glob pattern used" },
           "files": {
             "items": { "$ref": "#/components/schemas/GlobFileInfo" },
             "type": "array",
@@ -4932,17 +4917,13 @@
           }
         },
         "type": "object",
-        "required": ["path", "pattern"],
+        "required": [ "path", "pattern" ],
         "title": "FileGlobResult",
         "description": "Enhanced glob result"
       },
       "FileGrepRequest": {
         "properties": {
-          "path": {
-            "type": "string",
-            "title": "Path",
-            "description": "Directory path to search"
-          },
+          "path": { "type": "string", "title": "Path", "description": "Directory path to search" },
           "pattern": {
             "type": "string",
             "title": "Pattern",
@@ -4950,7 +4931,10 @@
           },
           "include": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Include",
@@ -4958,7 +4942,10 @@
           },
           "exclude": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Exclude",
@@ -4977,19 +4964,13 @@
             "default": false
           },
           "context_before": {
-            "anyOf": [
-              { "type": "integer", "maximum": 20.0, "minimum": 0.0 },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "type": "integer", "maximum": 20.0, "minimum": 0.0 }, { "type": "null" }],
             "title": "Context Before",
             "description": "Number of lines before each match (-B)",
             "default": 0
           },
           "context_after": {
-            "anyOf": [
-              { "type": "integer", "maximum": 20.0, "minimum": 0.0 },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "type": "integer", "maximum": 20.0, "minimum": 0.0 }, { "type": "null" }],
             "title": "Context After",
             "description": "Number of lines after each match (-A)",
             "default": 0
@@ -5017,17 +4998,13 @@
           }
         },
         "type": "object",
-        "required": ["path", "pattern"],
+        "required": [ "path", "pattern" ],
         "title": "FileGrepRequest",
         "description": "File grep (multi-file content search) request"
       },
       "FileGrepResult": {
         "properties": {
-          "path": {
-            "type": "string",
-            "title": "Path",
-            "description": "Search directory path"
-          },
+          "path": { "type": "string", "title": "Path", "description": "Search directory path" },
           "pattern": {
             "type": "string",
             "title": "Pattern",
@@ -5064,22 +5041,14 @@
           }
         },
         "type": "object",
-        "required": ["path", "pattern"],
+        "required": [ "path", "pattern" ],
         "title": "FileGrepResult",
         "description": "Multi-file grep result"
       },
       "FileInfo": {
         "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name",
-            "description": "File name"
-          },
-          "path": {
-            "type": "string",
-            "title": "Path",
-            "description": "Full file path"
-          },
+          "name": { "type": "string", "title": "Name", "description": "File name" },
+          "path": { "type": "string", "title": "Path", "description": "Full file path" },
           "is_directory": {
             "type": "boolean",
             "title": "Is Directory",
@@ -5107,17 +5076,13 @@
           }
         },
         "type": "object",
-        "required": ["name", "path", "is_directory"],
+        "required": [ "name", "path", "is_directory" ],
         "title": "FileInfo",
         "description": "File information"
       },
       "FileListRequest": {
         "properties": {
-          "path": {
-            "type": "string",
-            "title": "Path",
-            "description": "Directory path to list"
-          },
+          "path": { "type": "string", "title": "Path", "description": "Directory path to list" },
           "recursive": {
             "anyOf": [{ "type": "boolean" }, { "type": "null" }],
             "title": "Recursive",
@@ -5132,7 +5097,10 @@
           },
           "file_types": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "File Types",
@@ -5169,17 +5137,13 @@
           }
         },
         "type": "object",
-        "required": ["path"],
+        "required": [ "path" ],
         "title": "FileListRequest",
         "description": "File list request"
       },
       "FileListResult": {
         "properties": {
-          "path": {
-            "type": "string",
-            "title": "Path",
-            "description": "Listed directory path"
-          },
+          "path": { "type": "string", "title": "Path", "description": "Listed directory path" },
           "files": {
             "items": { "$ref": "#/components/schemas/FileInfo" },
             "type": "array",
@@ -5207,17 +5171,13 @@
           }
         },
         "type": "object",
-        "required": ["path"],
+        "required": [ "path" ],
         "title": "FileListResult",
         "description": "File list result"
       },
       "FileReadRequest": {
         "properties": {
-          "file": {
-            "type": "string",
-            "title": "File",
-            "description": "Absolute file path"
-          },
+          "file": { "type": "string", "title": "File", "description": "Absolute file path" },
           "start_line": {
             "anyOf": [{ "type": "integer" }, { "type": "null" }],
             "title": "Start Line",
@@ -5236,35 +5196,23 @@
           }
         },
         "type": "object",
-        "required": ["file"],
+        "required": [ "file" ],
         "title": "FileReadRequest",
         "description": "File read request"
       },
       "FileReadResult": {
         "properties": {
-          "content": {
-            "type": "string",
-            "title": "Content",
-            "description": "File content"
-          },
-          "file": {
-            "type": "string",
-            "title": "File",
-            "description": "Path of the read file"
-          }
+          "content": { "type": "string", "title": "Content", "description": "File content" },
+          "file": { "type": "string", "title": "File", "description": "Path of the read file" }
         },
         "type": "object",
-        "required": ["content", "file"],
+        "required": [ "content", "file" ],
         "title": "FileReadResult",
         "description": "File read result"
       },
       "FileReplaceRequest": {
         "properties": {
-          "file": {
-            "type": "string",
-            "title": "File",
-            "description": "Absolute file path"
-          },
+          "file": { "type": "string", "title": "File", "description": "Absolute file path" },
           "old_str": {
             "type": "string",
             "title": "Old Str",
@@ -5283,7 +5231,7 @@
           }
         },
         "type": "object",
-        "required": ["file", "old_str", "new_str"],
+        "required": [ "file", "old_str", "new_str" ],
         "title": "FileReplaceRequest",
         "description": "File content replacement request"
       },
@@ -5302,17 +5250,13 @@
           }
         },
         "type": "object",
-        "required": ["file"],
+        "required": [ "file" ],
         "title": "FileReplaceResult",
         "description": "File content replacement result"
       },
       "FileSearchRequest": {
         "properties": {
-          "file": {
-            "type": "string",
-            "title": "File",
-            "description": "Absolute file path"
-          },
+          "file": { "type": "string", "title": "File", "description": "Absolute file path" },
           "regex": {
             "type": "string",
             "title": "Regex",
@@ -5326,7 +5270,7 @@
           }
         },
         "type": "object",
-        "required": ["file", "regex"],
+        "required": [ "file", "regex" ],
         "title": "FileSearchRequest",
         "description": "File content search request"
       },
@@ -5353,7 +5297,7 @@
           }
         },
         "type": "object",
-        "required": ["file"],
+        "required": [ "file" ],
         "title": "FileSearchResult",
         "description": "File content search result"
       },
@@ -5376,27 +5320,20 @@
           }
         },
         "type": "object",
-        "required": ["file_path", "file_size", "success"],
+        "required": [ "file_path", "file_size", "success" ],
         "title": "FileUploadResult",
         "description": "File upload result"
       },
       "FileWriteRequest": {
         "properties": {
-          "file": {
-            "type": "string",
-            "title": "File",
-            "description": "Absolute file path"
-          },
+          "file": { "type": "string", "title": "File", "description": "Absolute file path" },
           "content": {
             "type": "string",
             "title": "Content",
             "description": "Content to write (text or base64 encoded for binary)"
           },
           "encoding": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/FileContentEncoding" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/FileContentEncoding" }, { "type": "null" }],
             "description": "Content encoding: utf-8 for text, base64 for binary data",
             "default": "utf-8"
           },
@@ -5426,17 +5363,13 @@
           }
         },
         "type": "object",
-        "required": ["file", "content"],
+        "required": [ "file", "content" ],
         "title": "FileWriteRequest",
         "description": "File write request - supports both text and binary content"
       },
       "FileWriteResult": {
         "properties": {
-          "file": {
-            "type": "string",
-            "title": "File",
-            "description": "Path of the written file"
-          },
+          "file": { "type": "string", "title": "File", "description": "Path of the written file" },
           "bytes_written": {
             "anyOf": [{ "type": "integer" }, { "type": "null" }],
             "title": "Bytes Written",
@@ -5444,7 +5377,7 @@
           }
         },
         "type": "object",
-        "required": ["file"],
+        "required": [ "file" ],
         "title": "FileWriteResult",
         "description": "File write result"
       },
@@ -5461,13 +5394,15 @@
           "text": { "type": "string", "title": "Text" }
         },
         "type": "object",
-        "required": ["text"],
+        "required": [ "text" ],
         "title": "FillRequest"
       },
       "FindTextRequest": {
-        "properties": { "keyword": { "type": "string", "title": "Keyword" } },
+        "properties": {
+          "keyword": { "type": "string", "title": "Keyword" }
+        },
         "type": "object",
-        "required": ["keyword"],
+        "required": [ "keyword" ],
         "title": "FindTextRequest"
       },
       "FormFillRequest": {
@@ -5479,21 +5414,13 @@
           }
         },
         "type": "object",
-        "required": ["items"],
+        "required": [ "items" ],
         "title": "FormFillRequest"
       },
       "GlobFileInfo": {
         "properties": {
-          "path": {
-            "type": "string",
-            "title": "Path",
-            "description": "Full file path"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name",
-            "description": "File name"
-          },
+          "path": { "type": "string", "title": "Path", "description": "Full file path" },
+          "name": { "type": "string", "title": "Name", "description": "File name" },
           "is_directory": {
             "type": "boolean",
             "title": "Is Directory",
@@ -5512,7 +5439,7 @@
           }
         },
         "type": "object",
-        "required": ["path", "name"],
+        "required": [ "path", "name" ],
         "title": "GlobFileInfo",
         "description": "Glob matched file info"
       },
@@ -5535,7 +5462,10 @@
           },
           "context_before": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Context Before",
@@ -5543,7 +5473,10 @@
           },
           "context_after": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Context After",
@@ -5551,7 +5484,7 @@
           }
         },
         "type": "object",
-        "required": ["file", "line_number", "line_content"],
+        "required": [ "file", "line_number", "line_content" ],
         "title": "GrepMatch",
         "description": "Single grep match"
       },
@@ -5575,7 +5508,7 @@
           }
         },
         "type": "object",
-        "required": ["headers"],
+        "required": [ "headers" ],
         "title": "HeadersRequest"
       },
       "HotKeyRequest": {
@@ -5587,7 +5520,7 @@
           }
         },
         "type": "object",
-        "required": ["keys"],
+        "required": [ "keys" ],
         "title": "HotKeyRequest"
       },
       "HotkeyAction": {
@@ -5606,7 +5539,7 @@
           }
         },
         "type": "object",
-        "required": ["keys"],
+        "required": [ "keys" ],
         "title": "HotkeyAction"
       },
       "HoverRequest": {
@@ -5636,7 +5569,10 @@
           },
           "sizes": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Sizes"
@@ -5644,7 +5580,7 @@
         },
         "additionalProperties": true,
         "type": "object",
-        "required": ["src"],
+        "required": [ "src" ],
         "title": "Icon",
         "description": "An icon for display in user interfaces."
       },
@@ -5654,22 +5590,16 @@
           "data": { "type": "string", "title": "Data" },
           "mimeType": { "type": "string", "title": "Mimetype" },
           "annotations": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/Annotations" },
-              { "type": "null" }
-            ]
+            "anyOf": [{ "$ref": "#/components/schemas/Annotations" }, { "type": "null" }]
           },
           "_meta": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Meta"
           }
         },
         "additionalProperties": true,
         "type": "object",
-        "required": ["type", "data", "mimeType"],
+        "required": [ "type", "data", "mimeType" ],
         "title": "ImageContent",
         "description": "Image content for a message."
       },
@@ -5689,8 +5619,7 @@
           "cwd": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Cwd",
-            "description": "Current working directory for the session",
-            "default": "/tmp"
+            "description": "Current working directory for the session"
           }
         },
         "type": "object",
@@ -5716,22 +5645,15 @@
           }
         },
         "type": "object",
-        "required": ["session_id", "kernel_name", "message"],
+        "required": [ "session_id", "kernel_name", "message" ],
         "title": "JupyterCreateSessionResponse",
         "description": "Jupyter session creation response model"
       },
       "JupyterExecuteRequest": {
         "properties": {
-          "code": {
-            "type": "string",
-            "title": "Code",
-            "description": "Python code to execute"
-          },
+          "code": { "type": "string", "title": "Code", "description": "Python code to execute" },
           "timeout": {
-            "anyOf": [
-              { "type": "integer", "maximum": 300.0, "minimum": 1.0 },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "type": "integer", "maximum": 300.0, "minimum": 1.0 }, { "type": "null" }],
             "title": "Timeout",
             "description": "Execution timeout in seconds",
             "default": 30
@@ -5750,12 +5672,11 @@
           "cwd": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Cwd",
-            "description": "Current working directory for the kernel",
-            "default": "/tmp"
+            "description": "Current working directory for the kernel"
           }
         },
         "type": "object",
-        "required": ["code"],
+        "required": [ "code" ],
         "title": "JupyterExecuteRequest",
         "description": "Jupyter code execution request model"
       },
@@ -5767,7 +5688,7 @@
             "description": "Name of the kernel used for execution"
           },
           "session_id": {
-            "type": "string",
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Session Id",
             "description": "Session ID for this kernel instance"
           },
@@ -5787,11 +5708,7 @@
             "title": "Outputs",
             "description": "List of execution outputs"
           },
-          "code": {
-            "type": "string",
-            "title": "Code",
-            "description": "The executed code"
-          },
+          "code": { "type": "string", "title": "Code", "description": "The executed code" },
           "msg_id": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Msg Id",
@@ -5799,7 +5716,7 @@
           }
         },
         "type": "object",
-        "required": ["kernel_name", "session_id", "status", "outputs", "code"],
+        "required": [ "kernel_name", "status", "outputs", "code" ],
         "title": "JupyterExecuteResponse",
         "description": "Jupyter code execution response model"
       },
@@ -5873,18 +5790,12 @@
             "description": "Text content for stream outputs"
           },
           "data": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Data",
             "description": "Output data for execute_result/display_data"
           },
           "metadata": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Metadata",
             "description": "Output metadata"
           },
@@ -5905,7 +5816,10 @@
           },
           "traceback": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Traceback",
@@ -5913,7 +5827,7 @@
           }
         },
         "type": "object",
-        "required": ["output_type"],
+        "required": [ "output_type" ],
         "title": "JupyterOutput",
         "description": "Jupyter execution output model"
       },
@@ -5928,13 +5842,15 @@
           "key": { "type": "string", "title": "Key" }
         },
         "type": "object",
-        "required": ["key"],
+        "required": [ "key" ],
         "title": "KeyDownAction"
       },
       "KeyRequest": {
-        "properties": { "key": { "type": "string", "title": "Key" } },
+        "properties": {
+          "key": { "type": "string", "title": "Key" }
+        },
         "type": "object",
-        "required": ["key"],
+        "required": [ "key" ],
         "title": "KeyRequest"
       },
       "KeyUpAction": {
@@ -5948,12 +5864,12 @@
           "key": { "type": "string", "title": "Key" }
         },
         "type": "object",
-        "required": ["key"],
+        "required": [ "key" ],
         "title": "KeyUpAction"
       },
       "Language": {
         "type": "string",
-        "enum": ["python", "javascript"],
+        "enum": [ "python", "javascript" ],
         "title": "Language",
         "description": "Supported programming languages for code execution"
       },
@@ -5967,7 +5883,7 @@
           },
           "button": {
             "type": "string",
-            "enum": ["left", "right", "middle"],
+            "enum": [ "left", "right", "middle" ],
             "title": "Button",
             "default": "left"
           }
@@ -5985,7 +5901,7 @@
           },
           "button": {
             "type": "string",
-            "enum": ["left", "right", "middle"],
+            "enum": [ "left", "right", "middle" ],
             "title": "Button",
             "default": "left"
           }
@@ -6013,7 +5929,7 @@
           }
         },
         "type": "object",
-        "required": ["x_offset", "y_offset"],
+        "required": [ "x_offset", "y_offset" ],
         "title": "MoveRelAction"
       },
       "MoveToAction": {
@@ -6024,19 +5940,11 @@
             "title": "Action Type",
             "default": "MOVE_TO"
           },
-          "x": {
-            "type": "number",
-            "title": "X",
-            "description": "Target x-coordinate"
-          },
-          "y": {
-            "type": "number",
-            "title": "Y",
-            "description": "Target y-coordinate"
-          }
+          "x": { "type": "number", "title": "X", "description": "Target x-coordinate" },
+          "y": { "type": "number", "title": "Y", "description": "Target y-coordinate" }
         },
         "type": "object",
-        "required": ["x", "y"],
+        "required": [ "x", "y" ],
         "title": "MoveToAction"
       },
       "NavigateRequest": {
@@ -6044,14 +5952,14 @@
           "url": { "type": "string", "title": "Url" },
           "wait_until": {
             "type": "string",
-            "enum": ["load", "domcontentloaded", "networkidle", "commit"],
+            "enum": [ "load", "domcontentloaded", "networkidle", "commit" ],
             "title": "Wait Until",
             "default": "load"
           },
           "timeout": { "type": "number", "title": "Timeout", "default": 30.0 }
         },
         "type": "object",
-        "required": ["url"],
+        "required": [ "url" ],
         "title": "NavigateRequest"
       },
       "NetworkRouteRemoveRequest": {
@@ -6059,22 +5967,19 @@
           "url_pattern": { "type": "string", "title": "Url Pattern" }
         },
         "type": "object",
-        "required": ["url_pattern"],
+        "required": [ "url_pattern" ],
         "title": "NetworkRouteRemoveRequest"
       },
       "NetworkRouteRequest": {
         "properties": {
           "url_pattern": { "type": "string", "title": "Url Pattern" },
           "response": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/RouteResponseModel" },
-              { "type": "null" }
-            ]
+            "anyOf": [{ "$ref": "#/components/schemas/RouteResponseModel" }, { "type": "null" }]
           },
           "abort": { "type": "boolean", "title": "Abort", "default": false }
         },
         "type": "object",
-        "required": ["url_pattern"],
+        "required": [ "url_pattern" ],
         "title": "NetworkRouteRequest"
       },
       "NodeJSCreateSessionRequest": {
@@ -6087,8 +5992,7 @@
           "cwd": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Cwd",
-            "description": "Working directory for the session",
-            "default": "/tmp"
+            "description": "Working directory for the session"
           },
           "max_idle_time": {
             "anyOf": [
@@ -6105,11 +6009,7 @@
       },
       "NodeJSCreateSessionResponse": {
         "properties": {
-          "session_id": {
-            "type": "string",
-            "title": "Session Id",
-            "description": "Session ID"
-          },
+          "session_id": { "type": "string", "title": "Session Id", "description": "Session ID" },
           "created": {
             "type": "boolean",
             "title": "Created",
@@ -6121,15 +6021,12 @@
             "description": "Additional message (e.g., if session already exists)"
           },
           "session": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/NodeJSSessionInfo" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/NodeJSSessionInfo" }, { "type": "null" }],
             "description": "Session information (if created)"
           }
         },
         "type": "object",
-        "required": ["session_id", "created"],
+        "required": [ "session_id", "created" ],
         "title": "NodeJSCreateSessionResponse"
       },
       "NodeJSDeleteSessionResponse": {
@@ -6141,7 +6038,7 @@
           }
         },
         "type": "object",
-        "required": ["deleted"],
+        "required": [ "deleted" ],
         "title": "NodeJSDeleteSessionResponse"
       },
       "NodeJSExecuteRequest": {
@@ -6152,10 +6049,7 @@
             "description": "JavaScript code to execute"
           },
           "timeout": {
-            "anyOf": [
-              { "type": "integer", "maximum": 300.0, "minimum": 1.0 },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "type": "integer", "maximum": 300.0, "minimum": 1.0 }, { "type": "null" }],
             "title": "Timeout",
             "description": "Execution timeout in seconds",
             "default": 30
@@ -6199,7 +6093,7 @@
           }
         },
         "type": "object",
-        "required": ["code"],
+        "required": [ "code" ],
         "title": "NodeJSExecuteRequest"
       },
       "NodeJSExecuteResponse": {
@@ -6227,11 +6121,7 @@
             "description": "List of execution outputs",
             "default": []
           },
-          "code": {
-            "type": "string",
-            "title": "Code",
-            "description": "Code that was executed"
-          },
+          "code": { "type": "string", "title": "Code", "description": "Code that was executed" },
           "stdout": {
             "type": "string",
             "title": "Stdout",
@@ -6256,7 +6146,7 @@
           }
         },
         "type": "object",
-        "required": ["language", "status", "code", "exit_code"],
+        "required": [ "language", "status", "code", "exit_code" ],
         "title": "NodeJSExecuteResponse"
       },
       "NodeJSOutput": {
@@ -6288,48 +6178,37 @@
           },
           "traceback": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Traceback",
             "description": "Error traceback for error outputs"
           },
           "data": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Data",
             "description": "Data for execute_result outputs"
           },
           "metadata": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Metadata",
             "description": "Metadata for outputs"
           }
         },
         "type": "object",
-        "required": ["output_type"],
+        "required": [ "output_type" ],
         "title": "NodeJSOutput"
       },
       "NodeJSPackageInfo": {
         "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name",
-            "description": "Package name"
-          },
-          "version": {
-            "type": "string",
-            "title": "Version",
-            "description": "Package version"
-          }
+          "name": { "type": "string", "title": "Name", "description": "Package name" },
+          "version": { "type": "string", "title": "Version", "description": "Package version" }
         },
         "type": "object",
-        "required": ["name", "version"],
+        "required": [ "name", "version" ],
         "title": "NodeJSPackageInfo",
         "description": "Package information"
       },
@@ -6399,27 +6278,14 @@
           }
         },
         "type": "object",
-        "required": [
-          "node_version",
-          "npm_version",
-          "supported_languages",
-          "description"
-        ],
+        "required": [ "node_version", "npm_version", "supported_languages", "description" ],
         "title": "NodeJSRuntimeInfo",
         "description": "NodeJS runtime information model"
       },
       "NodeJSSessionInfo": {
         "properties": {
-          "session_id": {
-            "type": "string",
-            "title": "Session Id",
-            "description": "Session ID"
-          },
-          "cwd": {
-            "type": "string",
-            "title": "Cwd",
-            "description": "Working directory"
-          },
+          "session_id": { "type": "string", "title": "Session Id", "description": "Session ID" },
+          "cwd": { "type": "string", "title": "Cwd", "description": "Working directory" },
           "created_at": {
             "type": "number",
             "title": "Created At",
@@ -6461,9 +6327,7 @@
       "NodeJSSessionListResponse": {
         "properties": {
           "sessions": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/NodeJSSessionInfo"
-            },
+            "additionalProperties": { "$ref": "#/components/schemas/NodeJSSessionInfo" },
             "type": "object",
             "title": "Sessions",
             "description": "Map of session ID to session info",
@@ -6481,7 +6345,7 @@
           }
         },
         "type": "object",
-        "required": ["session"],
+        "required": [ "session" ],
         "title": "NodeJSSessionResponse"
       },
       "NodeJSUpdateSessionRequest": {
@@ -6516,7 +6380,7 @@
           }
         },
         "type": "object",
-        "required": ["updated", "session"],
+        "required": [ "updated", "session" ],
         "title": "NodeJSUpdateSessionResponse"
       },
       "PressAction": {
@@ -6530,14 +6394,98 @@
           "key": { "type": "string", "title": "Key" }
         },
         "type": "object",
-        "required": ["key"],
+        "required": [ "key" ],
         "title": "PressAction"
+      },
+      "ProxyBypassRequest": {
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "title": "Pattern",
+            "description": "Bypass pattern: domain (*.example.com, .example.com) or CIDR (10.0.0.0/8)",
+            "examples": [ "*.internal.company.com", "10.0.0.0/8", ".byted.org" ]
+          }
+        },
+        "type": "object",
+        "required": [ "pattern" ],
+        "title": "ProxyBypassRequest"
+      },
+      "ProxyDiagnoseResult": {
+        "properties": {
+          "url": { "type": "string", "title": "Url" },
+          "matched_mapping": {
+            "anyOf": [{ "$ref": "#/components/schemas/ProxyMappingRoute" }, { "type": "null" }]
+          },
+          "resolved_target": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Resolved Target"
+          },
+          "target_reachable": { "type": "boolean", "title": "Target Reachable", "default": false },
+          "route": { "type": "string", "title": "Route" }
+        },
+        "type": "object",
+        "required": [ "url", "route" ],
+        "title": "ProxyDiagnoseResult"
+      },
+      "ProxyMappingAddRequest": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Source pattern: [protocol://]host[:port][/path], supports wildcard *",
+            "examples": [ "myapp.com", "api.myapp.com/v1/*", "*.staging.app.com" ]
+          },
+          "target": {
+            "type": "string",
+            "title": "Target",
+            "description": "Target address: [host:]port[/path]. Host defaults to 127.0.0.1",
+            "examples": [ ":3000", "127.0.0.1:8081/v1/", "192.168.1.5:3000" ]
+          }
+        },
+        "type": "object",
+        "required": [ "source", "target" ],
+        "title": "ProxyMappingAddRequest"
+      },
+      "ProxyMappingRoute": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Source pattern: [protocol://]host[:port][/path], supports wildcard * in host",
+            "examples": [ "myapp.com", "api.myapp.com/v1/*", "*.staging.app.com" ]
+          },
+          "target": {
+            "type": "string",
+            "title": "Target",
+            "description": "Target address: [host:]port[/path]. Host defaults to 127.0.0.1",
+            "examples": [ "127.0.0.1:3000", ":8081/v1/", "192.168.1.5:3000" ]
+          },
+          "source_host": {
+            "type": "string",
+            "title": "Source Host",
+            "description": "Extracted host from source (used for GOST hosts)"
+          },
+          "source_path": {
+            "type": "string",
+            "title": "Source Path",
+            "description": "Extracted path from source (used for nginx location)",
+            "default": "/"
+          },
+          "internal_port": {
+            "type": "integer",
+            "title": "Internal Port",
+            "description": "Internal nginx listen port for this domain group"
+          }
+        },
+        "type": "object",
+        "required": [ "source", "target", "source_host", "internal_port" ],
+        "title": "ProxyMappingRoute"
       },
       "RecordRequest": {
         "properties": {
           "action": {
             "type": "string",
-            "enum": ["once", "start", "pause", "resume", "stop", "status"],
+            "enum": [ "once", "start", "pause", "resume", "stop", "status" ],
             "title": "Record Action",
             "default": "once"
           },
@@ -6551,12 +6499,7 @@
             "title": "Duration",
             "default": 10.0
           },
-          "fps": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Fps",
-            "default": 15
-          },
+          "fps": { "type": "integer", "exclusiveMinimum": 0.0, "title": "Fps", "default": 15 },
           "quality": {
             "type": "integer",
             "maximum": 100.0,
@@ -6584,7 +6527,7 @@
           }
         },
         "type": "object",
-        "required": ["width", "height"],
+        "required": [ "width", "height" ],
         "title": "Resolution"
       },
       "ResourceLink": {
@@ -6594,12 +6537,7 @@
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Title"
           },
-          "uri": {
-            "type": "string",
-            "minLength": 1,
-            "format": "uri",
-            "title": "Uri"
-          },
+          "uri": { "type": "string", "minLength": 1, "format": "uri", "title": "Uri" },
           "description": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Description"
@@ -6623,27 +6561,17 @@
             "title": "Icons"
           },
           "annotations": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/Annotations" },
-              { "type": "null" }
-            ]
+            "anyOf": [{ "$ref": "#/components/schemas/Annotations" }, { "type": "null" }]
           },
           "_meta": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Meta"
           },
-          "type": {
-            "type": "string",
-            "const": "resource_link",
-            "title": "Type"
-          }
+          "type": { "type": "string", "const": "resource_link", "title": "Type" }
         },
         "additionalProperties": true,
         "type": "object",
-        "required": ["name", "uri", "type"],
+        "required": [ "name", "uri", "type" ],
         "title": "ResourceLink",
         "description": "A resource that the server is capable of reading, included in a prompt or tool call result.\n\nNote: resource links returned by tools are not guaranteed to appear in the results of `resources/list` requests."
       },
@@ -6691,10 +6619,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/ActiveSessionsResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/ActiveSessionsResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -6751,10 +6676,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/BashExecResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/BashExecResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -6781,10 +6703,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/BashOutputResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/BashOutputResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -6811,10 +6730,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/BashSessionInfo" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/BashSessionInfo" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -6841,10 +6757,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/BrowserInfoResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/BrowserInfoResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -6901,15 +6814,11 @@
                     ],
                     "title": "Structuredcontent"
                   },
-                  "isError": {
-                    "type": "boolean",
-                    "title": "Iserror",
-                    "default": false
-                  }
+                  "isError": { "type": "boolean", "title": "Iserror", "default": false }
                 },
                 "additionalProperties": true,
                 "type": "object",
-                "required": ["content"],
+                "required": [ "content" ],
                 "title": "CallToolResult",
                 "description": "The server's response to a tool call."
               },
@@ -6942,10 +6851,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/CaptchaWaitResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/CaptchaWaitResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -6972,10 +6878,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/CodeExecuteResponse" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/CodeExecuteResponse" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7002,10 +6905,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/CodeInfoResponse" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/CodeInfoResponse" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7032,10 +6932,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/FileFindResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/FileFindResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7062,10 +6959,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/FileGlobResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/FileGlobResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7092,10 +6986,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/FileGrepResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/FileGrepResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7122,10 +7013,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/FileListResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/FileListResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7152,10 +7040,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/FileReadResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/FileReadResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7182,10 +7067,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/FileReplaceResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/FileReplaceResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7212,10 +7094,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/FileSearchResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/FileSearchResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7242,10 +7121,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/FileUploadResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/FileUploadResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7272,10 +7148,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/FileWriteResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/FileWriteResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7362,10 +7235,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/JupyterInfoResponse" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/JupyterInfoResponse" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7414,7 +7284,7 @@
                 },
                 "additionalProperties": true,
                 "type": "object",
-                "required": ["tools"],
+                "required": [ "tools" ],
                 "title": "ListToolsResult",
                 "description": "The server's response to a tools/list request from the client."
               },
@@ -7448,7 +7318,10 @@
           },
           "data": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Data",
@@ -7568,10 +7441,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/NodeJSRuntimeInfo" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/NodeJSRuntimeInfo" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7673,6 +7543,60 @@
         "type": "object",
         "title": "Response[NodeJSUpdateSessionResponse]"
       },
+      "Response_ProxyDiagnoseResult_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [{ "$ref": "#/components/schemas/ProxyDiagnoseResult" }, { "type": "null" }],
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[ProxyDiagnoseResult]"
+      },
+      "Response_ProxyMappingRoute_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [{ "$ref": "#/components/schemas/ProxyMappingRoute" }, { "type": "null" }],
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[ProxyMappingRoute]"
+      },
       "Response_ShellCommandResult_": {
         "properties": {
           "success": {
@@ -7688,10 +7612,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/ShellCommandResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/ShellCommandResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7748,10 +7669,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/ShellKillResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/ShellKillResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7778,10 +7696,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/ShellViewResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/ShellViewResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7808,10 +7723,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/ShellWaitResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/ShellWaitResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7838,10 +7750,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/ShellWriteResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/ShellWriteResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7868,10 +7777,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/SkillContentResult" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/SkillContentResult" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -7928,10 +7834,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/SkillMetadata" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "$ref": "#/components/schemas/SkillMetadata" }, { "type": "null" }],
             "description": "Data returned from the operation"
           },
           "hint": {
@@ -8018,10 +7921,7 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Data",
             "description": "Data returned from the operation"
           },
@@ -8049,7 +7949,13 @@
             "default": "Operation successful"
           },
           "data": {
-            "anyOf": [{ "items": {}, "type": "array" }, { "type": "null" }],
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              { "type": "null" }
+            ],
             "title": "Data",
             "description": "Data returned from the operation"
           },
@@ -8096,6 +8002,74 @@
         "type": "object",
         "title": "Response[list[BashSessionInfo]]"
       },
+      "Response_list_ProxyMappingRoute__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": { "$ref": "#/components/schemas/ProxyMappingRoute" },
+                "type": "array"
+              },
+              { "type": "null" }
+            ],
+            "title": "Data",
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[ProxyMappingRoute]]"
+      },
+      "Response_list_str__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Whether the operation was successful",
+            "default": true
+          },
+          "message": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Message",
+            "description": "Operation result message",
+            "default": "Operation successful"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
+              { "type": "null" }
+            ],
+            "title": "Data",
+            "description": "Data returned from the operation"
+          },
+          "hint": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Hint",
+            "description": "Context hint for AI agents (e.g. tab changes)"
+          }
+        },
+        "type": "object",
+        "title": "Response[list[str]]"
+      },
       "Response_str_": {
         "properties": {
           "success": {
@@ -8128,20 +8102,26 @@
         "properties": {
           "mode": {
             "type": "string",
-            "enum": ["soft", "hard"],
+            "enum": [ "soft", "hard" ],
             "title": "Mode",
             "default": "hard"
           },
           "url_blocklist": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Url Blocklist"
           },
           "url_allowlist": {
             "anyOf": [
-              { "items": { "type": "string" }, "type": "array" },
+              {
+                "items": { "type": "string" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Url Allowlist"
@@ -8183,11 +8163,7 @@
             "title": "Headers"
           },
           "body": { "type": "string", "title": "Body", "default": "" },
-          "content_type": {
-            "type": "string",
-            "title": "Content Type",
-            "default": "text/plain"
-          }
+          "content_type": { "type": "string", "title": "Content Type", "default": "text/plain" }
         },
         "type": "object",
         "title": "RouteResponseModel"
@@ -8206,7 +8182,7 @@
           }
         },
         "type": "object",
-        "required": ["python", "nodejs"],
+        "required": [ "python", "nodejs" ],
         "title": "RuntimeEnv",
         "description": "version, path, etc. (python3, python3.11, python3.12, pip3, pip, uv, jupyter)"
       },
@@ -8221,7 +8197,7 @@
           }
         },
         "type": "object",
-        "required": ["system", "runtime", "utils"],
+        "required": [ "system", "runtime", "utils" ],
         "title": "SandboxDetail",
         "description": "system environment info"
       },
@@ -8250,11 +8226,15 @@
             "description": "Context hint for AI agents (e.g. tab changes)"
           },
           "home_dir": { "type": "string", "title": "Home Dir" },
+          "workspace": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Workspace"
+          },
           "version": { "type": "string", "title": "Version" },
           "detail": { "$ref": "#/components/schemas/SandboxDetail" }
         },
         "type": "object",
-        "required": ["home_dir", "version", "detail"],
+        "required": [ "home_dir", "version", "detail" ],
         "title": "SandboxResponse"
       },
       "ScopedHeadersRequest": {
@@ -8267,7 +8247,7 @@
           }
         },
         "type": "object",
-        "required": ["origin", "headers"],
+        "required": [ "origin", "headers" ],
         "title": "ScopedHeadersRequest"
       },
       "ScrollAction": {
@@ -8286,20 +8266,18 @@
       },
       "ScrollRequest": {
         "properties": {
-          "direction": {
-            "type": "string",
-            "title": "Direction",
-            "default": "down"
-          },
+          "direction": { "type": "string", "title": "Direction", "default": "down" },
           "amount": { "type": "integer", "title": "Amount", "default": 300 }
         },
         "type": "object",
         "title": "ScrollRequest"
       },
       "ScrollToElementRequest": {
-        "properties": { "selector": { "type": "string", "title": "Selector" } },
+        "properties": {
+          "selector": { "type": "string", "title": "Selector" }
+        },
         "type": "object",
-        "required": ["selector"],
+        "required": [ "selector" ],
         "title": "ScrollToElementRequest"
       },
       "ScrollToRequest": {
@@ -8327,7 +8305,7 @@
           }
         },
         "type": "object",
-        "required": ["selector"],
+        "required": [ "selector" ],
         "title": "SelectOptionRequest"
       },
       "SessionInfo": {
@@ -8349,13 +8327,13 @@
           }
         },
         "type": "object",
-        "required": ["kernel_name", "last_used", "age_seconds"],
+        "required": [ "kernel_name", "last_used", "age_seconds" ],
         "title": "SessionInfo",
         "description": "Active session information"
       },
       "SessionStatus": {
         "type": "string",
-        "enum": ["ready", "closed"],
+        "enum": [ "ready", "closed" ],
         "title": "SessionStatus",
         "description": "Status of a pipe bash session."
       },
@@ -8366,11 +8344,7 @@
             "title": "Session Id",
             "description": "Shell session ID"
           },
-          "command": {
-            "type": "string",
-            "title": "Command",
-            "description": "Executed command"
-          },
+          "command": { "type": "string", "title": "Command", "description": "Executed command" },
           "status": {
             "$ref": "#/components/schemas/BashCommandStatus",
             "description": "Command execution status"
@@ -8398,7 +8372,7 @@
           }
         },
         "type": "object",
-        "required": ["session_id", "command", "status"],
+        "required": [ "session_id", "command", "status" ],
         "title": "ShellCommandResult",
         "description": "Shell command execution result model"
       },
@@ -8444,7 +8418,7 @@
           }
         },
         "type": "object",
-        "required": ["session_id", "working_dir"],
+        "required": [ "session_id", "working_dir" ],
         "title": "ShellCreateSessionResponse",
         "description": "Shell session creation response model"
       },
@@ -8505,7 +8479,7 @@
           }
         },
         "type": "object",
-        "required": ["command"],
+        "required": [ "command" ],
         "title": "ShellExecRequest",
         "description": "Shell command execution request model"
       },
@@ -8518,7 +8492,7 @@
           }
         },
         "type": "object",
-        "required": ["id"],
+        "required": [ "id" ],
         "title": "ShellKillProcessRequest",
         "description": "Request model for terminating a running process"
       },
@@ -8540,7 +8514,7 @@
           }
         },
         "type": "object",
-        "required": ["status"],
+        "required": [ "status" ],
         "title": "ShellKillResult",
         "description": "Process termination result model"
       },
@@ -8568,11 +8542,7 @@
             "title": "Age Seconds",
             "description": "Age of session in seconds"
           },
-          "status": {
-            "type": "string",
-            "title": "Status",
-            "description": "Session status"
-          },
+          "status": { "type": "string", "title": "Status", "description": "Session status" },
           "current_command": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Current Command",
@@ -8580,13 +8550,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "working_dir",
-          "created_at",
-          "last_used_at",
-          "age_seconds",
-          "status"
-        ],
+        "required": [ "working_dir", "created_at", "last_used_at", "age_seconds", "status" ],
         "title": "ShellSessionInfo",
         "description": "Shell session information"
       },
@@ -8604,7 +8568,7 @@
           }
         },
         "type": "object",
-        "required": ["id"],
+        "required": [ "id" ],
         "title": "ShellUpdateSessionRequest",
         "description": "Shell session update request model"
       },
@@ -8617,7 +8581,7 @@
           }
         },
         "type": "object",
-        "required": ["id"],
+        "required": [ "id" ],
         "title": "ShellViewRequest",
         "description": "Shell session content view request model"
       },
@@ -8660,7 +8624,7 @@
           }
         },
         "type": "object",
-        "required": ["output", "session_id", "status"],
+        "required": [ "output", "session_id", "status" ],
         "title": "ShellViewResult",
         "description": "Shell session content view result model"
       },
@@ -8683,7 +8647,7 @@
           }
         },
         "type": "object",
-        "required": ["id"],
+        "required": [ "id" ],
         "title": "ShellWaitRequest",
         "description": "Shell process wait request model"
       },
@@ -8695,7 +8659,7 @@
           }
         },
         "type": "object",
-        "required": ["status"],
+        "required": [ "status" ],
         "title": "ShellWaitResult",
         "description": "Process wait result model"
       },
@@ -8707,7 +8671,7 @@
           }
         },
         "type": "object",
-        "required": ["status"],
+        "required": [ "status" ],
         "title": "ShellWriteResult",
         "description": "Process input write result model"
       },
@@ -8730,17 +8694,13 @@
           }
         },
         "type": "object",
-        "required": ["id", "input", "press_enter"],
+        "required": [ "id", "input", "press_enter" ],
         "title": "ShellWriteToProcessRequest",
         "description": "Request model for writing input to a running process"
       },
       "SkillContentResult": {
         "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name",
-            "description": "Skill name"
-          },
+          "name": { "type": "string", "title": "Name", "description": "Skill name" },
           "path": {
             "type": "string",
             "title": "Path",
@@ -8753,16 +8713,12 @@
           }
         },
         "type": "object",
-        "required": ["name", "path", "content"],
+        "required": [ "name", "path", "content" ],
         "title": "SkillContentResult"
       },
       "SkillMetadata": {
         "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name",
-            "description": "Skill name"
-          },
+          "name": { "type": "string", "title": "Name", "description": "Skill name" },
           "path": {
             "type": "string",
             "title": "Path",
@@ -8782,7 +8738,7 @@
           }
         },
         "type": "object",
-        "required": ["name", "path"],
+        "required": [ "name", "path" ],
         "title": "SkillMetadata"
       },
       "SkillMetadataCollection": {
@@ -8812,26 +8768,30 @@
           }
         },
         "type": "object",
-        "required": ["count"],
+        "required": [ "count" ],
         "title": "SkillRegistrationResult"
       },
       "StateLoadRequest": {
-        "properties": { "path": { "type": "string", "title": "Path" } },
+        "properties": {
+          "path": { "type": "string", "title": "Path" }
+        },
         "type": "object",
-        "required": ["path"],
+        "required": [ "path" ],
         "title": "StateLoadRequest"
       },
       "StateSaveRequest": {
-        "properties": { "path": { "type": "string", "title": "Path" } },
+        "properties": {
+          "path": { "type": "string", "title": "Path" }
+        },
         "type": "object",
-        "required": ["path"],
+        "required": [ "path" ],
         "title": "StateSaveRequest"
       },
       "StrReplaceEditorRequest": {
         "properties": {
           "command": {
             "type": "string",
-            "enum": ["view", "create", "str_replace", "insert", "undo_edit"],
+            "enum": [ "view", "create", "str_replace", "insert", "undo_edit" ],
             "title": "Command",
             "description": "The commands to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`."
           },
@@ -8862,7 +8822,10 @@
           },
           "view_range": {
             "anyOf": [
-              { "items": { "type": "integer" }, "type": "array" },
+              {
+                "items": { "type": "integer" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "View Range",
@@ -8871,7 +8834,10 @@
           },
           "replace_mode": {
             "anyOf": [
-              { "type": "string", "enum": ["ALL", "FIRST", "LAST"] },
+              {
+                "type": "string",
+                "enum": [ "ALL", "FIRST", "LAST" ]
+              },
               { "type": "null" }
             ],
             "title": "Replace Mode",
@@ -8879,7 +8845,10 @@
           },
           "page_range": {
             "anyOf": [
-              { "items": { "type": "integer" }, "type": "array" },
+              {
+                "items": { "type": "integer" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Page Range",
@@ -8892,7 +8861,10 @@
           },
           "row_range": {
             "anyOf": [
-              { "items": { "type": "integer" }, "type": "array" },
+              {
+                "items": { "type": "integer" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Row Range",
@@ -8900,7 +8872,10 @@
           },
           "slide_range": {
             "anyOf": [
-              { "items": { "type": "integer" }, "type": "array" },
+              {
+                "items": { "type": "integer" },
+                "type": "array"
+              },
               { "type": "null" }
             ],
             "title": "Slide Range",
@@ -8914,7 +8889,7 @@
           }
         },
         "type": "object",
-        "required": ["command", "path"],
+        "required": [ "command", "path" ],
         "title": "StrReplaceEditorRequest",
         "description": "String replace editor request based on openhands_aci"
       },
@@ -8951,15 +8926,12 @@
             "description": "New file content after operation"
           },
           "metadata": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "description": "File metadata (only returned when enable_metadata=true for binary files)"
           }
         },
         "type": "object",
-        "required": ["output", "path", "prev_exist"],
+        "required": [ "output", "path", "prev_exist" ],
         "title": "StrReplaceEditorResult",
         "description": "String replace editor result based on openhands_aci CLIResult"
       },
@@ -8970,6 +8942,10 @@
           "arch": { "type": "string", "title": "Arch" },
           "user": { "type": "string", "title": "User" },
           "home_dir": { "type": "string", "title": "Home Dir" },
+          "workspace": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Workspace"
+          },
           "timezone": { "type": "string", "title": "Timezone" },
           "occupied_ports": {
             "items": { "type": "string" },
@@ -8994,49 +8970,35 @@
           "type": { "type": "string", "const": "text", "title": "Type" },
           "text": { "type": "string", "title": "Text" },
           "annotations": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/Annotations" },
-              { "type": "null" }
-            ]
+            "anyOf": [{ "$ref": "#/components/schemas/Annotations" }, { "type": "null" }]
           },
           "_meta": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Meta"
           }
         },
         "additionalProperties": true,
         "type": "object",
-        "required": ["type", "text"],
+        "required": [ "type", "text" ],
         "title": "TextContent",
         "description": "Text content for a message."
       },
       "TextResourceContents": {
         "properties": {
-          "uri": {
-            "type": "string",
-            "minLength": 1,
-            "format": "uri",
-            "title": "Uri"
-          },
+          "uri": { "type": "string", "minLength": 1, "format": "uri", "title": "Uri" },
           "mimeType": {
             "anyOf": [{ "type": "string" }, { "type": "null" }],
             "title": "Mimetype"
           },
           "_meta": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Meta"
           },
           "text": { "type": "string", "title": "Text" }
         },
         "additionalProperties": true,
         "type": "object",
-        "required": ["uri", "text"],
+        "required": [ "uri", "text" ],
         "title": "TextResourceContents",
         "description": "Text contents of a resource."
       },
@@ -9057,10 +9019,7 @@
             "title": "Inputschema"
           },
           "outputSchema": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Outputschema"
           },
           "icons": {
@@ -9074,28 +9033,19 @@
             "title": "Icons"
           },
           "annotations": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/ToolAnnotations" },
-              { "type": "null" }
-            ]
+            "anyOf": [{ "$ref": "#/components/schemas/ToolAnnotations" }, { "type": "null" }]
           },
           "_meta": {
-            "anyOf": [
-              { "additionalProperties": true, "type": "object" },
-              { "type": "null" }
-            ],
+            "anyOf": [{ "additionalProperties": true, "type": "object" }, { "type": "null" }],
             "title": "Meta"
           },
           "execution": {
-            "anyOf": [
-              { "$ref": "#/components/schemas/ToolExecution" },
-              { "type": "null" }
-            ]
+            "anyOf": [{ "$ref": "#/components/schemas/ToolExecution" }, { "type": "null" }]
           }
         },
         "additionalProperties": true,
         "type": "object",
-        "required": ["name", "inputSchema"],
+        "required": [ "name", "inputSchema" ],
         "title": "Tool",
         "description": "Definition for a tool the client can call."
       },
@@ -9142,7 +9092,7 @@
           }
         },
         "type": "object",
-        "required": ["category", "tools"],
+        "required": [ "category", "tools" ],
         "title": "ToolCategory",
         "description": "将可用工具按功能分类"
       },
@@ -9152,7 +9102,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": ["forbidden", "optional", "required"]
+                "enum": [ "forbidden", "optional", "required" ]
               },
               { "type": "null" }
             ],
@@ -9190,7 +9140,7 @@
           "delay": { "type": "number", "title": "Delay", "default": 0 }
         },
         "type": "object",
-        "required": ["text"],
+        "required": [ "text" ],
         "title": "TypeTextRequest"
       },
       "TypingAction": {
@@ -9210,7 +9160,7 @@
           }
         },
         "type": "object",
-        "required": ["text"],
+        "required": [ "text" ],
         "title": "TypingAction"
       },
       "UploadFileRequest": {
@@ -9223,7 +9173,7 @@
           }
         },
         "type": "object",
-        "required": ["selector", "files"],
+        "required": [ "selector", "files" ],
         "title": "UploadFileRequest"
       },
       "UtilConvertToMarkdownRequest": {
@@ -9235,14 +9185,16 @@
           }
         },
         "type": "object",
-        "required": ["uri"],
+        "required": [ "uri" ],
         "title": "UtilConvertToMarkdownRequest",
         "description": "convert to markdown request"
       },
       "ValidationError": {
         "properties": {
           "loc": {
-            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "items": {
+              "anyOf": [{ "type": "string" }, { "type": "integer" }]
+            },
             "type": "array",
             "title": "Location"
           },
@@ -9250,7 +9202,7 @@
           "type": { "type": "string", "title": "Error Type" }
         },
         "type": "object",
-        "required": ["loc", "msg", "type"],
+        "required": [ "loc", "msg", "type" ],
         "title": "ValidationError"
       },
       "WaitAction": {
@@ -9269,7 +9221,7 @@
           }
         },
         "type": "object",
-        "required": ["duration"],
+        "required": [ "duration" ],
         "title": "WaitAction"
       },
       "WaitRequest": {
@@ -9320,7 +9272,7 @@
           }
         },
         "type": "object",
-        "required": ["type"],
+        "required": [ "type" ],
         "title": "WaitRequest"
       }
     }

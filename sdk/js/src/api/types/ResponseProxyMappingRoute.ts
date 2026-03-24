@@ -2,17 +2,13 @@
 
 import type * as Sandbox from "../index.js";
 
-export interface SandboxResponse {
+export interface ResponseProxyMappingRoute {
     /** Whether the operation was successful */
     success?: boolean;
     /** Operation result message */
     message?: string;
     /** Data returned from the operation */
-    data?: unknown;
+    data?: Sandbox.ProxyMappingRoute;
     /** Context hint for AI agents (e.g. tab changes) */
     hint?: string;
-    home_dir: string;
-    workspace?: string;
-    version: string;
-    detail: Sandbox.SandboxDetail;
 }

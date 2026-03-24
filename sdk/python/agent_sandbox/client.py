@@ -22,6 +22,7 @@ if typing.TYPE_CHECKING:
     from .jupyter.client import AsyncJupyterClient, JupyterClient
     from .mcp.client import AsyncMcpClient, McpClient
     from .nodejs.client import AsyncNodejsClient, NodejsClient
+    from .proxy.client import AsyncProxyClient, ProxyClient
     from .sandbox.client import AsyncSandboxClient, SandboxClient
     from .shell.client import AsyncShellClient, ShellClient
     from .skills.client import AsyncSkillsClient, SkillsClient
@@ -97,6 +98,7 @@ class Sandbox:
         self._code: typing.Optional[CodeClient] = None
         self._util: typing.Optional[UtilClient] = None
         self._skills: typing.Optional[SkillsClient] = None
+        self._proxy: typing.Optional[ProxyClient] = None
         self._auth: typing.Optional[AuthClient] = None
 
     @property
@@ -236,6 +238,14 @@ class Sandbox:
         return self._skills
 
     @property
+    def proxy(self):
+        if self._proxy is None:
+            from .proxy.client import ProxyClient  # noqa: E402
+
+            self._proxy = ProxyClient(client_wrapper=self._client_wrapper)
+        return self._proxy
+
+    @property
     def auth(self):
         if self._auth is None:
             from .auth.client import AuthClient  # noqa: E402
@@ -313,6 +323,7 @@ class AsyncSandbox:
         self._code: typing.Optional[AsyncCodeClient] = None
         self._util: typing.Optional[AsyncUtilClient] = None
         self._skills: typing.Optional[AsyncSkillsClient] = None
+        self._proxy: typing.Optional[AsyncProxyClient] = None
         self._auth: typing.Optional[AsyncAuthClient] = None
 
     @property
@@ -450,6 +461,14 @@ class AsyncSandbox:
 
             self._skills = AsyncSkillsClient(client_wrapper=self._client_wrapper)
         return self._skills
+
+    @property
+    def proxy(self):
+        if self._proxy is None:
+            from .proxy.client import AsyncProxyClient  # noqa: E402
+
+            self._proxy = AsyncProxyClient(client_wrapper=self._client_wrapper)
+        return self._proxy
 
     @property
     def auth(self):

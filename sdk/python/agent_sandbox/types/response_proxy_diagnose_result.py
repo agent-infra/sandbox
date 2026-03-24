@@ -4,10 +4,10 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .sandbox_detail import SandboxDetail
+from .proxy_diagnose_result import ProxyDiagnoseResult
 
 
-class SandboxResponse(UniversalBaseModel):
+class ResponseProxyDiagnoseResult(UniversalBaseModel):
     success: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Whether the operation was successful
@@ -18,7 +18,7 @@ class SandboxResponse(UniversalBaseModel):
     Operation result message
     """
 
-    data: typing.Optional[typing.Optional[typing.Any]] = pydantic.Field(default=None)
+    data: typing.Optional[ProxyDiagnoseResult] = pydantic.Field(default=None)
     """
     Data returned from the operation
     """
@@ -27,11 +27,6 @@ class SandboxResponse(UniversalBaseModel):
     """
     Context hint for AI agents (e.g. tab changes)
     """
-
-    home_dir: str
-    workspace: typing.Optional[str] = None
-    version: str
-    detail: SandboxDetail
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

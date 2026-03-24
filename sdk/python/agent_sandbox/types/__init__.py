@@ -78,6 +78,9 @@ if typing.TYPE_CHECKING:
     from .node_js_session_response import NodeJsSessionResponse
     from .node_js_update_session_response import NodeJsUpdateSessionResponse
     from .press_action import PressAction
+    from .proxy_bypass_request import ProxyBypassRequest
+    from .proxy_diagnose_result import ProxyDiagnoseResult
+    from .proxy_mapping_route import ProxyMappingRoute
     from .resolution import Resolution
     from .resource import Resource
     from .resource_link import ResourceLink
@@ -115,6 +118,7 @@ if typing.TYPE_CHECKING:
     from .response_jupyter_info_response import ResponseJupyterInfoResponse
     from .response_list import ResponseList
     from .response_list_bash_session_info import ResponseListBashSessionInfo
+    from .response_list_proxy_mapping_route import ResponseListProxyMappingRoute
     from .response_list_str import ResponseListStr
     from .response_list_tools_result_model import ResponseListToolsResultModel
     from .response_node_js_create_session_response import ResponseNodeJsCreateSessionResponse
@@ -124,6 +128,8 @@ if typing.TYPE_CHECKING:
     from .response_node_js_session_list_response import ResponseNodeJsSessionListResponse
     from .response_node_js_session_response import ResponseNodeJsSessionResponse
     from .response_node_js_update_session_response import ResponseNodeJsUpdateSessionResponse
+    from .response_proxy_diagnose_result import ResponseProxyDiagnoseResult
+    from .response_proxy_mapping_route import ResponseProxyMappingRoute
     from .response_shell_command_result import ResponseShellCommandResult
     from .response_shell_create_session_response import ResponseShellCreateSessionResponse
     from .response_shell_kill_result import ResponseShellKillResult
@@ -243,6 +249,9 @@ _dynamic_imports: typing.Dict[str, str] = {
     "NodeJsSessionResponse": ".node_js_session_response",
     "NodeJsUpdateSessionResponse": ".node_js_update_session_response",
     "PressAction": ".press_action",
+    "ProxyBypassRequest": ".proxy_bypass_request",
+    "ProxyDiagnoseResult": ".proxy_diagnose_result",
+    "ProxyMappingRoute": ".proxy_mapping_route",
     "Resolution": ".resolution",
     "Resource": ".resource",
     "ResourceLink": ".resource_link",
@@ -278,6 +287,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseJupyterInfoResponse": ".response_jupyter_info_response",
     "ResponseList": ".response_list",
     "ResponseListBashSessionInfo": ".response_list_bash_session_info",
+    "ResponseListProxyMappingRoute": ".response_list_proxy_mapping_route",
     "ResponseListStr": ".response_list_str",
     "ResponseListToolsResultModel": ".response_list_tools_result_model",
     "ResponseNodeJsCreateSessionResponse": ".response_node_js_create_session_response",
@@ -287,6 +297,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ResponseNodeJsSessionListResponse": ".response_node_js_session_list_response",
     "ResponseNodeJsSessionResponse": ".response_node_js_session_response",
     "ResponseNodeJsUpdateSessionResponse": ".response_node_js_update_session_response",
+    "ResponseProxyDiagnoseResult": ".response_proxy_diagnose_result",
+    "ResponseProxyMappingRoute": ".response_proxy_mapping_route",
     "ResponseShellCommandResult": ".response_shell_command_result",
     "ResponseShellCreateSessionResponse": ".response_shell_create_session_response",
     "ResponseShellKillResult": ".response_shell_kill_result",
@@ -428,6 +440,9 @@ __all__ = [
     "NodeJsSessionResponse",
     "NodeJsUpdateSessionResponse",
     "PressAction",
+    "ProxyBypassRequest",
+    "ProxyDiagnoseResult",
+    "ProxyMappingRoute",
     "Resolution",
     "Resource",
     "ResourceLink",
@@ -463,6 +478,7 @@ __all__ = [
     "ResponseJupyterInfoResponse",
     "ResponseList",
     "ResponseListBashSessionInfo",
+    "ResponseListProxyMappingRoute",
     "ResponseListStr",
     "ResponseListToolsResultModel",
     "ResponseNodeJsCreateSessionResponse",
@@ -472,6 +488,8 @@ __all__ = [
     "ResponseNodeJsSessionListResponse",
     "ResponseNodeJsSessionResponse",
     "ResponseNodeJsUpdateSessionResponse",
+    "ResponseProxyDiagnoseResult",
+    "ResponseProxyMappingRoute",
     "ResponseShellCommandResult",
     "ResponseShellCreateSessionResponse",
     "ResponseShellKillResult",

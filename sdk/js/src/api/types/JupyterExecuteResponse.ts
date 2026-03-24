@@ -9,7 +9,7 @@ export interface JupyterExecuteResponse {
     /** Name of the kernel used for execution */
     kernel_name: string;
     /** Session ID for this kernel instance */
-    session_id: string;
+    session_id?: string;
     /** Execution status: ok, error, or timeout */
     status: string;
     /** Execution count from the kernel */

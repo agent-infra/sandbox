@@ -17,7 +17,7 @@ class JupyterExecuteResponse(UniversalBaseModel):
     Name of the kernel used for execution
     """
 
-    session_id: str = pydantic.Field()
+    session_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Session ID for this kernel instance
     """
