@@ -919,4 +919,433 @@ export class File_ {
             rawResponse: _response.rawResponse,
         };
     }
+
+    /**
+     * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.file.watchList()
+     */
+    public watchList(
+        requestOptions?: File_.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<unknown, Sandbox.file.watchList.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__watchList(requestOptions));
+    }
+
+    private async __watchList(
+        requestOptions?: File_.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<unknown, Sandbox.file.watchList.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/file/watch",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.watchList.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {Sandbox.CreateWatchRequest} request
+     * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.file.watchCreate({
+     *         path: "path"
+     *     })
+     */
+    public watchCreate(
+        request: Sandbox.CreateWatchRequest,
+        requestOptions?: File_.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<unknown, Sandbox.file.watchCreate.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__watchCreate(request, requestOptions));
+    }
+
+    private async __watchCreate(
+        request: Sandbox.CreateWatchRequest,
+        requestOptions?: File_.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<unknown, Sandbox.file.watchCreate.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/file/watch",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.watchCreate.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.watchCreate.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {string} watcherId
+     * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.file.watchEvents("watcher_id")
+     */
+    public watchEvents(
+        watcherId: string,
+        requestOptions?: File_.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<unknown, Sandbox.file.watchEvents.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__watchEvents(watcherId, requestOptions));
+    }
+
+    private async __watchEvents(
+        watcherId: string,
+        requestOptions?: File_.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<unknown, Sandbox.file.watchEvents.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                `v1/file/watch/${core.url.encodePathParam(watcherId)}/events`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.watchEvents.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.watchEvents.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {string} watcherId
+     * @param {Sandbox.PollRequest} request
+     * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.file.watchPoll("watcher_id")
+     */
+    public watchPoll(
+        watcherId: string,
+        request: Sandbox.PollRequest = {},
+        requestOptions?: File_.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<unknown, Sandbox.file.watchPoll.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__watchPoll(watcherId, request, requestOptions));
+    }
+
+    private async __watchPoll(
+        watcherId: string,
+        request: Sandbox.PollRequest = {},
+        requestOptions?: File_.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<unknown, Sandbox.file.watchPoll.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                `v1/file/watch/${core.url.encodePathParam(watcherId)}/poll`,
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.watchPoll.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.watchPoll.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {Sandbox.FileWatchWaitRequest} request
+     * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.file.watchWait({
+     *         path: "path"
+     *     })
+     */
+    public watchWait(
+        request: Sandbox.FileWatchWaitRequest,
+        requestOptions?: File_.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<unknown, Sandbox.file.watchWait.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__watchWait(request, requestOptions));
+    }
+
+    private async __watchWait(
+        request: Sandbox.FileWatchWaitRequest,
+        requestOptions?: File_.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<unknown, Sandbox.file.watchWait.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/file/watch/wait",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.watchWait.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.watchWait.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {string} watcherId
+     * @param {File_.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.file.watchStop("watcher_id")
+     */
+    public watchStop(
+        watcherId: string,
+        requestOptions?: File_.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<unknown, Sandbox.file.watchStop.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__watchStop(watcherId, requestOptions));
+    }
+
+    private async __watchStop(
+        watcherId: string,
+        requestOptions?: File_.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<unknown, Sandbox.file.watchStop.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                `v1/file/watch/${core.url.encodePathParam(watcherId)}`,
+            ),
+            method: "DELETE",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.watchStop.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.file.watchStop.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
 }

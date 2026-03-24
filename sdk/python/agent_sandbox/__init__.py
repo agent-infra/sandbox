@@ -231,8 +231,8 @@ if typing.TYPE_CHECKING:
     )
     from .browser_page import NavigateRequestWaitUntil, RecordRequestAction, Type
     from .client import AsyncSandbox, Sandbox
-    from .display import RecordAction
-    from .file import Command, StrReplaceEditorRequestReplaceMode
+    from .display import DisplayAction
+    from .file import Command, FileWatchWaitRequestEventTypesItem, StrReplaceEditorRequestReplaceMode
 _dynamic_imports: typing.Dict[str, str] = {
     "Action": ".browser",
     "ActionData": ".types",
@@ -280,6 +280,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "CommandStatus": ".types",
     "ConsoleRecord": ".types",
     "DependencyCommandResult": ".types",
+    "DisplayAction": ".display",
     "DisplayRecordResult": ".types",
     "DoubleClickAction": ".types",
     "DragRelAction": ".types",
@@ -295,6 +296,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "FileReplaceResult": ".types",
     "FileSearchResult": ".types",
     "FileUploadResult": ".types",
+    "FileWatchWaitRequestEventTypesItem": ".file",
     "FileWriteResult": ".types",
     "GlobFileInfo": ".types",
     "GrepMatch": ".types",
@@ -331,7 +333,6 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ProxyDiagnoseResult": ".types",
     "ProxyMappingRoute": ".types",
     "ProxyUpstreamInfo": ".types",
-    "RecordAction": ".display",
     "RecordRequestAction": ".browser_page",
     "Resolution": ".types",
     "Resource": ".types",
@@ -528,6 +529,7 @@ __all__ = [
     "CommandStatus",
     "ConsoleRecord",
     "DependencyCommandResult",
+    "DisplayAction",
     "DisplayRecordResult",
     "DoubleClickAction",
     "DragRelAction",
@@ -543,6 +545,7 @@ __all__ = [
     "FileReplaceResult",
     "FileSearchResult",
     "FileUploadResult",
+    "FileWatchWaitRequestEventTypesItem",
     "FileWriteResult",
     "GlobFileInfo",
     "GrepMatch",
@@ -579,7 +582,6 @@ __all__ = [
     "ProxyDiagnoseResult",
     "ProxyMappingRoute",
     "ProxyUpstreamInfo",
-    "RecordAction",
     "RecordRequestAction",
     "Resolution",
     "Resource",

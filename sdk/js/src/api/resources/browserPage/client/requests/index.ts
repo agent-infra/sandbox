@@ -1,6 +1,7 @@
 export type { BrowserPageGetConsoleRequest } from "./BrowserPageGetConsoleRequest.js";
 export type { BrowserPageGetHtmlRequest } from "./BrowserPageGetHtmlRequest.js";
 export type { BrowserPageScreenshotRequest } from "./BrowserPageScreenshotRequest.js";
+export type { BrowserWaitRequest } from "./BrowserWaitRequest.js";
 export type { ClickRequest } from "./ClickRequest.js";
 export type { EvaluateRequest } from "./EvaluateRequest.js";
 export type { ExportConsoleLogsRequest } from "./ExportConsoleLogsRequest.js";
@@ -18,4 +19,3 @@ export type { ScrollToRequest } from "./ScrollToRequest.js";
 export type { SelectOptionRequest } from "./SelectOptionRequest.js";
 export type { TypeTextRequest } from "./TypeTextRequest.js";
 export type { UploadFileRequest } from "./UploadFileRequest.js";
-export type { WaitRequest } from "./WaitRequest.js";

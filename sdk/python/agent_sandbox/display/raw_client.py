@@ -11,7 +11,7 @@ from ..core.request_options import RequestOptions
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.http_validation_error import HttpValidationError
 from ..types.response_display_record_result import ResponseDisplayRecordResult
-from .types.record_action import RecordAction
+from .types.display_action import DisplayAction
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -24,7 +24,7 @@ class RawDisplayClient:
     def record(
         self,
         *,
-        action: RecordAction,
+        action: DisplayAction,
         save_path: typing.Optional[str] = OMIT,
         fps: typing.Optional[int] = OMIT,
         crf: typing.Optional[int] = OMIT,
@@ -41,7 +41,7 @@ class RawDisplayClient:
 
         Parameters
         ----------
-        action : RecordAction
+        action : DisplayAction
             Recording action: start, stop, or status
 
         save_path : typing.Optional[str]
@@ -122,7 +122,7 @@ class AsyncRawDisplayClient:
     async def record(
         self,
         *,
-        action: RecordAction,
+        action: DisplayAction,
         save_path: typing.Optional[str] = OMIT,
         fps: typing.Optional[int] = OMIT,
         crf: typing.Optional[int] = OMIT,
@@ -139,7 +139,7 @@ class AsyncRawDisplayClient:
 
         Parameters
         ----------
-        action : RecordAction
+        action : DisplayAction
             Recording action: start, stop, or status
 
         save_path : typing.Optional[str]

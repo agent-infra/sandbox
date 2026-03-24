@@ -3,7 +3,7 @@
   "info": {
     "title": "FastAPI",
     "description": "\n- Browser\n    - CDP: [/cdp/json/version](/cdp/json/version)\n- Jupyter\n    - Notebook: [/jupyter](/jupyter)\n- MCP\n    - Streamable HTTP: [/mcp](/mcp) or [/v1/mcp](/v1/mcp)\n",
-    "version": "1.6.3"
+    "version": "1.7.0"
   },
   "paths": {
     "/v1/sandbox": {
@@ -2780,7 +2780,7 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/WaitRequest" }
+              "schema": { "$ref": "#/components/schemas/app__models__browser_sdk__WaitRequest" }
             }
           },
           "required": true
@@ -4013,6 +4013,206 @@
         "x-fern-sdk-method-name": "record"
       }
     },
+    "/v1/file/watch": {
+      "get": {
+        "tags": [ "file-watch" ],
+        "summary": "List Watches",
+        "operationId": "list_watches_v1_file_watch_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "watch_list"
+      },
+      "post": {
+        "tags": [ "file-watch" ],
+        "summary": "Create Watch",
+        "operationId": "create_watch_v1_file_watch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateWatchRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "watch_create"
+      }
+    },
+    "/v1/file/watch/{watcher_id}/events": {
+      "get": {
+        "tags": [ "file-watch" ],
+        "summary": "Watch Events",
+        "operationId": "watch_events_v1_file_watch__watcher_id__events_get",
+        "parameters": [
+          {
+            "name": "watcher_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Watcher Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "watch_events"
+      }
+    },
+    "/v1/file/watch/{watcher_id}/poll": {
+      "post": {
+        "tags": [ "file-watch" ],
+        "summary": "Poll Events",
+        "operationId": "poll_events_v1_file_watch__watcher_id__poll_post",
+        "parameters": [
+          {
+            "name": "watcher_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Watcher Id" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PollRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "watch_poll"
+      }
+    },
+    "/v1/file/watch/wait": {
+      "post": {
+        "tags": [ "file-watch" ],
+        "summary": "Wait For File",
+        "operationId": "wait_for_file_v1_file_watch_wait_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/app__schemas__file_watch__WaitRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "watch_wait"
+      }
+    },
+    "/v1/file/watch/{watcher_id}": {
+      "delete": {
+        "tags": [ "file-watch" ],
+        "summary": "Stop Watch",
+        "operationId": "stop_watch_v1_file_watch__watcher_id__delete",
+        "parameters": [
+          {
+            "name": "watcher_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Watcher Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "x-fern-sdk-group-name": "file",
+        "x-fern-sdk-method-name": "watch_stop"
+      }
+    },
     "/tickets": {
       "post": {
         "tags": [ "auth" ],
@@ -4888,6 +5088,52 @@
         },
         "type": "object",
         "title": "CreatePageRequest"
+      },
+      "CreateWatchRequest": {
+        "properties": {
+          "path": { "type": "string", "title": "Path", "description": "监听目录路径" },
+          "recursive": {
+            "type": "boolean",
+            "title": "Recursive",
+            "description": "是否递归子目录",
+            "default": true
+          },
+          "exclude": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Exclude",
+            "description": "排除的目录/glob 模式",
+            "default": [
+              ".git",
+              "node_modules",
+              "__pycache__",
+              ".venv",
+              "*.pyc",
+              "*.pyo",
+              ".DS_Store",
+              "*.swp",
+              "*.swo"
+            ]
+          },
+          "debounce": {
+            "type": "integer",
+            "maximum": 5000.0,
+            "minimum": 50.0,
+            "title": "Debounce",
+            "description": "去抖动窗口(ms)",
+            "default": 300
+          },
+          "include_patterns": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Include Patterns",
+            "description": "glob 过滤，空=全部通过",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [ "path" ],
+        "title": "CreateWatchRequest"
       },
       "DependencyCommandResult": {
         "properties": {
@@ -6711,6 +6957,35 @@
         "type": "object",
         "required": [ "updated", "session" ],
         "title": "NodeJSUpdateSessionResponse"
+      },
+      "PollRequest": {
+        "properties": {
+          "since": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Since",
+            "description": "上次游标",
+            "default": 0
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "description": "最多返回条数",
+            "default": 100
+          },
+          "timeout": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 0.0,
+            "title": "Timeout",
+            "description": "长轮询等待秒数，0=立即返回",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "PollRequest"
       },
       "PressAction": {
         "properties": {
@@ -9893,7 +10168,7 @@
         "required": [ "duration" ],
         "title": "WaitAction"
       },
-      "WaitRequest": {
+      "app__models__browser_sdk__WaitRequest": {
         "properties": {
           "type": {
             "type": "string",
@@ -9942,6 +10217,32 @@
         },
         "type": "object",
         "required": [ "type" ],
+        "title": "WaitRequest"
+      },
+      "app__schemas__file_watch__WaitRequest": {
+        "properties": {
+          "path": { "type": "string", "title": "Path", "description": "等待的文件路径（精确匹配）" },
+          "timeout": {
+            "type": "integer",
+            "maximum": 300.0,
+            "minimum": 1.0,
+            "title": "Timeout",
+            "description": "最大等待秒数",
+            "default": 30
+          },
+          "event_types": {
+            "items": {
+              "type": "string",
+              "enum": [ "create", "write", "remove", "rename", "chmod" ]
+            },
+            "type": "array",
+            "title": "Event Types",
+            "description": "关注的事件类型",
+            "default": [ "create", "write", "remove", "rename", "chmod" ]
+          }
+        },
+        "type": "object",
+        "required": [ "path" ],
         "title": "WaitRequest"
       }
     }

@@ -10,7 +10,7 @@ import type * as Sandbox from "../../../../index.js";
  */
 export interface DisplayRecordRequest {
     /** Recording action: start, stop, or status */
-    action: Sandbox.RecordAction;
+    action: Sandbox.DisplayAction;
     /** Output file path (default: /tmp/recordings/recording_{timestamp}.mp4) */
     save_path?: string;
     /** Frames per second */
