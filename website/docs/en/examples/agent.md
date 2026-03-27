@@ -535,7 +535,7 @@ services:
   aio-sandbox:
     image: ghcr.io/agent-infra/sandbox:latest
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       - sandbox_data:/workspace
     environment:

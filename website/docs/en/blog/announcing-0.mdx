@@ -100,10 +100,10 @@ One-sentence introduction: AIO Sandbox integrates **browser**, **code execution*
 Prerequisites: Install [Docker](https://www.docker.com/get-started/), then start locally with one command:
 
 ```bash
-docker run --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --rm -it -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 
 # For faster access in China
-# docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+# docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
 ![](/images/blog/announcing-0/11.png)

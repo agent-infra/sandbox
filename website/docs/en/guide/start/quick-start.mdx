@@ -15,7 +15,7 @@ Get up and running with AIO Sandbox in just a few minutes.
 
 ```bash
 # Pull and run the latest version
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 ### Option 2: For Users in Mainland China
@@ -23,7 +23,7 @@ docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent
 Use our China mirror for faster downloads:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
 ### Option 3: Use a specific version
@@ -31,16 +31,18 @@ docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-pu
 Format `agent-infra/sandbox:${version}`, for example, to use version 1.0.0.150:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:1.0.0.150
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:1.0.0.150
 
 # or users in mainland China
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.150
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.150
 ```
 
-> If port 8080 is occupied, map to a different port:
+> These examples intentionally bind the host side to `127.0.0.1` because the sandbox listens on `0.0.0.0` inside the container. If you are deploying on a cloud VM or Kubernetes, keep `8080` private and publish it through a reverse proxy or Ingress. See [Cloud Deployment](/guide/start/cloud-deployment).
+
+> If port 8080 is occupied, map to a different loopback port:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 3000:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:3000:8080 ghcr.io/agent-infra/sandbox:latest
 # Then access via http://localhost:3000
 ```
 

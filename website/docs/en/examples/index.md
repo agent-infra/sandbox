@@ -30,7 +30,7 @@ services:
   aio-sandbox:
     image: ghcr.io/agent-infra/sandbox:latest
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       - sandbox_data:/workspace
     restart: unless-stopped
@@ -78,8 +78,10 @@ spec:
   ports:
   - port: 80
     targetPort: 8080
-  type: LoadBalancer
+  type: ClusterIP
 ```
+
+Publish this `ClusterIP` service through an Ingress or external reverse proxy. Do not expose the sandbox's raw `8080` listener directly on the public internet.
 
 ## SDK Examples
 
