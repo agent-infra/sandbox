@@ -450,6 +450,58 @@ if response.choices[0].message.tool_calls:
     print(result['outputs'][0]['text'])
 ```
 
+### MiniMax Integration
+
+MiniMax provides an OpenAI-compatible API, so you can use the same `openai` SDK with a different `base_url`:
+
+```python
+from openai import OpenAI
+from agent_sandbox import Sandbox
+import json
+
+client = OpenAI(
+    api_key="your_minimax_api_key",
+    base_url="https://api.minimax.io/v1",
+)
+sandbox = Sandbox(base_url="http://localhost:8080")
+
+
+def run_code(code, lang="python"):
+    if lang == "python":
+        return sandbox.jupyter.execute_code(code=code).data
+    return sandbox.nodejs.execute_code(code=code).data
+
+
+response = client.chat.completions.create(
+    model="MiniMax-M2.7",
+    messages=[{"role": "user", "content": "calculate 1+1"}],
+    tools=[
+        {
+            "type": "function",
+            "function": {
+                "name": "run_code",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "code": {"type": "string"},
+                        "lang": {"type": "string"},
+                    },
+                },
+            },
+        }
+    ],
+    temperature=0.01,  # MiniMax requires temperature > 0
+)
+
+
+if response.choices[0].message.tool_calls:
+    args = json.loads(response.choices[0].message.tool_calls[0].function.arguments)
+    result = run_code(**args)
+    print(result.outputs[0].text)
+```
+
+See the full [minimax-integration example](examples/minimax-integration) for more details.
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
