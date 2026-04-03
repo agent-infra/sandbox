@@ -56,6 +56,7 @@ class AIOSandboxBackend(BaseSandbox):
         default_timeout: float = 120,
         hard_timeout: float = 600,
         no_change_timeout: int = 300,
+        session_id: str = "",
     ):
         self.client = client
         self.working_dir = working_dir
@@ -66,6 +67,7 @@ class AIOSandboxBackend(BaseSandbox):
         # Create a persistent shell session for execute/grep
         try:
             session_resp = self.client.shell.create_session(
+                id=session_id,
                 exec_dir=working_dir,
                 no_change_timeout=no_change_timeout,
             )
