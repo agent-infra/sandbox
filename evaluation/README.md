@@ -61,6 +61,22 @@ uv run main.py --eval collaboration
 uv run main.py --eval workflow
 ```
 
+### Use OpenAI-Compatible Providers
+
+The evaluation framework also supports standard OpenAI and compatible APIs
+(e.g. [MiniMax](https://www.minimaxi.com/)) via the `--agent openai` flag:
+
+```bash
+# Standard OpenAI
+uv run main.py --agent openai --openai-model gpt-4
+
+# MiniMax (OpenAI-compatible)
+export OPENAI_API_KEY="your_minimax_api_key"
+uv run main.py --agent openai \
+    --openai-base-url https://api.minimax.io/v1 \
+    --openai-model MiniMax-M2.7
+```
+
 ### Available Categories
 
 | Category | Description |
@@ -83,7 +99,7 @@ uv run main.py --eval workflow
 ```
 evaluation/
 ├── main.py                 # Main entry point and orchestration
-├── agent_loop.py           # Agent loop implementation (Azure OpenAI, etc.)
+├── agent_loop.py           # Agent loop implementations (Azure OpenAI, OpenAI-compatible, etc.)
 ├── dataset_parser.py       # XML dataset parser
 ├── .env.example            # Environment configuration template
 ├── pyproject.toml          # Project dependencies
@@ -130,3 +146,4 @@ See [LICENSE](../LICENSE) in the repository root.
 - [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
 - [Anthropic: Writing Tools for Agents](https://www.anthropic.com/engineering/writing-tools-for-agents)
 - [Azure OpenAI Documentation](https://learn.microsoft.com/azure/ai-services/openai/)
+- [MiniMax API Documentation](https://platform.minimaxi.com/document/introduction)

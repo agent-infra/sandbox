@@ -1,11 +1,17 @@
 """
-Tool Evaluation Framework using Azure OpenAI and MCP Streamable HTTP
+Tool Evaluation Framework using LLM backends and MCP Streamable HTTP
+
+Supports multiple LLM backends:
+- Azure OpenAI (default)
+- OpenAI and compatible APIs (e.g. MiniMax)
 
 Run from tool_evaluation directory:
-    uv run main.py                    # Run ALL evaluation files serially
-    uv run main.py --eval basic       # Run basic evaluation only
-    uv run main.py --eval browser     # Run browser evaluation only
-    uv run main.py --eval collaboration # Run collaboration evaluation only
+    uv run main.py                            # Run ALL evaluation files serially (Azure OpenAI)
+    uv run main.py --eval basic               # Run basic evaluation only
+    uv run main.py --agent openai             # Use standard OpenAI
+    uv run main.py --agent openai \\
+        --openai-base-url https://api.minimax.io/v1 \\
+        --openai-model MiniMax-M2.7           # Use MiniMax via OpenAI-compatible API
 """
 
 import argparse
@@ -23,7 +29,7 @@ from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
 from dotenv import load_dotenv
 
-from agent_loop import AzureOpenAIAgentLoop, BaseAgentLoop
+from agent_loop import AzureOpenAIAgentLoop, OpenAIAgentLoop, BaseAgentLoop
 from dataset_parser import XMLDatasetParser
 
 load_dotenv()
@@ -469,6 +475,9 @@ async def upload_test_files_to_sandbox(eval_file: Path) -> bool:
 async def run_evaluation(
     eval_path: str,
     mcp_server_url: str = None,
+    agent_type: str = "azure",
+    openai_base_url: str = None,
+    openai_model: str = None,
 ) -> str:
     """
     Run evaluation with tools from MCP server.
@@ -476,6 +485,9 @@ async def run_evaluation(
     Args:
         eval_path: Path to XML evaluation file
         mcp_server_url: URL of MCP server (optional)
+        agent_type: Agent backend to use — ``"azure"`` (default) or ``"openai"``
+        openai_base_url: Base URL override for OpenAI-compatible providers (e.g. MiniMax)
+        openai_model: Model name override for OpenAI-compatible providers
 
     Returns:
         Markdown evaluation report
@@ -502,8 +514,15 @@ async def run_evaluation(
         print(f"✅ Retrieved {len(tools)} tools from MCP server")
 
     # Initialize agent loop
-    # TODO: Support selecting agent type via config/CLI args
-    agent = AzureOpenAIAgentLoop(mcp_session=_mcp_session)
+    if agent_type == "openai":
+        agent_kwargs: Dict[str, Any] = {"mcp_session": _mcp_session}
+        if openai_base_url:
+            agent_kwargs["base_url"] = openai_base_url
+        if openai_model:
+            agent_kwargs["model"] = openai_model
+        agent = OpenAIAgentLoop(**agent_kwargs)
+    else:
+        agent = AzureOpenAIAgentLoop(mcp_session=_mcp_session)
     print(f"🤖 Using agent: {agent.__class__.__name__}")
 
     try:
@@ -643,6 +662,25 @@ async def main():
         default=None,
         help="Evaluation file name (e.g., 'basic', 'browser'). If not specified, runs all evaluation files serially.",
     )
+    parser.add_argument(
+        "--agent",
+        type=str,
+        choices=["azure", "openai"],
+        default="azure",
+        help="Agent backend to use: 'azure' for Azure OpenAI (default), 'openai' for standard OpenAI / compatible APIs (e.g. MiniMax).",
+    )
+    parser.add_argument(
+        "--openai-base-url",
+        type=str,
+        default=None,
+        help="Base URL for OpenAI-compatible API (e.g. https://api.minimax.io/v1 for MiniMax). Only used with --agent openai.",
+    )
+    parser.add_argument(
+        "--openai-model",
+        type=str,
+        default=None,
+        help="Model name for OpenAI-compatible API (e.g. MiniMax-M2.7). Only used with --agent openai.",
+    )
     args = parser.parse_args()
 
     # Determine which files to run
@@ -690,6 +728,9 @@ async def main():
             report = await run_evaluation(
                 eval_path=str(eval_file),
                 mcp_server_url=mcp_url,
+                agent_type=args.agent,
+                openai_base_url=args.openai_base_url,
+                openai_model=args.openai_model,
             )
 
             # Generate output filename (will overwrite if exists)

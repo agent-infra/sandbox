@@ -1,18 +1,24 @@
 """
 Agent Loop Module
 
-Provides different agent loop implementations (Azure OpenAI, LangGraph, etc.).
+Provides different agent loop implementations (Azure OpenAI, OpenAI-compatible, LangGraph, etc.).
 Follows the strategy pattern for easy runtime switching.
+
+Supported backends:
+- Azure OpenAI (AzureOpenAIAgentLoop)
+- OpenAI and compatible APIs such as MiniMax (OpenAIAgentLoop)
+- LangGraph (LangGraphAgentLoop) — placeholder
 """
 
 import json
 import os
+import re
 import time
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple
 
 from mcp import ClientSession
-from openai import AzureOpenAI
+from openai import AzureOpenAI, OpenAI
 
 
 # ============================================================================
@@ -306,6 +312,243 @@ class AzureOpenAIAgentLoop(BaseAgentLoop):
                 )
 
         # If we hit max iterations, return what we have
+        return messages[-1].get("content", ""), tool_metrics
+
+
+# ============================================================================
+# OpenAI-Compatible Agent Loop
+# ============================================================================
+
+# Models that require temperature > 0
+_TEMPERATURE_POSITIVE_MODELS = re.compile(r"MiniMax", re.IGNORECASE)
+
+# Models that may wrap content in <think>...</think> tags
+_THINKING_TAG_MODELS = re.compile(r"MiniMax-M2", re.IGNORECASE)
+
+
+class OpenAIAgentLoop(BaseAgentLoop):
+    """
+    Agent loop implementation using the standard OpenAI SDK.
+
+    Works with OpenAI and any OpenAI-compatible API by setting ``base_url``.
+    For example, to use MiniMax::
+
+        agent = OpenAIAgentLoop(
+            mcp_session=session,
+            api_key=os.getenv("MINIMAX_API_KEY"),
+            base_url="https://api.minimax.io/v1",
+            model="MiniMax-M2.7",
+        )
+    """
+
+    def __init__(
+        self,
+        mcp_session: ClientSession,
+        system_prompt: str = DEFAULT_SYSTEM_PROMPT,
+        api_key: str = None,
+        base_url: str = None,
+        model: str = None,
+        max_iterations: int = 50,
+        temperature: float = None,
+    ):
+        """
+        Initialize OpenAI-compatible agent loop.
+
+        Args:
+            mcp_session: MCP client session for tool execution
+            system_prompt: System prompt for the agent
+            api_key: API key (default: ``OPENAI_API_KEY`` env var)
+            base_url: Base URL for the API. Set to
+                ``https://api.minimax.io/v1`` for MiniMax, or leave as
+                ``None`` for official OpenAI.
+            model: Model name (default: ``OPENAI_MODEL`` env var or ``gpt-4``)
+            max_iterations: Maximum number of reasoning iterations
+            temperature: Sampling temperature. Auto-clamped for providers
+                that require ``temperature > 0`` (e.g. MiniMax).
+        """
+        super().__init__(mcp_session, system_prompt)
+
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self.base_url = base_url or os.getenv("OPENAI_BASE_URL")
+        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4")
+        self.max_iterations = max_iterations
+        self.temperature = temperature
+
+        client_kwargs: Dict[str, Any] = {}
+        if self.api_key:
+            client_kwargs["api_key"] = self.api_key
+        if self.base_url:
+            client_kwargs["base_url"] = self.base_url
+
+        self.client = OpenAI(**client_kwargs)
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _effective_temperature(self) -> float | None:
+        """Return temperature, clamped if the model requires it."""
+        temp = self.temperature
+        if temp is not None and _TEMPERATURE_POSITIVE_MODELS.search(self.model):
+            temp = max(temp, 0.01)
+        return temp
+
+    @staticmethod
+    def _strip_thinking_tags(text: str) -> str:
+        """Remove ``<think>…</think>`` blocks some models emit."""
+        return re.sub(r"<think>[\s\S]*?</think>\s*", "", text)
+
+    # ------------------------------------------------------------------
+    # Run
+    # ------------------------------------------------------------------
+
+    async def run(
+        self,
+        prompt: str,
+        tools: List[Dict[str, Any]] = None,
+    ) -> Tuple[str, Dict[str, Any]]:
+        """
+        Execute the agent loop.
+
+        Args:
+            prompt: User prompt/task
+            tools: List of tool definitions in OpenAI format
+
+        Returns:
+            Tuple of (response_text, tool_metrics)
+        """
+        messages = [
+            {"role": "system", "content": self.system_prompt},
+            {"role": "user", "content": prompt},
+        ]
+
+        tool_metrics: Dict[str, Any] = {}
+        iteration = 0
+        strip_think = bool(_THINKING_TAG_MODELS.search(self.model))
+
+        while iteration < self.max_iterations:
+            iteration += 1
+
+            kwargs: Dict[str, Any] = {
+                "model": self.model,
+                "messages": messages,
+                "max_tokens": 4096,
+            }
+
+            temp = self._effective_temperature()
+            if temp is not None:
+                kwargs["temperature"] = temp
+
+            if tools:
+                kwargs["tools"] = tools
+                kwargs["tool_choice"] = "auto"
+
+            response = self.client.chat.completions.create(**kwargs)
+            message = response.choices[0].message
+
+            content = message.content or ""
+            if strip_think:
+                content = self._strip_thinking_tags(content)
+
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": content,
+                    "tool_calls": message.tool_calls
+                    if hasattr(message, "tool_calls") and message.tool_calls
+                    else None,
+                }
+            )
+
+            if not message.tool_calls:
+                final_content = content
+                print(f"\n🔍 DEBUG: Final LLM response (first 1000 chars):")
+                print(f"{final_content[:1000]}")
+                if len(final_content) > 1000:
+                    print(
+                        f"... (truncated, total length: {len(final_content)} chars)"
+                    )
+                print()
+
+                missing_tags = []
+                if "<response>" not in final_content:
+                    missing_tags.append("<response>")
+                if "<summary>" not in final_content:
+                    missing_tags.append("<summary>")
+                if "<feedback>" not in final_content:
+                    missing_tags.append("<feedback>")
+
+                if missing_tags:
+                    print(
+                        f"⚠️  LLM response missing required tags: {', '.join(missing_tags)}"
+                    )
+                    print(
+                        f"   Forcing retry (iteration {iteration}/{self.max_iterations})..."
+                    )
+                    messages.append(
+                        {
+                            "role": "user",
+                            "content": f"ERROR: Your response is missing required tags: {', '.join(missing_tags)}. You MUST provide ALL THREE tags: <summary>, <feedback>, and <response>. Please provide your complete response now with all three tags.",
+                        }
+                    )
+                    continue
+
+                return final_content, tool_metrics
+
+            for tool_call in message.tool_calls:
+                tool_name = tool_call.function.name
+                try:
+                    tool_args = json.loads(tool_call.function.arguments)
+                except json.JSONDecodeError as e:
+                    print(f"❌ JSON decode error for tool {tool_name}")
+                    print(f"   Arguments: {tool_call.function.arguments[:200]}...")
+                    print(f"   Error: {e}")
+                    raise
+
+                print(f"🔧 Executing tool: {tool_name}")
+                print(f"   Arguments: {json.dumps(tool_args, ensure_ascii=False)}")
+                tool_start_ts = time.time()
+
+                try:
+                    tool_result = await self.mcp_session.call_tool(tool_name, tool_args)
+                    tool_duration = time.time() - tool_start_ts
+                    print(f"✅ Tool {tool_name} completed in {tool_duration:.2f}s")
+                except Exception as e:
+                    tool_duration = time.time() - tool_start_ts
+                    error_type = type(e).__name__
+                    error_msg = str(e)
+                    print(f"❌ Tool {tool_name} failed after {tool_duration:.2f}s")
+                    print(f"   Error: {error_type}: {error_msg}")
+                    tool_result = {
+                        "isError": True,
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": f"ERROR: Tool execution failed\nType: {error_type}\nMessage: {error_msg}\n\nThis tool is not available or encountered an error. Please try a different approach.",
+                            }
+                        ],
+                    }
+
+                if tool_name not in tool_metrics:
+                    tool_metrics[tool_name] = {"count": 0, "durations": [], "calls": []}
+                tool_metrics[tool_name]["count"] += 1
+                tool_metrics[tool_name]["durations"].append(tool_duration)
+                tool_metrics[tool_name]["calls"].append(
+                    {
+                        "args": tool_args,
+                        "duration": tool_duration,
+                        "timestamp": tool_start_ts,
+                    }
+                )
+
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "content": str(tool_result),
+                    }
+                )
+
         return messages[-1].get("content", ""), tool_metrics
 
 

@@ -12,6 +12,7 @@ This directory contains examples demonstrating various use cases and integration
 - [playwright-integration](./playwright-integration) - Browser automation with Playwright
 - [openai-integration](./openai-integration) - OpenAI function calling with code execution
 - [ag2-integration](./ag2-integration) - AG2 multi-agent workflow with sandbox-backed code execution
+- [minimax-integration](./minimax-integration) - MiniMax function calling with code execution (OpenAI-compatible)
 - [langgraph-deepagents-integration](./langgraph-deepagents-integration) - LangGraph deep agent with MCP tools integration
 - [code-execute](./code-execute) - Execute code in sandbox (Jupyter and Node.js)
 
