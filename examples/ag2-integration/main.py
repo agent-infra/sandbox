@@ -16,15 +16,53 @@ from autogen import (
     LLMConfig,
     UserProxyAgent,
 )
+from dotenv import load_dotenv
+
+
+def _get_sandbox_url() -> str:
+    return (
+        os.getenv("SANDBOX_BASE_URL")
+        or os.getenv("SANDBOX_URL")
+        or "http://localhost:8080"
+    )
+
+
+def _require_openai_api_key() -> str:
+    api_key = os.getenv("OPENAI_API_KEY")
+    if api_key:
+        return api_key
+    raise RuntimeError(
+        "OPENAI_API_KEY is required. Copy .env.example to .env and set it "
+        "before running this example."
+    )
+
+
+def _extract_file_content(result: object) -> str:
+    if isinstance(result, str):
+        return result
+
+    data = getattr(result, "data", None)
+    if data is None:
+        return str(result)
+
+    content = getattr(data, "content", None)
+    if content is not None:
+        return str(content)
+
+    return str(data)
 
 
 def main() -> None:
+    load_dotenv()
+
     # ---------------------------------------------------------------------------
     # 1. Sandbox setup — connect and create persistent sessions
     # ---------------------------------------------------------------------------
-    SANDBOX_URL = os.getenv("SANDBOX_URL", "http://localhost:8080")
+    sandbox_url = _get_sandbox_url()
+    openai_api_key = _require_openai_api_key()
+    openai_model_id = os.getenv("OPENAI_MODEL_ID", "gpt-4o-mini")
 
-    sandbox = Sandbox(base_url=SANDBOX_URL)
+    sandbox = Sandbox(base_url=sandbox_url)
 
     jupyter_session = sandbox.jupyter.create_session(kernel_name="python3")
     shell_session = sandbox.shell.create_session(id=str(uuid.uuid4()))  # id is required
@@ -32,7 +70,7 @@ def main() -> None:
     jupyter_session_id = jupyter_session.data.session_id
     shell_session_id = shell_session.data.session_id
 
-    print(f"✓ Sandbox connected: {SANDBOX_URL}")
+    print(f"✓ Sandbox connected: {sandbox_url}")
     print(f"✓ Jupyter session: {jupyter_session_id}")
     print(f"✓ Shell session:   {shell_session_id}")
 
@@ -41,8 +79,8 @@ def main() -> None:
     # ---------------------------------------------------------------------------
     llm_config = LLMConfig(
         {
-            "model": "gpt-4o-mini",
-            "api_key": os.getenv("OPENAI_API_KEY"),
+            "model": openai_model_id,
+            "api_key": openai_api_key,
             "api_type": "openai",
         }
     )
@@ -152,12 +190,7 @@ def main() -> None:
     def read_file(path: str) -> str:
         try:
             result = sandbox.file.read_file(file=path)  # verified: param is 'file=', not 'path='
-            if isinstance(result, str):
-                return result
-            data = getattr(result, "data", None)
-            if data is not None:
-                return str(data)
-            return str(result)
+            return _extract_file_content(result)
         except Exception as exc:  # noqa: BLE001
             return f"Read error: {exc}"
 

@@ -11,6 +11,7 @@ This directory contains examples demonstrating various use cases and integration
 - [browser-use-integration](./browser-use-integration) - AI-driven browser automation
 - [playwright-integration](./playwright-integration) - Browser automation with Playwright
 - [openai-integration](./openai-integration) - OpenAI function calling with code execution
+- [ag2-integration](./ag2-integration) - AG2 multi-agent workflow with sandbox-backed code execution
 - [langgraph-deepagents-integration](./langgraph-deepagents-integration) - LangGraph deep agent with MCP tools integration
 - [code-execute](./code-execute) - Execute code in sandbox (Jupyter and Node.js)
 

@@ -1,0 +1,14 @@
+[project]
+name = "ag2-integration"
+version = "0.1.0"
+description = "AG2 multi-agent integration example for Agent Sandbox"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "agent-sandbox",
+    "ag2[openai]>=0.11.4,<1.0",
+    "python-dotenv>=1.0.0",
+]
+
+[tool.uv.sources]
+agent-sandbox = { path = "../../sdk/python", editable = true }
