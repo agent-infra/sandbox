@@ -30,11 +30,17 @@ async def site_to_markdown():
             await page.screenshot(full_page=False, type='png')
         ).decode('utf-8')
 
+    # Write HTML to a temp file in sandbox to avoid code injection via triple-quote breakage
+    import tempfile
+    html_b64 = base64.b64encode(html.encode("utf-8")).decode("utf-8")
+
     # Jupyter: Run code in sandbox to convert html to markdown
     c.jupyter.execute_code(
         code=f"""
+import base64
 from markdownify import markdownify
-html = '''{html}'''
+
+html = base64.b64decode("{html_b64}").decode("utf-8")
 screenshot_b64 = "{screenshot_b64}"
 
 md = f"{{markdownify(html)}}\\n\\n![Screenshot](data:image/png;base64,{{screenshot_b64}})"

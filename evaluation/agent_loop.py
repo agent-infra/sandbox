@@ -311,8 +311,11 @@ class AzureOpenAIAgentLoop(BaseAgentLoop):
                     }
                 )
 
-        # If we hit max iterations, return what we have
-        return messages[-1].get("content", ""), tool_metrics
+        # If we hit max iterations, find the last assistant message
+        for msg in reversed(messages):
+            if msg.get("role") == "assistant" and msg.get("content"):
+                return msg["content"], tool_metrics
+        return "", tool_metrics
 
 
 # ============================================================================
@@ -549,7 +552,11 @@ class OpenAIAgentLoop(BaseAgentLoop):
                     }
                 )
 
-        return messages[-1].get("content", ""), tool_metrics
+        # If we hit max iterations, find the last assistant message
+        for msg in reversed(messages):
+            if msg.get("role") == "assistant" and msg.get("content"):
+                return msg["content"], tool_metrics
+        return "", tool_metrics
 
 
 # ============================================================================
