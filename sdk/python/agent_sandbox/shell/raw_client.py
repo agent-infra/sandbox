@@ -42,6 +42,7 @@ class RawShellClient:
         hard_timeout: typing.Optional[float] = OMIT,
         preserve_symlinks: typing.Optional[bool] = OMIT,
         truncate: typing.Optional[bool] = OMIT,
+        env: typing.Optional[typing.Dict[str, str]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseShellCommandResult]:
         """
@@ -80,6 +81,10 @@ class RawShellClient:
         truncate : typing.Optional[bool]
             If True, truncate output when it exceeds 30000 characters (default: True)
 
+        env : typing.Optional[typing.Dict[str, str]]
+            Environment variables to set for the command execution. These will be merged with
+            the existing process environment, with provided values taking precedence.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -102,6 +107,7 @@ class RawShellClient:
                 "hard_timeout": hard_timeout,
                 "preserve_symlinks": preserve_symlinks,
                 "truncate": truncate,
+                "env": env,
             },
             headers={
                 "content-type": "application/json",
@@ -699,6 +705,7 @@ class AsyncRawShellClient:
         hard_timeout: typing.Optional[float] = OMIT,
         preserve_symlinks: typing.Optional[bool] = OMIT,
         truncate: typing.Optional[bool] = OMIT,
+        env: typing.Optional[typing.Dict[str, str]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseShellCommandResult]:
         """
@@ -737,6 +744,10 @@ class AsyncRawShellClient:
         truncate : typing.Optional[bool]
             If True, truncate output when it exceeds 30000 characters (default: True)
 
+        env : typing.Optional[typing.Dict[str, str]]
+            Environment variables to set for the command execution. These will be merged with
+            the existing process environment, with provided values taking precedence.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -759,6 +770,7 @@ class AsyncRawShellClient:
                 "hard_timeout": hard_timeout,
                 "preserve_symlinks": preserve_symlinks,
                 "truncate": truncate,
+                "env": env,
             },
             headers={
                 "content-type": "application/json",

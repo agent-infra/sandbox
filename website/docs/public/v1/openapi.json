@@ -8476,6 +8476,17 @@
             "title": "Truncate",
             "description": "If True, truncate output when it exceeds 30000 characters (default: True)",
             "default": true
+          },
+          "env": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              },
+              { "type": "null" }
+            ],
+            "title": "Env",
+            "description": "Environment variables to set for the command execution. These will be merged with the existing process environment, with provided values taking precedence."
           }
         },
         "type": "object",
