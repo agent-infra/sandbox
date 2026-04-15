@@ -100,10 +100,10 @@ Agent 能够自主感知环境、规划步骤、调用工具，能够**像人类
 前置需要安装 [Docker](https://www.docker.com/get-started/)，一键本地启动：
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 
 # 国内加速访问
-# docker run --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+# docker run --rm -it -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
 ![](/images/blog/11.png)

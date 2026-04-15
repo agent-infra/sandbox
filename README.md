@@ -32,22 +32,31 @@
 Get up and running in 30 seconds:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+# Optional: Enable API Key authentication (protects all services: API, JupyterLab, VNC)
+# - Supports three methods: X-AIO-API-Key header, Authorization: Bearer header, ?api_key= query parameter
+# - Without SANDBOX_API_KEY, services remain open (backward compatible)
+docker run --security-opt seccomp=unconfined --rm -it \
+  -e SANDBOX_API_KEY=your-secret-key \
+  -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 For users in mainland China:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it \
+  -e SANDBOX_API_KEY=your-secret-key \
+  -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
-Use a specific version in the format `agent-infra/sandbox:${version}`, for example, to use version 1.0.0.150:
+Use a specific version in the format `agent-infra/sandbox:${version}`, for example, to use version 1.7.3:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:1.0.0.150
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:1.7.3
 # or users in mainland China
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.150
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.7.3
 ```
+
+These examples intentionally bind the host side to `127.0.0.1` because the sandbox listens on `0.0.0.0` inside the container. For cloud deployment, keep port `8080` private and publish it through a reverse proxy or Ingress: [Cloud Deployment Guide](https://sandbox.agent-infra.com/guide/start/cloud-deployment).
 
 Once running, access the environment at:
 - 📖 **Documentation**: http://localhost:8080/v1/docs
@@ -305,7 +314,7 @@ services:
     restart: "unless-stopped"
     shm_size: "2gb"
     ports:
-      - "${HOST_PORT:-8080}:8080"
+      - "127.0.0.1:${HOST_PORT:-8080}:8080"
     environment:
       PROXY_SERVER: ${PROXY_SERVER:-host.docker.internal:7890}
       JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:-}

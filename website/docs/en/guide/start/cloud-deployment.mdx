@@ -1,0 +1,173 @@
+# Cloud Deployment
+
+AIO Sandbox listens on `0.0.0.0` inside the container. On a cloud host, do not publish the container's `8080` port directly to a public interface. Keep the sandbox private and expose it through a reverse proxy or Ingress that handles TLS and access control.
+
+## Recommended Topology
+
+- Bind the sandbox to `127.0.0.1:8080` on a single VM, or expose it as a `ClusterIP` service in Kubernetes.
+- Terminate TLS at Nginx, a cloud load balancer, or an Ingress controller.
+- Add authentication at the edge and/or enable sandbox JWT auth via [`JWT_PUBLIC_KEY`](/guide/basic/authentication).
+- Open only `80/443` to the public internet. Do not open `8080` in security groups or firewall rules.
+
+## Option 1: Single VM with Docker and Nginx
+
+### 1. Start the sandbox on loopback only
+
+```bash
+docker run \
+  --security-opt seccomp=unconfined \
+  --restart unless-stopped \
+  --name aio-sandbox \
+  -d \
+  -p 127.0.0.1:8080:8080 \
+  ghcr.io/agent-infra/sandbox:latest
+```
+
+For users in mainland China:
+
+```bash
+docker run \
+  --security-opt seccomp=unconfined \
+  --restart unless-stopped \
+  --name aio-sandbox \
+  -d \
+  -p 127.0.0.1:8080:8080 \
+  enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+```
+
+### 2. Lock down cloud networking
+
+- Allow inbound `80` and `443`.
+- Allow SSH only from administrator IP ranges.
+- Do not allow inbound `8080`.
+
+### 3. Put Nginx in front of the sandbox
+
+Place the `map` block in the `http` context, then configure your site:
+
+```nginx
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
+    listen 80;
+    server_name sandbox.example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name sandbox.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/sandbox.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/sandbox.example.com/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+### 4. Add authentication
+
+At minimum, protect the public entrypoint with one of the following:
+
+- A corporate IdP or SSO layer on the reverse proxy or load balancer.
+- IP allowlists for admin-only environments.
+- Sandbox JWT authentication via [`JWT_PUBLIC_KEY`](/guide/basic/authentication).
+
+## Option 2: Kubernetes with Ingress
+
+Use a private service for the sandbox and publish it through an Ingress. Avoid `type: LoadBalancer` on the sandbox service itself.
+
+### 1. Deployment and Service
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aio-sandbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aio-sandbox
+  template:
+    metadata:
+      labels:
+        app: aio-sandbox
+    spec:
+      containers:
+        - name: aio-sandbox
+          image: ghcr.io/agent-infra/sandbox:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aio-sandbox
+spec:
+  selector:
+    app: aio-sandbox
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+```
+
+### 2. Publish it with Ingress
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aio-sandbox
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  tls:
+    - hosts:
+        - sandbox.example.com
+      secretName: sandbox-tls
+  rules:
+    - host: sandbox.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aio-sandbox
+                port:
+                  number: 80
+```
+
+### 3. Cloud-side controls
+
+- Expose only the Ingress or load balancer on `80/443`.
+- Add authentication at the Ingress or gateway layer.
+- Prefer network policies, private subnets, and audit logging for shared clusters.
+
+## Security Checklist
+
+- Keep the sandbox's `8080` listener private.
+- Terminate TLS before traffic reaches the sandbox.
+- Require authentication before exposing VNC, code-server, MCP, or docs.
+- Set CPU and memory limits in production.
+- Monitor container logs, proxy logs, and health checks.
+
+## Related Guides
+
+- [Quick Start](/guide/start/quick-start)
+- [Authentication](/guide/basic/authentication)
+- [Preview Proxy](/guide/basic/proxy)

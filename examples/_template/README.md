@@ -7,7 +7,12 @@ Brief description of what this example demonstrates.
 1. Start the sandbox
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+# Optional: Enable API Key authentication (protects all services: API, JupyterLab, VNC)
+# - Supports three methods: X-AIO-API-Key header, Authorization: Bearer header, ?api_key= query parameter
+# - Without SANDBOX_API_KEY, services remain open (backward compatible)
+docker run --security-opt seccomp=unconfined --rm -it \
+  -e SANDBOX_API_KEY=your-secret-key \
+  -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 2. Configure the environment

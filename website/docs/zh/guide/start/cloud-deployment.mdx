@@ -1,0 +1,173 @@
+# 云上部署
+
+AIO Sandbox 在容器内部监听 `0.0.0.0`。部署到云主机时，不要把容器的 `8080` 端口直接发布到公网网卡上。推荐把沙盒保持在私网范围内，再通过反向代理或 Ingress 统一处理 TLS 和访问控制。
+
+## 推荐拓扑
+
+- 单机 VM 上把沙盒绑定到 `127.0.0.1:8080`，Kubernetes 上则通过 `ClusterIP` Service 暴露。
+- 在 Nginx、云负载均衡或 Ingress Controller 处终止 TLS。
+- 在边界层加鉴权，或者启用沙盒自身的 [`JWT_PUBLIC_KEY`](/zh/guide/basic/authentication) 鉴权。
+- 只对公网开放 `80/443`，不要在安全组或防火墙中放开 `8080`。
+
+## 方案 1：云主机 + Docker + Nginx
+
+### 1. 仅绑定到本机回环地址
+
+```bash
+docker run \
+  --security-opt seccomp=unconfined \
+  --restart unless-stopped \
+  --name aio-sandbox \
+  -d \
+  -p 127.0.0.1:8080:8080 \
+  ghcr.io/agent-infra/sandbox:latest
+```
+
+中国大陆用户可使用国内镜像：
+
+```bash
+docker run \
+  --security-opt seccomp=unconfined \
+  --restart unless-stopped \
+  --name aio-sandbox \
+  -d \
+  -p 127.0.0.1:8080:8080 \
+  enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+```
+
+### 2. 收紧云网络
+
+- 只放行入站 `80` 和 `443`。
+- SSH 仅对管理员 IP 段开放。
+- 不要放行入站 `8080`。
+
+### 3. 用 Nginx 对外发布
+
+将 `map` 段放在 `http` 上下文中，然后配置站点：
+
+```nginx
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
+    listen 80;
+    server_name sandbox.example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name sandbox.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/sandbox.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/sandbox.example.com/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+### 4. 加鉴权
+
+至少选择以下一种方式保护公网入口：
+
+- 在反向代理或负载均衡层接入企业 SSO / IdP。
+- 对仅管理员使用的环境启用 IP 白名单。
+- 打开沙盒的 [`JWT_PUBLIC_KEY`](/zh/guide/basic/authentication) 鉴权。
+
+## 方案 2：Kubernetes + Ingress
+
+给沙盒使用私有 Service，并通过 Ingress 统一对外发布。不要直接把沙盒 Service 配成 `type: LoadBalancer`。
+
+### 1. Deployment 和 Service
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aio-sandbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aio-sandbox
+  template:
+    metadata:
+      labels:
+        app: aio-sandbox
+    spec:
+      containers:
+        - name: aio-sandbox
+          image: ghcr.io/agent-infra/sandbox:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aio-sandbox
+spec:
+  selector:
+    app: aio-sandbox
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+```
+
+### 2. 通过 Ingress 对外发布
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aio-sandbox
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  tls:
+    - hosts:
+        - sandbox.example.com
+      secretName: sandbox-tls
+  rules:
+    - host: sandbox.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aio-sandbox
+                port:
+                  number: 80
+```
+
+### 3. 云侧控制项
+
+- 只让 Ingress 或云负载均衡对公网开放 `80/443`。
+- 在 Ingress 或网关层加鉴权。
+- 对共享集群优先启用 NetworkPolicy、私有子网和访问审计。
+
+## 安全检查清单
+
+- 保持沙盒的 `8080` 监听为私网。
+- 在流量进入沙盒前完成 TLS 终止。
+- 对 VNC、code-server、MCP、文档等入口加鉴权。
+- 生产环境配置 CPU 和内存限制。
+- 监控容器日志、代理日志和健康检查。
+
+## 相关文档
+
+- [快速开始](/zh/guide/start/quick-start)
+- [鉴权](/zh/guide/basic/authentication)
+- [预览代理](/zh/guide/basic/proxy)

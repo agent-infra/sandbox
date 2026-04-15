@@ -88,4 +88,6 @@ Great for scenarios requiring:
 
 Ready to dive in? Check out our [Quick Start guide](/guide/start/quick-start) to get your AIO Sandbox running in minutes.
 
+Deploying on a cloud VM or Kubernetes cluster? Follow the [Cloud Deployment guide](/guide/start/cloud-deployment) for a safer setup with reverse proxy or Ingress.
+
 For detailed information about specific components, explore the guides in the sidebar navigation.
