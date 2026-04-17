@@ -69,7 +69,6 @@ export class VolcengineProvider extends BaseProvider {
         MemoryMB: params.memoryMB,
         MaxConcurrency: params.maxConcurrency,
         RequestTimeout: params.requestTimeout,
-        ...kwargs[0]
       });
 
       const response = await request(
@@ -263,7 +262,6 @@ export class VolcengineProvider extends BaseProvider {
         PageSize: params.pageSize || 10,
         ImageUrl: params.imageUrl,
         Status: params.status,
-        ...kwargs[0]
       });
 
       const response = await request(
