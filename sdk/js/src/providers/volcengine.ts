@@ -164,7 +164,9 @@ export class VolcengineProvider extends BaseProvider {
    *
    * @param functionId - The function ID of the sandbox
    * @param sandboxId - The ID of the sandbox to retrieve
-   * @param kwargs - Additional parameters for sandbox retrieval
+   * @param kwargs - Additional parameters for sandbox retrieval.
+   * Pass `{ includeDomains: false }` to skip APIG domain enrichment and
+   * return the raw DescribeSandbox response.
    * @returns The response containing sandbox details
    */
   async getSandbox(
@@ -173,10 +175,16 @@ export class VolcengineProvider extends BaseProvider {
     ...kwargs: any[]
   ): Promise<any> {
     try {
+      const params = kwargs[0] || {};
+      const {
+        includeDomains = true,
+        ...requestParams
+      } = params;
+
       const body = JSON.stringify({
         SandboxId: sandboxId,
         FunctionId: functionId,
-        ...kwargs[0]
+        ...requestParams
       });
 
       const response = await request(
@@ -191,7 +199,7 @@ export class VolcengineProvider extends BaseProvider {
         body,
       );
 
-      if (response?.Result) {
+      if (includeDomains && response?.Result) {
         const baseDomains = await this.getApigDomains(functionId);
         const domainsStruct = this.appendInstanceQueryStruct(
           baseDomains,
