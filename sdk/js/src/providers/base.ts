@@ -29,7 +29,9 @@ export abstract class BaseProvider {
    *
    * @param functionId - The function ID of the sandbox
    * @param sandboxId - The ID of the sandbox to retrieve
-   * @param kwargs - Additional parameters for sandbox retrieval
+   * @param kwargs - Additional parameters for sandbox retrieval.
+   * The first options object may include `includeDomains?: boolean`
+   * to control whether provider-specific domain data is enriched.
    * @returns The response containing sandbox details
    */
   abstract getSandbox(functionId: string, sandboxId: string, ...kwargs: any[]): Promise<any>;
