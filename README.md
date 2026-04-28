@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/agent-infra-sandbox-badge.png)](https://mseep.ai/app/agent-infra-sandbox)
+
 # AIO Sandbox - All-in-One Agent Sandbox Environment
 
 <p align="center">
