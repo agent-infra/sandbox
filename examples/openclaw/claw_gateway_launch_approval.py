@@ -144,6 +144,7 @@ class OpenClawManager:
     def approve_device(self, request_id: str) -> str:
         token = self.get_token()
         return self.sh(
+            f'export OPENCLAW_HOME={self.home}; '
             f'openclaw devices approve {request_id} '
             f'--url ws://127.0.0.1:{self.port} --token "{token}"'
         )
@@ -186,7 +187,7 @@ def main() -> None:
         openai_api_key=openai_api_key,
         home="/tmp/openclaw-home",
         port=18789,
-        model="openai/gpt-5.1-codex",
+        model="openai/gpt-5.4",
         allowed_origins=["http://localhost:18789"],
     )
 
