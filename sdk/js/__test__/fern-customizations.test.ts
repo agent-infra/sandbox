@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const SRC_DIR = path.join(__dirname, '../src');
+const PYTHON_AGENT_SANDBOX_DIR = path.join(__dirname, '../../python/agent_sandbox');
 
 // Helper to find files recursively
 function findFiles(dir: string, pattern: RegExp): string[] {
@@ -140,6 +141,30 @@ describe('Fern Customizations', () => {
       requiredEntries.forEach((entry) => {
         expect(content, `.fernignore should contain ${entry}`).toContain(entry);
       });
+    });
+  });
+
+  describe('Python provider customizations', () => {
+    const protectedFiles = [
+      '.fernignore',
+      'providers/__init__.py',
+      'providers/base.py',
+      'providers/sign.py',
+      'providers/volcengine.py',
+    ];
+
+    protectedFiles.forEach((filePath) => {
+      it(`python/${filePath} should exist`, () => {
+        const fullPath = path.join(PYTHON_AGENT_SANDBOX_DIR, filePath);
+        expect(fs.existsSync(fullPath), `python/${filePath} is missing`).toBe(true);
+      });
+    });
+
+    it('python .fernignore should protect providers', () => {
+      const fernignorePath = path.join(PYTHON_AGENT_SANDBOX_DIR, '.fernignore');
+      const content = fs.readFileSync(fernignorePath, 'utf-8');
+
+      expect(content, 'python .fernignore should contain providers').toContain('providers');
     });
   });
 });

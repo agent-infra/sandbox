@@ -5,11 +5,13 @@ on:
     branches: [main]
     paths:
       - 'sdk/js/**'
+      - 'sdk/fern/**'
       - '.github/workflows/sdk-ci.yml'
   pull_request:
     branches: [main]
     paths:
       - 'sdk/js/**'
+      - 'sdk/fern/**'
       - '.github/workflows/sdk-ci.yml'
 
 permissions:
