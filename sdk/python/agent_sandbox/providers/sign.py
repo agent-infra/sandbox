@@ -126,8 +126,6 @@ def request(
             x_content_sha256,
         ]
     )
-    logger.debug("canonical_request=%s", canonical_request_str)
-
     hashed_canonical_request = hash_sha256(canonical_request_str)
     credential_scope = "/".join(
         [short_x_date, credential["region"], credential["service"], "request"]
@@ -135,8 +133,6 @@ def request(
     string_to_sign = "\n".join(
         ["HMAC-SHA256", x_date, credential_scope, hashed_canonical_request]
     )
-    logger.debug("string_to_sign=%s", string_to_sign)
-
     k_date = hmac_sha256(credential["secret_access_key"].encode("utf-8"), short_x_date)
     k_region = hmac_sha256(k_date, credential["region"])
     k_service = hmac_sha256(k_region, credential["service"])
