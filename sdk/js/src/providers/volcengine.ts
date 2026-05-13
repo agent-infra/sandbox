@@ -82,6 +82,7 @@ export class VolcengineProvider extends BaseProvider {
         null,
         'CreateSandbox',
         body,
+        this.region,
       );
 
       return response;
@@ -120,6 +121,7 @@ export class VolcengineProvider extends BaseProvider {
         null,
         'KillSandbox',
         body,
+        this.region,
       );
 
       return response;
@@ -197,6 +199,7 @@ export class VolcengineProvider extends BaseProvider {
         null,
         'DescribeSandbox',
         body,
+        this.region,
       );
 
       if (includeDomains && response?.Result) {
@@ -245,6 +248,7 @@ export class VolcengineProvider extends BaseProvider {
         null,
         'SetSandboxTimeout',
         body,
+        this.region,
       );
 
       return response;
@@ -284,6 +288,7 @@ export class VolcengineProvider extends BaseProvider {
         null,
         'ListSandboxes',
         body,
+        this.region,
       );
 
       if (response?.Result) {
@@ -334,6 +339,7 @@ export class VolcengineProvider extends BaseProvider {
       '',
       'ListTriggers',
       body,
+      this.region,
     );
 
     if (response && typeof response === 'object') {
@@ -385,6 +391,7 @@ export class VolcengineProvider extends BaseProvider {
       '',
       'ListRoutes',
       body,
+      this.region,
     );
 
     const domains: DomainInfo[] = [];
