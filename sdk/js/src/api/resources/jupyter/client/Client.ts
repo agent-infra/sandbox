@@ -22,7 +22,8 @@ export class Jupyter {
      * Execute Python code using Jupyter kernel with session persistence
      *
      * This endpoint allows you to execute Python code and get results back.
-     * You can optionally specify a kernel_name (defaults to 'python3').
+     * You can optionally specify a kernel_name.
+     * If omitted, the runtime default resolved from `PYTHON_VERSION` is used.
      * Use session_id to maintain variable state across multiple requests.
      * Sessions automatically expire after 30 minutes of inactivity.
      *

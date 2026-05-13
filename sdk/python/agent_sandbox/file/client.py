@@ -6,19 +6,28 @@ from .. import core
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
 from ..types.file_content_encoding import FileContentEncoding
-from ..types.response_file_find_result import ResponseFileFindResult
-from ..types.response_file_glob_result import ResponseFileGlobResult
-from ..types.response_file_grep_result import ResponseFileGrepResult
-from ..types.response_file_list_result import ResponseFileListResult
-from ..types.response_file_read_result import ResponseFileReadResult
-from ..types.response_file_replace_result import ResponseFileReplaceResult
-from ..types.response_file_search_result import ResponseFileSearchResult
-from ..types.response_file_upload_result import ResponseFileUploadResult
-from ..types.response_file_write_result import ResponseFileWriteResult
-from ..types.response_str_replace_editor_result import ResponseStrReplaceEditorResult
+from ..types.file_download_change_policy import FileDownloadChangePolicy
+from ..types.response_union_file_find_result_file_operation_error import ResponseUnionFileFindResultFileOperationError
+from ..types.response_union_file_glob_result_file_operation_error import ResponseUnionFileGlobResultFileOperationError
+from ..types.response_union_file_grep_result_file_operation_error import ResponseUnionFileGrepResultFileOperationError
+from ..types.response_union_file_list_result_file_operation_error import ResponseUnionFileListResultFileOperationError
+from ..types.response_union_file_read_result_file_operation_error import ResponseUnionFileReadResultFileOperationError
+from ..types.response_union_file_replace_result_file_operation_error import (
+    ResponseUnionFileReplaceResultFileOperationError,
+)
+from ..types.response_union_file_search_result_file_operation_error import (
+    ResponseUnionFileSearchResultFileOperationError,
+)
+from ..types.response_union_file_upload_result_file_operation_error import (
+    ResponseUnionFileUploadResultFileOperationError,
+)
+from ..types.response_union_file_write_result_file_operation_error import ResponseUnionFileWriteResultFileOperationError
+from ..types.response_union_str_replace_editor_result_file_operation_error import (
+    ResponseUnionStrReplaceEditorResultFileOperationError,
+)
 from .raw_client import AsyncRawFileClient, RawFileClient
+from .types.app_schemas_file_watch_wait_request_event_types_item import AppSchemasFileWatchWaitRequestEventTypesItem
 from .types.command import Command
-from .types.file_watch_wait_request_event_types_item import FileWatchWaitRequestEventTypesItem
 from .types.str_replace_editor_request_replace_mode import StrReplaceEditorRequestReplaceMode
 
 # this is used as the default value for optional parameters
@@ -48,7 +57,7 @@ class FileClient:
         end_line: typing.Optional[int] = OMIT,
         sudo: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileReadResult:
+    ) -> ResponseUnionFileReadResultFileOperationError:
         """
         Read file content
 
@@ -71,7 +80,7 @@ class FileClient:
 
         Returns
         -------
-        ResponseFileReadResult
+        ResponseUnionFileReadResultFileOperationError
             Successful Response
 
         Examples
@@ -101,7 +110,7 @@ class FileClient:
         trailing_newline: typing.Optional[bool] = OMIT,
         sudo: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileWriteResult:
+    ) -> ResponseUnionFileWriteResultFileOperationError:
         """
         Write file content (supports both text and binary files)
 
@@ -136,7 +145,7 @@ class FileClient:
 
         Returns
         -------
-        ResponseFileWriteResult
+        ResponseUnionFileWriteResultFileOperationError
             Successful Response
 
         Examples
@@ -171,7 +180,7 @@ class FileClient:
         new_str: str,
         sudo: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileReplaceResult:
+    ) -> ResponseUnionFileReplaceResultFileOperationError:
         """
         Replace string in file
 
@@ -194,7 +203,7 @@ class FileClient:
 
         Returns
         -------
-        ResponseFileReplaceResult
+        ResponseUnionFileReplaceResultFileOperationError
             Successful Response
 
         Examples
@@ -222,7 +231,7 @@ class FileClient:
         regex: str,
         sudo: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileSearchResult:
+    ) -> ResponseUnionFileSearchResultFileOperationError:
         """
         Search in file content
 
@@ -242,7 +251,7 @@ class FileClient:
 
         Returns
         -------
-        ResponseFileSearchResult
+        ResponseUnionFileSearchResultFileOperationError
             Successful Response
 
         Examples
@@ -262,7 +271,7 @@ class FileClient:
 
     def find_files(
         self, *, path: str, glob: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> ResponseFileFindResult:
+    ) -> ResponseUnionFileFindResultFileOperationError:
         """
         Find files by name pattern
 
@@ -279,7 +288,7 @@ class FileClient:
 
         Returns
         -------
-        ResponseFileFindResult
+        ResponseUnionFileFindResultFileOperationError
             Successful Response
 
         Examples
@@ -315,7 +324,7 @@ class FileClient:
         type: typing.Optional[str] = OMIT,
         recursive: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileGrepResult:
+    ) -> ResponseUnionFileGrepResultFileOperationError:
         """
         Multi-file content search (grep) with regex or fixed string support
 
@@ -368,7 +377,7 @@ class FileClient:
 
         Returns
         -------
-        ResponseFileGrepResult
+        ResponseUnionFileGrepResultFileOperationError
             Successful Response
 
         Examples
@@ -415,7 +424,7 @@ class FileClient:
         sort_by: typing.Optional[str] = OMIT,
         sort_desc: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileGlobResult:
+    ) -> ResponseUnionFileGlobResultFileOperationError:
         """
         Enhanced file glob matching with optional metadata
 
@@ -453,7 +462,7 @@ class FileClient:
 
         Returns
         -------
-        ResponseFileGlobResult
+        ResponseUnionFileGlobResultFileOperationError
             Successful Response
 
         Examples
@@ -488,7 +497,7 @@ class FileClient:
         file: core.File,
         path: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileUploadResult:
+    ) -> ResponseUnionFileUploadResultFileOperationError:
         """
         Upload file using streaming
 
@@ -504,7 +513,7 @@ class FileClient:
 
         Returns
         -------
-        ResponseFileUploadResult
+        ResponseUnionFileUploadResultFileOperationError
             Successful Response
 
         Examples
@@ -520,14 +529,23 @@ class FileClient:
         return _response.data
 
     def download_file(
-        self, *, path: str, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        path: str,
+        change_policy: typing.Optional[FileDownloadChangePolicy] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[bytes]:
         """
-        Download file using FileResponse
+        Download a file.
+
+        When ``change_policy=abort``, the server aborts the download if the source
+        file changes before streaming starts or while bytes are being sent.
 
         Parameters
         ----------
         path : str
+
+        change_policy : typing.Optional[FileDownloadChangePolicy]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
@@ -548,7 +566,9 @@ class FileClient:
             path="path",
         )
         """
-        with self._raw_client.download_file(path=path, request_options=request_options) as r:
+        with self._raw_client.download_file(
+            path=path, change_policy=change_policy, request_options=request_options
+        ) as r:
             yield from r.data
 
     def list_path(
@@ -564,7 +584,7 @@ class FileClient:
         sort_by: typing.Optional[str] = OMIT,
         sort_desc: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileListResult:
+    ) -> ResponseUnionFileListResultFileOperationError:
         """
         List path contents with flexible options
 
@@ -602,7 +622,7 @@ class FileClient:
 
         Returns
         -------
-        ResponseFileListResult
+        ResponseUnionFileListResultFileOperationError
             Successful Response
 
         Examples
@@ -647,7 +667,7 @@ class FileClient:
         slide_range: typing.Optional[typing.Sequence[int]] = OMIT,
         enable_metadata: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseStrReplaceEditorResult:
+    ) -> ResponseUnionStrReplaceEditorResultFileOperationError:
         """
         An filesystem editor tool that allows the agent to
         - view
@@ -702,7 +722,7 @@ class FileClient:
 
         Returns
         -------
-        ResponseStrReplaceEditorResult
+        ResponseUnionStrReplaceEditorResultFileOperationError
             Successful Response
 
         Examples
@@ -773,19 +793,19 @@ class FileClient:
         Parameters
         ----------
         path : str
-            监听目录路径
+            Path of the file or directory to watch
 
         recursive : typing.Optional[bool]
-            是否递归子目录
+            Whether to recursively watch subdirectories
 
         exclude : typing.Optional[typing.Sequence[str]]
-            排除的目录/glob 模式
+            Directory or glob patterns to exclude
 
         debounce : typing.Optional[int]
-            去抖动窗口(ms)
+            Debounce window in milliseconds
 
         include_patterns : typing.Optional[typing.Sequence[str]]
-            glob 过滤，空=全部通过
+            Glob filters; empty means all events are included
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -850,7 +870,7 @@ class FileClient:
         self,
         watcher_id: str,
         *,
-        since: typing.Optional[int] = OMIT,
+        cursor: typing.Optional[int] = OMIT,
         limit: typing.Optional[int] = OMIT,
         timeout: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -860,14 +880,14 @@ class FileClient:
         ----------
         watcher_id : str
 
-        since : typing.Optional[int]
-            上次游标
+        cursor : typing.Optional[int]
+            Cursor returned by the previous call; only events with seq > cursor are returned
 
         limit : typing.Optional[int]
-            最多返回条数
+            Maximum number of events to return
 
         timeout : typing.Optional[int]
-            长轮询等待秒数，0=立即返回
+            Long-poll wait time in seconds; 0 returns immediately
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -889,7 +909,7 @@ class FileClient:
         )
         """
         _response = self._raw_client.watch_poll(
-            watcher_id, since=since, limit=limit, timeout=timeout, request_options=request_options
+            watcher_id, cursor=cursor, limit=limit, timeout=timeout, request_options=request_options
         )
         return _response.data
 
@@ -898,20 +918,20 @@ class FileClient:
         *,
         path: str,
         timeout: typing.Optional[int] = OMIT,
-        event_types: typing.Optional[typing.Sequence[FileWatchWaitRequestEventTypesItem]] = OMIT,
+        event_types: typing.Optional[typing.Sequence[AppSchemasFileWatchWaitRequestEventTypesItem]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Optional[typing.Any]:
         """
         Parameters
         ----------
         path : str
-            等待的文件路径（精确匹配）
+            File path to wait for (exact match)
 
         timeout : typing.Optional[int]
-            最大等待秒数
+            Maximum wait time in seconds
 
-        event_types : typing.Optional[typing.Sequence[FileWatchWaitRequestEventTypesItem]]
-            关注的事件类型
+        event_types : typing.Optional[typing.Sequence[AppSchemasFileWatchWaitRequestEventTypesItem]]
+            Event types to watch
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -991,7 +1011,7 @@ class AsyncFileClient:
         end_line: typing.Optional[int] = OMIT,
         sudo: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileReadResult:
+    ) -> ResponseUnionFileReadResultFileOperationError:
         """
         Read file content
 
@@ -1014,7 +1034,7 @@ class AsyncFileClient:
 
         Returns
         -------
-        ResponseFileReadResult
+        ResponseUnionFileReadResultFileOperationError
             Successful Response
 
         Examples
@@ -1052,7 +1072,7 @@ class AsyncFileClient:
         trailing_newline: typing.Optional[bool] = OMIT,
         sudo: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileWriteResult:
+    ) -> ResponseUnionFileWriteResultFileOperationError:
         """
         Write file content (supports both text and binary files)
 
@@ -1087,7 +1107,7 @@ class AsyncFileClient:
 
         Returns
         -------
-        ResponseFileWriteResult
+        ResponseUnionFileWriteResultFileOperationError
             Successful Response
 
         Examples
@@ -1130,7 +1150,7 @@ class AsyncFileClient:
         new_str: str,
         sudo: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileReplaceResult:
+    ) -> ResponseUnionFileReplaceResultFileOperationError:
         """
         Replace string in file
 
@@ -1153,7 +1173,7 @@ class AsyncFileClient:
 
         Returns
         -------
-        ResponseFileReplaceResult
+        ResponseUnionFileReplaceResultFileOperationError
             Successful Response
 
         Examples
@@ -1189,7 +1209,7 @@ class AsyncFileClient:
         regex: str,
         sudo: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileSearchResult:
+    ) -> ResponseUnionFileSearchResultFileOperationError:
         """
         Search in file content
 
@@ -1209,7 +1229,7 @@ class AsyncFileClient:
 
         Returns
         -------
-        ResponseFileSearchResult
+        ResponseUnionFileSearchResultFileOperationError
             Successful Response
 
         Examples
@@ -1239,7 +1259,7 @@ class AsyncFileClient:
 
     async def find_files(
         self, *, path: str, glob: str, request_options: typing.Optional[RequestOptions] = None
-    ) -> ResponseFileFindResult:
+    ) -> ResponseUnionFileFindResultFileOperationError:
         """
         Find files by name pattern
 
@@ -1256,7 +1276,7 @@ class AsyncFileClient:
 
         Returns
         -------
-        ResponseFileFindResult
+        ResponseUnionFileFindResultFileOperationError
             Successful Response
 
         Examples
@@ -1300,7 +1320,7 @@ class AsyncFileClient:
         type: typing.Optional[str] = OMIT,
         recursive: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileGrepResult:
+    ) -> ResponseUnionFileGrepResultFileOperationError:
         """
         Multi-file content search (grep) with regex or fixed string support
 
@@ -1353,7 +1373,7 @@ class AsyncFileClient:
 
         Returns
         -------
-        ResponseFileGrepResult
+        ResponseUnionFileGrepResultFileOperationError
             Successful Response
 
         Examples
@@ -1408,7 +1428,7 @@ class AsyncFileClient:
         sort_by: typing.Optional[str] = OMIT,
         sort_desc: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileGlobResult:
+    ) -> ResponseUnionFileGlobResultFileOperationError:
         """
         Enhanced file glob matching with optional metadata
 
@@ -1446,7 +1466,7 @@ class AsyncFileClient:
 
         Returns
         -------
-        ResponseFileGlobResult
+        ResponseUnionFileGlobResultFileOperationError
             Successful Response
 
         Examples
@@ -1489,7 +1509,7 @@ class AsyncFileClient:
         file: core.File,
         path: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileUploadResult:
+    ) -> ResponseUnionFileUploadResultFileOperationError:
         """
         Upload file using streaming
 
@@ -1505,7 +1525,7 @@ class AsyncFileClient:
 
         Returns
         -------
-        ResponseFileUploadResult
+        ResponseUnionFileUploadResultFileOperationError
             Successful Response
 
         Examples
@@ -1529,14 +1549,23 @@ class AsyncFileClient:
         return _response.data
 
     async def download_file(
-        self, *, path: str, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        path: str,
+        change_policy: typing.Optional[FileDownloadChangePolicy] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[bytes]:
         """
-        Download file using FileResponse
+        Download a file.
+
+        When ``change_policy=abort``, the server aborts the download if the source
+        file changes before streaming starts or while bytes are being sent.
 
         Parameters
         ----------
         path : str
+
+        change_policy : typing.Optional[FileDownloadChangePolicy]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
@@ -1565,7 +1594,9 @@ class AsyncFileClient:
 
         asyncio.run(main())
         """
-        async with self._raw_client.download_file(path=path, request_options=request_options) as r:
+        async with self._raw_client.download_file(
+            path=path, change_policy=change_policy, request_options=request_options
+        ) as r:
             async for _chunk in r.data:
                 yield _chunk
 
@@ -1582,7 +1613,7 @@ class AsyncFileClient:
         sort_by: typing.Optional[str] = OMIT,
         sort_desc: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseFileListResult:
+    ) -> ResponseUnionFileListResultFileOperationError:
         """
         List path contents with flexible options
 
@@ -1620,7 +1651,7 @@ class AsyncFileClient:
 
         Returns
         -------
-        ResponseFileListResult
+        ResponseUnionFileListResultFileOperationError
             Successful Response
 
         Examples
@@ -1673,7 +1704,7 @@ class AsyncFileClient:
         slide_range: typing.Optional[typing.Sequence[int]] = OMIT,
         enable_metadata: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ResponseStrReplaceEditorResult:
+    ) -> ResponseUnionStrReplaceEditorResultFileOperationError:
         """
         An filesystem editor tool that allows the agent to
         - view
@@ -1728,7 +1759,7 @@ class AsyncFileClient:
 
         Returns
         -------
-        ResponseStrReplaceEditorResult
+        ResponseUnionStrReplaceEditorResultFileOperationError
             Successful Response
 
         Examples
@@ -1817,19 +1848,19 @@ class AsyncFileClient:
         Parameters
         ----------
         path : str
-            监听目录路径
+            Path of the file or directory to watch
 
         recursive : typing.Optional[bool]
-            是否递归子目录
+            Whether to recursively watch subdirectories
 
         exclude : typing.Optional[typing.Sequence[str]]
-            排除的目录/glob 模式
+            Directory or glob patterns to exclude
 
         debounce : typing.Optional[int]
-            去抖动窗口(ms)
+            Debounce window in milliseconds
 
         include_patterns : typing.Optional[typing.Sequence[str]]
-            glob 过滤，空=全部通过
+            Glob filters; empty means all events are included
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1910,7 +1941,7 @@ class AsyncFileClient:
         self,
         watcher_id: str,
         *,
-        since: typing.Optional[int] = OMIT,
+        cursor: typing.Optional[int] = OMIT,
         limit: typing.Optional[int] = OMIT,
         timeout: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -1920,14 +1951,14 @@ class AsyncFileClient:
         ----------
         watcher_id : str
 
-        since : typing.Optional[int]
-            上次游标
+        cursor : typing.Optional[int]
+            Cursor returned by the previous call; only events with seq > cursor are returned
 
         limit : typing.Optional[int]
-            最多返回条数
+            Maximum number of events to return
 
         timeout : typing.Optional[int]
-            长轮询等待秒数，0=立即返回
+            Long-poll wait time in seconds; 0 returns immediately
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1957,7 +1988,7 @@ class AsyncFileClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.watch_poll(
-            watcher_id, since=since, limit=limit, timeout=timeout, request_options=request_options
+            watcher_id, cursor=cursor, limit=limit, timeout=timeout, request_options=request_options
         )
         return _response.data
 
@@ -1966,20 +1997,20 @@ class AsyncFileClient:
         *,
         path: str,
         timeout: typing.Optional[int] = OMIT,
-        event_types: typing.Optional[typing.Sequence[FileWatchWaitRequestEventTypesItem]] = OMIT,
+        event_types: typing.Optional[typing.Sequence[AppSchemasFileWatchWaitRequestEventTypesItem]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Optional[typing.Any]:
         """
         Parameters
         ----------
         path : str
-            等待的文件路径（精确匹配）
+            File path to wait for (exact match)
 
         timeout : typing.Optional[int]
-            最大等待秒数
+            Maximum wait time in seconds
 
-        event_types : typing.Optional[typing.Sequence[FileWatchWaitRequestEventTypesItem]]
-            关注的事件类型
+        event_types : typing.Optional[typing.Sequence[AppSchemasFileWatchWaitRequestEventTypesItem]]
+            Event types to watch
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.

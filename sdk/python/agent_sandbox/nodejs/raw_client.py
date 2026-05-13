@@ -174,7 +174,7 @@ class RawNodejsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def list_sessions(
-        self, *, request_options: typing.Optional[RequestOptions] = None
+        self, *, version: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResponseNodeJsSessionListResponse]:
         """
         List all active Node.js REPL sessions
@@ -184,6 +184,9 @@ class RawNodejsClient:
 
         Parameters
         ----------
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -195,6 +198,9 @@ class RawNodejsClient:
         _response = self._client_wrapper.httpx_client.request(
             "v1/nodejs/sessions",
             method="GET",
+            params={
+                "version": version,
+            },
             request_options=request_options,
         )
         try:
@@ -207,6 +213,17 @@ class RawNodejsClient:
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -215,6 +232,7 @@ class RawNodejsClient:
     def create_session(
         self,
         *,
+        version: typing.Optional[str] = None,
         session_id: typing.Optional[str] = OMIT,
         cwd: typing.Optional[str] = OMIT,
         max_idle_time: typing.Optional[int] = OMIT,
@@ -228,6 +246,9 @@ class RawNodejsClient:
 
         Parameters
         ----------
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
+
         session_id : typing.Optional[str]
             Custom session ID (auto-generated if not provided)
 
@@ -248,6 +269,9 @@ class RawNodejsClient:
         _response = self._client_wrapper.httpx_client.request(
             "v1/nodejs/sessions",
             method="POST",
+            params={
+                "version": version,
+            },
             json={
                 "session_id": session_id,
                 "cwd": cwd,
@@ -286,7 +310,11 @@ class RawNodejsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get_session(
-        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        session_id: str,
+        *,
+        version: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseNodeJsSessionResponse]:
         """
         Get information about a specific Node.js REPL session
@@ -297,6 +325,9 @@ class RawNodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -309,6 +340,9 @@ class RawNodejsClient:
         _response = self._client_wrapper.httpx_client.request(
             f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
             method="GET",
+            params={
+                "version": version,
+            },
             request_options=request_options,
         )
         try:
@@ -338,7 +372,11 @@ class RawNodejsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete_session(
-        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        session_id: str,
+        *,
+        version: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ResponseNodeJsDeleteSessionResponse]:
         """
         Delete a Node.js REPL session
@@ -348,6 +386,9 @@ class RawNodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -360,6 +401,9 @@ class RawNodejsClient:
         _response = self._client_wrapper.httpx_client.request(
             f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
             method="DELETE",
+            params={
+                "version": version,
+            },
             request_options=request_options,
         )
         try:
@@ -392,6 +436,7 @@ class RawNodejsClient:
         self,
         session_id: str,
         *,
+        version: typing.Optional[str] = None,
         max_idle_time: typing.Optional[int] = OMIT,
         cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -404,6 +449,9 @@ class RawNodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         max_idle_time : typing.Optional[int]
             New maximum idle time in seconds
@@ -422,6 +470,9 @@ class RawNodejsClient:
         _response = self._client_wrapper.httpx_client.request(
             f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
             method="PATCH",
+            params={
+                "version": version,
+            },
             json={
                 "max_idle_time": max_idle_time,
                 "cwd": cwd,
@@ -610,7 +661,7 @@ class AsyncRawNodejsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def list_sessions(
-        self, *, request_options: typing.Optional[RequestOptions] = None
+        self, *, version: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResponseNodeJsSessionListResponse]:
         """
         List all active Node.js REPL sessions
@@ -620,6 +671,9 @@ class AsyncRawNodejsClient:
 
         Parameters
         ----------
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -631,6 +685,9 @@ class AsyncRawNodejsClient:
         _response = await self._client_wrapper.httpx_client.request(
             "v1/nodejs/sessions",
             method="GET",
+            params={
+                "version": version,
+            },
             request_options=request_options,
         )
         try:
@@ -643,6 +700,17 @@ class AsyncRawNodejsClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -651,6 +719,7 @@ class AsyncRawNodejsClient:
     async def create_session(
         self,
         *,
+        version: typing.Optional[str] = None,
         session_id: typing.Optional[str] = OMIT,
         cwd: typing.Optional[str] = OMIT,
         max_idle_time: typing.Optional[int] = OMIT,
@@ -664,6 +733,9 @@ class AsyncRawNodejsClient:
 
         Parameters
         ----------
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
+
         session_id : typing.Optional[str]
             Custom session ID (auto-generated if not provided)
 
@@ -684,6 +756,9 @@ class AsyncRawNodejsClient:
         _response = await self._client_wrapper.httpx_client.request(
             "v1/nodejs/sessions",
             method="POST",
+            params={
+                "version": version,
+            },
             json={
                 "session_id": session_id,
                 "cwd": cwd,
@@ -722,7 +797,11 @@ class AsyncRawNodejsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get_session(
-        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        session_id: str,
+        *,
+        version: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseNodeJsSessionResponse]:
         """
         Get information about a specific Node.js REPL session
@@ -733,6 +812,9 @@ class AsyncRawNodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -745,6 +827,9 @@ class AsyncRawNodejsClient:
         _response = await self._client_wrapper.httpx_client.request(
             f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
             method="GET",
+            params={
+                "version": version,
+            },
             request_options=request_options,
         )
         try:
@@ -774,7 +859,11 @@ class AsyncRawNodejsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete_session(
-        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        session_id: str,
+        *,
+        version: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ResponseNodeJsDeleteSessionResponse]:
         """
         Delete a Node.js REPL session
@@ -784,6 +873,9 @@ class AsyncRawNodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -796,6 +888,9 @@ class AsyncRawNodejsClient:
         _response = await self._client_wrapper.httpx_client.request(
             f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
             method="DELETE",
+            params={
+                "version": version,
+            },
             request_options=request_options,
         )
         try:
@@ -828,6 +923,7 @@ class AsyncRawNodejsClient:
         self,
         session_id: str,
         *,
+        version: typing.Optional[str] = None,
         max_idle_time: typing.Optional[int] = OMIT,
         cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -840,6 +936,9 @@ class AsyncRawNodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         max_idle_time : typing.Optional[int]
             New maximum idle time in seconds
@@ -858,6 +957,9 @@ class AsyncRawNodejsClient:
         _response = await self._client_wrapper.httpx_client.request(
             f"v1/nodejs/sessions/{jsonable_encoder(session_id)}",
             method="PATCH",
+            params={
+                "version": version,
+            },
             json={
                 "max_idle_time": max_idle_time,
                 "cwd": cwd,

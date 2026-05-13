@@ -3,7 +3,7 @@
 import type * as Sandbox from "../index.js";
 
 /**
- * 将可用工具按功能分类
+ * Group available tools by capability
  */
 export interface ToolCategory {
     /** Name of tool category */

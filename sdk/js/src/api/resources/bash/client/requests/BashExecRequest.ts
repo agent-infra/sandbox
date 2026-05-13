@@ -7,13 +7,13 @@
  *     }
  */
 export interface BashExecRequest {
-    /** Target session ID. If not provided, a new session is created automatically. Reuse the same session_id to maintain state (env vars, cwd, etc.) across commands. */
+    /** Target session ID. If not provided or empty, a new session is created automatically. Reuse the same session_id to continue the same bash session. Only API-level session state is preserved across calls. Note: `cd` or `export` inside a command do NOT affect subsequent calls. */
     session_id?: string;
     /** Shell command to execute */
     command: string;
-    /** Working directory (absolute path). Takes effect on every call — if the session already exists, the working directory is updated persistently. */
+    /** Working directory (absolute path). Takes effect on every call — if the session already exists, its default working directory is updated for subsequent calls. Use this instead of `cd` when later commands should run in a different directory. */
     exec_dir?: string;
-    /** Extra environment variables to inject for this command only. */
+    /** Extra environment variables to inject for this command only. Variables exported inside the command do not persist to later calls. */
     env?: Record<string, string | undefined>;
     /** If true, return immediately with running status. Use /output to poll results. */
     async_mode?: boolean;

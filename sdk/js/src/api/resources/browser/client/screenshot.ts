@@ -3,20 +3,37 @@
 import type * as core from "../../../../core/index.js";
 import type * as Sandbox from "../../../index.js";
 
-export type Error = Sandbox.browser.screenshot.Error._Unknown;
+export type Error =
+    | Sandbox.browser.screenshot.Error.UnprocessableEntityError
+    | Sandbox.browser.screenshot.Error._Unknown;
 
 export namespace Error {
+    export interface UnprocessableEntityError {
+        statusCode: 422;
+        content: Sandbox.HttpValidationError;
+    }
+
     export interface _Unknown {
         statusCode: void;
         content: core.Fetcher.Error;
     }
 
     export interface _Visitor<_Result> {
+        unprocessableEntityError: (value: Sandbox.HttpValidationError) => _Result;
         _other: (value: core.Fetcher.Error) => _Result;
     }
 }
 
 export const Error = {
+    unprocessableEntityError: (
+        value: Sandbox.HttpValidationError,
+    ): Sandbox.browser.screenshot.Error.UnprocessableEntityError => {
+        return {
+            content: value,
+            statusCode: 422,
+        };
+    },
+
     _unknown: (fetcherError: core.Fetcher.Error): Sandbox.browser.screenshot.Error._Unknown => {
         return {
             statusCode: undefined,
@@ -29,6 +46,8 @@ export const Error = {
         visitor: Sandbox.browser.screenshot.Error._Visitor<_Result>,
     ): _Result => {
         switch (value.statusCode) {
+            case 422:
+                return visitor.unprocessableEntityError(value.content);
             default:
                 return visitor._other(value as any);
         }

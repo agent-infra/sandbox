@@ -8,6 +8,7 @@ from ..types.response import Response
 from ..types.response_list_proxy_mapping_route import ResponseListProxyMappingRoute
 from ..types.response_list_str import ResponseListStr
 from ..types.response_proxy_diagnose_result import ResponseProxyDiagnoseResult
+from ..types.response_proxy_health_check import ResponseProxyHealthCheck
 from ..types.response_proxy_mapping_route import ResponseProxyMappingRoute
 from ..types.response_proxy_upstream_info import ResponseProxyUpstreamInfo
 from ..types.response_union_proxy_upstream_info_none_type import ResponseUnionProxyUpstreamInfoNoneType
@@ -246,6 +247,32 @@ class ProxyClient:
         )
         """
         _response = self._raw_client.diagnose(url=url, request_options=request_options)
+        return _response.data
+
+    def health(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseProxyHealthCheck:
+        """
+        Check proxy subsystem health: GOST alive, nginx alive, config consistency.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseProxyHealthCheck
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.proxy.health()
+        """
+        _response = self._raw_client.health(request_options=request_options)
         return _response.data
 
     def get_upstream(
@@ -632,6 +659,40 @@ class AsyncProxyClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.diagnose(url=url, request_options=request_options)
+        return _response.data
+
+    async def health(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseProxyHealthCheck:
+        """
+        Check proxy subsystem health: GOST alive, nginx alive, config consistency.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseProxyHealthCheck
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.proxy.health()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.health(request_options=request_options)
         return _response.data
 
     async def get_upstream(

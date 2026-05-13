@@ -11,6 +11,7 @@ from ..types.response_browser_info_result import ResponseBrowserInfoResult
 from ..types.restart_request import RestartRequest
 from .raw_client import AsyncRawBrowserClient, RawBrowserClient
 from .types.action import Action
+from .types.format import Format
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -57,15 +58,25 @@ class BrowserClient:
         _response = self._raw_client.get_info(request_options=request_options)
         return _response.data
 
-    def screenshot(self, *, request_options: typing.Optional[RequestOptions] = None) -> typing.Iterator[bytes]:
+    def screenshot(
+        self,
+        *,
+        format: typing.Optional[Format] = None,
+        quality: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Iterator[bytes]:
         """
         Take a screenshot of the current display.
 
         Returns:
-            StreamingResponse: PNG image data with proper headers including display and screenshot dimensions
+            StreamingResponse: PNG or JPEG image data with proper headers including display and screenshot dimensions
 
         Parameters
         ----------
+        format : typing.Optional[Format]
+
+        quality : typing.Optional[int]
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
 
@@ -73,8 +84,17 @@ class BrowserClient:
         -------
         typing.Iterator[bytes]
             Screenshot image
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.browser.screenshot()
         """
-        with self._raw_client.screenshot(request_options=request_options) as r:
+        with self._raw_client.screenshot(format=format, quality=quality, request_options=request_options) as r:
             yield from r.data
 
     def execute_action(
@@ -259,16 +279,24 @@ class AsyncBrowserClient:
         return _response.data
 
     async def screenshot(
-        self, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        format: typing.Optional[Format] = None,
+        quality: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[bytes]:
         """
         Take a screenshot of the current display.
 
         Returns:
-            StreamingResponse: PNG image data with proper headers including display and screenshot dimensions
+            StreamingResponse: PNG or JPEG image data with proper headers including display and screenshot dimensions
 
         Parameters
         ----------
+        format : typing.Optional[Format]
+
+        quality : typing.Optional[int]
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
 
@@ -276,8 +304,25 @@ class AsyncBrowserClient:
         -------
         typing.AsyncIterator[bytes]
             Screenshot image
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.browser.screenshot()
+
+
+        asyncio.run(main())
         """
-        async with self._raw_client.screenshot(request_options=request_options) as r:
+        async with self._raw_client.screenshot(format=format, quality=quality, request_options=request_options) as r:
             async for _chunk in r.data:
                 yield _chunk
 

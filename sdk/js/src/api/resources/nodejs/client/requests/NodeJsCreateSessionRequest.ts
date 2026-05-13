@@ -2,9 +2,13 @@
 
 /**
  * @example
- *     {}
+ *     {
+ *         version: "version"
+ *     }
  */
 export interface NodeJsCreateSessionRequest {
+    /** Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24" */
+    version?: string;
     /** Custom session ID (auto-generated if not provided) */
     session_id?: string;
     /** Working directory for the session */

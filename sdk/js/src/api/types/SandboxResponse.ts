@@ -8,7 +8,7 @@ export interface SandboxResponse {
     /** Operation result message */
     message?: string;
     /** Data returned from the operation */
-    data?: unknown;
+    data?: string;
     /** Context hint for AI agents (e.g. tab changes) */
     hint?: string;
     home_dir: string;

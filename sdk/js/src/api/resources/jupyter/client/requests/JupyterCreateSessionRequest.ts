@@ -7,7 +7,7 @@
 export interface JupyterCreateSessionRequest {
     /** Unique identifier for the session, auto-generated if not provided */
     session_id?: string;
-    /** Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'. */
+    /** Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to the runtime Python version resolved from PYTHON_VERSION. */
     kernel_name?: string;
     /** Current working directory for the session */
     cwd?: string;

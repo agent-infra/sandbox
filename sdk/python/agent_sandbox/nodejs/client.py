@@ -148,7 +148,7 @@ class NodejsClient:
         return _response.data
 
     def list_sessions(
-        self, *, request_options: typing.Optional[RequestOptions] = None
+        self, *, version: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> ResponseNodeJsSessionListResponse:
         """
         List all active Node.js REPL sessions
@@ -158,6 +158,9 @@ class NodejsClient:
 
         Parameters
         ----------
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -173,14 +176,17 @@ class NodejsClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.nodejs.list_sessions()
+        client.nodejs.list_sessions(
+            version="version",
+        )
         """
-        _response = self._raw_client.list_sessions(request_options=request_options)
+        _response = self._raw_client.list_sessions(version=version, request_options=request_options)
         return _response.data
 
     def create_session(
         self,
         *,
+        version: typing.Optional[str] = None,
         session_id: typing.Optional[str] = OMIT,
         cwd: typing.Optional[str] = OMIT,
         max_idle_time: typing.Optional[int] = OMIT,
@@ -194,6 +200,9 @@ class NodejsClient:
 
         Parameters
         ----------
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
+
         session_id : typing.Optional[str]
             Custom session ID (auto-generated if not provided)
 
@@ -218,15 +227,25 @@ class NodejsClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.nodejs.create_session()
+        client.nodejs.create_session(
+            version="version",
+        )
         """
         _response = self._raw_client.create_session(
-            session_id=session_id, cwd=cwd, max_idle_time=max_idle_time, request_options=request_options
+            version=version,
+            session_id=session_id,
+            cwd=cwd,
+            max_idle_time=max_idle_time,
+            request_options=request_options,
         )
         return _response.data
 
     def get_session(
-        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        session_id: str,
+        *,
+        version: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseNodeJsSessionResponse:
         """
         Get information about a specific Node.js REPL session
@@ -237,6 +256,9 @@ class NodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -255,13 +277,18 @@ class NodejsClient:
         )
         client.nodejs.get_session(
             session_id="session_id",
+            version="version",
         )
         """
-        _response = self._raw_client.get_session(session_id, request_options=request_options)
+        _response = self._raw_client.get_session(session_id, version=version, request_options=request_options)
         return _response.data
 
     def delete_session(
-        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        session_id: str,
+        *,
+        version: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseNodeJsDeleteSessionResponse:
         """
         Delete a Node.js REPL session
@@ -271,6 +298,9 @@ class NodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -289,15 +319,17 @@ class NodejsClient:
         )
         client.nodejs.delete_session(
             session_id="session_id",
+            version="version",
         )
         """
-        _response = self._raw_client.delete_session(session_id, request_options=request_options)
+        _response = self._raw_client.delete_session(session_id, version=version, request_options=request_options)
         return _response.data
 
     def update_session(
         self,
         session_id: str,
         *,
+        version: typing.Optional[str] = None,
         max_idle_time: typing.Optional[int] = OMIT,
         cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -310,6 +342,9 @@ class NodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         max_idle_time : typing.Optional[int]
             New maximum idle time in seconds
@@ -334,10 +369,11 @@ class NodejsClient:
         )
         client.nodejs.update_session(
             session_id="session_id",
+            version="version",
         )
         """
         _response = self._raw_client.update_session(
-            session_id, max_idle_time=max_idle_time, cwd=cwd, request_options=request_options
+            session_id, version=version, max_idle_time=max_idle_time, cwd=cwd, request_options=request_options
         )
         return _response.data
 
@@ -489,7 +525,7 @@ class AsyncNodejsClient:
         return _response.data
 
     async def list_sessions(
-        self, *, request_options: typing.Optional[RequestOptions] = None
+        self, *, version: typing.Optional[str] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> ResponseNodeJsSessionListResponse:
         """
         List all active Node.js REPL sessions
@@ -499,6 +535,9 @@ class AsyncNodejsClient:
 
         Parameters
         ----------
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -519,17 +558,20 @@ class AsyncNodejsClient:
 
 
         async def main() -> None:
-            await client.nodejs.list_sessions()
+            await client.nodejs.list_sessions(
+                version="version",
+            )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.list_sessions(request_options=request_options)
+        _response = await self._raw_client.list_sessions(version=version, request_options=request_options)
         return _response.data
 
     async def create_session(
         self,
         *,
+        version: typing.Optional[str] = None,
         session_id: typing.Optional[str] = OMIT,
         cwd: typing.Optional[str] = OMIT,
         max_idle_time: typing.Optional[int] = OMIT,
@@ -543,6 +585,9 @@ class AsyncNodejsClient:
 
         Parameters
         ----------
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
+
         session_id : typing.Optional[str]
             Custom session ID (auto-generated if not provided)
 
@@ -572,18 +617,28 @@ class AsyncNodejsClient:
 
 
         async def main() -> None:
-            await client.nodejs.create_session()
+            await client.nodejs.create_session(
+                version="version",
+            )
 
 
         asyncio.run(main())
         """
         _response = await self._raw_client.create_session(
-            session_id=session_id, cwd=cwd, max_idle_time=max_idle_time, request_options=request_options
+            version=version,
+            session_id=session_id,
+            cwd=cwd,
+            max_idle_time=max_idle_time,
+            request_options=request_options,
         )
         return _response.data
 
     async def get_session(
-        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        session_id: str,
+        *,
+        version: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseNodeJsSessionResponse:
         """
         Get information about a specific Node.js REPL session
@@ -594,6 +649,9 @@ class AsyncNodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -617,16 +675,21 @@ class AsyncNodejsClient:
         async def main() -> None:
             await client.nodejs.get_session(
                 session_id="session_id",
+                version="version",
             )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get_session(session_id, request_options=request_options)
+        _response = await self._raw_client.get_session(session_id, version=version, request_options=request_options)
         return _response.data
 
     async def delete_session(
-        self, session_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        session_id: str,
+        *,
+        version: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> ResponseNodeJsDeleteSessionResponse:
         """
         Delete a Node.js REPL session
@@ -636,6 +699,9 @@ class AsyncNodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -659,18 +725,20 @@ class AsyncNodejsClient:
         async def main() -> None:
             await client.nodejs.delete_session(
                 session_id="session_id",
+                version="version",
             )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete_session(session_id, request_options=request_options)
+        _response = await self._raw_client.delete_session(session_id, version=version, request_options=request_options)
         return _response.data
 
     async def update_session(
         self,
         session_id: str,
         *,
+        version: typing.Optional[str] = None,
         max_idle_time: typing.Optional[int] = OMIT,
         cwd: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -683,6 +751,9 @@ class AsyncNodejsClient:
         Parameters
         ----------
         session_id : str
+
+        version : typing.Optional[str]
+            Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24"
 
         max_idle_time : typing.Optional[int]
             New maximum idle time in seconds
@@ -712,12 +783,13 @@ class AsyncNodejsClient:
         async def main() -> None:
             await client.nodejs.update_session(
                 session_id="session_id",
+                version="version",
             )
 
 
         asyncio.run(main())
         """
         _response = await self._raw_client.update_session(
-            session_id, max_idle_time=max_idle_time, cwd=cwd, request_options=request_options
+            session_id, version=version, max_idle_time=max_idle_time, cwd=cwd, request_options=request_options
         )
         return _response.data

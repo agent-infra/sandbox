@@ -5,10 +5,10 @@
  *     {}
  */
 export interface PollRequest {
-    /** 上次游标 */
-    since?: number;
-    /** 最多返回条数 */
+    /** Cursor returned by the previous call; only events with seq > cursor are returned */
+    cursor?: number;
+    /** Maximum number of events to return */
     limit?: number;
-    /** 长轮询等待秒数，0=立即返回 */
+    /** Long-poll wait time in seconds; 0 returns immediately */
     timeout?: number;
 }

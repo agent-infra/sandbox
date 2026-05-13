@@ -422,4 +422,593 @@ export class SandboxService {
             rawResponse: _response.rawResponse,
         };
     }
+
+    /**
+     * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.sandbox.observeStatus()
+     */
+    public observeStatus(
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseObservationStatus, Sandbox.sandbox.observeStatus.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__observeStatus(requestOptions));
+    }
+
+    private async __observeStatus(
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseObservationStatus, Sandbox.sandbox.observeStatus.Error>>
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/sandbox/observe/status",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseObservationStatus,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.observeStatus.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {Sandbox.SandboxObserveLiveRequest} request
+     * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.sandbox.observeLive({
+     *         top_rows: 1
+     *     })
+     */
+    public observeLive(
+        request: Sandbox.SandboxObserveLiveRequest = {},
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseObservationLiveSnapshot, Sandbox.sandbox.observeLive.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__observeLive(request, requestOptions));
+    }
+
+    private async __observeLive(
+        request: Sandbox.SandboxObserveLiveRequest = {},
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseObservationLiveSnapshot, Sandbox.sandbox.observeLive.Error>
+        >
+    > {
+        const { top_rows: topRows } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (topRows != null) {
+            _queryParams.top_rows = topRows.toString();
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/sandbox/observe/live",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseObservationLiveSnapshot,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.sandbox.observeLive.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.observeLive.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {Sandbox.ObserveStartRequest} request
+     * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.sandbox.observeStart()
+     */
+    public observeStart(
+        request: Sandbox.ObserveStartRequest = {},
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseObservationStartResult, Sandbox.sandbox.observeStart.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__observeStart(request, requestOptions));
+    }
+
+    private async __observeStart(
+        request: Sandbox.ObserveStartRequest = {},
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseObservationStartResult, Sandbox.sandbox.observeStart.Error>
+        >
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/sandbox/observe/start",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseObservationStartResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.sandbox.observeStart.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.observeStart.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {Sandbox.ObserveStopRequest} request
+     * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.sandbox.observeStop()
+     */
+    public observeStop(
+        request: Sandbox.ObserveStopRequest = {},
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseObservationStopResult, Sandbox.sandbox.observeStop.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__observeStop(request, requestOptions));
+    }
+
+    private async __observeStop(
+        request: Sandbox.ObserveStopRequest = {},
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<Sandbox.ResponseObservationStopResult, Sandbox.sandbox.observeStop.Error>>
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/sandbox/observe/stop",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseObservationStopResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.sandbox.observeStop.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.observeStop.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {Sandbox.ObserveExportRequest} request
+     * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.sandbox.observeExport()
+     */
+    public observeExport(
+        request: Sandbox.ObserveExportRequest = {},
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseObservationExportResult, Sandbox.sandbox.observeExport.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__observeExport(request, requestOptions));
+    }
+
+    private async __observeExport(
+        request: Sandbox.ObserveExportRequest = {},
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseObservationExportResult, Sandbox.sandbox.observeExport.Error>
+        >
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/sandbox/observe/export",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseObservationExportResult,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.sandbox.observeExport.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.observeExport.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.sandbox.observeReports()
+     */
+    public observeReports(
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseListObservationReportInfo, Sandbox.sandbox.observeReports.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__observeReports(requestOptions));
+    }
+
+    private async __observeReports(
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseListObservationReportInfo, Sandbox.sandbox.observeReports.Error>
+        >
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/sandbox/observe/reports",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseListObservationReportInfo,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.observeReports.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    public observeReportDownload(
+        reportId: string,
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<core.BinaryResponse, Sandbox.sandbox.observeReportDownload.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__observeReportDownload(reportId, requestOptions));
+    }
+
+    private async __observeReportDownload(
+        reportId: string,
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<core.APIResponse<core.BinaryResponse, Sandbox.sandbox.observeReportDownload.Error>>
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)<core.BinaryResponse>({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                `v1/sandbox/observe/reports/${core.url.encodePathParam(reportId)}`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            responseType: "binary-response",
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.sandbox.observeReportDownload.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.observeReportDownload.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
+     * @param {string} reportId
+     * @param {SandboxService.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.sandbox.observeReportDelete("report_id")
+     */
+    public observeReportDelete(
+        reportId: string,
+        requestOptions?: SandboxService.RequestOptions,
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseObservationReportInfo, Sandbox.sandbox.observeReportDelete.Error>
+    > {
+        return core.HttpResponsePromise.fromPromise(this.__observeReportDelete(reportId, requestOptions));
+    }
+
+    private async __observeReportDelete(
+        reportId: string,
+        requestOptions?: SandboxService.RequestOptions,
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseObservationReportInfo, Sandbox.sandbox.observeReportDelete.Error>
+        >
+    > {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                `v1/sandbox/observe/reports/${core.url.encodePathParam(reportId)}`,
+            ),
+            method: "DELETE",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseObservationReportInfo,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.sandbox.observeReportDelete.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.sandbox.observeReportDelete.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
 }

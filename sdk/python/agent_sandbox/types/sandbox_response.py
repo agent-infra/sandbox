@@ -18,7 +18,7 @@ class SandboxResponse(UniversalBaseModel):
     Operation result message
     """
 
-    data: typing.Optional[typing.Optional[typing.Any]] = pydantic.Field(default=None)
+    data: typing.Optional[str] = pydantic.Field(default=None)
     """
     Data returned from the operation
     """

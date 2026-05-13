@@ -3,7 +3,7 @@
 import type * as Sandbox from "../index.js";
 
 export interface RestartRequest {
-    mode?: Sandbox.Mode;
+    mode?: Sandbox.RestartMode;
     url_blocklist?: string[];
     url_allowlist?: string[];
     locale?: string;

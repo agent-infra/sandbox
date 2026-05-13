@@ -5,10 +5,10 @@
  *     {}
  */
 export interface BashSessionCreateRequest {
-    /** Session ID. Auto-generated if not provided. */
+    /** Session ID. Auto-generated if not provided or empty. */
     session_id?: string;
-    /** Working directory for the new session (absolute path) */
+    /** Initial default working directory for the new session (absolute path). Later /exec calls may update it with exec_dir. */
     exec_dir?: string;
-    /** Path to a shell snapshot script to source on session init */
+    /** Path to a shell snapshot script to source on session init. This is an initialization snapshot only; command-side env changes are not written back after each exec. */
     snapshot_path?: string;
 }

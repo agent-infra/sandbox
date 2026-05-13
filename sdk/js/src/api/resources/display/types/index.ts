@@ -1,1 +1,1 @@
-export * from "./DisplayAction.js";
+export * from "./DisplayRecordRequestAction.js";

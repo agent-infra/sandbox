@@ -79,17 +79,29 @@ export class Browser {
      * Take a screenshot of the current display.
      *
      * Returns:
-     *     StreamingResponse: PNG image data with proper headers including display and screenshot dimensions
+     *     StreamingResponse: PNG or JPEG image data with proper headers including display and screenshot dimensions
      */
     public screenshot(
+        request: Sandbox.BrowserScreenshotRequest = {},
         requestOptions?: Browser.RequestOptions,
     ): core.HttpResponsePromise<core.APIResponse<core.BinaryResponse, Sandbox.browser.screenshot.Error>> {
-        return core.HttpResponsePromise.fromPromise(this.__screenshot(requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__screenshot(request, requestOptions));
     }
 
     private async __screenshot(
+        request: Sandbox.BrowserScreenshotRequest = {},
         requestOptions?: Browser.RequestOptions,
     ): Promise<core.WithRawResponse<core.APIResponse<core.BinaryResponse, Sandbox.browser.screenshot.Error>>> {
+        const { format, quality } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (format != null) {
+            _queryParams.format = format;
+        }
+
+        if (quality != null) {
+            _queryParams.quality = quality.toString();
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)<core.BinaryResponse>({
             url: core.url.join(
@@ -99,7 +111,7 @@ export class Browser {
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             responseType: "binary-response",
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
@@ -117,6 +129,22 @@ export class Browser {
                 },
                 rawResponse: _response.rawResponse,
             };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.browser.screenshot.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
         }
 
         return {

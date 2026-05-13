@@ -18,6 +18,7 @@ from ..types.response import Response
 from ..types.response_browser_info_result import ResponseBrowserInfoResult
 from ..types.restart_request import RestartRequest
 from .types.action import Action
+from .types.format import Format
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -65,16 +66,24 @@ class RawBrowserClient:
 
     @contextlib.contextmanager
     def screenshot(
-        self, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        format: typing.Optional[Format] = None,
+        quality: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[HttpResponse[typing.Iterator[bytes]]]:
         """
         Take a screenshot of the current display.
 
         Returns:
-            StreamingResponse: PNG image data with proper headers including display and screenshot dimensions
+            StreamingResponse: PNG or JPEG image data with proper headers including display and screenshot dimensions
 
         Parameters
         ----------
+        format : typing.Optional[Format]
+
+        quality : typing.Optional[int]
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
 
@@ -86,6 +95,10 @@ class RawBrowserClient:
         with self._client_wrapper.httpx_client.stream(
             "v1/browser/screenshot",
             method="GET",
+            params={
+                "format": format,
+                "quality": quality,
+            },
             request_options=request_options,
         ) as _response:
 
@@ -97,6 +110,17 @@ class RawBrowserClient:
                             response=_response, data=(_chunk for _chunk in _response.iter_bytes(chunk_size=_chunk_size))
                         )
                     _response.read()
+                    if _response.status_code == 422:
+                        raise UnprocessableEntityError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                HttpValidationError,
+                                parse_obj_as(
+                                    type_=HttpValidationError,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
                     _response_json = _response.json()
                 except JSONDecodeError:
                     raise ApiError(
@@ -349,16 +373,24 @@ class AsyncRawBrowserClient:
 
     @contextlib.asynccontextmanager
     async def screenshot(
-        self, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        format: typing.Optional[Format] = None,
+        quality: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[bytes]]]:
         """
         Take a screenshot of the current display.
 
         Returns:
-            StreamingResponse: PNG image data with proper headers including display and screenshot dimensions
+            StreamingResponse: PNG or JPEG image data with proper headers including display and screenshot dimensions
 
         Parameters
         ----------
+        format : typing.Optional[Format]
+
+        quality : typing.Optional[int]
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
 
@@ -370,6 +402,10 @@ class AsyncRawBrowserClient:
         async with self._client_wrapper.httpx_client.stream(
             "v1/browser/screenshot",
             method="GET",
+            params={
+                "format": format,
+                "quality": quality,
+            },
             request_options=request_options,
         ) as _response:
 
@@ -382,6 +418,17 @@ class AsyncRawBrowserClient:
                             data=(_chunk async for _chunk in _response.aiter_bytes(chunk_size=_chunk_size)),
                         )
                     await _response.aread()
+                    if _response.status_code == 422:
+                        raise UnprocessableEntityError(
+                            headers=dict(_response.headers),
+                            body=typing.cast(
+                                HttpValidationError,
+                                parse_obj_as(
+                                    type_=HttpValidationError,  # type: ignore
+                                    object_=_response.json(),
+                                ),
+                            ),
+                        )
                     _response_json = _response.json()
                 except JSONDecodeError:
                     raise ApiError(

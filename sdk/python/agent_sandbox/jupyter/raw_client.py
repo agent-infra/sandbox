@@ -39,7 +39,8 @@ class RawJupyterClient:
         Execute Python code using Jupyter kernel with session persistence
 
         This endpoint allows you to execute Python code and get results back.
-        You can optionally specify a kernel_name (defaults to 'python3').
+        You can optionally specify a kernel_name.
+        If omitted, the runtime default resolved from `PYTHON_VERSION` is used.
         Use session_id to maintain variable state across multiple requests.
         Sessions automatically expire after 30 minutes of inactivity.
 
@@ -52,7 +53,7 @@ class RawJupyterClient:
             Execution timeout in seconds
 
         kernel_name : typing.Optional[str]
-            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'.
+            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to the runtime Python version resolved from PYTHON_VERSION.
 
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
@@ -282,7 +283,7 @@ class RawJupyterClient:
             Unique identifier for the session, auto-generated if not provided
 
         kernel_name : typing.Optional[str]
-            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'.
+            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to the runtime Python version resolved from PYTHON_VERSION.
 
         cwd : typing.Optional[str]
             Current working directory for the session
@@ -354,7 +355,8 @@ class AsyncRawJupyterClient:
         Execute Python code using Jupyter kernel with session persistence
 
         This endpoint allows you to execute Python code and get results back.
-        You can optionally specify a kernel_name (defaults to 'python3').
+        You can optionally specify a kernel_name.
+        If omitted, the runtime default resolved from `PYTHON_VERSION` is used.
         Use session_id to maintain variable state across multiple requests.
         Sessions automatically expire after 30 minutes of inactivity.
 
@@ -367,7 +369,7 @@ class AsyncRawJupyterClient:
             Execution timeout in seconds
 
         kernel_name : typing.Optional[str]
-            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'.
+            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to the runtime Python version resolved from PYTHON_VERSION.
 
         session_id : typing.Optional[str]
             Session ID to maintain kernel state across requests
@@ -599,7 +601,7 @@ class AsyncRawJupyterClient:
             Unique identifier for the session, auto-generated if not provided
 
         kernel_name : typing.Optional[str]
-            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'.
+            Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to the runtime Python version resolved from PYTHON_VERSION.
 
         cwd : typing.Optional[str]
             Current working directory for the session

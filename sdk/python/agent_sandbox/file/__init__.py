@@ -6,10 +6,10 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .types import Command, FileWatchWaitRequestEventTypesItem, StrReplaceEditorRequestReplaceMode
+    from .types import AppSchemasFileWatchWaitRequestEventTypesItem, Command, StrReplaceEditorRequestReplaceMode
 _dynamic_imports: typing.Dict[str, str] = {
+    "AppSchemasFileWatchWaitRequestEventTypesItem": ".types",
     "Command": ".types",
-    "FileWatchWaitRequestEventTypesItem": ".types",
     "StrReplaceEditorRequestReplaceMode": ".types",
 }
 
@@ -33,4 +33,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["Command", "FileWatchWaitRequestEventTypesItem", "StrReplaceEditorRequestReplaceMode"]
+__all__ = ["AppSchemasFileWatchWaitRequestEventTypesItem", "Command", "StrReplaceEditorRequestReplaceMode"]

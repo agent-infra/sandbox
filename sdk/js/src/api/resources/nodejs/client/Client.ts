@@ -179,26 +179,37 @@ export class Nodejs {
      * Returns information about all active sessions including their state,
      * working directory, and idle time.
      *
+     * @param {Sandbox.NodejsListSessionsRequest} request
      * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.nodejs.listSessions()
+     *     await client.nodejs.listSessions({
+     *         version: "version"
+     *     })
      */
     public listSessions(
+        request: Sandbox.NodejsListSessionsRequest = {},
         requestOptions?: Nodejs.RequestOptions,
     ): core.HttpResponsePromise<
         core.APIResponse<Sandbox.ResponseNodeJsSessionListResponse, Sandbox.nodejs.listSessions.Error>
     > {
-        return core.HttpResponsePromise.fromPromise(this.__listSessions(requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__listSessions(request, requestOptions));
     }
 
     private async __listSessions(
+        request: Sandbox.NodejsListSessionsRequest = {},
         requestOptions?: Nodejs.RequestOptions,
     ): Promise<
         core.WithRawResponse<
             core.APIResponse<Sandbox.ResponseNodeJsSessionListResponse, Sandbox.nodejs.listSessions.Error>
         >
     > {
+        const { version } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (version != null) {
+            _queryParams.version = version;
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -208,7 +219,7 @@ export class Nodejs {
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -225,6 +236,22 @@ export class Nodejs {
                 },
                 rawResponse: _response.rawResponse,
             };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.nodejs.listSessions.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
         }
 
         return {
@@ -247,7 +274,9 @@ export class Nodejs {
      * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.nodejs.createSession()
+     *     await client.nodejs.createSession({
+     *         version: "version"
+     *     })
      */
     public createSession(
         request: Sandbox.NodeJsCreateSessionRequest = {},
@@ -266,6 +295,12 @@ export class Nodejs {
             core.APIResponse<Sandbox.ResponseNodeJsCreateSessionResponse, Sandbox.nodejs.createSession.Error>
         >
     > {
+        const { version, ..._body } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (version != null) {
+            _queryParams.version = version;
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -276,9 +311,9 @@ export class Nodejs {
             method: "POST",
             headers: _headers,
             contentType: "application/json",
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             requestType: "json",
-            body: request,
+            body: _body,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -330,26 +365,37 @@ export class Nodejs {
      * working directory, creation time, and idle time.
      *
      * @param {string} sessionId
+     * @param {Sandbox.NodejsGetSessionRequest} request
      * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.nodejs.getSession("session_id")
+     *     await client.nodejs.getSession("session_id", {
+     *         version: "version"
+     *     })
      */
     public getSession(
         sessionId: string,
+        request: Sandbox.NodejsGetSessionRequest = {},
         requestOptions?: Nodejs.RequestOptions,
     ): core.HttpResponsePromise<
         core.APIResponse<Sandbox.ResponseNodeJsSessionResponse, Sandbox.nodejs.getSession.Error>
     > {
-        return core.HttpResponsePromise.fromPromise(this.__getSession(sessionId, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__getSession(sessionId, request, requestOptions));
     }
 
     private async __getSession(
         sessionId: string,
+        request: Sandbox.NodejsGetSessionRequest = {},
         requestOptions?: Nodejs.RequestOptions,
     ): Promise<
         core.WithRawResponse<core.APIResponse<Sandbox.ResponseNodeJsSessionResponse, Sandbox.nodejs.getSession.Error>>
     > {
+        const { version } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (version != null) {
+            _queryParams.version = version;
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -359,7 +405,7 @@ export class Nodejs {
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -410,28 +456,39 @@ export class Nodejs {
      * Terminates the session and releases all associated resources.
      *
      * @param {string} sessionId
+     * @param {Sandbox.NodejsDeleteSessionRequest} request
      * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.nodejs.deleteSession("session_id")
+     *     await client.nodejs.deleteSession("session_id", {
+     *         version: "version"
+     *     })
      */
     public deleteSession(
         sessionId: string,
+        request: Sandbox.NodejsDeleteSessionRequest = {},
         requestOptions?: Nodejs.RequestOptions,
     ): core.HttpResponsePromise<
         core.APIResponse<Sandbox.ResponseNodeJsDeleteSessionResponse, Sandbox.nodejs.deleteSession.Error>
     > {
-        return core.HttpResponsePromise.fromPromise(this.__deleteSession(sessionId, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__deleteSession(sessionId, request, requestOptions));
     }
 
     private async __deleteSession(
         sessionId: string,
+        request: Sandbox.NodejsDeleteSessionRequest = {},
         requestOptions?: Nodejs.RequestOptions,
     ): Promise<
         core.WithRawResponse<
             core.APIResponse<Sandbox.ResponseNodeJsDeleteSessionResponse, Sandbox.nodejs.deleteSession.Error>
         >
     > {
+        const { version } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (version != null) {
+            _queryParams.version = version;
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -441,7 +498,7 @@ export class Nodejs {
             ),
             method: "DELETE",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -496,7 +553,9 @@ export class Nodejs {
      * @param {Nodejs.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.nodejs.updateSession("session_id")
+     *     await client.nodejs.updateSession("session_id", {
+     *         version: "version"
+     *     })
      */
     public updateSession(
         sessionId: string,
@@ -517,6 +576,12 @@ export class Nodejs {
             core.APIResponse<Sandbox.ResponseNodeJsUpdateSessionResponse, Sandbox.nodejs.updateSession.Error>
         >
     > {
+        const { version, ..._body } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (version != null) {
+            _queryParams.version = version;
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -527,9 +592,9 @@ export class Nodejs {
             method: "PATCH",
             headers: _headers,
             contentType: "application/json",
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             requestType: "json",
-            body: request,
+            body: _body,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,

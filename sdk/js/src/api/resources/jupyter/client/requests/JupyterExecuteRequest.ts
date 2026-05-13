@@ -11,7 +11,7 @@ export interface JupyterExecuteRequest {
     code: string;
     /** Execution timeout in seconds */
     timeout?: number;
-    /** Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to 'python3'. */
+    /** Kernel name: 'python3', 'python3.10', 'python3.11', 'python3.12'. Defaults to the runtime Python version resolved from PYTHON_VERSION. */
     kernel_name?: string;
     /** Session ID to maintain kernel state across requests */
     session_id?: string;

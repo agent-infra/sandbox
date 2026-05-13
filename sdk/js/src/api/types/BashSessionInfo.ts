@@ -8,7 +8,7 @@ import type * as Sandbox from "../index.js";
 export interface BashSessionInfo {
     /** Session identifier */
     session_id: string;
-    /** Session status */
+    /** Session status. Possible values: `ready` (session can accept commands), `closed` (session is closed and cannot accept new commands). */
     status: Sandbox.SessionStatus;
     /** Working directory */
     working_dir: string;

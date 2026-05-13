@@ -122,7 +122,9 @@ class McpClient:
         )
         return _response.data
 
-    def list_mcp_servers(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseListStr:
+    def list_mcp_servers(
+        self, *, include_hidden: typing.Optional[bool] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseListStr:
         """
         List all configured MCP servers
 
@@ -131,6 +133,9 @@ class McpClient:
 
         Parameters
         ----------
+        include_hidden : typing.Optional[bool]
+            Whether to include hidden MCP servers in the response
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -146,9 +151,11 @@ class McpClient:
         client = Sandbox(
             base_url="https://yourhost.com/path/to/api",
         )
-        client.mcp.list_mcp_servers()
+        client.mcp.list_mcp_servers(
+            include_hidden=True,
+        )
         """
-        _response = self._raw_client.list_mcp_servers(request_options=request_options)
+        _response = self._raw_client.list_mcp_servers(include_hidden=include_hidden, request_options=request_options)
         return _response.data
 
 
@@ -277,7 +284,9 @@ class AsyncMcpClient:
         )
         return _response.data
 
-    async def list_mcp_servers(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseListStr:
+    async def list_mcp_servers(
+        self, *, include_hidden: typing.Optional[bool] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseListStr:
         """
         List all configured MCP servers
 
@@ -286,6 +295,9 @@ class AsyncMcpClient:
 
         Parameters
         ----------
+        include_hidden : typing.Optional[bool]
+            Whether to include hidden MCP servers in the response
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -306,10 +318,14 @@ class AsyncMcpClient:
 
 
         async def main() -> None:
-            await client.mcp.list_mcp_servers()
+            await client.mcp.list_mcp_servers(
+                include_hidden=True,
+            )
 
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.list_mcp_servers(request_options=request_options)
+        _response = await self._raw_client.list_mcp_servers(
+            include_hidden=include_hidden, request_options=request_options
+        )
         return _response.data

@@ -6,8 +6,8 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
-    from .display_action import DisplayAction
-_dynamic_imports: typing.Dict[str, str] = {"DisplayAction": ".display_action"}
+    from .display_record_request_action import DisplayRecordRequestAction
+_dynamic_imports: typing.Dict[str, str] = {"DisplayRecordRequestAction": ".display_record_request_action"}
 
 
 def __getattr__(attr_name: str) -> typing.Any:
@@ -29,4 +29,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["DisplayAction"]
+__all__ = ["DisplayRecordRequestAction"]

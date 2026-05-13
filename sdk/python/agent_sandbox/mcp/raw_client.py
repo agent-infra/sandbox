@@ -153,7 +153,7 @@ class RawMcpClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def list_mcp_servers(
-        self, *, request_options: typing.Optional[RequestOptions] = None
+        self, *, include_hidden: typing.Optional[bool] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResponseListStr]:
         """
         List all configured MCP servers
@@ -163,6 +163,9 @@ class RawMcpClient:
 
         Parameters
         ----------
+        include_hidden : typing.Optional[bool]
+            Whether to include hidden MCP servers in the response
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -174,6 +177,9 @@ class RawMcpClient:
         _response = self._client_wrapper.httpx_client.request(
             "v1/mcp/servers",
             method="GET",
+            params={
+                "include_hidden": include_hidden,
+            },
             request_options=request_options,
         )
         try:
@@ -186,6 +192,17 @@ class RawMcpClient:
                     ),
                 )
                 return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -326,7 +343,7 @@ class AsyncRawMcpClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def list_mcp_servers(
-        self, *, request_options: typing.Optional[RequestOptions] = None
+        self, *, include_hidden: typing.Optional[bool] = None, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResponseListStr]:
         """
         List all configured MCP servers
@@ -336,6 +353,9 @@ class AsyncRawMcpClient:
 
         Parameters
         ----------
+        include_hidden : typing.Optional[bool]
+            Whether to include hidden MCP servers in the response
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -347,6 +367,9 @@ class AsyncRawMcpClient:
         _response = await self._client_wrapper.httpx_client.request(
             "v1/mcp/servers",
             method="GET",
+            params={
+                "include_hidden": include_hidden,
+            },
             request_options=request_options,
         )
         try:
@@ -359,6 +382,17 @@ class AsyncRawMcpClient:
                     ),
                 )
                 return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        HttpValidationError,
+                        parse_obj_as(
+                            type_=HttpValidationError,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)

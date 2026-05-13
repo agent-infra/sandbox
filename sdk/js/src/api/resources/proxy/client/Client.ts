@@ -528,6 +528,61 @@ export class Proxy {
     }
 
     /**
+     * Check proxy subsystem health: GOST alive, nginx alive, config consistency.
+     *
+     * @param {Proxy.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.proxy.health()
+     */
+    public health(
+        requestOptions?: Proxy.RequestOptions,
+    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseProxyHealthCheck, Sandbox.proxy.health.Error>> {
+        return core.HttpResponsePromise.fromPromise(this.__health(requestOptions));
+    }
+
+    private async __health(
+        requestOptions?: Proxy.RequestOptions,
+    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseProxyHealthCheck, Sandbox.proxy.health.Error>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _response = await (this._options.fetcher ?? core.fetcher)({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)),
+                "v1/proxy/health",
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return {
+                data: {
+                    ok: true,
+                    body: _response.body as Sandbox.ResponseProxyHealthCheck,
+                    headers: _response.headers,
+                    rawResponse: _response.rawResponse,
+                },
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        return {
+            data: {
+                ok: false,
+                error: Sandbox.proxy.health.Error._unknown(core.isFailedResponse(_response) ? _response.error : { reason: "unknown", errorMessage: "Unknown error" }),
+                rawResponse: _response.rawResponse,
+            },
+            rawResponse: _response.rawResponse,
+        };
+    }
+
+    /**
      * Get the current upstream proxy configuration.
      *
      * @param {Proxy.RequestOptions} requestOptions - Request-specific configuration.

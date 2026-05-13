@@ -7,14 +7,14 @@
  *     }
  */
 export interface CreateWatchRequest {
-    /** 监听目录路径 */
+    /** Path of the file or directory to watch */
     path: string;
-    /** 是否递归子目录 */
+    /** Whether to recursively watch subdirectories */
     recursive?: boolean;
-    /** 排除的目录/glob 模式 */
+    /** Directory or glob patterns to exclude */
     exclude?: string[];
-    /** 去抖动窗口(ms) */
+    /** Debounce window in milliseconds */
     debounce?: number;
-    /** glob 过滤，空=全部通过 */
+    /** Glob filters; empty means all events are included */
     include_patterns?: string[];
 }

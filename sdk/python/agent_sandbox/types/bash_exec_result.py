@@ -29,7 +29,7 @@ class BashExecResult(UniversalBaseModel):
 
     status: CommandStatus = pydantic.Field()
     """
-    Command status
+    Command execution status. Possible values: `pending` (accepted but not started yet; typically internal-only), `running` (still executing), `completed` (process exited and `exit_code` is available; a non-zero shell exit code still uses `completed`), `timed_out` (process was force-killed after `hard_timeout`), `killed` (process was terminated by kill/cleanup or an internal execution failure).
     """
 
     stdout: typing.Optional[str] = pydantic.Field(default=None)

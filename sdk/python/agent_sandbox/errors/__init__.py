@@ -6,8 +6,12 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
+    from .conflict_error import ConflictError
     from .unprocessable_entity_error import UnprocessableEntityError
-_dynamic_imports: typing.Dict[str, str] = {"UnprocessableEntityError": ".unprocessable_entity_error"}
+_dynamic_imports: typing.Dict[str, str] = {
+    "ConflictError": ".conflict_error",
+    "UnprocessableEntityError": ".unprocessable_entity_error",
+}
 
 
 def __getattr__(attr_name: str) -> typing.Any:
@@ -29,4 +33,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["UnprocessableEntityError"]
+__all__ = ["ConflictError", "UnprocessableEntityError"]

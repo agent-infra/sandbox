@@ -6,12 +6,12 @@ import typing
 from importlib import import_module
 
 if typing.TYPE_CHECKING:
+    from .app_schemas_file_watch_wait_request_event_types_item import AppSchemasFileWatchWaitRequestEventTypesItem
     from .command import Command
-    from .file_watch_wait_request_event_types_item import FileWatchWaitRequestEventTypesItem
     from .str_replace_editor_request_replace_mode import StrReplaceEditorRequestReplaceMode
 _dynamic_imports: typing.Dict[str, str] = {
+    "AppSchemasFileWatchWaitRequestEventTypesItem": ".app_schemas_file_watch_wait_request_event_types_item",
     "Command": ".command",
-    "FileWatchWaitRequestEventTypesItem": ".file_watch_wait_request_event_types_item",
     "StrReplaceEditorRequestReplaceMode": ".str_replace_editor_request_replace_mode",
 }
 
@@ -35,4 +35,4 @@ def __dir__():
     return sorted(lazy_attrs)
 
 
-__all__ = ["Command", "FileWatchWaitRequestEventTypesItem", "StrReplaceEditorRequestReplaceMode"]
+__all__ = ["AppSchemasFileWatchWaitRequestEventTypesItem", "Command", "StrReplaceEditorRequestReplaceMode"]

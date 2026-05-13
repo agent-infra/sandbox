@@ -2,9 +2,13 @@
 
 /**
  * @example
- *     {}
+ *     {
+ *         version: "version"
+ *     }
  */
 export interface NodeJsUpdateSessionRequest {
+    /** Node.js version to target: "node20", "node22", "node24", or aliases "20", "22", "24" */
+    version?: string;
     /** New maximum idle time in seconds */
     max_idle_time?: number;
     /** New working directory */

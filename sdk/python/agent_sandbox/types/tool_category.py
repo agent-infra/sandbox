@@ -9,7 +9,7 @@ from .available_tool import AvailableTool
 
 class ToolCategory(UniversalBaseModel):
     """
-    将可用工具按功能分类
+    Group available tools by capability
     """
 
     category: str = pydantic.Field()

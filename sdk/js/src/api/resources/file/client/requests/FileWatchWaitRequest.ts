@@ -9,10 +9,10 @@ import type * as Sandbox from "../../../../index.js";
  *     }
  */
 export interface FileWatchWaitRequest {
-    /** 等待的文件路径（精确匹配） */
+    /** File path to wait for (exact match) */
     path: string;
-    /** 最大等待秒数 */
+    /** Maximum wait time in seconds */
     timeout?: number;
-    /** 关注的事件类型 */
-    event_types?: Sandbox.FileWatchWaitRequestEventTypesItem[];
+    /** Event types to watch */
+    event_types?: Sandbox.AppSchemasFileWatchWaitRequestEventTypesItem[];
 }

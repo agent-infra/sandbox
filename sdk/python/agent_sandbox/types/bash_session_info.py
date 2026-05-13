@@ -20,7 +20,7 @@ class BashSessionInfo(UniversalBaseModel):
 
     status: SessionStatus = pydantic.Field()
     """
-    Session status
+    Session status. Possible values: `ready` (session can accept commands), `closed` (session is closed and cannot accept new commands).
     """
 
     working_dir: str = pydantic.Field()

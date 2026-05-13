@@ -15,6 +15,7 @@ from ..types.response import Response
 from ..types.response_list_proxy_mapping_route import ResponseListProxyMappingRoute
 from ..types.response_list_str import ResponseListStr
 from ..types.response_proxy_diagnose_result import ResponseProxyDiagnoseResult
+from ..types.response_proxy_health_check import ResponseProxyHealthCheck
 from ..types.response_proxy_mapping_route import ResponseProxyMappingRoute
 from ..types.response_proxy_upstream_info import ResponseProxyUpstreamInfo
 from ..types.response_union_proxy_upstream_info_none_type import ResponseUnionProxyUpstreamInfoNoneType
@@ -371,6 +372,42 @@ class RawProxyClient:
                         ),
                     ),
                 )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def health(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> HttpResponse[ResponseProxyHealthCheck]:
+        """
+        Check proxy subsystem health: GOST alive, nginx alive, config consistency.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[ResponseProxyHealthCheck]
+            Successful Response
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v1/proxy/health",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseProxyHealthCheck,
+                    parse_obj_as(
+                        type_=ResponseProxyHealthCheck,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
@@ -862,6 +899,42 @@ class AsyncRawProxyClient:
                         ),
                     ),
                 )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def health(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> AsyncHttpResponse[ResponseProxyHealthCheck]:
+        """
+        Check proxy subsystem health: GOST alive, nginx alive, config consistency.
+
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[ResponseProxyHealthCheck]
+            Successful Response
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v1/proxy/health",
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    ResponseProxyHealthCheck,
+                    parse_obj_as(
+                        type_=ResponseProxyHealthCheck,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)

@@ -21,6 +21,25 @@ export class Bash {
     /**
      * Execute a bash command.
      *
+     * Status values in `data.status`:
+     * - `running`: the process is still executing. Returned immediately for
+     *   `async_mode=true`, or when sync mode hits `timeout` before completion.
+     * - `completed`: the process exited and `exit_code` is available. This does
+     *   not imply success; non-zero shell exit codes still use `completed`.
+     * - `timed_out`: the process exceeded `hard_timeout` and was force-killed.
+     * - `killed`: the process was terminated by `/v1/bash/kill`, session cleanup,
+     *   or an internal execution failure before normal completion.
+     *
+     * How to consume the result:
+     * - Treat `status` as lifecycle state, not success/failure.
+     * - If `status=running`, keep polling `/v1/bash/output` with the returned
+     *   `session_id`, `command_id`, `offset`, and `stderr_offset`.
+     * - If `status=completed`, check `exit_code`: `0` means success, non-zero
+     *   means the command finished but failed.
+     * - If `status=timed_out` or `status=killed`, show the current output as a
+     *   partial result and surface the command as interrupted.
+     * - Empty `stdout` or `stderr` does not mean the command did not run.
+     *
      * - async_mode=true: returns immediately with RUNNING status
      * - async_mode=false + timeout: waits up to timeout, then returns RUNNING if not done
      * - async_mode=false + no timeout: waits until command completes
@@ -105,6 +124,16 @@ export class Bash {
 
     /**
      * Read output from a bash session using offset-based streaming.
+     *
+     * `data.command.status` uses the same command-status values as `/v1/bash/exec`:
+     * `running`, `completed`, `timed_out`, or `killed`.
+     *
+     * Recommended consumption pattern:
+     * - Start with `/v1/bash/exec`.
+     * - If the command is still `running`, call `/v1/bash/output` repeatedly.
+     * - Reuse the returned `offset` and `stderr_offset` to fetch only new data.
+     * - Stop polling when `data.command.status` is no longer `running`.
+     * - Use the final `exit_code` to decide whether the command succeeded.
      *
      * - offset/stderr_offset: byte offsets to read from (use values from previous response)
      * - wait=true: long-poll until new output arrives or wait_timeout
@@ -346,6 +375,10 @@ export class Bash {
 
     /**
      * List all active bash sessions.
+     *
+     * Session status values:
+     * - `ready`: session exists and can accept commands
+     * - `closed`: session has been closed and cannot be reused
      *
      * @param {Bash.RequestOptions} requestOptions - Request-specific configuration.
      *

@@ -4,11 +4,11 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .mode import Mode
+from .restart_mode import RestartMode
 
 
 class RestartRequest(UniversalBaseModel):
-    mode: typing.Optional[Mode] = None
+    mode: typing.Optional[RestartMode] = None
     url_blocklist: typing.Optional[typing.List[str]] = None
     url_allowlist: typing.Optional[typing.List[str]] = None
     locale: typing.Optional[str] = None

@@ -25,6 +25,7 @@ if typing.TYPE_CHECKING:
         Action_Typing,
         Action_Wait,
     )
+    from .format import Format
 _dynamic_imports: typing.Dict[str, str] = {
     "Action": ".action",
     "Action_Click": ".action",
@@ -43,6 +44,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "Action_Scroll": ".action",
     "Action_Typing": ".action",
     "Action_Wait": ".action",
+    "Format": ".format",
 }
 
 
@@ -83,4 +85,5 @@ __all__ = [
     "Action_Scroll",
     "Action_Typing",
     "Action_Wait",
+    "Format",
 ]

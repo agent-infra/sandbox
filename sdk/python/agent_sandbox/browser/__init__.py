@@ -24,6 +24,7 @@ if typing.TYPE_CHECKING:
         Action_Scroll,
         Action_Typing,
         Action_Wait,
+        Format,
     )
 _dynamic_imports: typing.Dict[str, str] = {
     "Action": ".types",
@@ -43,6 +44,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "Action_Scroll": ".types",
     "Action_Typing": ".types",
     "Action_Wait": ".types",
+    "Format": ".types",
 }
 
 
@@ -83,4 +85,5 @@ __all__ = [
     "Action_Scroll",
     "Action_Typing",
     "Action_Wait",
+    "Format",
 ]

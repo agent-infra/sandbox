@@ -207,20 +207,31 @@ export class Mcp {
      * Returns:
      *     Response containing the list of configured and filtered MCP servers
      *
+     * @param {Sandbox.ListMcpServersV1McpServersGetRequest} request
      * @param {Mcp.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @example
-     *     await client.mcp.listMcpServers()
+     *     await client.mcp.listMcpServers({
+     *         include_hidden: true
+     *     })
      */
     public listMcpServers(
+        request: Sandbox.ListMcpServersV1McpServersGetRequest = {},
         requestOptions?: Mcp.RequestOptions,
     ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseListStr, Sandbox.mcp.listMcpServers.Error>> {
-        return core.HttpResponsePromise.fromPromise(this.__listMcpServers(requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__listMcpServers(request, requestOptions));
     }
 
     private async __listMcpServers(
+        request: Sandbox.ListMcpServersV1McpServersGetRequest = {},
         requestOptions?: Mcp.RequestOptions,
     ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseListStr, Sandbox.mcp.listMcpServers.Error>>> {
+        const { include_hidden: includeHidden } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (includeHidden != null) {
+            _queryParams.include_hidden = includeHidden.toString();
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -230,7 +241,7 @@ export class Mcp {
             ),
             method: "GET",
             headers: _headers,
-            queryParameters: requestOptions?.queryParams,
+            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -247,6 +258,22 @@ export class Mcp {
                 },
                 rawResponse: _response.rawResponse,
             };
+        }
+
+        if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.mcp.listMcpServers.Error.unprocessableEntityError(
+                                _response.error.body as Sandbox.HttpValidationError,
+                            ),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
+            }
         }
 
         return {

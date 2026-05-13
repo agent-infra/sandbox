@@ -30,11 +30,11 @@ function evaluateRuntime(): Runtime {
     /**
      * A constant that indicates whether the environment the code is running is a Web Browser.
      */
-    const isBrowser = typeof (globalThis as any).window !== "undefined" && typeof (globalThis as any).window.document !== "undefined";
+    const isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
     if (isBrowser) {
         return {
             type: "browser",
-            version: (globalThis as any).window.navigator.userAgent,
+            version: window.navigator.userAgent,
         };
     }
 
@@ -120,7 +120,7 @@ function evaluateRuntime(): Runtime {
      * A constant that indicates whether the environment the code is running is in React-Native.
      * https://github.com/facebook/react-native/blob/main/packages/react-native/Libraries/Core/setUpNavigator.js
      */
-    const isReactNative = typeof (globalThis as any).navigator !== "undefined" && (globalThis as any).navigator?.product === "ReactNative";
+    const isReactNative = typeof navigator !== "undefined" && navigator?.product === "ReactNative";
     if (isReactNative) {
         return {
             type: "react-native",

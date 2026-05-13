@@ -32,14 +32,20 @@ export class File_ {
     public readFile(
         request: Sandbox.FileReadRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileReadResult, Sandbox.file.readFile.Error>> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseUnionFileReadResultFileOperationError, Sandbox.file.readFile.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__readFile(request, requestOptions));
     }
 
     private async __readFile(
         request: Sandbox.FileReadRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileReadResult, Sandbox.file.readFile.Error>>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseUnionFileReadResultFileOperationError, Sandbox.file.readFile.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -63,7 +69,7 @@ export class File_ {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseFileReadResult,
+                    body: _response.body as Sandbox.ResponseUnionFileReadResultFileOperationError,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -115,14 +121,20 @@ export class File_ {
     public writeFile(
         request: Sandbox.FileWriteRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileWriteResult, Sandbox.file.writeFile.Error>> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseUnionFileWriteResultFileOperationError, Sandbox.file.writeFile.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__writeFile(request, requestOptions));
     }
 
     private async __writeFile(
         request: Sandbox.FileWriteRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileWriteResult, Sandbox.file.writeFile.Error>>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseUnionFileWriteResultFileOperationError, Sandbox.file.writeFile.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -146,7 +158,7 @@ export class File_ {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseFileWriteResult,
+                    body: _response.body as Sandbox.ResponseUnionFileWriteResultFileOperationError,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -196,7 +208,9 @@ export class File_ {
     public replaceInFile(
         request: Sandbox.FileReplaceRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileReplaceResult, Sandbox.file.replaceInFile.Error>> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseUnionFileReplaceResultFileOperationError, Sandbox.file.replaceInFile.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__replaceInFile(request, requestOptions));
     }
 
@@ -204,7 +218,9 @@ export class File_ {
         request: Sandbox.FileReplaceRequest,
         requestOptions?: File_.RequestOptions,
     ): Promise<
-        core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileReplaceResult, Sandbox.file.replaceInFile.Error>>
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseUnionFileReplaceResultFileOperationError, Sandbox.file.replaceInFile.Error>
+        >
     > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
@@ -229,7 +245,7 @@ export class File_ {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseFileReplaceResult,
+                    body: _response.body as Sandbox.ResponseUnionFileReplaceResultFileOperationError,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -278,7 +294,9 @@ export class File_ {
     public searchInFile(
         request: Sandbox.FileSearchRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileSearchResult, Sandbox.file.searchInFile.Error>> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseUnionFileSearchResultFileOperationError, Sandbox.file.searchInFile.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__searchInFile(request, requestOptions));
     }
 
@@ -286,7 +304,9 @@ export class File_ {
         request: Sandbox.FileSearchRequest,
         requestOptions?: File_.RequestOptions,
     ): Promise<
-        core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileSearchResult, Sandbox.file.searchInFile.Error>>
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseUnionFileSearchResultFileOperationError, Sandbox.file.searchInFile.Error>
+        >
     > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
@@ -311,7 +331,7 @@ export class File_ {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseFileSearchResult,
+                    body: _response.body as Sandbox.ResponseUnionFileSearchResultFileOperationError,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -360,14 +380,20 @@ export class File_ {
     public findFiles(
         request: Sandbox.FileFindRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileFindResult, Sandbox.file.findFiles.Error>> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseUnionFileFindResultFileOperationError, Sandbox.file.findFiles.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__findFiles(request, requestOptions));
     }
 
     private async __findFiles(
         request: Sandbox.FileFindRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileFindResult, Sandbox.file.findFiles.Error>>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseUnionFileFindResultFileOperationError, Sandbox.file.findFiles.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -391,7 +417,7 @@ export class File_ {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseFileFindResult,
+                    body: _response.body as Sandbox.ResponseUnionFileFindResultFileOperationError,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -440,14 +466,20 @@ export class File_ {
     public grepFiles(
         request: Sandbox.FileGrepRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileGrepResult, Sandbox.file.grepFiles.Error>> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseUnionFileGrepResultFileOperationError, Sandbox.file.grepFiles.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__grepFiles(request, requestOptions));
     }
 
     private async __grepFiles(
         request: Sandbox.FileGrepRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileGrepResult, Sandbox.file.grepFiles.Error>>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseUnionFileGrepResultFileOperationError, Sandbox.file.grepFiles.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -471,7 +503,7 @@ export class File_ {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseFileGrepResult,
+                    body: _response.body as Sandbox.ResponseUnionFileGrepResultFileOperationError,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -520,14 +552,20 @@ export class File_ {
     public globFiles(
         request: Sandbox.FileGlobRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileGlobResult, Sandbox.file.globFiles.Error>> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseUnionFileGlobResultFileOperationError, Sandbox.file.globFiles.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__globFiles(request, requestOptions));
     }
 
     private async __globFiles(
         request: Sandbox.FileGlobRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileGlobResult, Sandbox.file.globFiles.Error>>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseUnionFileGlobResultFileOperationError, Sandbox.file.globFiles.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -551,7 +589,7 @@ export class File_ {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseFileGlobResult,
+                    body: _response.body as Sandbox.ResponseUnionFileGlobResultFileOperationError,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -600,7 +638,9 @@ export class File_ {
     public uploadFile(
         request: Sandbox.BodyUploadFile,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileUploadResult, Sandbox.file.uploadFile.Error>> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseUnionFileUploadResultFileOperationError, Sandbox.file.uploadFile.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__uploadFile(request, requestOptions));
     }
 
@@ -608,7 +648,9 @@ export class File_ {
         request: Sandbox.BodyUploadFile,
         requestOptions?: File_.RequestOptions,
     ): Promise<
-        core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileUploadResult, Sandbox.file.uploadFile.Error>>
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseUnionFileUploadResultFileOperationError, Sandbox.file.uploadFile.Error>
+        >
     > {
         const _request = await core.newFormData();
         await _request.appendFile("file", request.file);
@@ -644,7 +686,7 @@ export class File_ {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseFileUploadResult,
+                    body: _response.body as Sandbox.ResponseUnionFileUploadResultFileOperationError,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -679,7 +721,10 @@ export class File_ {
     }
 
     /**
-     * Download file using FileResponse
+     * Download a file.
+     *
+     * When ``change_policy=abort``, the server aborts the download if the source
+     * file changes before streaming starts or while bytes are being sent.
      */
     public downloadFile(
         request: Sandbox.FileDownloadFileRequest,
@@ -692,9 +737,13 @@ export class File_ {
         request: Sandbox.FileDownloadFileRequest,
         requestOptions?: File_.RequestOptions,
     ): Promise<core.WithRawResponse<core.APIResponse<core.BinaryResponse, Sandbox.file.downloadFile.Error>>> {
-        const { path } = request;
+        const { path, change_policy: changePolicy } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
         _queryParams.path = path;
+        if (changePolicy != null) {
+            _queryParams.change_policy = changePolicy;
+        }
+
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)<core.BinaryResponse>({
             url: core.url.join(
@@ -726,6 +775,15 @@ export class File_ {
 
         if (!_response.ok && core.isFailedResponse(_response) && _response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 409:
+                    return {
+                        data: {
+                            ok: false,
+                            error: Sandbox.file.downloadFile.Error.conflictError(_response.error.body as unknown),
+                            rawResponse: _response.rawResponse,
+                        },
+                        rawResponse: _response.rawResponse,
+                    };
                 case 422:
                     return {
                         data: {
@@ -764,14 +822,20 @@ export class File_ {
     public listPath(
         request: Sandbox.FileListRequest,
         requestOptions?: File_.RequestOptions,
-    ): core.HttpResponsePromise<core.APIResponse<Sandbox.ResponseFileListResult, Sandbox.file.listPath.Error>> {
+    ): core.HttpResponsePromise<
+        core.APIResponse<Sandbox.ResponseUnionFileListResultFileOperationError, Sandbox.file.listPath.Error>
+    > {
         return core.HttpResponsePromise.fromPromise(this.__listPath(request, requestOptions));
     }
 
     private async __listPath(
         request: Sandbox.FileListRequest,
         requestOptions?: File_.RequestOptions,
-    ): Promise<core.WithRawResponse<core.APIResponse<Sandbox.ResponseFileListResult, Sandbox.file.listPath.Error>>> {
+    ): Promise<
+        core.WithRawResponse<
+            core.APIResponse<Sandbox.ResponseUnionFileListResultFileOperationError, Sandbox.file.listPath.Error>
+        >
+    > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
         const _response = await (this._options.fetcher ?? core.fetcher)({
             url: core.url.join(
@@ -795,7 +859,7 @@ export class File_ {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseFileListResult,
+                    body: _response.body as Sandbox.ResponseUnionFileListResultFileOperationError,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },
@@ -850,7 +914,10 @@ export class File_ {
         request: Sandbox.StrReplaceEditorRequest,
         requestOptions?: File_.RequestOptions,
     ): core.HttpResponsePromise<
-        core.APIResponse<Sandbox.ResponseStrReplaceEditorResult, Sandbox.file.strReplaceEditor.Error>
+        core.APIResponse<
+            Sandbox.ResponseUnionStrReplaceEditorResultFileOperationError,
+            Sandbox.file.strReplaceEditor.Error
+        >
     > {
         return core.HttpResponsePromise.fromPromise(this.__strReplaceEditor(request, requestOptions));
     }
@@ -860,7 +927,10 @@ export class File_ {
         requestOptions?: File_.RequestOptions,
     ): Promise<
         core.WithRawResponse<
-            core.APIResponse<Sandbox.ResponseStrReplaceEditorResult, Sandbox.file.strReplaceEditor.Error>
+            core.APIResponse<
+                Sandbox.ResponseUnionStrReplaceEditorResultFileOperationError,
+                Sandbox.file.strReplaceEditor.Error
+            >
         >
     > {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
@@ -886,7 +956,7 @@ export class File_ {
             return {
                 data: {
                     ok: true,
-                    body: _response.body as Sandbox.ResponseStrReplaceEditorResult,
+                    body: _response.body as Sandbox.ResponseUnionStrReplaceEditorResultFileOperationError,
                     headers: _response.headers,
                     rawResponse: _response.rawResponse,
                 },

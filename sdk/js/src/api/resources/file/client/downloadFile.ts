@@ -3,9 +3,17 @@
 import type * as core from "../../../../core/index.js";
 import type * as Sandbox from "../../../index.js";
 
-export type Error = Sandbox.file.downloadFile.Error.UnprocessableEntityError | Sandbox.file.downloadFile.Error._Unknown;
+export type Error =
+    | Sandbox.file.downloadFile.Error.ConflictError
+    | Sandbox.file.downloadFile.Error.UnprocessableEntityError
+    | Sandbox.file.downloadFile.Error._Unknown;
 
 export namespace Error {
+    export interface ConflictError {
+        statusCode: 409;
+        content?: unknown;
+    }
+
     export interface UnprocessableEntityError {
         statusCode: 422;
         content: Sandbox.HttpValidationError;
@@ -17,12 +25,20 @@ export namespace Error {
     }
 
     export interface _Visitor<_Result> {
+        conflictError: (value: unknown) => _Result;
         unprocessableEntityError: (value: Sandbox.HttpValidationError) => _Result;
         _other: (value: core.Fetcher.Error) => _Result;
     }
 }
 
 export const Error = {
+    conflictError: (value?: unknown): Sandbox.file.downloadFile.Error.ConflictError => {
+        return {
+            content: value,
+            statusCode: 409,
+        };
+    },
+
     unprocessableEntityError: (
         value: Sandbox.HttpValidationError,
     ): Sandbox.file.downloadFile.Error.UnprocessableEntityError => {
@@ -44,6 +60,8 @@ export const Error = {
         visitor: Sandbox.file.downloadFile.Error._Visitor<_Result>,
     ): _Result => {
         switch (value.statusCode) {
+            case 409:
+                return visitor.conflictError(value.content);
             case 422:
                 return visitor.unprocessableEntityError(value.content);
             default:

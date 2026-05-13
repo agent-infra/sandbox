@@ -5,10 +5,18 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
 from ..types.response import Response
+from ..types.response_list_observation_report_info import ResponseListObservationReportInfo
 from ..types.response_list_sandbox_hook import ResponseListSandboxHook
+from ..types.response_observation_export_result import ResponseObservationExportResult
+from ..types.response_observation_live_snapshot import ResponseObservationLiveSnapshot
+from ..types.response_observation_report_info import ResponseObservationReportInfo
+from ..types.response_observation_start_result import ResponseObservationStartResult
+from ..types.response_observation_status import ResponseObservationStatus
+from ..types.response_observation_stop_result import ResponseObservationStopResult
 from ..types.response_sandbox_hook import ResponseSandboxHook
 from ..types.sandbox_response import SandboxResponse
 from .raw_client import AsyncRawSandboxClient, RawSandboxClient
+from .types.observe_start_mode import ObserveStartMode
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -222,6 +230,276 @@ class SandboxClient:
         )
         """
         _response = self._raw_client.remove_hook(name, request_options=request_options)
+        return _response.data
+
+    def observe_status(self, *, request_options: typing.Optional[RequestOptions] = None) -> ResponseObservationStatus:
+        """
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationStatus
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.observe_status()
+        """
+        _response = self._raw_client.observe_status(request_options=request_options)
+        return _response.data
+
+    def observe_live(
+        self, *, top_rows: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseObservationLiveSnapshot:
+        """
+        Parameters
+        ----------
+        top_rows : typing.Optional[int]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationLiveSnapshot
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.observe_live(
+            top_rows=1,
+        )
+        """
+        _response = self._raw_client.observe_live(top_rows=top_rows, request_options=request_options)
+        return _response.data
+
+    def observe_start(
+        self,
+        *,
+        mode: typing.Optional[ObserveStartMode] = OMIT,
+        idempotency_key: typing.Optional[str] = OMIT,
+        duration_seconds: typing.Optional[int] = OMIT,
+        interval_seconds: typing.Optional[float] = OMIT,
+        include_processes: typing.Optional[bool] = OMIT,
+        include_disk: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseObservationStartResult:
+        """
+        Parameters
+        ----------
+        mode : typing.Optional[ObserveStartMode]
+
+        idempotency_key : typing.Optional[str]
+            Optional key for idempotent retries of the same start request
+
+        duration_seconds : typing.Optional[int]
+            Optional session duration in seconds
+
+        interval_seconds : typing.Optional[float]
+            Sampling interval in seconds
+
+        include_processes : typing.Optional[bool]
+            Whether to sample process rows
+
+        include_disk : typing.Optional[bool]
+            Whether to sample disk usage
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationStartResult
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.observe_start()
+        """
+        _response = self._raw_client.observe_start(
+            mode=mode,
+            idempotency_key=idempotency_key,
+            duration_seconds=duration_seconds,
+            interval_seconds=interval_seconds,
+            include_processes=include_processes,
+            include_disk=include_disk,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def observe_stop(
+        self, *, session_id: typing.Optional[str] = OMIT, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseObservationStopResult:
+        """
+        Parameters
+        ----------
+        session_id : typing.Optional[str]
+            Optional active session id to stop
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationStopResult
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.observe_stop()
+        """
+        _response = self._raw_client.observe_stop(session_id=session_id, request_options=request_options)
+        return _response.data
+
+    def observe_export(
+        self,
+        *,
+        idempotency_key: typing.Optional[str] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
+        reason: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseObservationExportResult:
+        """
+        Parameters
+        ----------
+        idempotency_key : typing.Optional[str]
+            Optional key for idempotent retries of the same export request
+
+        session_id : typing.Optional[str]
+            Optional session id to export
+
+        reason : typing.Optional[str]
+            Export reason
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationExportResult
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.observe_export()
+        """
+        _response = self._raw_client.observe_export(
+            idempotency_key=idempotency_key, session_id=session_id, reason=reason, request_options=request_options
+        )
+        return _response.data
+
+    def observe_reports(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseListObservationReportInfo:
+        """
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseListObservationReportInfo
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.observe_reports()
+        """
+        _response = self._raw_client.observe_reports(request_options=request_options)
+        return _response.data
+
+    def observe_report_download(
+        self, report_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.Iterator[bytes]:
+        """
+        Parameters
+        ----------
+        report_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+
+        Returns
+        -------
+        typing.Iterator[bytes]
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.observe_report_download(
+            report_id="report_id",
+        )
+        """
+        with self._raw_client.observe_report_download(report_id, request_options=request_options) as r:
+            yield from r.data
+
+    def observe_report_delete(
+        self, report_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseObservationReportInfo:
+        """
+        Parameters
+        ----------
+        report_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationReportInfo
+            Successful Response
+
+        Examples
+        --------
+        from agent_sandbox import Sandbox
+
+        client = Sandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+        client.sandbox.observe_report_delete(
+            report_id="report_id",
+        )
+        """
+        _response = self._raw_client.observe_report_delete(report_id, request_options=request_options)
         return _response.data
 
 
@@ -481,4 +759,341 @@ class AsyncSandboxClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.remove_hook(name, request_options=request_options)
+        return _response.data
+
+    async def observe_status(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseObservationStatus:
+        """
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationStatus
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.observe_status()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.observe_status(request_options=request_options)
+        return _response.data
+
+    async def observe_live(
+        self, *, top_rows: typing.Optional[int] = None, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseObservationLiveSnapshot:
+        """
+        Parameters
+        ----------
+        top_rows : typing.Optional[int]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationLiveSnapshot
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.observe_live(
+                top_rows=1,
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.observe_live(top_rows=top_rows, request_options=request_options)
+        return _response.data
+
+    async def observe_start(
+        self,
+        *,
+        mode: typing.Optional[ObserveStartMode] = OMIT,
+        idempotency_key: typing.Optional[str] = OMIT,
+        duration_seconds: typing.Optional[int] = OMIT,
+        interval_seconds: typing.Optional[float] = OMIT,
+        include_processes: typing.Optional[bool] = OMIT,
+        include_disk: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseObservationStartResult:
+        """
+        Parameters
+        ----------
+        mode : typing.Optional[ObserveStartMode]
+
+        idempotency_key : typing.Optional[str]
+            Optional key for idempotent retries of the same start request
+
+        duration_seconds : typing.Optional[int]
+            Optional session duration in seconds
+
+        interval_seconds : typing.Optional[float]
+            Sampling interval in seconds
+
+        include_processes : typing.Optional[bool]
+            Whether to sample process rows
+
+        include_disk : typing.Optional[bool]
+            Whether to sample disk usage
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationStartResult
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.observe_start()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.observe_start(
+            mode=mode,
+            idempotency_key=idempotency_key,
+            duration_seconds=duration_seconds,
+            interval_seconds=interval_seconds,
+            include_processes=include_processes,
+            include_disk=include_disk,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def observe_stop(
+        self, *, session_id: typing.Optional[str] = OMIT, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseObservationStopResult:
+        """
+        Parameters
+        ----------
+        session_id : typing.Optional[str]
+            Optional active session id to stop
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationStopResult
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.observe_stop()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.observe_stop(session_id=session_id, request_options=request_options)
+        return _response.data
+
+    async def observe_export(
+        self,
+        *,
+        idempotency_key: typing.Optional[str] = OMIT,
+        session_id: typing.Optional[str] = OMIT,
+        reason: typing.Optional[str] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ResponseObservationExportResult:
+        """
+        Parameters
+        ----------
+        idempotency_key : typing.Optional[str]
+            Optional key for idempotent retries of the same export request
+
+        session_id : typing.Optional[str]
+            Optional session id to export
+
+        reason : typing.Optional[str]
+            Export reason
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationExportResult
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.observe_export()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.observe_export(
+            idempotency_key=idempotency_key, session_id=session_id, reason=reason, request_options=request_options
+        )
+        return _response.data
+
+    async def observe_reports(
+        self, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseListObservationReportInfo:
+        """
+        Parameters
+        ----------
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseListObservationReportInfo
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.observe_reports()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.observe_reports(request_options=request_options)
+        return _response.data
+
+    async def observe_report_download(
+        self, report_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> typing.AsyncIterator[bytes]:
+        """
+        Parameters
+        ----------
+        report_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration. You can pass in configuration such as `chunk_size`, and more to customize the request and response.
+
+        Returns
+        -------
+        typing.AsyncIterator[bytes]
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.observe_report_download(
+                report_id="report_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        async with self._raw_client.observe_report_download(report_id, request_options=request_options) as r:
+            async for _chunk in r.data:
+                yield _chunk
+
+    async def observe_report_delete(
+        self, report_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> ResponseObservationReportInfo:
+        """
+        Parameters
+        ----------
+        report_id : str
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ResponseObservationReportInfo
+            Successful Response
+
+        Examples
+        --------
+        import asyncio
+
+        from agent_sandbox import AsyncSandbox
+
+        client = AsyncSandbox(
+            base_url="https://yourhost.com/path/to/api",
+        )
+
+
+        async def main() -> None:
+            await client.sandbox.observe_report_delete(
+                report_id="report_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.observe_report_delete(report_id, request_options=request_options)
         return _response.data

@@ -46,6 +46,25 @@ class BashClient:
         """
         Execute a bash command.
 
+        Status values in `data.status`:
+        - `running`: the process is still executing. Returned immediately for
+          `async_mode=true`, or when sync mode hits `timeout` before completion.
+        - `completed`: the process exited and `exit_code` is available. This does
+          not imply success; non-zero shell exit codes still use `completed`.
+        - `timed_out`: the process exceeded `hard_timeout` and was force-killed.
+        - `killed`: the process was terminated by `/v1/bash/kill`, session cleanup,
+          or an internal execution failure before normal completion.
+
+        How to consume the result:
+        - Treat `status` as lifecycle state, not success/failure.
+        - If `status=running`, keep polling `/v1/bash/output` with the returned
+          `session_id`, `command_id`, `offset`, and `stderr_offset`.
+        - If `status=completed`, check `exit_code`: `0` means success, non-zero
+          means the command finished but failed.
+        - If `status=timed_out` or `status=killed`, show the current output as a
+          partial result and surface the command as interrupted.
+        - Empty `stdout` or `stderr` does not mean the command did not run.
+
         - async_mode=true: returns immediately with RUNNING status
         - async_mode=false + timeout: waits up to timeout, then returns RUNNING if not done
         - async_mode=false + no timeout: waits until command completes
@@ -58,13 +77,13 @@ class BashClient:
             Shell command to execute
 
         session_id : typing.Optional[str]
-            Target session ID. If not provided, a new session is created automatically. Reuse the same session_id to maintain state (env vars, cwd, etc.) across commands.
+            Target session ID. If not provided or empty, a new session is created automatically. Reuse the same session_id to continue the same bash session. Only API-level session state is preserved across calls. Note: `cd` or `export` inside a command do NOT affect subsequent calls.
 
         exec_dir : typing.Optional[str]
-            Working directory (absolute path). Takes effect on every call — if the session already exists, the working directory is updated persistently.
+            Working directory (absolute path). Takes effect on every call — if the session already exists, its default working directory is updated for subsequent calls. Use this instead of `cd` when later commands should run in a different directory.
 
         env : typing.Optional[typing.Dict[str, typing.Optional[str]]]
-            Extra environment variables to inject for this command only.
+            Extra environment variables to inject for this command only. Variables exported inside the command do not persist to later calls.
 
         async_mode : typing.Optional[bool]
             If true, return immediately with running status. Use /output to poll results.
@@ -123,6 +142,16 @@ class BashClient:
     ) -> ResponseBashOutputResult:
         """
         Read output from a bash session using offset-based streaming.
+
+        `data.command.status` uses the same command-status values as `/v1/bash/exec`:
+        `running`, `completed`, `timed_out`, or `killed`.
+
+        Recommended consumption pattern:
+        - Start with `/v1/bash/exec`.
+        - If the command is still `running`, call `/v1/bash/output` repeatedly.
+        - Reuse the returned `offset` and `stderr_offset` to fetch only new data.
+        - Stop polling when `data.command.status` is no longer `running`.
+        - Use the final `exit_code` to decide whether the command succeeded.
 
         - offset/stderr_offset: byte offsets to read from (use values from previous response)
         - wait=true: long-poll until new output arrives or wait_timeout
@@ -268,6 +297,10 @@ class BashClient:
         """
         List all active bash sessions.
 
+        Session status values:
+        - `ready`: session exists and can accept commands
+        - `closed`: session has been closed and cannot be reused
+
         Parameters
         ----------
         request_options : typing.Optional[RequestOptions]
@@ -304,13 +337,13 @@ class BashClient:
         Parameters
         ----------
         session_id : typing.Optional[str]
-            Session ID. Auto-generated if not provided.
+            Session ID. Auto-generated if not provided or empty.
 
         exec_dir : typing.Optional[str]
-            Working directory for the new session (absolute path)
+            Initial default working directory for the new session (absolute path). Later /exec calls may update it with exec_dir.
 
         snapshot_path : typing.Optional[str]
-            Path to a shell snapshot script to source on session init
+            Path to a shell snapshot script to source on session init. This is an initialization snapshot only; command-side env changes are not written back after each exec.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -396,6 +429,25 @@ class AsyncBashClient:
         """
         Execute a bash command.
 
+        Status values in `data.status`:
+        - `running`: the process is still executing. Returned immediately for
+          `async_mode=true`, or when sync mode hits `timeout` before completion.
+        - `completed`: the process exited and `exit_code` is available. This does
+          not imply success; non-zero shell exit codes still use `completed`.
+        - `timed_out`: the process exceeded `hard_timeout` and was force-killed.
+        - `killed`: the process was terminated by `/v1/bash/kill`, session cleanup,
+          or an internal execution failure before normal completion.
+
+        How to consume the result:
+        - Treat `status` as lifecycle state, not success/failure.
+        - If `status=running`, keep polling `/v1/bash/output` with the returned
+          `session_id`, `command_id`, `offset`, and `stderr_offset`.
+        - If `status=completed`, check `exit_code`: `0` means success, non-zero
+          means the command finished but failed.
+        - If `status=timed_out` or `status=killed`, show the current output as a
+          partial result and surface the command as interrupted.
+        - Empty `stdout` or `stderr` does not mean the command did not run.
+
         - async_mode=true: returns immediately with RUNNING status
         - async_mode=false + timeout: waits up to timeout, then returns RUNNING if not done
         - async_mode=false + no timeout: waits until command completes
@@ -408,13 +460,13 @@ class AsyncBashClient:
             Shell command to execute
 
         session_id : typing.Optional[str]
-            Target session ID. If not provided, a new session is created automatically. Reuse the same session_id to maintain state (env vars, cwd, etc.) across commands.
+            Target session ID. If not provided or empty, a new session is created automatically. Reuse the same session_id to continue the same bash session. Only API-level session state is preserved across calls. Note: `cd` or `export` inside a command do NOT affect subsequent calls.
 
         exec_dir : typing.Optional[str]
-            Working directory (absolute path). Takes effect on every call — if the session already exists, the working directory is updated persistently.
+            Working directory (absolute path). Takes effect on every call — if the session already exists, its default working directory is updated for subsequent calls. Use this instead of `cd` when later commands should run in a different directory.
 
         env : typing.Optional[typing.Dict[str, typing.Optional[str]]]
-            Extra environment variables to inject for this command only.
+            Extra environment variables to inject for this command only. Variables exported inside the command do not persist to later calls.
 
         async_mode : typing.Optional[bool]
             If true, return immediately with running status. Use /output to poll results.
@@ -481,6 +533,16 @@ class AsyncBashClient:
     ) -> ResponseBashOutputResult:
         """
         Read output from a bash session using offset-based streaming.
+
+        `data.command.status` uses the same command-status values as `/v1/bash/exec`:
+        `running`, `completed`, `timed_out`, or `killed`.
+
+        Recommended consumption pattern:
+        - Start with `/v1/bash/exec`.
+        - If the command is still `running`, call `/v1/bash/output` repeatedly.
+        - Reuse the returned `offset` and `stderr_offset` to fetch only new data.
+        - Stop polling when `data.command.status` is no longer `running`.
+        - Use the final `exit_code` to decide whether the command succeeded.
 
         - offset/stderr_offset: byte offsets to read from (use values from previous response)
         - wait=true: long-poll until new output arrives or wait_timeout
@@ -650,6 +712,10 @@ class AsyncBashClient:
         """
         List all active bash sessions.
 
+        Session status values:
+        - `ready`: session exists and can accept commands
+        - `closed`: session has been closed and cannot be reused
+
         Parameters
         ----------
         request_options : typing.Optional[RequestOptions]
@@ -694,13 +760,13 @@ class AsyncBashClient:
         Parameters
         ----------
         session_id : typing.Optional[str]
-            Session ID. Auto-generated if not provided.
+            Session ID. Auto-generated if not provided or empty.
 
         exec_dir : typing.Optional[str]
-            Working directory for the new session (absolute path)
+            Initial default working directory for the new session (absolute path). Later /exec calls may update it with exec_dir.
 
         snapshot_path : typing.Optional[str]
-            Path to a shell snapshot script to source on session init
+            Path to a shell snapshot script to source on session init. This is an initialization snapshot only; command-side env changes are not written back after each exec.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.

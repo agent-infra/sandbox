@@ -10,7 +10,7 @@ export interface BashCommandInfo {
     command_id: string;
     /** The command string */
     command: string;
-    /** Command execution status */
+    /** Command execution status. Possible values: `pending` (accepted but not started yet; typically internal-only), `running` (still executing), `completed` (process exited and `exit_code` is available; a non-zero shell exit code still uses `completed`), `timed_out` (process was force-killed after `hard_timeout`), `killed` (process was terminated by kill/cleanup or an internal execution failure). */
     status: Sandbox.CommandStatus;
     /** Exit code (when completed) */
     exit_code?: number;
