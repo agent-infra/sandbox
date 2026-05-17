@@ -87,7 +87,7 @@ export class VolcengineProvider extends BaseProvider {
 
       return response;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -126,7 +126,7 @@ export class VolcengineProvider extends BaseProvider {
 
       return response;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -213,7 +213,7 @@ export class VolcengineProvider extends BaseProvider {
 
       return response;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -253,7 +253,7 @@ export class VolcengineProvider extends BaseProvider {
 
       return response;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -314,7 +314,7 @@ export class VolcengineProvider extends BaseProvider {
 
       return response;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
