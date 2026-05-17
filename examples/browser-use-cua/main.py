@@ -1,16 +1,13 @@
 import asyncio
+import base64
 import os
+from io import BytesIO
 from typing import TYPE_CHECKING
 from dotenv import load_dotenv
 from browser_use import Agent, Tools
 from browser_use.browser import BrowserProfile, BrowserSession
 from browser_use.llm import ChatOpenAI
 from browser_use.agent.views import ActionResult
-
-import asyncio
-import base64
-import os
-from io import BytesIO
 
 from agent_sandbox import Sandbox
 from agent_sandbox.browser.types.action import (
@@ -277,9 +274,6 @@ async def handle_cua_action(action: "ComputerAction") -> ActionResult:
         return ActionResult(error=f"{ERROR_MSG}: {e}")
 
 
-tools = Tools()
-
-
 @tools.registry.action(
     "Use Sandbox GUI as a fallback when standard browser actions cannot achieve the desired goal. "
     "This action takes a screenshot and uses OpenAI CUA to determine the next GUI action, "
@@ -436,7 +430,4 @@ if __name__ == "__main__":
     print("  - Custom UI elements that don't respond to standard actions")
     print()
 
-    asyncio.run(main())
-
-if __name__ == "__main__":
     asyncio.run(main())
