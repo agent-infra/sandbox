@@ -528,3 +528,70 @@ Built with ❤️ by the Agent Infra team. Special thanks to all contributors an
   <a href="https://sandbox.agent-infra.com">📚 Read the Docs</a> •
   <a href="https://github.com/agent-infra/sandbox/issues">🐛 Report Issues</a>
 </p>
+
+## FAQ
+
+### What is AIO Sandbox?
+
+**AIO Sandbox** is an **all-in-one agent sandbox environment** that combines Browser, Shell, File, MCP operations, VSCode Server, and Jupyter in a single Docker container. Built on cloud-native lightweight sandbox technology, it provides a unified, secure execution environment for AI agents.
+
+### Key Features Comparison
+
+| Feature | AIO Sandbox | Traditional Sandboxes |
+|---------|-------------|----------------------|
+| Unified File System | ✅ All tools share files | ❌ Separate systems |
+| Multiple Interfaces | ✅ VNC, VSCode, Jupyter, Terminal | ❌ Single interface |
+| MCP Compatible | ✅ Built-in MCP servers | ❌ No MCP support |
+| Zero Configuration | ✅ Pre-configured tools | ❌ Manual setup |
+| Agent-Ready | ✅ MCP APIs | ❌ Not agent-friendly |
+| Secure Execution | ✅ Sandboxed Python/Node | ⚠️ Varies |
+
+### How do I get started?
+
+```bash
+docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+```
+
+Once running, access:
+- **Documentation**: http://localhost:8080/v1/docs
+- **VNC Browser**: http://localhost:8080/vnc/index.html
+- **VSCode**: http://localhost:8080/code-server/
+- **MCP Services**: http://localhost:8080/mcp
+
+### SDK Installation
+
+| Language | Install Command |
+|----------|----------------|
+| Python | `pip install agent-sandbox` |
+| TypeScript | `npm install @agent-infra/sandbox` |
+| Golang | `go get github.com/agent-infra/sandbox` |
+
+### Supported Interfaces
+
+| Interface | Description |
+|-----------|-------------|
+| VNC Browser | Browser automation with visual control |
+| VSCode Server | Full IDE environment |
+| Jupyter | Notebook-based development |
+| Terminal | Shell access |
+| MCP Services | Agent-compatible APIs |
+
+### What are the use cases?
+
+- **AI Agents**: Secure execution environment for agent workflows
+- **Browser Automation**: Web scraping, testing, automation
+- **Code Execution**: Sandbox Python/Node.js safely
+- **Development**: Cloud-based IDE environment
+
+### License
+
+AIO Sandbox uses the **Apache-2.0 License**.
+
+### Help Resources
+
+- **Website**: [sandbox.agent-infra.com](https://sandbox.agent-infra.com/)
+- **API Docs**: [sandbox.agent-infra.com/api](https://sandbox.agent-infra.com/api)
+- **Paper**: [arxiv.org/pdf/2509.02544](https://arxiv.org/pdf/2509.02544)
+- **Examples**: [github.com/agent-infra/sandbox/examples](https://github.com/agent-infra/sandbox/tree/main/examples)
+- **Issues**: [github.com/agent-infra/sandbox/issues](https://github.com/agent-infra/sandbox/issues)
+
