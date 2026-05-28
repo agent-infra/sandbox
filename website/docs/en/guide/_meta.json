@@ -8,5 +8,10 @@
     "type": "dir",
     "label": "Features",
     "name": "basic"
+  },
+  {
+    "type": "dir",
+    "label": "Advanced",
+    "name": "advanced"
   }
 ]

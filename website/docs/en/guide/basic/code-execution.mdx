@@ -4,6 +4,8 @@ import { Tab, Tabs } from '@rspress/core/theme';
 
 Agent Sandbox provides powerful code execution capabilities for Python and JavaScript/Node.js, enabling you to run code in isolated environments with full control over execution and session management.
 
+This page is kept as an overview. For the current split guides, see [Unified Code Execution](/guide/basic/code), [Jupyter](/guide/basic/jupyter), and [Node.js](/guide/basic/nodejs).
+
 ## Overview
 
 The sandbox offers two main execution environments:
@@ -24,7 +26,7 @@ The sandbox integrates with JupyterLab to provide a powerful Python execution en
 - **Interactive Development**: Execute Python code with immediate feedback
 - **Rich Output Support**: Display plots, tables, HTML, and multimedia content
 - **Session Persistence**: Maintain variable state across multiple executions
-- **Multiple Kernels**: Support for different Python versions (3.9, 3.10, 3.11, 3.12)
+- **Multiple Kernels**: Support for Python 3.10, 3.11, and 3.12 kernels
 - **Notebook Compatibility**: Full compatibility with Jupyter notebook format
 
 ### Basic Execution
@@ -130,21 +132,19 @@ The sandbox supports multiple Python versions through different Jupyter kernels:
 # Check available Python versions
 info = client.jupyter.info()
 print(f"Available kernels: {info.available_kernels}")
-# Output: ['python3', 'python3.9', 'python3.10', 'python3.11', 'python3.12']
+# Output: ['python3', 'python3.10', 'python3.11', 'python3.12']
 
-# Use Python 3.9 for legacy compatibility
-result_py39 = client.jupyter.execute_code(
+# Use Python 3.10
+result_py310 = client.jupyter.execute_code(
     code="""
 import sys
 print(f"Python: {sys.version}")
-# Use older syntax features
-from typing import List  # Pre-3.10 style
-def process(items: List[str]) -> None:
+def process(items: list[str]) -> None:
     for item in items:
         print(item)
 process(['a', 'b', 'c'])
 """,
-    kernel_name="python3.9"
+    kernel_name="python3.10"
 )
 
 # Use Python 3.11 for new features

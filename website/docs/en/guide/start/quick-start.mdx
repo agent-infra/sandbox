@@ -20,7 +20,7 @@ docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent
 
 ### Option 2: For Users in Mainland China
 
-Use our China mirror for faster downloads:
+Use the public China mirror for faster downloads:
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
@@ -33,7 +33,7 @@ Format `agent-infra/sandbox:${version}`, for example, to use version 1.0.0.150:
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:1.0.0.150
 
-# or users in mainland China
+# or use the public China mirror
 docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.150
 ```
 
@@ -99,7 +99,7 @@ client = Sandbox(base_url="http://localhost:8080")
 
 ## 3. Interact with the sandbox
 
-Interact with the sandbox with `file`, `shell`, `browser`, `code execute`.
+Interact with the sandbox with `file`, `shell`, `bash`, `browser`, `code`, `jupyter`, and `nodejs` APIs.
 
 ### Execute Shell
 

@@ -89,3 +89,7 @@ echo "客户端构建的最终URL: ${vnc_url}"
 # 模拟访问 (实际应在浏览器中进行)
 # curl -I "${vnc_url}"
 ```
+
+## 安全指南
+
+部署层面的网络边界、短时凭据和密钥处理建议，请参考 [安全](/zh/guide/advanced/security)。

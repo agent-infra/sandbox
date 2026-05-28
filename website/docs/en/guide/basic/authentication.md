@@ -89,3 +89,7 @@ echo "Final URL built by client: ${vnc_url}"
 # Simulate access (should be done in browser)
 # curl -I "${vnc_url}"
 ```
+
+## Security Guide
+
+For deployment-level recommendations such as network boundaries, short-lived credentials, and secret handling, see [Security](/guide/advanced/security).

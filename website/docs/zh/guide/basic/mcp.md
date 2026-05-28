@@ -356,4 +356,6 @@ async def logged_mcp_call(tool_name, **kwargs):
 ## 下一步
 
 - **[浏览器集成](/guide/basic/browser)** - 了解浏览器自动化功能
+- **[Skills](/zh/guide/basic/skills)** - 注册和查询可复用的 Agent 工具包
+- **[AIO CLI](/zh/guide/basic/aio-cli)** - 在沙盒内调用 MCP 工具
 - **[API 参考](/zh/api/)** - 详细的 API 文档

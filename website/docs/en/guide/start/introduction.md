@@ -2,7 +2,7 @@
 
 ## Background
 
-Most sandboxes are **single-purpose** (browser, code, or shell), making file sharing and functional coordination extremely challenging. For instance, files downloaded by a browser sandbox need to be shared with other sandboxes through NAS/OSS, and an Agent task typically requires multiple sandboxes to be ready before it can run.
+Most sandboxes are **single-purpose** (browser, code, or shell), making file sharing and functional coordination extremely challenging. For instance, files downloaded by a browser sandbox often need to be copied through external storage before other tools can use them, and an Agent task may require several environments to be ready before it can run.
 
 ![](/images/background.png)
 
@@ -15,7 +15,7 @@ AIO Sandbox is an **all-in-one** agent sandbox environment that combines Browser
 
 ![](/images/aio-index.png)
 
-Beyond tool integration, it offers live sandbox previews to observe agent activity, and provides agent-friendly APIs (**MCP-ready**) for easy integration for Agents.
+Beyond tool integration, it offers live sandbox previews to watch agent activity, and provides agent-friendly APIs (**MCP-ready**) for easy integration for Agents.
 
 ![](/images/mcp.png)
 
@@ -29,6 +29,8 @@ Because all components run in the same container, files downloaded in the browse
 - **VNC**: Visual browser interaction at `/vnc/index.html`
 - **Code Server**: Full VSCode experience at `/code-server/`
 - **Terminal**: WebSocket terminal at `/v1/shell/ws`
+- **Bash**: Pipe-based command execution at `/v1/bash/*`
+- **Code Runtimes**: Python and JavaScript execution through `/v1/code/*`, `/v1/jupyter/*`, and `/v1/nodejs/*`
 - **MCP Hub**: Aggregated services at `/mcp`
 
 ### MCP Integration
@@ -36,6 +38,8 @@ APIs and MCP servers support mutual invocation, enabling seamless communication 
 - Browser automation
 - File system operations
 - Terminal interactions
+- Code execution
+- Skills
 - Document processing (Markitdown)
 
 ### Development Preview
@@ -88,4 +92,4 @@ Great for scenarios requiring:
 
 Ready to dive in? Check out our [Quick Start guide](/guide/start/quick-start) to get your AIO Sandbox running in minutes.
 
-For detailed information about specific components, explore the guides in the sidebar navigation.
+For detailed information about specific components, explore the guides in the sidebar navigation. If you are deciding where your agent should run, see [Agent Call Sandbox vs In Sandbox](/guide/start/agent-sandbox).

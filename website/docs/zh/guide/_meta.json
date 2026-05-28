@@ -8,5 +8,10 @@
     "type": "dir",
     "label": "特性",
     "name": "basic"
+  },
+  {
+    "type": "dir",
+    "label": "进阶配置",
+    "name": "advanced"
   }
 ]

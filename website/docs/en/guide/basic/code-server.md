@@ -70,3 +70,7 @@ git init
 # Navigate to http://localhost:8080/code-server/
 # Open folder: /home/gem/projects/new-app
 ```
+
+## Advanced Configuration
+
+See [Code Server Configuration](/guide/advanced/code-server-config) for environment variables, extension installation, workspace behavior, and API-only deployment tips.

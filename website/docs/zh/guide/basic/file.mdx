@@ -2,69 +2,127 @@
 
 import { Tab, Tabs } from '@rspress/core/theme';
 
-AIO Sandbox 提供了全面的 REST API 用于文件系统操作，支持在整个沙盒环境中进行程序化文件管理。
+AIO Sandbox 通过 `/v1/file/*` 提供文件 API，可在沙盒内读取、写入、搜索、上传、下载和监听文件。
 
-## API 端点
+下面示例默认沙盒入口为 `http://localhost:8080`，路径均指容器内路径。
 
-所有文件操作都可通过 `/v1/file/*` 的 RESTful 端点访问。
+## 端点速览
 
-### 读取文件
+| 端点 | 用途 |
+| --- | --- |
+| `POST /v1/file/read` | 读取文本文件，可指定行范围 |
+| `POST /v1/file/write` | 写入文本或 base64 编码的二进制内容 |
+| `POST /v1/file/replace` | 替换文件中的文本 |
+| `POST /v1/file/search` | 在单个文件中用正则搜索 |
+| `POST /v1/file/find` | 使用简单 glob 查找文件 |
+| `POST /v1/file/grep` | 在文件树中搜索，支持 include/exclude |
+| `POST /v1/file/glob` | 使用高级 glob 列出文件 |
+| `POST /v1/file/list` | 列出目录 |
+| `POST /v1/file/upload` | 通过 `multipart/form-data` 上传文件 |
+| `GET /v1/file/download` | 下载文件流 |
+| `POST /v1/file/watch` | 创建文件 watcher |
+| `POST /v1/file/watch/{watcher_id}/poll` | 长轮询 watcher 事件 |
+| `POST /v1/file/watch/wait` | 等待单个文件事件 |
+| `GET /v1/file/watch/{watcher_id}/events` | 通过 SSE 消费 watcher 事件 |
+| `DELETE /v1/file/watch/{watcher_id}` | 停止 watcher |
 
-读取文件内容，可选择指定行范围：
+## 错误处理
 
+大多数文件 API 的预期内文件系统失败，会返回 `HTTP 200`、`success=false`，并在 `data` 中提供结构化错误。接入时建议按这个顺序判断：
 
-<Tabs>
-  <Tab label="Python">
+1. 先看 HTTP 状态码。
+2. 再看 `success`。
+3. 如果 `success=false`，优先读 `data.error_type` 和 `data.errno_name`。
 
-```python
-file_res = client.file.read_file(
-  file="/home/gem/.bashrc",
-  start_line=0,
-  end_line=10,
-  sudo=False,
-)
+文件不存在示例：
+
+```json
+{
+  "success": false,
+  "message": "Failed to read file: [Errno 2] No such file or directory: '/tmp/missing.txt'",
+  "data": {
+    "path": "/tmp/missing.txt",
+    "operation": "read",
+    "message": "Failed to read file: [Errno 2] No such file or directory: '/tmp/missing.txt'",
+    "error_type": "not_found",
+    "retryable": false,
+    "errno": 2,
+    "errno_name": "ENOENT",
+    "exception_type": "FileNotFoundError"
+  }
+}
 ```
 
-  </Tab>
+常见 `error_type` 包括 `not_found`、`permission_denied`、`invalid_target`、`already_exists`、`invalid_path`、`read_only_filesystem`、`no_space_left`、`decode_error`、`io_error`。
+
+`GET /v1/file/download` 是主要例外：成功时返回二进制流，失败时按 HTTP 错误处理。File watch 端点也更接近资源型 JSON 和 HTTP 状态码，不统一使用 `success` 包装。
+
+跨 API 规则见 [错误处理](/zh/guide/basic/error-handling)。
+
+## 读取文件
+
+读取文件内容，可指定 0-based 行范围。`end_line` 不包含在返回结果内。
+
+<Tabs>
   <Tab label="Curl">
 
 ```bash
-curl -X POST http://127.0.0.1:8080/v1/file/read \
+curl -X POST http://localhost:8080/v1/file/read \
   -H "Content-Type: application/json" \
   -d '{
-    "file": "/path/to/file.txt",
+    "file": "/home/gem/.bashrc",
     "start_line": 0,
-    "end_line": 100,
+    "end_line": 10,
     "sudo": false
   }'
 ```
 
   </Tab>
+  <Tab label="Python">
+
+```python
+import requests
+
+response = requests.post(
+    "http://localhost:8080/v1/file/read",
+    json={
+        "file": "/home/gem/.bashrc",
+        "start_line": 0,
+        "end_line": 10,
+    },
+)
+payload = response.json()
+print(payload["data"]["content"])
+```
+
+  </Tab>
 </Tabs>
 
-**响应：**
+成功响应：
+
 ```json
 {
   "success": true,
   "message": "File read successfully",
   "data": {
-    "content": "File contents here...",
-    "line_count": 42,
-    "file": "/path/to/file.txt"
+    "content": "export PATH=...",
+    "line_count": 10,
+    "file": "/home/gem/.bashrc"
   }
 }
 ```
 
-### 写入文件
+## 写入文件
 
-使用各种选项将内容写入文件：
+### 文本
 
 ```bash
 curl -X POST http://localhost:8080/v1/file/write \
   -H "Content-Type: application/json" \
   -d '{
-    "file": "/path/to/output.txt",
+    "file": "/tmp/output.txt",
     "content": "Hello, World!",
+    "encoding": "utf-8",
     "append": false,
     "leading_newline": false,
     "trailing_newline": true,
@@ -72,104 +130,213 @@ curl -X POST http://localhost:8080/v1/file/write \
   }'
 ```
 
-**响应：**
-```json
-{
-  "success": true,
-  "message": "File written successfully",
-  "data": {
-    "file": "/path/to/output.txt",
-    "bytes_written": 13
-  }
-}
+### 二进制
+
+图片、PDF、压缩包等二进制文件使用 `encoding: "base64"`。客户端先把字节编码成 base64，再传给 `content`。
+
+```bash
+curl -X POST http://localhost:8080/v1/file/write \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file": "/tmp/pixel.png",
+    "content": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    "encoding": "base64"
+  }'
 ```
 
-### 替换内容
+支持的编码：
 
-在文件中查找和替换文本：
+| Encoding | 适合用途 | `content` 形式 |
+| --- | --- | --- |
+| `utf-8` | 文本文件 | 原始文本 |
+| `base64` | 二进制文件 | Base64 字符串 |
+| `raw` | 高级字节处理 | Latin-1 风格字符串 |
+
+## 替换与搜索
+
+替换文本：
 
 ```bash
 curl -X POST http://localhost:8080/v1/file/replace \
   -H "Content-Type: application/json" \
   -d '{
-    "file": "/path/to/file.txt",
-    "old_str": "old text",
-    "new_str": "new text",
+    "file": "/tmp/output.txt",
+    "old_str": "World",
+    "new_str": "Sandbox",
     "sudo": false
   }'
 ```
 
-**响应：**
-```json
-{
-  "success": true,
-  "message": "Replacement completed, replaced 3 occurrences",
-  "data": {
-    "file": "/path/to/file.txt",
-    "replaced_count": 3
-  }
-}
-```
-
-### 搜索文件内容
-
-使用正则表达式搜索文件内容：
+在单个文件中用正则搜索：
 
 ```bash
 curl -X POST http://localhost:8080/v1/file/search \
   -H "Content-Type: application/json" \
   -d '{
-    "file": "/path/to/file.txt",
-    "regex": "function\\s+\\w+",
-    "sudo": false
+    "file": "/tmp/output.txt",
+    "regex": "Hello,\\s+\\w+"
   }'
 ```
 
-**响应：**
-```json
-{
-  "success": true,
-  "message": "Search completed, found 5 matches",
-  "data": {
-    "file": "/path/to/file.txt",
-    "matches": [
-      {
-        "line_number": 10,
-        "line": "function myFunction() {",
-        "match": "function myFunction"
-      }
-    ]
-  }
-}
+在目录树中搜索：
+
+```bash
+curl -X POST http://localhost:8080/v1/file/grep \
+  -H "Content-Type: application/json" \
+  -d '{
+    "path": "/home/gem/workspace",
+    "pattern": "TODO",
+    "include": ["*.py", "*.ts", "*.tsx"],
+    "exclude": ["node_modules", ".git"],
+    "case_insensitive": true,
+    "max_results": 100
+  }'
 ```
 
-### 查找文件
+## 查找、Glob 与目录列表
 
-使用 glob 模式搜索文件：
+简单文件名匹配用 `find`：
 
 ```bash
 curl -X POST http://localhost:8080/v1/file/find \
   -H "Content-Type: application/json" \
   -d '{
-    "path": "/home/gem",
-    "glob": "*.js"
+    "path": "/home/gem/workspace/src",
+    "glob": "*.py"
   }'
 ```
 
-**响应：**
+需要递归匹配、元数据、排序和隐藏文件控制时使用 `glob`：
+
+```bash
+curl -X POST http://localhost:8080/v1/file/glob \
+  -H "Content-Type: application/json" \
+  -d '{
+    "path": "/home/gem/workspace",
+    "pattern": "**/*.json",
+    "exclude": ["node_modules/**"],
+    "include_hidden": false,
+    "files_only": true,
+    "include_metadata": true,
+    "max_results": 200,
+    "sort_by": "path"
+  }'
+```
+
+列出目录：
+
+```bash
+curl -X POST http://localhost:8080/v1/file/list \
+  -H "Content-Type: application/json" \
+  -d '{
+    "path": "/home/gem/workspace",
+    "recursive": false,
+    "show_hidden": true,
+    "include_size": true
+  }'
+```
+
+## 上传与下载
+
+使用 multipart 表单上传：
+
+```bash
+curl -X POST http://localhost:8080/v1/file/upload \
+  -F "file=@./report.pdf" \
+  -F "path=/tmp/report.pdf"
+```
+
+以文件流下载：
+
+```bash
+curl -o report.pdf \
+  "http://localhost:8080/v1/file/download?path=/tmp/report.pdf"
+```
+
+如果下载的文件可能还在被后台任务写入，可以使用 `change_policy=abort`。服务端在传输开始前或传输中检测到源文件变化时，会返回 `HTTP 409` 或中断本次传输。
+
+```bash
+curl -o report.pdf \
+  "http://localhost:8080/v1/file/download?path=/tmp/report.pdf&change_policy=abort"
+```
+
+## 文件监听
+
+File watch 适合等待生成文件、监听浏览器下载、或在后台命令结束后刷新文件树。
+
+### 等待单个文件
+
+只关心一个文件被创建、写入、删除、重命名或 chmod 时，使用 `wait`。
+
+```bash
+curl -X POST http://localhost:8080/v1/file/watch/wait \
+  -H "Content-Type: application/json" \
+  -d '{
+    "path": "/tmp/demo/result.json",
+    "timeout": 30,
+    "event_types": ["create", "write"]
+  }'
+```
+
+响应示例：
+
 ```json
 {
-  "success": true,
-  "message": "Search completed, found 12 files",
-  "data": {
-    "files": [
-      "/home/gem/app.js",
-      "/home/gem/config.js",
-      "/home/gem/utils.js"
-    ]
+  "event": {
+    "seq": 1,
+    "type": "write",
+    "path": "/tmp/demo/result.json",
+    "relative_path": "result.json",
+    "old_path": null,
+    "is_dir": false,
+    "timestamp": 1776823501.334,
+    "mtime": 1776823501.321,
+    "size": 2048,
+    "inode": 91827555
   }
 }
 ```
+
+如果文件在调用时已经存在，且 `event_types` 包含 `create`，`wait` 可能立即返回 `create` 事件。只关心后续变化时，不要把 `create` 放进 `event_types`。
+
+### 长轮询目录
+
+CLI、CI 和 Agent 持续消费变化时，推荐 `create + poll + delete`，清理最明确。
+
+```bash
+WATCHER_ID=$(curl -s -X POST http://localhost:8080/v1/file/watch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "path": "/home/gem/workspace",
+    "recursive": true,
+    "debounce": 200,
+    "exclude": [".git", "node_modules", "dist", ".next"],
+    "include_patterns": ["*.py", "*.ts", "*.tsx", "*.json"]
+  }' | jq -r ".data.watcher_id")
+
+curl -X POST "http://localhost:8080/v1/file/watch/${WATCHER_ID}/poll" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "cursor": 0,
+    "limit": 100,
+    "timeout": 10
+  }'
+
+curl -X DELETE "http://localhost:8080/v1/file/watch/${WATCHER_ID}"
+```
+
+`cursor` 表示“已经消费到的最后一条 `seq`”。下一次请求直接传回响应里的 `cursor`，不要自行加一。如果返回 `overflow=true`，说明增量历史不完整，应做一次全量刷新后继续。
+
+### UI 实时刷新使用 SSE
+
+浏览器前端可以使用 Server-Sent Events：
+
+```http
+GET /v1/file/watch/{watcher_id}/events
+Accept: text/event-stream
+```
+
+事件流会发出 `watch_started`、`file_change` 和 `overflow`。每个 `file_change` 都是上面的文件事件结构，并带有 `{watcher_id}:{seq}` 形式的 SSE id。
 
 ## 集成示例
 
@@ -177,11 +344,11 @@ curl -X POST http://localhost:8080/v1/file/find \
 
 ```python
 import requests
-import json
+
 
 class SandboxFileAPI:
     def __init__(self, base_url="http://localhost:8080"):
-        self.base_url = base_url
+        self.base_url = base_url.rstrip("/")
 
     def read_file(self, file_path, start_line=None, end_line=None):
         payload = {"file": file_path}
@@ -192,156 +359,150 @@ class SandboxFileAPI:
 
         response = requests.post(
             f"{self.base_url}/v1/file/read",
-            json=payload
+            json=payload,
+            timeout=30,
         )
         return response.json()
 
     def write_file(self, file_path, content, append=False):
-        payload = {
-            "file": file_path,
-            "content": content,
-            "append": append
-        }
         response = requests.post(
             f"{self.base_url}/v1/file/write",
-            json=payload
+            json={
+                "file": file_path,
+                "content": content,
+                "append": append,
+            },
+            timeout=30,
         )
         return response.json()
 
-    def search_files(self, pattern, directory="/"):
-        payload = {
-            "path": directory,
-            "glob": pattern
-        }
+    def search_files(self, pattern, directory="/home/gem/workspace"):
         response = requests.post(
             f"{self.base_url}/v1/file/find",
-            json=payload
+            json={
+                "path": directory,
+                "glob": pattern,
+            },
+            timeout=30,
         )
         return response.json()
 
-# 使用示例
+
 api = SandboxFileAPI()
 
-# 读取配置
-config = api.read_file("/app/config.json")
+api.write_file("/home/gem/workspace/config.json", '{"debug": false}\n')
+config = api.read_file("/home/gem/workspace/config.json")
 print(config["data"]["content"])
 
-# 写入日志条目
-api.write_file("/var/log/app.log", "Process started\n", append=True)
+api.write_file("/home/gem/workspace/app.log", "Process started\n", append=True)
 
-# 查找 Python 文件
-files = api.search_files("*.py", "/app")
+files = api.search_files("*.py", "/home/gem/workspace/src")
 for file_path in files["data"]["files"]:
     print(f"Found: {file_path}")
 ```
 
-### JavaScript/Node.js 集成
+### JavaScript / Node.js 集成
 
 ```javascript
 class SandboxFileAPI {
-    constructor(baseUrl = 'http://localhost:8080') {
-        this.baseUrl = baseUrl;
-    }
+  constructor(baseUrl = "http://localhost:8080") {
+    this.baseUrl = baseUrl.replace(/\/$/, "");
+  }
 
-    async readFile(filePath, options = {}) {
-        const payload = { file: filePath, ...options };
-        const response = await fetch(`${this.baseUrl}/v1/file/read`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        return response.json();
-    }
+  async readFile(filePath, options = {}) {
+    const response = await fetch(`${this.baseUrl}/v1/file/read`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ file: filePath, ...options }),
+    });
+    return response.json();
+  }
 
-    async writeFile(filePath, content, options = {}) {
-        const payload = { file: filePath, content, ...options };
-        const response = await fetch(`${this.baseUrl}/v1/file/write`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        return response.json();
-    }
+  async writeFile(filePath, content, options = {}) {
+    const response = await fetch(`${this.baseUrl}/v1/file/write`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ file: filePath, content, ...options }),
+    });
+    return response.json();
+  }
 
-    async replaceInFile(filePath, oldStr, newStr) {
-        const payload = { file: filePath, old_str: oldStr, new_str: newStr };
-        const response = await fetch(`${this.baseUrl}/v1/file/replace`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        return response.json();
-    }
+  async replaceInFile(filePath, oldStr, newStr) {
+    const response = await fetch(`${this.baseUrl}/v1/file/replace`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        file: filePath,
+        old_str: oldStr,
+        new_str: newStr,
+      }),
+    });
+    return response.json();
+  }
 }
 
-// 使用示例
 const api = new SandboxFileAPI();
 
-// 读取和处理文件
-const result = await api.readFile('/app/data.txt');
+const result = await api.readFile("/home/gem/workspace/data.txt");
 if (result.success) {
-    console.log('File content:', result.data.content);
-
-    // 更新配置
-    await api.replaceInFile('/app/config.json', '"debug": false', '"debug": true');
+  console.log("File content:", result.data.content);
+  await api.replaceInFile(
+    "/home/gem/workspace/config.json",
+    '"debug": false',
+    '"debug": true',
+  );
 }
 ```
 
 ## 文件系统集成
 
 ### 共享访问
-文件在所有沙盒组件之间共享：
+
+文件在 Shell、浏览器下载、代码执行、code-server 和文件 API 之间共享：
 
 ```bash
 # 通过 API 创建文件
 curl -X POST http://localhost:8080/v1/file/write \
-  -d '{"file": "/tmp/shared.txt", "content": "Shared content"}'
+  -H "Content-Type: application/json" \
+  -d '{"file": "/home/gem/workspace/shared.txt", "content": "Shared content"}'
 
-# 在终端中访问
+# 在终端中读取
 # ws://localhost:8080/v1/shell/ws
-# > cat /tmp/shared.txt
+# > cat /home/gem/workspace/shared.txt
 # Shared content
 
 # 在 Code Server 中编辑
 # http://localhost:8080/code-server/
-# 打开 /tmp/shared.txt
-
-# 在浏览器中处理
-# 通过 VNC 下载或查看
+# 打开 /home/gem/workspace/shared.txt
 ```
 
 ### 工作流示例
 
-完整的文件处理工作流：
+完整的文件处理流程通常是：
 
-1. **通过浏览器下载文件**
-```javascript
-// 文件出现在 /home/gem/Downloads/
-```
+1. 通过浏览器或上传接口把文件放到 `/home/gem/workspace`。
+2. 使用文件 API 读取和转换。
+3. 执行 Shell 或 Code Execution 命令处理数据。
+4. 在 code-server 中查看结果，或通过下载接口取回产物。
 
-2. **使用文件 API 处理**
 ```python
-# 读取下载的文件
-content = client.file.read_file(file="/home/gem/Downloads/data.csv").data.content
+import json
 
-# 处理并保存结果
+content = client.file.read_file(
+    file="/home/gem/Downloads/data.csv",
+).data.content
+
 processed = process_csv(content)
-client.file.write_file(file="/tmp/results.json", content=json.dumps(processed))
+client.file.write_file(
+    file="/home/gem/workspace/results.json",
+    content=json.dumps(processed),
+)
 ```
 
-3. **执行 shell 命令**
 ```bash
-# 运行分析脚本
-python /app/analyze.py /tmp/results.json
-
-# 生成报告
-pandoc /tmp/results.json -o /tmp/report.pdf
-```
-
-4. **在 Code Server 中编辑**
-```
-# 在 VSCode 中打开结果进行优化
-# /tmp/report.pdf 可供预览
+python /home/gem/workspace/analyze.py /home/gem/workspace/results.json
+curl -o report.pdf \
+  "http://localhost:8080/v1/file/download?path=/home/gem/workspace/report.pdf"
 ```
 
 ## 高级功能
@@ -352,123 +513,116 @@ pandoc /tmp/results.json -o /tmp/report.pdf
 
 ```python
 def batch_process_files(api, directory, pattern):
-    # 查找所有匹配的文件
     files_result = api.search_files(pattern, directory)
 
     for file_path in files_result["data"]["files"]:
-        # 读取每个文件
         content_result = api.read_file(file_path)
 
         if content_result["success"]:
             content = content_result["data"]["content"]
-
-            # 处理内容
-            processed = content.upper()
-
-            # 写回处理后的内容
             output_path = file_path.replace(".txt", "_processed.txt")
-            api.write_file(output_path, processed)
+            api.write_file(output_path, content.upper())
 
-# 处理目录中的所有文本文件
-batch_process_files(api, "/app/data", "*.txt")
+
+batch_process_files(api, "/home/gem/workspace/data", "*.txt")
 ```
 
 ### 错误处理
 
-文件操作的稳健错误处理：
+文件操作建议同时处理 HTTP 错误和业务响应里的 `success=false`：
 
 ```python
+import json
+import requests
+
+
 def safe_file_operation(api, operation, **kwargs):
     try:
         result = operation(**kwargs)
 
         if result["success"]:
             return result["data"]
-        else:
-            print(f"Operation failed: {result['message']}")
+
+        error = result.get("data") or {}
+        if error.get("error_type") == "not_found":
+            print("File does not exist")
             return None
 
-    except requests.exceptions.RequestException as e:
-        print(f"Network error: {e}")
-        return None
-    except json.JSONDecodeError as e:
-        print(f"JSON decode error: {e}")
+        print(f"Operation failed: {result['message']}")
         return None
 
-# 安全文件读取
+    except requests.exceptions.RequestException as exc:
+        print(f"Network error: {exc}")
+        return None
+    except json.JSONDecodeError as exc:
+        print(f"JSON decode error: {exc}")
+        return None
+
+
 content = safe_file_operation(
     api,
     api.read_file,
-    file_path="/path/to/file.txt"
+    file_path="/home/gem/workspace/data.txt",
 )
 ```
 
 ### 权限管理
 
-处理文件权限和 sudo 操作：
+默认使用沙盒内普通用户权限。只有确实需要访问受保护路径时再启用 `sudo`：
 
 ```python
-# 常规文件操作
-result = api.read_file("/home/user/file.txt")
+result = api.read_file("/home/gem/workspace/file.txt")
 
-# 系统文件的 sudo 操作
 result = api.read_file("/etc/nginx/nginx.conf", sudo=True)
 
-# 写入受保护的位置
 api.write_file(
-    "/etc/cron.d/backup",
-    "0 2 * * * root /backup.sh",
-    sudo=True
+    "/etc/cron.d/example",
+    "0 2 * * * root /home/gem/workspace/backup.sh\n",
+    sudo=True,
 )
 ```
 
-## 安全注意事项
+### 安全注意事项
 
-### 文件访问控制
-- 应用默认用户权限
-- 可配置 sudo 访问
-- 路径遍历保护
-- 强制执行文件大小限制
+#### 文件访问控制
 
-### 最佳实践
-- 在操作前验证文件路径
-- 使用适当的权限（尽可能避免 sudo）
-- 实施上传文件大小检查
-- 清理用户提供的内容
+- 默认使用应用用户权限。
+- 可按需启用 `sudo`，但应避免把用户输入直接用于受保护路径。
+- 对用户提供的路径做归一化和目录范围校验。
+- 对上传大小和下载大小设置业务侧限制。
 
-### 安全实现示例
+#### 安全实现示例
 
 ```python
 import os
 import re
 
-def secure_file_operation(file_path, base_directory="/home/user"):
-    # 规范化路径
+
+def secure_file_operation(file_path, base_directory="/home/gem/workspace"):
     normalized = os.path.normpath(file_path)
 
-    # 检查路径遍历
-    if ".." in normalized or normalized.startswith("/"):
-        if not normalized.startswith(base_directory):
-            raise ValueError("Path traversal detected")
+    if not normalized.startswith(base_directory):
+        raise ValueError("Path is outside the allowed directory")
 
-    # 验证文件名
-    if not re.match(r'^[a-zA-Z0-9._/-]+$', normalized):
+    if not re.match(r"^[a-zA-Z0-9._/-]+$", normalized):
         raise ValueError("Invalid characters in filename")
 
     return normalized
 
-# 安全使用
+
 try:
-    safe_path = secure_file_operation("../../../etc/passwd")
-except ValueError as e:
-    print(f"Security violation: {e}")
+    safe_path = secure_file_operation("/home/gem/workspace/data.txt")
+except ValueError as exc:
+    print(f"Security violation: {exc}")
 ```
 
-## 性能优化
+### 性能优化
 
-### 大文件处理
+#### 大文件处理
+
+对大文本文件，按行范围分块读取，避免一次性把所有内容放进响应：
+
 ```python
-# 分块读取大文件
 def read_large_file(api, file_path, chunk_size=1000):
     total_lines = 0
     content_parts = []
@@ -477,45 +631,42 @@ def read_large_file(api, file_path, chunk_size=1000):
         result = api.read_file(
             file_path,
             start_line=total_lines,
-            end_line=total_lines + chunk_size
+            end_line=total_lines + chunk_size,
         )
 
         if not result["success"] or not result["data"]["content"]:
             break
 
-        content_parts.append(result["data"]["content"])
+        content = result["data"]["content"]
+        content_parts.append(content)
         total_lines += chunk_size
 
-        # 防止无限循环
-        if len(result["data"]["content"].splitlines()) < chunk_size:
+        if len(content.splitlines()) < chunk_size:
             break
 
     return "\n".join(content_parts)
 ```
 
-### 并发操作
+#### 并发操作
+
 ```python
-import asyncio
 import aiohttp
+import asyncio
 
-async def parallel_file_operations(files):
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-
-        for file_path in files:
-            task = read_file_async(session, file_path)
-            tasks.append(task)
-
-        results = await asyncio.gather(*tasks)
-        return results
 
 async def read_file_async(session, file_path):
     payload = {"file": file_path}
     async with session.post(
         "http://localhost:8080/v1/file/read",
-        json=payload
+        json=payload,
     ) as response:
         return await response.json()
+
+
+async def parallel_file_operations(files):
+    async with aiohttp.ClientSession() as session:
+        tasks = [read_file_async(session, file_path) for file_path in files]
+        return await asyncio.gather(*tasks)
 ```
 
-准备集成文件操作？查看我们的 [API 参考](/api/) 获取完整的端点文档。
+准备集成文件操作？查看 [API 参考](/zh/api/) 获取完整 schema。

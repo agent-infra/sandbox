@@ -1,0 +1,14 @@
+[
+  "env-config",
+  "workspace",
+  "lifecycle",
+  "proxy-network",
+  "security",
+  "browser-config",
+  "browser-cookies",
+  "browser-downloads",
+  "code-server-config",
+  "opencode",
+  "git-config",
+  "web-terminal"
+]

@@ -1,9 +1,18 @@
 [
   "sandbox",
   "browser",
+  "display",
   "shell",
+  "bash",
+  "code",
+  "jupyter",
+  "nodejs",
   "file",
+  "util",
   "mcp",
+  "skills",
+  "aio-cli",
+  "error-handling",
   "proxy",
   "code-server",
   "authentication"

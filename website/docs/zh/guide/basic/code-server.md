@@ -70,3 +70,7 @@ git init
 # 导航到 http://localhost:8080/code-server/
 # 打开文件夹：/home/gem/projects/new-app
 ```
+
+## 高级配置
+
+环境变量、扩展安装、工作目录行为和纯 API 部署建议，请参考 [Code Server 配置](/zh/guide/advanced/code-server-config)。

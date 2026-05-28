@@ -10,6 +10,19 @@ Any domain name that satisfies the `${port}-${domain}` format will be forwarded 
 
 ![](/images/subdomain-proxy.png)
 
+## Header-Based Port Routing
+
+When a public gateway or custom reverse proxy cannot use the `${port}-${domain}` host format, it can route preview traffic by injecting the `x-aio-proxy-port` request header:
+
+```bash
+curl -H 'x-aio-proxy-port: 19877' \
+  https://<sandbox-public-host>/some/path
+```
+
+The sandbox forwards the request to `http://127.0.0.1:19877/some/path`. The original path is preserved, and the control header is removed before the request reaches the target service.
+
+Only pure numeric header values enable this routing. Because the header selects an internal sandbox port, it should be overwritten by a trusted gateway or reverse proxy instead of being accepted directly from end users.
+
 ## SubPath Proxy Types
 
 ### Frontend Application Proxy
@@ -65,3 +78,4 @@ npm start
 - **Terminal Integration**: Control services via shell → [Shell API](/api/)
 - **File Operations**: Manage application files → [File API](/api/)
 - **Browser Automation**: Test applications → [Browser Guide](/guide/basic/browser)
+- **Advanced Proxy And Network**: Configure outbound proxy and runtime mappings → [Proxy And Network](/guide/advanced/proxy-network)

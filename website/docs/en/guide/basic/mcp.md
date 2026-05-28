@@ -356,5 +356,7 @@ async def logged_mcp_call(tool_name, **kwargs):
 ## Next Steps
 
 - **[Browser Integration](/guide/basic/browser)** - Learn about browser automation capabilities
+- **[Skills](/guide/basic/skills)** - Register and inspect reusable agent tool packages
+- **[AIO CLI](/guide/basic/aio-cli)** - Call MCP tools from inside the sandbox
 - **[API Reference](/api/)** - Detailed API documentation
 - **[Examples](/examples/agent)** - Real-world agent integration examples
