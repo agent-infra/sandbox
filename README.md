@@ -41,6 +41,8 @@ For users in mainland China:
 docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
+> The published images are multi-platform and support `linux/amd64` and `linux/arm64` (aarch64). Docker automatically pulls the matching image for your host architecture.
+
 Use a specific version in the format `agent-infra/sandbox:${version}`, for example, to use version 1.0.0.150:
 
 ```bash

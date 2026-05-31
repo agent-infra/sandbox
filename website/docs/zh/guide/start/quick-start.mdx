@@ -26,6 +26,8 @@ docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent
 docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
+> 已发布镜像支持 `linux/amd64` 和 `linux/arm64`（aarch64）。Docker 会根据宿主机架构自动拉取匹配镜像。
+
 > 如果端口 8080 被占用，映射到不同的端口：
 
 ```bash

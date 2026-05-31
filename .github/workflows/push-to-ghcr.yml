@@ -8,6 +8,10 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  SOURCE_REGISTRY: enterprise-public-cn-beijing.cr.volces.com
+  SOURCE_IMAGE_NAME: vefaas-public/all-in-one-sandbox
+  # Docker uses linux/arm64 for ARM64/aarch64 hosts.
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   push-to-ghcr:
@@ -32,28 +36,61 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull source image
-        id: pull
-        run: |
-          # For releases, use the version tag; otherwise use latest
-          if [[ "${{ github.event_name }}" == "release" ]]; then
-            # Remove 'v' prefix from tag name (e.g., v1.0.0.1 -> 1.0.0.1)
-            VERSION="${{ github.event.release.tag_name }}"
-            VERSION="${VERSION#v}"
-            docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:${VERSION}
-            echo "source_tag=${VERSION}" >> "$GITHUB_OUTPUT"
-          else
-            docker pull enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
-            echo "source_tag=latest" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Mirror multi-arch image to GHCR
+      - name: Resolve source image
+        id: source
         shell: bash
         run: |
           set -euo pipefail
 
-          SOURCE_TAG="${{ steps.pull.outputs.source_tag }}"
-          SOURCE_IMAGE="enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:${SOURCE_TAG}"
+          # For releases, use the version tag; otherwise use latest.
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            SOURCE_TAG="${{ github.event.release.tag_name }}"
+            SOURCE_TAG="${SOURCE_TAG#v}"
+          else
+            SOURCE_TAG="latest"
+          fi
+
+          SOURCE_IMAGE="${{ env.SOURCE_REGISTRY }}/${{ env.SOURCE_IMAGE_NAME }}:${SOURCE_TAG}"
+          echo "source_tag=${SOURCE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "source_image=${SOURCE_IMAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify source image platforms
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SOURCE_IMAGE="${{ steps.source.outputs.source_image }}"
+          echo "Inspecting ${SOURCE_IMAGE}"
+          INSPECT_OUTPUT="$(docker buildx imagetools inspect "${SOURCE_IMAGE}")"
+          echo "${INSPECT_OUTPUT}"
+
+          IFS=',' read -ra REQUIRED_PLATFORMS <<< "${{ env.PLATFORMS }}"
+          for platform in "${REQUIRED_PLATFORMS[@]}"; do
+            platform="${platform//[[:space:]]/}"
+            if [[ -z "${platform}" ]]; then
+              continue
+            fi
+
+            os="${platform%%/*}"
+            arch="${platform#*/}"
+            arch="${arch%%/*}"
+
+            case "${INSPECT_OUTPUT}" in
+              *"Platform:    ${os}/${arch}"*) ;;
+              *)
+                echo "::error::Source image ${SOURCE_IMAGE} is missing ${platform}"
+                exit 1
+                ;;
+            esac
+          done
+
+      - name: Mirror multi-platform image to GHCR
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SOURCE_TAG="${{ steps.source.outputs.source_tag }}"
+          SOURCE_IMAGE="${{ steps.source.outputs.source_image }}"
           DEST_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
 
           TAG_ARGS=(-t "${DEST_IMAGE}:latest")
@@ -63,4 +100,6 @@ jobs:
             TAG_ARGS+=(-t "${DEST_IMAGE}:${VERSION}")
           fi
 
-          docker buildx imagetools create "${TAG_ARGS[@]}" "${SOURCE_IMAGE}"
+          docker buildx imagetools create \
+            "${TAG_ARGS[@]}" \
+            "${SOURCE_IMAGE}"
