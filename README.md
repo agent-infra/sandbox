@@ -473,7 +473,7 @@ def run_code(code, lang="python"):
 
 
 response = client.chat.completions.create(
-    model="MiniMax-M2.7",
+    model="MiniMax-M3",
     messages=[{"role": "user", "content": "calculate 1+1"}],
     tools=[
         {

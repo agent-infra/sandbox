@@ -87,7 +87,7 @@ class TestTemperatureClamping(unittest.TestCase):
         session = MagicMock()
         loop = OpenAIAgentLoop(
             mcp_session=session,
-            model="MiniMax-M2.5",
+            model="MiniMax-M3",
             temperature=0.7,
         )
         self.assertAlmostEqual(loop._effective_temperature(), 0.7)
