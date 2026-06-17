@@ -26,6 +26,8 @@ Use the public China mirror for faster downloads:
 docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
+> Published images support `linux/amd64` and `linux/arm64` (aarch64). Docker automatically selects the matching image for your host.
+
 ### Option 3: Use a specific version
 
 Format `agent-infra/sandbox:${version}`, for example, to use version 1.0.0.150:
