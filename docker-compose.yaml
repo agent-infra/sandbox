@@ -43,7 +43,7 @@ services:
       # for gh cli
       GITHUB_TOKEN: ""
       # Claude Skills
-      AIO_SKILLS_PATH: ${AIO_SKILLS_PATH:-}
+      AIO_SKILLS_PATH: ${AIO_SKILLS_PATH:-/home/gem/.claude/skills/}
       # Features
       DISABLE_JUPYTER: ${DISABLE_JUPYTER:-false}
       DISABLE_CODE_SERVER: ${DISABLE_CODE_SERVER:-false}
