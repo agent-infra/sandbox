@@ -109,6 +109,7 @@ const result = await callMCPTool('file_read', {
 - `terminal_execute` - Run shell commands
 - `terminal_session` - Manage terminal sessions
 - `terminal_kill` - Terminate processes
+- `sandbox_execute_bash` - Run Bash Pipe commands; supports the `truncate` parameter. It truncates large output by default. Set `truncate: false` to return full output. See [Bash Pipe](/guide/basic/bash) for details.
 
 ### Document Tools
 - `markitdown_convert` - Convert documents to markdown

@@ -109,6 +109,7 @@ const result = await callMCPTool('file_read', {
 - `terminal_execute` - 运行 Shell 命令
 - `terminal_session` - 管理终端会话
 - `terminal_kill` - 终止进程
+- `sandbox_execute_bash` - 运行 Bash 管道命令；支持 `truncate` 参数，默认截断超长输出，设为 `false` 时返回完整输出。更多细节见 [Bash 管道](/zh/guide/basic/bash)。
 
 ### 文档工具
 - `markitdown_convert` - 将文档转换为 Markdown

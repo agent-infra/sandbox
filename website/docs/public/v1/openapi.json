@@ -14245,6 +14245,18 @@
             ],
             "title": "Url Allowlist"
           },
+          "allow_file_selection_dialogs": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allow File Selection Dialogs",
+            "description": "Control whether web pages can open file picker dialogs. Send null to remove the explicit policy and restore the browser default."
+          },
           "locale": {
             "anyOf": [
               {

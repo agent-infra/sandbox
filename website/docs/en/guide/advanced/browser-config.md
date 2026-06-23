@@ -11,6 +11,7 @@ AIO Sandbox runs Chromium inside the container. You can configure language, home
 | `CHROME_UI_LANG` | Chromium UI language |
 | `BROWSER_USER_AGENT` | Custom user agent string |
 | `BROWSER_EXTRA_ARGS` | Additional Chromium launch arguments |
+| `BROWSER_ALLOW_FILE_SELECTION_DIALOGS` | Controls whether web pages can open file picker dialogs |
 
 ## Language
 
@@ -42,6 +43,20 @@ Use `BROWSER_EXTRA_ARGS` for advanced Chromium flags:
 ```
 
 Be conservative with launch flags. Removing default security or process flags can make automation less stable.
+
+## File Selection Dialog Policy
+
+AIO Sandbox supports `BROWSER_ALLOW_FILE_SELECTION_DIALOGS` to control whether web pages can open file picker dialogs. Set it to `false` to prevent upload controls from opening the system file picker:
+
+```bash
+docker run --security-opt seccomp=unconfined --rm -it \
+  -p 8080:8080 \
+  -e BROWSER_ALLOW_FILE_SELECTION_DIALOGS=false \
+  ghcr.io/agent-infra/sandbox:latest
+```
+
+When the variable is unset or empty, the browser keeps its default behavior.
+
 
 ## Runtime Configuration
 

@@ -27,6 +27,7 @@ AIO Sandbox 通过环境变量在容器启动时配置各项服务。通过 Dock
 | `CHROME_UI_LANG` | 空 | Chromium UI 语言 |
 | `BROWSER_USER_AGENT` | 默认 Chromium UA | 自定义 User-Agent |
 | `BROWSER_EXTRA_ARGS` | 空 | 追加 Chromium 启动参数 |
+| `BROWSER_ALLOW_FILE_SELECTION_DIALOGS` | 空 | 控制网页是否可以打开文件选择弹窗；设为 `false` 时禁止网页唤起文件选择器 |
 
 ## 服务
 
@@ -53,4 +54,3 @@ AIO Sandbox 通过环境变量在容器启动时配置各项服务。通过 Dock
 | `RUN_HOOK_POST_READY` | 服务就绪后 |
 
 示例见 [AIO Hooks](/zh/guide/advanced/lifecycle)。
-

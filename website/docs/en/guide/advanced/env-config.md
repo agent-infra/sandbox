@@ -27,6 +27,7 @@ AIO Sandbox uses environment variables to configure services at container startu
 | `CHROME_UI_LANG` | empty | Chromium UI language |
 | `BROWSER_USER_AGENT` | default Chromium UA | Custom user agent |
 | `BROWSER_EXTRA_ARGS` | empty | Additional Chromium launch flags |
+| `BROWSER_ALLOW_FILE_SELECTION_DIALOGS` | empty | Controls whether web pages can open file picker dialogs; set to `false` to block file picker dialogs |
 
 ## Services
 
@@ -53,4 +54,3 @@ AIO Sandbox uses environment variables to configure services at container startu
 | `RUN_HOOK_POST_READY` | After services are ready |
 
 See [AIO Hooks](/guide/advanced/lifecycle) for examples.
-
