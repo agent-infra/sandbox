@@ -45,15 +45,15 @@ For users in mainland China:
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
   -e SANDBOX_API_KEY=your-secret-key \
-  -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+  -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.11.0
 ```
 
-Use a specific version in the format `agent-infra/sandbox:${version}`, for example, to use version 1.11.0:
+For reproducible deployments, pin a release tag. Replace `1.11.0` with the release you want:
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
   -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:1.11.0
-# or users in mainland China
+# or use the pinned mainland China mirror
 docker run --security-opt seccomp=unconfined --rm -it \
   -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.11.0
 ```
@@ -302,30 +302,28 @@ if __name__ == "__main__":
 ### Docker Compose
 
 ```yaml
-version: '3.8'
 services:
   sandbox:
     container_name: aio-sandbox
     image: ghcr.io/agent-infra/sandbox:latest
-    volumes:
-      - /tmp/gem/vite-project:/home/gem/vite-project
     security_opt:
       - seccomp:unconfined
+    ports:
+      - "127.0.0.1:${HOST_PORT:-8080}:8080"
+    volumes:
+      - sandbox_data:/home/gem/workspace
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: "unless-stopped"
     shm_size: "2gb"
-    ports:
-      - "127.0.0.1:${HOST_PORT:-8080}:8080"
     environment:
-      PROXY_SERVER: ${PROXY_SERVER:-host.docker.internal:7890}
-      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:-}
-      DNS_OVER_HTTPS_TEMPLATES: ${DNS_OVER_HTTPS_TEMPLATES:-}
-      WORKSPACE: ${WORKSPACE:-"/home/gem"}
-      HOMEPAGE: ${HOMEPAGE:-}
-      BROWSER_EXTRA_ARGS: ${BROWSER_EXTRA_ARGS:-}
+      SANDBOX_API_KEY: ${SANDBOX_API_KEY:-}
+      PROXY_SERVER: ${PROXY_SERVER:-}
+      WORKSPACE: ${WORKSPACE:-/home/gem/workspace}
       TZ: ${TZ:-Asia/Singapore}
-      WAIT_PORTS: ${WAIT_PORTS:-}
+
+volumes:
+  sandbox_data:
 ```
 
 ### Kubernetes
