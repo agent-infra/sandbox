@@ -71,11 +71,11 @@ client = Sandbox(base_url="http://localhost:8080")
 
 # Get browser information
 browser_info = client.browser.get_info()
-print(f"CDP URL: {browser_info.cdp_url}")
-print(f"Viewport: {browser_info.viewport}")
+print(f"CDP URL: {browser_info.data.cdp_url}")
+print(f"Viewport: {browser_info.data.viewport}")
 
 # Take screenshot
-screenshot_data = client.browser.take_screenshot()
+screenshot_data = client.browser.screenshot()
 with open("screenshot.png", "wb") as f:
     for chunk in screenshot_data:
         f.write(chunk)
@@ -111,10 +111,10 @@ async def main():
 
     # Get browser information
     browser_info = await client.browser.get_info()
-    print(f"CDP URL: {browser_info.cdp_url}")
+    print(f"CDP URL: {browser_info.data.cdp_url}")
 
     # Take screenshot
-    screenshot_data = client.browser.take_screenshot()
+    screenshot_data = client.browser.screenshot()
     with open("screenshot.png", "wb") as f:
         async for chunk in screenshot_data:
             f.write(chunk)
@@ -145,7 +145,7 @@ from browser_use.browser.browser import BrowserSession, BrowserProfile
 
 # Get CDP URL
 client = Sandbox(base_url="http://localhost:8080")
-cdp_url = client.browser.get_info().cdp_url
+cdp_url = client.browser.get_info().data.cdp_url
 
 # Configure browser profile
 profile = {
@@ -177,7 +177,7 @@ client = Sandbox(base_url="http://localhost:8080")
 
 async with async_playwright() as p:
     browser_info = client.browser.get_info()
-    cdp_url = browser_info.cdp_url
+    cdp_url = browser_info.data.cdp_url
 
     browser = await p.chromium.connect_over_cdp(cdp_url)
     page = await browser.new_page()
