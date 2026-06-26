@@ -32,7 +32,11 @@
 Get up and running in 30 seconds:
 
 ```bash
+# Recommended: Enable API Key authentication (protects all services: API, JupyterLab, VNC)
+# - Supports three methods: X-AIO-API-Key header, Authorization: Bearer header, ?api_key= query parameter
+# - Without SANDBOX_API_KEY, services remain open (backward compatible)
 docker run --security-opt seccomp=unconfined --rm -it \
+  -e SANDBOX_API_KEY=your-secret-key \
   -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
@@ -40,6 +44,7 @@ For users in mainland China:
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
+  -e SANDBOX_API_KEY=your-secret-key \
   -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
