@@ -6,7 +6,7 @@
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e WORKSPACE=/workspace \
   -v "$PWD:/workspace" \
   ghcr.io/agent-infra/sandbox:latest

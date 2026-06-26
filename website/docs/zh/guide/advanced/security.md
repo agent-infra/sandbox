@@ -17,7 +17,7 @@ openssl rsa -in private_key.pem -pubout -out public_key.pem
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e JWT_PUBLIC_KEY="$(base64 -w 0 public_key.pem)" \
   ghcr.io/agent-infra/sandbox:latest
 ```

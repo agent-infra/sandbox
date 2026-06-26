@@ -9,7 +9,7 @@
 把容器端口映射到另一个宿主机端口：
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 3000:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:3000:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 之后将沙盒地址配置为 `http://localhost:3000`。
@@ -19,7 +19,7 @@ docker run --security-opt seccomp=unconfined --rm -it -p 3000:8080 ghcr.io/agent
 先确认容器有足够内存，并使用推荐的 seccomp 参数启动：
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 如果运行在受限容器环境中，还需要检查 Chromium 沙箱能力和共享内存限制。

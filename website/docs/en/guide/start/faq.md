@@ -9,7 +9,7 @@ This FAQ is written for the open-source Docker and SDK workflow.
 Map the container to a different host port:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 3000:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:3000:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 Then use `http://localhost:3000` as the sandbox base URL.
@@ -19,7 +19,7 @@ Then use `http://localhost:3000` as the sandbox base URL.
 Make sure the container has enough memory and that it is started with the recommended seccomp option:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 If you run in a restricted container runtime, also check whether Chromium sandboxing or shared-memory limits need additional runtime flags.

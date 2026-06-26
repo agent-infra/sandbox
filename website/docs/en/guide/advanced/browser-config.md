@@ -17,7 +17,7 @@ AIO Sandbox runs Chromium inside the container. You can configure language, home
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e BROWSER_LANG=en-US \
   ghcr.io/agent-infra/sandbox:latest
 ```
@@ -50,7 +50,7 @@ AIO Sandbox supports `BROWSER_ALLOW_FILE_SELECTION_DIALOGS` to control whether w
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e BROWSER_ALLOW_FILE_SELECTION_DIALOGS=false \
   ghcr.io/agent-infra/sandbox:latest
 ```

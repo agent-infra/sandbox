@@ -12,7 +12,7 @@ This example demonstrates how to run an AG2 multi-agent workflow against Agent S
 
 ```bash
 # Start sandbox
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 
 # Configure env
 cp .env.example .env

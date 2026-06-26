@@ -92,4 +92,4 @@ Great for scenarios requiring:
 
 Ready to dive in? Check out our [Quick Start guide](/guide/start/quick-start) to get your AIO Sandbox running in minutes.
 
-For detailed information about specific components, explore the guides in the sidebar navigation. If you are deciding where your agent should run, see [Agent Call Sandbox vs In Sandbox](/guide/start/agent-sandbox).
+For detailed information about specific components, explore the guides in the sidebar navigation. If you plan to deploy on a cloud host or Kubernetes, see [Cloud Deployment](/guide/start/cloud-deployment). If you are deciding where your agent should run, see [Agent Call Sandbox vs In Sandbox](/guide/start/agent-sandbox).

@@ -32,22 +32,28 @@
 Get up and running in 30 seconds:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it \
+  -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
 
 For users in mainland China:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it \
+  -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
 ```
 
 Use a specific version in the format `agent-infra/sandbox:${version}`, for example, to use version 1.11.0:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 ghcr.io/agent-infra/sandbox:1.11.0
+docker run --security-opt seccomp=unconfined --rm -it \
+  -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:1.11.0
 # or users in mainland China
-docker run --security-opt seccomp=unconfined --rm -it -p 8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.11.0
+docker run --security-opt seccomp=unconfined --rm -it \
+  -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.11.0
 ```
+
+These examples intentionally bind the host side to `127.0.0.1` because the sandbox listens on `0.0.0.0` inside the container. For cloud deployment, keep port `8080` private and publish it through a reverse proxy or Ingress: [Cloud Deployment Guide](https://sandbox.agent-infra.com/guide/start/cloud-deployment).
 
 Once running, access the environment at:
 - 📖 **Documentation**: http://localhost:8080/v1/docs
@@ -305,7 +311,7 @@ services:
     restart: "unless-stopped"
     shm_size: "2gb"
     ports:
-      - "${HOST_PORT:-8080}:8080"
+      - "127.0.0.1:${HOST_PORT:-8080}:8080"
     environment:
       PROXY_SERVER: ${PROXY_SERVER:-host.docker.internal:7890}
       JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:-}

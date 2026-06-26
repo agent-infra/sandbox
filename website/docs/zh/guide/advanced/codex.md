@@ -29,7 +29,7 @@ AIO Sandbox 内置 [OpenAI Codex](https://github.com/openai/codex) CLI。Codex �
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e OPENAI_API_KEY="sk-xxx" \
   ghcr.io/agent-infra/sandbox:latest
 ```
@@ -38,7 +38,7 @@ docker run --security-opt seccomp=unconfined --rm -it \
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e CODEX_API_KEY="your-api-key" \
   -e CODEX_MODEL="your-model-id" \
   -e CODEX_BASE_URL="https://example.com/api/v3" \
@@ -66,7 +66,7 @@ env_key = "CUSTOM_API_KEY"
 export CODEX_MODEL_CATALOG_JSON='{"models":[{"id":"custom-model","name":"Custom Model"}]}'
 
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e CUSTOM_API_KEY="your-api-key" \
   -e CODEX_CONFIG_TOML \
   -e CODEX_MODEL_CATALOG_JSON \

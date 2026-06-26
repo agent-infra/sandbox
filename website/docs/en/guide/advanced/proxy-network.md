@@ -8,7 +8,7 @@ Use `PROXY_SERVER` when browser or tool traffic needs an upstream HTTP/HTTPS pro
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e PROXY_SERVER=http://proxy.example.com:3128 \
   ghcr.io/agent-infra/sandbox:latest
 ```

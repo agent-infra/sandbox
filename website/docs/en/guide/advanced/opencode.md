@@ -28,7 +28,7 @@ The default provider is `ark`, so most setups only need an API key and model ID:
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e OPENCODE_API_KEY="your-api-key" \
   -e OPENCODE_MODEL="your-model-id" \
   ghcr.io/agent-infra/sandbox:latest
@@ -38,7 +38,7 @@ Anthropic-compatible endpoint:
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e OPENCODE_PROVIDER="custom-anthropic" \
   -e OPENCODE_BASE_URL="https://example.com/anthropic/v1" \
   -e OPENCODE_API_KEY="your-api-key" \
@@ -50,7 +50,7 @@ OpenAI-compatible endpoint:
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e OPENCODE_PROVIDER="openai" \
   -e OPENCODE_BASE_URL="https://api.openai.com/v1" \
   -e OPENCODE_API_KEY="your-api-key" \
@@ -62,7 +62,7 @@ For full customization, pass an OpenCode config JSON with `OPENCODE_JSON`:
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e OPENCODE_JSON='{"model":"my-provider/my-model","provider":{"my-provider":{"npm":"@ai-sdk/openai-compatible","options":{"baseURL":"https://example.com/v1","apiKey":"your-api-key"},"models":{"my-model":{}}}}}' \
   ghcr.io/agent-infra/sandbox:latest
 ```

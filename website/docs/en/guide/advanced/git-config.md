@@ -23,7 +23,7 @@ For private repositories, prefer runtime credentials instead of baking secrets i
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e GIT_ASKPASS=/home/gem/git-askpass.sh \
   ghcr.io/agent-infra/sandbox:latest
 ```

@@ -24,7 +24,7 @@ http://localhost:8080/code-server/
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e RUN_HOOK_PRE_SERVICES="code-server --install-extension ms-python.python" \
   ghcr.io/agent-infra/sandbox:latest
 ```

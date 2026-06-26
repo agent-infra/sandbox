@@ -103,10 +103,10 @@ MCP is useful when you want to expose the sandbox as a standard tool provider: t
 One advantage of Call Sandbox is that the orchestrator can connect to multiple sandboxes at once. Each sandbox runs as a separate container with its own host port, which is useful for parallel experiments, regression checks, or task isolation.
 
 ```bash
-docker run --rm -d --name sandbox-react -p 8080:8080 \
+docker run --rm -d --name sandbox-react -p 127.0.0.1:8080:8080 \
   ghcr.io/agent-infra/sandbox:latest
 
-docker run --rm -d --name sandbox-vue -p 8081:8080 \
+docker run --rm -d --name sandbox-vue -p 127.0.0.1:8081:8080 \
   ghcr.io/agent-infra/sandbox:latest
 ```
 
@@ -178,7 +178,7 @@ Use this mode when:
 Use this when you want the agent script to start with the container. The example mounts a local `agent.py` into the container and runs it after the sandbox service starts.
 
 ```bash
-docker run --rm -it -p 8080:8080 \
+docker run --rm -it -p 127.0.0.1:8080:8080 \
   -v "$PWD/agent.py:/home/gem/agent.py" \
   ghcr.io/agent-infra/sandbox:latest \
   bash -lc "/entrypoint.sh & sleep 5 && python /home/gem/agent.py"
