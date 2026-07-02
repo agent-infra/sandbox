@@ -11,7 +11,7 @@ Run from tool_evaluation directory:
     uv run main.py --agent openai             # Use standard OpenAI
     uv run main.py --agent openai \\
         --openai-base-url https://api.minimax.io/v1 \\
-        --openai-model MiniMax-M2.7           # Use MiniMax via OpenAI-compatible API
+        --openai-model MiniMax-M3             # Use MiniMax via OpenAI-compatible API
 """
 
 import argparse
@@ -679,7 +679,7 @@ async def main():
         "--openai-model",
         type=str,
         default=None,
-        help="Model name for OpenAI-compatible API (e.g. MiniMax-M2.7). Only used with --agent openai.",
+        help="Model name for OpenAI-compatible API (e.g. MiniMax-M3). Only used with --agent openai.",
     )
     args = parser.parse_args()
 

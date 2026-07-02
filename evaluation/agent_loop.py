@@ -323,7 +323,7 @@ class AzureOpenAIAgentLoop(BaseAgentLoop):
 _TEMPERATURE_POSITIVE_MODELS = re.compile(r"MiniMax", re.IGNORECASE)
 
 # Models that may wrap content in <think>...</think> tags
-_THINKING_TAG_MODELS = re.compile(r"MiniMax-M2", re.IGNORECASE)
+_THINKING_TAG_MODELS = re.compile(r"MiniMax-M[23]", re.IGNORECASE)
 
 
 class OpenAIAgentLoop(BaseAgentLoop):
@@ -337,7 +337,7 @@ class OpenAIAgentLoop(BaseAgentLoop):
             mcp_session=session,
             api_key=os.getenv("MINIMAX_API_KEY"),
             base_url="https://api.minimax.io/v1",
-            model="MiniMax-M2.7",
+            model="MiniMax-M3",
         )
     """
 
