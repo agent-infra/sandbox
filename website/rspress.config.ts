@@ -113,7 +113,7 @@ export default defineConfig({
         label: 'English',
         editLink: {
           docRepoBaseUrl:
-            'https://github.com/agent-infra/sandbox/tree/main/site/docs',
+            'https://github.com/agent-infra/sandbox/tree/main/website/docs',
           text: '📝 Edit this page on GitHub',
         },
         searchPlaceholderText: 'Search',
@@ -126,7 +126,7 @@ export default defineConfig({
         label: '简体中文',
         editLink: {
           docRepoBaseUrl:
-            'https://github.com/agent-infra/sandbox/tree/main/site/docs',
+            'https://github.com/agent-infra/sandbox/tree/main/website/docs',
           text: '📝 在 GitHub 上编辑此页',
         },
         searchPlaceholderText: '搜索',
