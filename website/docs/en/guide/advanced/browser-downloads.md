@@ -27,7 +27,7 @@ from agent_sandbox import Sandbox
 from playwright.sync_api import sync_playwright
 
 client = Sandbox(base_url="http://localhost:8080")
-cdp_url = client.browser.get_info().cdp_url
+cdp_url = client.browser.get_info().data.cdp_url
 
 with sync_playwright() as p:
     browser = p.chromium.connect_over_cdp(cdp_url)
