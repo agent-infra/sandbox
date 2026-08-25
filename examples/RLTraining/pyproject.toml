@@ -1,0 +1,17 @@
+[project]
+name = "rl-training"
+version = "0.1.0"
+description = "GRPO reinforcement learning example using AIO Sandbox as the reward environment"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "agent-sandbox",
+    "trl>=0.29.0",
+    "datasets>=4.0.0",
+    "torch>=2.4.0",
+    "transformers>=4.40.0",
+    "accelerate>=0.30.0",
+]
+
+[tool.uv.sources]
+agent-sandbox = { path = "../../sdk/python", editable = true }
