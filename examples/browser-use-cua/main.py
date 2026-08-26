@@ -12,7 +12,7 @@ import base64
 import os
 from io import BytesIO
 
-from agent_sandbox import Sandbox
+from agent_sandbox import AsyncSandbox
 from agent_sandbox.browser.types.action import (
     Action_Click,
     Action_DoubleClick,
@@ -33,12 +33,7 @@ if TYPE_CHECKING:
 load_dotenv()
 
 sandbox_url = os.getenv("SANDBOX_BASE_URL", "http://localhost:8080")
-sandbox = Sandbox(base_url=sandbox_url)
-cdp_url = sandbox.browser.get_info().data.cdp_url
-
-browser_session = BrowserSession(
-    browser_profile=BrowserProfile(cdp_url=cdp_url, is_local=True)
-)
+sandbox = AsyncSandbox(base_url=sandbox_url)
 tools = Tools()
 
 
@@ -80,15 +75,12 @@ async def handle_cua_action(action: "ComputerAction") -> ActionResult:
 
                 print(f"Action: click at ({x}, {y}) with button '{button}'")
 
-                # Map CUA button to sandbox button
-                from agent_sandbox.browser.types.action import Button
-
                 button_map = {
-                    "left": Button.LEFT,
-                    "right": Button.RIGHT,
-                    "middle": Button.MIDDLE,
+                    "left": "left",
+                    "right": "right",
+                    "middle": "middle",
                 }
-                sandbox_button = button_map.get(button, Button.LEFT)
+                sandbox_button = button_map.get(button, "left")
 
                 await sandbox.browser.execute_action(
                     request=Action_Click(
@@ -388,7 +380,13 @@ async def sandbox_gui_fallback(
 
 
 async def main():
-    browser_session = BrowserSession(browser_profile=BrowserProfile(cdp_url=cdp_url))
+    browser_info = await sandbox.browser.get_info()
+    browser_session = BrowserSession(
+        browser_profile=BrowserProfile(
+            cdp_url=browser_info.data.cdp_url,
+            is_local=True,
+        )
+    )
 
     # Task that might require GUI fallback for complex interactions
     task = """
