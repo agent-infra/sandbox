@@ -27,4 +27,6 @@ export interface ShellExecRequest {
     preserve_symlinks?: boolean;
     /** If True, truncate output when it exceeds 30000 characters (default: True) */
     truncate?: boolean;
+    /** Environment variables to set for the command execution. These will be merged with the existing process environment, with provided values taking precedence. */
+    env?: Record<string, string> | null;
 }
