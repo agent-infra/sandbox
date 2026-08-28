@@ -74,7 +74,7 @@ uv run main.py --agent openai --openai-model gpt-4
 export OPENAI_API_KEY="your_minimax_api_key"
 uv run main.py --agent openai \
     --openai-base-url https://api.minimax.io/v1 \
-    --openai-model MiniMax-M2.7
+    --openai-model MiniMax-M3
 ```
 
 ### Available Categories

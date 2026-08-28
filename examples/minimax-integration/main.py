@@ -18,7 +18,7 @@ client = OpenAI(
     base_url="https://api.minimax.io/v1",
 )
 
-MODEL = os.getenv("MINIMAX_MODEL", "MiniMax-M2.7")
+MODEL = os.getenv("MINIMAX_MODEL", "MiniMax-M3")
 
 # ── Sandbox ─────────────────────────────────────────────────────────────
 sandbox_url = os.getenv("SANDBOX_BASE_URL", "http://localhost:8080")
