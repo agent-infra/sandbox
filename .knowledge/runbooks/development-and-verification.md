@@ -4,6 +4,26 @@ type: runbook
 
 # Development and Verification
 
+## Node.js toolchain policy
+
+- CI (`sdk-ci.yml`) tests the JS SDK on a matrix of **Node 20 and 24**
+  (`fail-fast: false`). The publish workflow (`sdk-publish.yml`) builds and
+  publishes on **Node 24**.
+- The JS SDK's `engines.node` is `>=20.0.0` — the supported window is the
+  last three LTS lines (20, 22, 24). Node 20 is the floor; raising it
+  further is a semver-major change to a published npm package.
+- `@types/node` is pinned to `^24` across all JS manifests (root,
+  `website`, `sdk/js`, `sdk/js/examples`); it is dev-only and does not
+  constrain consumers.
+- The JS SDK test runner is **Vitest 3** (`^3.2.4`); Vitest 1.x does not
+  support Node 24, which is why the toolchain upgrade and the vitest
+  upgrade were done together.
+- Note: no `.nvmrc` or `packageManager` field exists; local Node version is
+  whatever the developer has. Use fnm/nvm to select 20 or 24 when
+  reproducing CI locally.
+- Container/editors used for development may have their own Node (e.g.
+  22) — that is unrelated to the repo's supported range.
+
 ## Repository layout expectations
 
 - pnpm workspace: `website` and `sdk/js` are the JS packages. Root
@@ -13,6 +33,9 @@ type: runbook
   `evaluation`, and each `examples/*`.
 - The sandbox runtime itself is **not buildable from this repo** — start it
   from the published image (see below).
+- CONTRIBUTING.md describes a stale layout (`sdk/javascript`,
+  Docusaurus, ESLint, npm) inherited from the predecessor repo — follow
+  this runbook, not that file's literal commands.
 
 ## Common commands
 
@@ -26,7 +49,7 @@ pnpm test           # vitest (unit tests incl. providers/signing)
 pnpm test:coverage
 ```
 
-### Website (`website`)
+### Website (`website/`)
 
 ```bash
 cd website
@@ -77,7 +100,7 @@ Reports land in `evaluation/result/<YYYYMMDD>/<category>.md` (UTC+8 dates).
 Most examples and the evaluation harness need a running sandbox:
 
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it \
+docker run --security-opt seccomp:unconfined --rm -it \
   -e SANDBOX_API_KEY=your-secret-key \
   -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 ```
@@ -105,7 +128,8 @@ Secrets are loaded via `.env` files (never committed; see `.gitignore`).
 ## Verification checklist before proposing changes
 
 1. JS changes: `pnpm build && pnpm test` in `sdk/js` (CI `sdk-ci.yml` runs
-   the same on `sdk/js/**` or `sdk/fern/**` touches).
+   the same on `sdk/js/**` or `sdk/fern/**` touches, on both Node 20 and
+   Node 24).
 2. Never hand-edit Fern-generated files — regenerate via `sdk/fern`
    generators and keep `fern-customizations.test.ts` green.
 3. Docs changes: build the website (`pnpm build` in `website/`); dead-link
@@ -116,6 +140,15 @@ Secrets are loaded via `.env` files (never committed; see `.gitignore`).
 5. Publishing is **not** done locally in the normal flow — use the
    `sdk-publish.yml` workflow (supports dry runs) so version-bump commits
    land on the branch consistently.
+
+## Line-ending gotcha (this workspace)
+
+Files in this repo's HEAD are stored with LF, but some editor/container
+syncs produce working copies with CRLF, which makes `git status` show the
+entire tree as modified. If `git diff --stat` reports ~1000+ files with
+equal +/- counts, run `git diff --ignore-cr-at-eol` to see the real
+changes, and `git checkout -- .` before re-applying edits. Keep manifest
+edits to LF to match HEAD.
 
 ## Related knowledge
 
