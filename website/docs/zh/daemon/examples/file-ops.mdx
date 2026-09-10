@@ -33,7 +33,7 @@ import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
 
 </ApiV1>
 
-文件 API 与命令、终端、代码执行共享同一个文件系统；隔离由容器负责，而不是由 API 负责。
+文件 API 与命令、终端、代码执行共享同一个文件系统；隔离由沙箱负责，而不是由 API 负责。
 
 <ApiV2>
 
@@ -733,7 +733,7 @@ curl -F "file=@data.csv" -F "path=/tmp/demo/data.csv" "$BASE_URL/v1/file/upload"
 
 </ApiV1>
 
-<UseV2 when="需要一次请求搬运整个目录" route="GET /v2/fs/tree" />
+<UseV2 when="一次请求搬运整个目录" route="GET /v2/fs/tree" />
 
 <ApiV2>
 

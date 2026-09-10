@@ -17,14 +17,7 @@ AIO Sandbox supports two common integration modes: the agent can call sandbox AP
 
 In this mode the agent runs outside the sandbox and calls sandbox capabilities through REST APIs, the Python SDK, the TypeScript SDK, or MCP.
 
-```text
-┌──────────────────┐         ┌──────────────────┐
-│ Agent (external) │  HTTP   │ AIO Sandbox      │
-│ - LLM / planner  │ ──────> │ - Shell          │
-│ - orchestration  │ <────── │ - File           │
-│ - credentials    │ :8080   │ - Browser        │
-└──────────────────┘         └──────────────────┘
-```
+![](/architecture/aio-agent-calls-sandbox.svg)
 
 Use this mode when:
 
@@ -152,18 +145,7 @@ If you need to compare web UI results, start one app in each sandbox and then co
 
 In this mode the agent process runs inside the sandbox container. It can call local commands and local REST endpoints directly.
 
-```text
-┌─────────────────────────────────────┐
-│ AIO Sandbox Container               │
-│ ┌─────────────────────────────────┐ │
-│ │ Agent process                   │ │
-│ │ - local commands                │ │
-│ │ - local files                   │ │
-│ │ - http://127.0.0.1:8080         │ │
-│ └─────────────────────────────────┘ │
-│ Shell / File / Browser / Code        │
-└─────────────────────────────────────┘
-```
+![](/architecture/aio-agent-in-sandbox.svg)
 
 Use this mode when:
 

@@ -95,13 +95,11 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://collector:4317 aiod start
 
 带 `_TRACES_` 的专用变量优先于通用变量。
 
-使用 `http/protobuf` 时，通用端点会被视为 base URL，并自动追加 `/v1/traces`；`OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` 则按原值使用。服务只读取这些变量，不会推断其他配置，也没有默认端点。
+使用 `http/protobuf` 时，通用端点会被视为 base URL，并自动追加 `/v1/traces`；`OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` 则按原值使用。
 
-每个请求生成一个 span，`otel.kind` 为 `server`，并包含 `http.method` 和 `http.route`。
+每个请求一个 span（`otel.kind` 为 `server`，带 `http.method` 和 `http.route`）。trace context 透传：调用方的 trace 会经 daemon 转发到 computer-use。
 
-服务会从请求中提取 W3C trace context 并继续向下传递，因此调用方的 trace 可以穿过 daemon。开启上报后，JSON 日志中也会出现 `trace_id` 和 `span_id`。
-
-GUI 操作转发到 computer-use 时也会携带 context，因此同一条 trace 可以看到 aiod 到 computer-use 的完整调用。
+![](/screenshots/aiod-jaeger-trace.png)
 
 只支持明文 `http://` 的 collector：构建里没有编入 TLS 后端。
 

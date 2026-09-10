@@ -236,7 +236,7 @@ This applies on Linux only. Windows answers `400` for an explicit `user`, and `5
 
 On the images, the daemon runs as root with `AIO_DEFAULT_USER=gem`; commands run as `gem`.
 
-The working directory is not a confinement boundary. File routes can reach the whole host filesystem. Isolation is the container's or VM's job, not the daemon's.
+The working directory is not a confinement boundary. File routes can reach the whole host filesystem. Isolation is the sandbox's job, not the daemon's.
 
 ## MCP
 

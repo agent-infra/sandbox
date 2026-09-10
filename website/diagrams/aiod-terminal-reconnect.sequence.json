@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Reattach with and without durable",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "column_fit": "spread",
+    "locale": "en",
+    "viewBox": [1080, 624]
+  },
+  "participants": [
+    { "id": "agent", "type": "external", "label": "Agent" },
+    { "id": "aiod", "type": "backend", "label": "aiod", "sublabel": "terminal" },
+    { "id": "shell", "type": "backend", "label": "Shell" }
+  ],
+  "segments": [
+    { "from": 160, "to": 232, "label": "socket drops" },
+    { "from": 250, "to": 394, "label": "A · durable=true" },
+    { "from": 412, "to": 524, "label": "B · plain attach" }
+  ],
+  "messages": [
+    { "id": "keeps-running", "from": "shell", "to": "aiod", "y": 196, "label": "output continues", "variant": "default" },
+    { "id": "attach-durable", "from": "agent", "to": "aiod", "y": 284, "label": "attach durable", "variant": "emphasis" },
+    { "id": "ready-resumed", "from": "aiod", "to": "agent", "y": 324, "label": "ready · resumed true", "variant": "return" },
+    { "id": "gap-output", "from": "aiod", "to": "agent", "y": 364, "label": "output · the gap", "variant": "return" },
+    { "id": "attach-plain", "from": "agent", "to": "aiod", "y": 452, "label": "attach", "variant": "emphasis" },
+    { "id": "ready-fresh", "from": "aiod", "to": "agent", "y": 492, "label": "ready · resumed false", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "aiod", "from": 164, "to": 504, "type": "backend" },
+    { "participant": "shell", "from": 164, "to": 504, "type": "backend" }
+  ]
+}

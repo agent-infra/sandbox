@@ -158,13 +158,11 @@ kernel 的工作目录在启动时固定。请求的 `cwd` 与池里所有 kerne
 
 ## 内存占用
 
-在相同资源限制下，对比 `aiod` 和 1.x 发布镜像。两边都限制为 0.5 CPU / 0.5 GiB；`aiod` 运行 nginx 和一个预热 kernel，1.x 镜像开启 Jupyter，关闭浏览器和 VNC。
+相同限制下（0.5 CPU、0.5 GiB）对比 `aiod` 和 1.x 镜像：`aiod` 运行 nginx 和一个预热 kernel，1.x 镜像开启 Jupyter、关闭浏览器和 VNC。
 
 ![](/architecture/aiod-jupyter-footprint.svg)
 
-kernel 本身的占用相近，主要差异来自外围服务：容器空闲时，`aiod` 占用 69.8 MB，1.x 镜像占用 248.4 MB。
-| 首次响应 | 0.42 s | 6.9 s |
-| 会话执行 p50 | 6.4 ms | 11.1 ms |
+kernel 本身占用相近，差异来自外围服务：空闲时 `aiod` 占 69.8 MB，1.x 镜像占 248.4 MB。
 
 ## 相关页面
 

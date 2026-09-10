@@ -1,31 +1,20 @@
 # CDP Access
 
-CDP access in aiod splits by design into two roles: the daemon connects to Chromium as a client, and a reverse proxy in front of it exposes Chromium's debugging port to the outside.
+aiod connects to an already running Chromium over CDP (Chrome DevTools Protocol).
 
-The daemon implements only the client role. This page describes that split and what a deployment has to provide for the other half.
+For external clients to connect, a reverse proxy in front of aiod also has to map Chromium's port `9222` to a public address.
 
-## What the daemon does
+## What aiod does
 
-- It connects to `BROWSER_REMOTE_DEBUGGING_HOST:PORT` (default `127.0.0.1:9222`) for its own browser tools, for capability probing, and for the browser MCP tools.
-- It answers `GET /v1/browser/info` with `cdp_url`, built from the request's `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-Prefix` headers. `Host` is the fallback. The shape: `<scheme>://<host><prefix>/cdp/devtools/browser/<id>`.
+aiod connects to `BROWSER_REMOTE_DEBUGGING_HOST:PORT`, `127.0.0.1:9222` by default.
 
-The daemon does not serve `/cdp/*`. The shape is fixed — Chromium reachable under the sandbox's single public origin, at the `/cdp/` prefix — but not the component behind it: serving that path is the deployment's job.
+It answers `GET /v1/browser/info` with the `cdp_url` a client needs to connect to Chromium. Behind a reverse proxy, the address uses the proxy's public address.
 
-## Why the proxy must serve `/cdp/*`
+aiod does not serve `/cdp/*`. That part is the reverse proxy's job.
 
-Serving `/cdp/json/*` and relaying `/cdp/devtools/*` WebSockets are both a reverse proxy's job:
+## nginx configuration
 
-- Discovery is a string rewrite: Chromium's `/json/version` and `/json/list` return URLs starting with `ws://127.0.0.1:9222/`. The proxy replaces that prefix with the public origin plus `/cdp/`, and the `ws=` form inside `devtoolsFrontendUrl` the same way.
-- The DevTools WebSocket is plain forwarding: `/cdp/devtools/<rest>` becomes `/devtools/<rest>` on port 9222. The `Upgrade` headers pass through, with a long read timeout.
-
-Two details make the rewrite work:
-
-- Chromium rejects `/json/*` requests whose `Host` is not an IP address or `localhost`. The proxy sends `Host: 127.0.0.1:9222` upstream.
-- The response body must be uncompressed for the substitution to apply. The proxy sends an empty `Accept-Encoding` upstream.
-
-## CDP on the prebuilt images
-
-nginx on the AIO and Computer images implements both locations. Here is the config:
+The prebuilt images already route CDP through nginx. The relevant config:
 
 ```nginx
 location /cdp/json/ {
@@ -48,46 +37,82 @@ location ~ ^/cdp/devtools/ {
 }
 ```
 
-`$cdp_scheme`, `$cdp_host`, and `$cdp_prefix` are derived from the `X-Forwarded-*` headers. `cdp_url` stays correct behind a second proxy or an ingress that adds a path prefix.
+The first block handles the connection info Chromium returns and rewrites its addresses to the public one. The second forwards the DevTools WebSocket connection.
 
-For example, set these request headers:
-
-```text
-X-Forwarded-Proto: https
-X-Forwarded-Host: sandbox.example.com
-X-Forwarded-Prefix: /s/abc
-```
-
-`info` then answers `wss://sandbox.example.com/s/abc/cdp/devtools/browser/<id>`.
+`$cdp_scheme`, `$cdp_host`, and `$cdp_prefix` come from the `X-Forwarded-*` headers, so `cdp_url` stays correct behind another proxy or a path prefix.
 
 ## Without nginx
 
-On a host without the image's gateway, the deployment's own reverse proxy does the same two things. On Windows this is the reverse proxy in front of the host. It rewrites the discovery JSON and forwards `/cdp/devtools/*` to port 9222, with the same header rules.
+Without the image's gateway, your own reverse proxy has to do the same:
 
-Any proxy that can forward WebSockets and rewrite a response body works. The daemon needs only the `X-Forwarded-*` headers from it.
+- forward `/cdp/json/*` and rewrite the connection addresses in the response;
+- forward `/cdp/devtools/*` to Chromium's port `9222`;
+- support WebSocket;
+- pass the `X-Forwarded-*` headers through.
 
-## Path or port access
+Windows deployments also need a reverse proxy in front of the host.
 
-`cdp_url` is path-shaped: `wss://sandbox.example.com/cdp/devtools/browser/<id>`. Playwright's `connect_over_cdp` and Puppeteer's `browserWSEndpoint` accept it as is. Playwright also accepts `{base_url}/cdp` as an HTTP endpoint: it appends `json/version/` and keeps the query string.
+## Connecting to Chromium
 
-Some clients accept only `http://host:port` with no path:
+Playwright's `connect_over_cdp` and Puppeteer's `browserWSEndpoint` accept `cdp_url` as is.
 
-- Puppeteer's `browserURL`
-- chrome-devtools-mcp's `--browserUrl`
-- Selenium
-- OSWorld
+```text
+wss://sandbox.example.com/cdp/devtools/browser/<id>
+```
 
-They need port-shaped access, a hostname that terminates at Chromium's port 9222. A deployment that gives each sandbox its own hostname can expose the port as a subdomain or a dedicated listener. The same proxy forwards it to 9222.
+Some clients accept only `http://host:port` with no path. Give Chromium its own hostname or port and have the proxy forward it to `9222`.
 
-The daemon is not involved in either shape. Its browser tools keep connecting to `BROWSER_REMOTE_DEBUGGING_PORT`, whether Chromium or a forwarder answers there.
+## Authentication
 
-## Keys
+A browser-side WebSocket usually cannot set request headers. If the gateway requires an API key, add it to `cdp_url` as a query parameter:
 
-A browser-side WebSocket cannot set headers. When the gateway requires a key, append `?api_key=<key>` to `cdp_url`. `info` echoes its own query string onto both URLs it returns, so `GET /v1/browser/info?api_key=<key>` hands back a `cdp_url` that connects as is. The rule is the same as for every other WebSocket route.
+```text
+?api_key=<key>
+```
 
-Never expose port 9222 outside a trusted network: Chromium's debugging port has no authentication of its own.
+`GET /v1/browser/info?api_key=<key>` returns an address that keeps this parameter, ready to use.
+
+Chromium's port `9222` has no authentication of its own. Do not expose it outside a trusted network.
+
+## Chromium startup example
+
+For a custom image, install Chromium and manage the process with `supervisord`:
+
+```dockerfile
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      chromium chromium-sandbox && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV BROWSER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV BROWSER_REMOTE_DEBUGGING_PORT=9222
+```
+
+```bash
+#!/bin/sh
+exec "${BROWSER_EXECUTABLE_PATH}" \
+  --user-data-dir=/home/sandbox/.config/browser \
+  --remote-debugging-address=127.0.0.1 \
+  --remote-debugging-port="${BROWSER_REMOTE_DEBUGGING_PORT}" \
+  --remote-allow-origins=* \
+  about:blank
+```
+
+```ini
+[program:chromium]
+command=/usr/local/bin/start-chromium.sh
+environment=DISPLAY=":99",HOME="/home/sandbox",USER="sandbox"
+user=sandbox
+autostart=true
+autorestart=true
+stopsignal=INT
+stdout_logfile=/var/log/chromium.log
+redirect_stderr=true
+```
+
+Container deployments also need to allow Chromium's sandbox and give `/dev/shm` enough space.
 
 ## Related
 
-- [Browser API](/daemon/basic/browser) — the REST tools and client examples
-- [Browser (CDP) example](/daemon/examples/browser-cdp) — Playwright and Puppeteer end to end
+- [Browser API](/daemon/basic/browser) — the browser REST API
+- [Browser (CDP) example](/daemon/examples/browser-cdp) — Playwright and Puppeteer examples

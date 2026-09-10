@@ -51,7 +51,7 @@ Two identities take part, and neither is a sandbox:
 
 ![](/architecture/aiod-permission-model.svg)
 
-A call can reach anything on the host that the daemon account can reach. aiod provides no per-request jail, chroot, or path allowlist; confining a deployment to a directory or tenant is the container or VM's job.
+A call can reach anything on the host that the daemon account can reach. aiod provides no per-request jail, chroot, or path allowlist; confining a deployment to a directory or tenant is the sandbox's job.
 
 On Windows `user` is not implemented, and an explicit value answers `400`.
 

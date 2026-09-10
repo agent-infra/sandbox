@@ -4,7 +4,6 @@ import { pluginSvgr } from '@rsbuild/plugin-svgr';
 import { defineConfig } from '@rspress/core';
 import { pluginLlms } from '@rspress/plugin-llms';
 import { pluginSitemap } from '@rspress/plugin-sitemap';
-import { pluginTwoslash } from '@rspress/plugin-twoslash';
 import {
   transformerNotationDiff,
   transformerNotationErrorLevel,
@@ -28,6 +27,7 @@ function mdxToPlainMarkdown() {
     let prevJsx = false;
     for (const child of node.children) {
       if (child.type === 'mdxjsEsm') continue;
+      if (child.type === 'blockquote') keepAlertMarker(child);
       if (isJsx(child)) {
         walk(child);
         if (prevJsx && child.type === 'mdxJsxTextElement') out.push({ type: 'text', value: ' / ' });
@@ -43,6 +43,18 @@ function mdxToPlainMarkdown() {
   };
   return (tree: any) => walk(tree);
 }
+
+// remark-stringify would escape "> [!TIP]" to "> \[!TIP]".
+function keepAlertMarker(blockquote: any) {
+  const paragraph = blockquote.children?.[0];
+  const text = paragraph?.children?.[0];
+  const marker = text?.type === 'text' && /^\[!\w+\]/.exec(text.value);
+  if (!marker) return;
+  text.value = text.value.slice(marker[0].length);
+  paragraph.children.unshift({ type: 'html', value: marker[0] });
+}
+
+const llmsMdFiles = { mdxToMd: false, remarkPlugins: [mdxToPlainMarkdown] };
 
 export default defineConfig({
   root: path.join(__dirname, 'docs'),
@@ -80,12 +92,21 @@ export default defineConfig({
     },
   },
   plugins: [
-    pluginTwoslash(),
     pluginFontOpenSans(),
     pluginSitemap({
       siteUrl,
     }),
-    pluginLlms({ mdFiles: { mdxToMd: false, remarkPlugins: [mdxToPlainMarkdown] } }),
+    // One entry per locale: a single options object only covers the default
+    // language, so zh pages had no .md files and "Copy Markdown" fetched the 404 page.
+    pluginLlms([
+      { mdFiles: llmsMdFiles },
+      {
+        mdFiles: llmsMdFiles,
+        llmsTxt: { name: 'zh/llms.txt' },
+        llmsFullTxt: { name: 'zh/llms-full.txt' },
+        include: ({ page }) => page.lang === 'zh',
+      },
+    ]),
   ],
   base: process.env.BASE_URL ?? '/',
   outDir: 'doc_build',

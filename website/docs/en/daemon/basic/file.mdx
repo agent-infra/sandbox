@@ -4,7 +4,7 @@ import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
 
 The File plane reads, writes, edits, searches, transfers, and watches files. It shares one filesystem with commands, terminals, code execution, and browser downloads: a file written through this API is immediately visible to a shell command, and vice versa.
 
-The working directory is not a confinement boundary — file calls reach anywhere the daemon's own account can. Confinement is the container or VM's job, not this API's.
+The working directory is not a confinement boundary — file calls reach anywhere the daemon's own account can. Confinement is the sandbox's job, not this API's.
 
 On the file API, `user` means something different from its meaning on commands and terminals:
 
