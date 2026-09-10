@@ -1,0 +1,508 @@
+import { ApiV1, ApiV2, UseV2, Tab, Tabs } from '@theme';
+
+# Computer Use
+
+`computer-use` 是一个为驱动真实桌面而设计的 worker 进程：
+
+- 鼠标和键盘
+- 截图
+- 剪贴板
+- 窗口列表
+- 无障碍树（accessibility tree）
+
+它是独立于 `aiod` 的进程，可以运行在任何有桌面的主机上。例如：
+
+- 一台 Ubuntu 桌面
+- 一台跑 Xvfb 或 Xvnc 的虚拟机
+- 一台带交互登录会话的 Windows 主机
+
+`aiod` 只代理它的 API，不直接接触桌面。这层进程边界让桌面能力成为可选项：没有桌面时 `aiod` 照常运行，有桌面时则通过 `computer-use` 触达它。
+
+桌面能力只在 v2 提供，路径在 `/v2/computer/*` 下。
+
+v1 为 1.x 客户端保留两个别名：
+
+- `POST /v1/browser/actions`
+- `POST /v1/display/record`
+
+路由对照见 [从 1.x 迁移](/zh/daemon/start/migration#desktop)。
+
+这一页前半部分介绍 agent 工具使用的动作，后半部分介绍用于观察或接管同一个桌面的查看器。
+
+基于 CDP 的页面自动化见 [浏览器 API](/zh/daemon/basic/browser)；完整的桌面任务演示见 [Computer Use 示例](/zh/daemon/examples/computer-use)。
+
+## 面向 agent 的工具
+
+### 连接 daemon 与 worker
+
+worker 监听 `AIO_COMPUTER_USE_LISTEN`（默认 `0.0.0.0:18100`）。`aiod` 通过 `AIO_COMPUTER_USE_URL`（默认 `http://127.0.0.1:18100`）连接 worker，并代理桌面路由。
+
+worker 停止时，这些路由返回 `503`：
+
+```json
+{
+  "success": false,
+  "message": "computer-use worker is not available",
+  "data": null,
+  "hint": "start computer-use or set AIO_COMPUTER_USE_URL"
+}
+```
+
+两个 v1 别名走的是同一个 worker，返回同样的结果。
+
+![](/architecture/aiod-computer-action.svg)
+
+### 运行 worker 的条件
+
+**Linux**：需要一个可达的 X11 display。设置 `DISPLAY`；如果该 display 需要 cookie 鉴权，再设置 `XAUTHORITY`。
+`GET /v2/computer/info` 会返回探测到的 `display` 和 `xauthority`。
+
+**Windows**：一个交互登录会话。`aiod` 自己可以作为 Session 0 的 SCM 服务运行。
+
+`computer-use` 必须运行在交互登录会话中，才能看到桌面并注入输入。
+
+### 查看当前可用能力
+
+<ApiV2>
+
+`GET /v2/computer/info` 返回 worker 探测到的 display，以及该 display 支持的能力：
+
+```bash
+curl "$BASE_URL/v2/computer/info"
+```
+
+`data` 是：
+
+- `available` —— worker 是否连上了 display
+- `display` —— worker 找到的 display
+- `xauthority` —— worker 找到的 `XAUTHORITY`
+- `screen_resolution` —— `{width, height}`
+- `capabilities` —— `{screenshot, actions, clipboard, recording}`
+- `warnings` —— 探测过程中发现的问题
+
+</ApiV2>
+
+<ApiV1>
+
+v1 没有桌面 info 路由。该 plane 的状态由沙箱能力探测报告：
+
+```bash
+curl "$BASE_URL/v1/capabilities"
+```
+
+`data.computer` 是：
+
+- `status` —— `ready`、`degraded` 或 `absent`
+- `display`、`resolution` —— worker 找到的显示环境
+- `screenshot`、`actions`、`clipboard`、`recording`、`accessibility` —— 每项操作一个标志位
+- `accessibility_backend` —— `atspi`、`uia`，没有编译进后端时是 `null`
+- `provider`、`missing`、`warnings` —— 能力来源，以及缺少的内容
+
+worker 未运行时，响应如下：
+
+```json
+{
+  "status": "absent",
+  "provider": null,
+  "display": null,
+  "screenshot": false,
+  "actions": false,
+  "clipboard": false,
+  "recording": false,
+  "accessibility": false,
+  "accessibility_backend": null,
+  "resolution": {
+    "width": null,
+    "height": null
+  },
+  "missing": [
+    "computer-use"
+  ],
+  "warnings": [
+    "computer-use worker probe failed: error sending request for url (http://127.0.0.1:18100/capabilities)"
+  ]
+}
+```
+
+<UseV2 when={'worker 的可用性和它找到的 XAUTHORITY'} route="GET /v2/computer/info" />
+
+</ApiV1>
+
+### 截图
+
+<ApiV2>
+
+响应体就是图片本身：
+
+```bash
+curl "$BASE_URL/v2/computer/screenshot" -o desktop.png
+```
+
+截取的是整个桌面的 PNG：所有窗口、任务栏、对话框。响应头带上尺寸 —— `x-image-width`、`x-image-height`、`x-screen-width`、`x-screen-height`。
+
+</ApiV2>
+
+<ApiV1>
+
+v1 没有单独的桌面截图路由。使用动作接口返回的截图；如果只想截图，可以发送不改变桌面状态的 `WAIT` 动作：
+
+```bash
+curl -X POST "$BASE_URL/v1/browser/actions?include_screenshot=true" \
+  -H "Content-Type: application/json" \
+  -d '{"action_type": "WAIT", "duration": 0.5}'
+```
+
+响应里的 `screenshot` 是桌面截图，格式为 base64 PNG。
+
+Python SDK 不会为该路由附加查询参数，因此需要直接发 HTTP 请求。`GET /v1/browser/screenshot` 截取的是浏览器页面，不是整个桌面。
+
+<UseV2 when={'不附带动作、直接取到 PNG 响应体'} route="GET /v2/computer/screenshot" />
+
+</ApiV1>
+
+### 执行动作
+
+一次请求一个动作，坐标是屏幕坐标。加 `?include_screenshot=true` 把观察步并入动作步：
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/computer/actions" \
+  -H "Content-Type: application/json" \
+  -d '{"action_type": "CLICK", "x": 640, "y": 400}'
+
+curl -X POST "$BASE_URL/v2/computer/actions?include_screenshot=true" \
+  -H "Content-Type: application/json" \
+  -d '{"action_type": "SCROLL", "dx": 0, "dy": -3}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/browser/actions" \
+  -H "Content-Type: application/json" \
+  -d '{"action_type": "CLICK", "x": 640, "y": 400}'
+
+curl -X POST "$BASE_URL/v1/browser/actions?include_screenshot=true" \
+  -H "Content-Type: application/json" \
+  -d '{"action_type": "SCROLL", "dx": 0, "dy": -3}'
+```
+
+别名和 v2 路由是同一个 handler：请求体相同，响应相同。
+
+Python SDK 一次发一个带类型的动作：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+from agent_sandbox.browser.types.action import Action_Click
+
+client = Sandbox(base_url="http://127.0.0.1:18091")
+client.browser.execute_action(request=Action_Click(x=640, y=400))
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const client = new SandboxClient({ environment: "http://127.0.0.1:18091" });
+await client.browser.executeAction({ action_type: "CLICK", x: 640, y: 400 });
+```
+
+</Tab>
+</Tabs>
+
+它的动作联合类型覆盖鼠标、键盘和 `WAIT`。下面列出的剪贴板、窗口和节点动作要在同一个路由上走 HTTP，动作后截图也一样。
+
+</ApiV1>
+
+v1 和 v2 的动作请求体相同，例如点击屏幕坐标 `(640, 400)`：
+
+```json
+{
+  "action_type": "CLICK",
+  "x": 640,
+  "y": 400
+}
+```
+
+请求体直接描述动作，`action_type` 决定具体执行哪一种：
+
+| `action_type` | 必需参数 | 可选参数 |
+| --- | --- | --- |
+| `MOVE_TO` | `x`、`y` | —— |
+| `MOVE_REL` | `x_offset`、`y_offset` | —— |
+| `CLICK` | —— | `x`、`y`、`button`、`num_clicks` |
+| `RIGHT_CLICK` | —— | `x`、`y` |
+| `DOUBLE_CLICK` | —— | `x`、`y` |
+| `MOUSE_DOWN` | —— | `button` |
+| `MOUSE_UP` | —— | `button` |
+| `DRAG_TO` | `x`、`y` | —— |
+| `DRAG_REL` | `x_offset`、`y_offset` | —— |
+| `SCROLL` | —— | `dx`、`dy` |
+| `TYPING` | `text` | `use_clipboard` |
+| `PRESS` | `key` | —— |
+| `KEY_DOWN` | `key` | —— |
+| `KEY_UP` | `key` | —— |
+| `HOTKEY` | `keys` | —— |
+| `WAIT` | `duration` | —— |
+| `SET_CLIPBOARD` | `text` | —— |
+| `WINDOW_ACTIVATE` | `window_id` | —— |
+| `WINDOW_MINIMIZE` | `window_id` | —— |
+| `NODE_FOCUS` | `node_id` | —— |
+| `NODE_INVOKE` | `node_id` | `action` |
+| `NODE_SET_VALUE` | `node_id`、`value` | —— |
+
+- `duration` 的单位是秒；`keys` 是一个列表，复制是 `["ctrl", "c"]`。
+- `window_id` 来自窗口列表，`node_id` 来自无障碍树，两者都在下文。
+- 有两条限制对每个动作都成立，单发和批量都一样：单个 `WAIT` 最多 10 秒，单个 `SCROLL` 每个方向最多 100 格。
+- `TYPING` 对 ASCII 文本直接按键输入；含其他字符的文本走剪贴板（`use_clipboard`，默认 `true`），会覆盖剪贴板原有内容；`use_clipboard: false` 时这类文本返回 400，因为按键输入会丢字。剪贴板里的文本用 Shift+Insert 粘贴，终端和 GTK、Chromium 窗口都接受这个组合键。
+- `PRESS`、`HOTKEY`、`TYPING` 成功只表示输入已送到焦点窗口，不表示应用已经响应。用截图确认结果。
+- 每种类型的完整 schema 见 [API 参考](/zh/daemon/api)。
+
+响应包含 `status` 和 `action_performed`。请求动作后的截图时，响应还会包含 base64 PNG。
+
+如果截图失败，响应会在动作结果旁返回 `screenshot_error`，但不会让整个请求失败；动作本身已经执行。
+
+#### 批量动作
+
+<ApiV2>
+
+一次请求按顺序执行一批动作。在执行期间，其他调用不能操作桌面：
+
+```bash
+curl -X POST "$BASE_URL/v2/computer/actions/batch" \
+  -H "Content-Type: application/json" \
+  -d '{"include_screenshot": true,
+       "actions": [
+         {"action_type": "HOTKEY", "keys": ["ctrl", "l"]},
+         {"action_type": "TYPING", "text": "example.com"},
+         {"action_type": "PRESS", "key": "enter"}
+       ]}'
+```
+
+该路由中的 `include_screenshot` 是 body 字段，不是查询参数。
+
+每批最多包含 50 个动作，所有 `WAIT` 的总时长最多为 20 秒。
+
+`data` 是：
+
+- `performed` —— 已执行的动作，按顺序
+- `failed_index`、`error` —— 哪个动作中断了这批，以及原因；它之前的都执行了
+- `status`、`reason` —— 主机拒绝输入时是 `denied` 和机器可读的原因
+- `screenshot`、`screenshot_error` —— 最后一个执行到的动作之后的那一帧
+
+</ApiV2>
+
+<ApiV1>
+
+别名一次只接一个动作。一串动作就是同样多次往返，中间可能被别的调用挪动指针。
+
+<UseV2 when={'一串动作中间不被其他调用插入'} route="POST /v2/computer/actions/batch" />
+
+</ApiV1>
+
+### 自己写自动化脚本
+
+桌面就是一个普通的 X display，每条命令都带着 `DISPLAY`，所以直接操作屏幕的脚本可以通过 `POST /v2/commands`（v1 为 `/v1/bash/exec`）跑在上面这些动作所用的同一个桌面上。Computer 镜像自带 `xdotool`；pyautogui 用 `pip install pyautogui` 装一次即可：
+
+```python
+sb = Aio(BASE_URL)  # 示例首页定义的 helper
+sb.post("/v2/commands", command="pip install --quiet pyautogui", timeout=280)
+sb.post("/v2/commands", command='''python3 - <<'EOF'
+import pyautogui
+pyautogui.moveTo(320, 240)
+pyautogui.click()
+pyautogui.write("hello")
+pyautogui.screenshot("/tmp/desk.png")
+EOF''')
+print(sb.get("/v2/computer/cursor"))   # {'x': 320, 'y': 240}
+```
+
+### 读取指针、剪贴板、窗口列表
+
+<ApiV2>
+
+| 端点 | 作用 | 说明 |
+| --- | --- | --- |
+| `GET /v2/computer/cursor` | 当前指针位置 | 屏幕坐标 |
+| `GET /v2/computer/clipboard` | 读取剪贴板文本 | 读取超时 5 秒，大小上限 1 MiB |
+| `GET /v2/computer/windows` | 列出顶层窗口 | xdotool 路径下最多 200 个 |
+
+窗口列表的结构是 `{snapshot_id, windows: [{window_id, title, process_id, bounds, minimized}]}`。
+
+`window_id` 是原生窗口句柄，不是列表序号。只要窗口仍然存在，它就一直有效；对已关闭窗口的操作会失败，不会误操作后来复用同一位置的窗口。
+
+</ApiV2>
+
+<ApiV1>
+
+这三个在 v1 都没有路由。写剪贴板是一个动作，`SET_CLIPBOARD` 可以走别名；但无法读取剪贴板内容。
+
+<UseV2 when={'窗口列表、指针位置或剪贴板文本'} route="GET /v2/computer/windows" />
+
+</ApiV1>
+
+### 通过无障碍树操作
+
+<ApiV2>
+
+桌面无障碍树有两个路由：
+
+- `GET /v2/computer/accessibility`：返回整棵无障碍树。
+- `GET /v2/computer/accessibility/nodes`：在整棵树上执行扁平搜索。
+
+两个路由都支持 `?role=button&name=Sign+in` 等查询参数，并接受同一组字段：
+
+| 字段 | 取值 | 含义 |
+| --- | --- | --- |
+| `scope` | `foreground`（默认）、`desktop` | 只看活动窗口，还是走遍所有顶层窗口 |
+| `role`、`name` | string | 只保留匹配的部分 |
+| `match` | `substring`（默认）、`exact`、`regex` | `role` 和 `name` 的比较方式 |
+| `states` | 逗号分隔 | 节点必须同时具备的状态（`enabled,showing`） |
+| `include_offscreen` | boolean，默认关 | 包含后端标记为屏幕外的节点 |
+| `max_depth` | 1–64，默认 32 | 深度预算 |
+| `max_nodes` | 1–20000，默认 5000 | 节点数预算 |
+| `timeout_ms` | 100–60000，默认 5000 | 遍历的墙钟预算 |
+| `limit` | 1–1000，默认 50 | 仅 `nodes`：最多返回多少节点 |
+
+超出范围的值会被限制在允许的区间内，不会被拒绝。`role` 和 `name` 在所有匹配模式下都不区分大小写。
+
+`truncated` 表示结果达到上限，因此没有找到某个节点并不代表它不存在。只有 `nodes` 支持 `?node_id=`；传入后会解析单个句柄，并忽略其他搜索参数。
+
+返回的 `node_id` 在元素存在期间有效，跨快照也有效。窗口关闭或所属应用重启后，元素会消失，再使用该 id 会返回 `404`。
+
+将 `node_id` 传给 `NODE_FOCUS`、`NODE_INVOKE` 或 `NODE_SET_VALUE`，即可按元素操作，无需使用像素坐标。
+
+</ApiV2>
+
+<ApiV1>
+
+别名接受 `NODE_*` 动作，但这些动作需要的句柄来自两个 v2 无障碍树路由。v1 没有这两个路由，因此无法获取句柄。
+
+<UseV2 when={'按 role 和 name 定位元素、而不是用像素坐标操作'} route="GET /v2/computer/accessibility/nodes" />
+
+</ApiV1>
+
+后端按平台提供：Linux 使用 AT-SPI2（Assistive Technology Service Provider Interface，辅助技术服务提供接口），Windows 使用 UI Automation（UIA）。
+
+`501` 表示平台没有可用的后端，例如平台尚未实现，或 Linux 镜像缺少 AT-SPI 运行时。重试不会改变结果。
+
+`503` 表示后端存在，但当前无法读取，例如没有交互桌面或没有获得焦点的窗口。Chromium/Electron 应用必须使用 `--force-renderer-accessibility` 启动，才会暴露无障碍树。
+
+### 录屏
+
+<ApiV2>
+
+`POST /v2/computer/record` 负责开始、查询和停止录制：`action` 取 `start`、`status` 或 `stop`。
+
+</ApiV2>
+
+<ApiV1>
+
+`POST /v1/display/record` 提供同样的能力：`action` 取 `start`、`status` 或 `stop`。Python SDK 支持该路由的全部参数：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+client.display.record(action="start", save_path="/workspace/recordings/session.mp4")
+client.display.record(action="stop")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+await client.display.record({
+  action: "start",
+  save_path: "/workspace/recordings/session.mp4",
+});
+await client.display.record({ action: "stop" });
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+录制基于 ffmpeg，同一时间只能有一个在跑。`start` 接受这些采集参数：
+
+| 参数 | 范围 | 默认值 |
+| --- | --- | --- |
+| `fps` | 1–60 | 30 |
+| `crf` | 0–51（越低画质越好） | 30 |
+| `max_duration` | 最长 600 秒 | 60 |
+| `width`、`height` | 像素 | 探测到的屏幕分辨率 |
+
+`save_path` 可以省略。省略时，文件写入临时目录，文件名为 `recording_<timestamp>.mp4`。
+
+父目录不存在时会自动创建；worker 无法写入目标目录时返回 `400`。
+
+`data` 带上：
+
+- `status` —— `recording`、`stopped` 或 `idle`
+- `duration` —— 已录制的秒数
+- `save_path` —— 文件写到哪里
+- `file_size_bytes` —— 停止之后的文件大小
+
+把录像存到 [文件 API](/zh/daemon/basic/file) 能取到的路径下。销毁宿主前先停止录制。这样文件才完整可播放。
+
+### Windows：安全桌面
+
+安全桌面会拒绝输入，例如 UAC 提示或锁屏界面。单个动作返回 `403`，`data` 为 `{"status": "denied", "reason": "secure-desktop-or-uipi"}`。
+
+这是 Windows 的会话边界，不是需要绕过的 bug。批量执行时，之前的动作已经完成，因此同样的拒绝会通过 `200` 响应中的 `status` 和 `reason` 返回。
+
+### 直接访问 worker API
+
+`computer-use` 也能不经 `aiod` 直接被访问：
+
+| 路由 | 作用 | 说明 |
+| --- | --- | --- |
+| `GET /healthz` | 存活探测 | 公开 |
+| `GET /capabilities` | 桌面能力探测 | `schema_version` 1；设置了 API key 时需要携带 |
+| `GET /openapi.json` | worker 自己的接口契约 | 公开 |
+| `GET /metrics` | Prometheus 文本 | 设置了 API key 时需要携带 |
+
+单独部署或给 worker 做健康检查时有用。
+
+## Human in the loop
+
+人可以进入 agent 正在驱动的终端、浏览器或桌面，查看运行过程，也可以接手登录或验证码，再把控制权交回去。
+
+daemon 不需要为此改变配置。预构建镜像通过网关提供这些查看器，每个查看器都连接到 agent 已经在使用的对象：
+
+![](/architecture/aiod-human-in-loop.svg)
+
+| 查看器 | 镜像上的路径 | 显示什么 |
+| --- | --- | --- |
+| noVNC | `/vnc/index.html` | worker 驱动的 X display；可观察，也可接管 |
+| DevTools | `/browser-ui`、`/cdp/devtools/*` | Chromium 的标签页，走 agent 在用的同一个 CDP |
+| WebShell | `/terminal?session_id=…` | 一个 PTY 会话；链接由 `GET /v1/shell/terminal-url` 生成 |
+| code-server | `/code-server/` | 同一个文件系统上的 IDE；默认关闭，`DISABLE_CODE_SERVER=false` 打开 |
+| JupyterLab | `/jupyter` | 同一个文件系统上的 notebook；默认关闭，`DISABLE_JUPYTER=false` 打开 |
+
+Xvnc 同时是 X server 和 VNC server。人的点击直接作用于 display，worker 会在下一次截图中看到结果。
+
+daemon 只提供 API；单独运行的 `aiod` 对这些查看器路径都返回 `404`。
+
+预构建镜像已经配置好这些组件。
+
+AIO 镜像在 `DISPLAY=:99.0` 上运行 Xvnc、openbox 和 Chromium，并提供 noVNC、DevTools 和 WebShell。
+
+Computer 镜像在此基础上设置 `AIO_DESKTOP=xfce`。
+
+XFCE 会话接管 display，`computer-use` worker 和 `aiod` 一起启动。会话 D-Bus 为 AT-SPI 提供支持，Chromium 使用 `--force-renderer-accessibility`，因此标签页内容会出现在无障碍树中。
+
+## 相关页面
+
+- [Computer Use 示例](/zh/daemon/examples/computer-use) —— 一次完整的验证过程：导航、通过无障碍树点链接、观察结果
+- [浏览器 API](/zh/daemon/basic/browser) —— 基于 CDP 的页面自动化
+- [文件操作](/zh/daemon/basic/file) —— 取回录像与下载

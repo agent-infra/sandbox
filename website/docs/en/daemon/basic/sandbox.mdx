@@ -1,0 +1,256 @@
+import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
+
+# Sandbox Info & Capabilities
+
+The sandbox routes report aiod's environment and its current capabilities. Capabilities come from probing each subsystem, so the report tracks the live runtime rather than a fixed manifest.
+
+A missing subsystem degrades a capability. The request still succeeds. Results are cached; repeated polling is cheap.
+
+The v1 and v2 routes side by side are in [Migration from 1.x](/daemon/start/migration#sandbox).
+
+## Read the environment
+
+A client's first request asks where it is, which runtimes are installed, and which planes have a backend:
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/sandbox"
+```
+
+The response contains all three. `capabilities` is the snapshot described in [Capability snapshot and branching](#capability-snapshot-and-branching), with no extra request.
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/sandbox"
+```
+
+`data` is a text summary, and `detail`, `version`, and `workspace` sit at the top level.
+
+The response also includes `home_dir`, another name for `workspace_dir` that is repeated under `detail.system`. Only the v1 endpoint returns this field.
+
+There is no `capabilities` field here, so read it with a second call to `GET /v1/capabilities`.
+
+<UseV2 when={'you want identity, workspace, and capabilities from one request'} route="GET /v2/sandbox" />
+
+</ApiV1>
+
+Both responses contain the same environment fields:
+
+- `workspace_dir`, `workspace` — two names for one value: the daemon account's home, where a command that names no working directory runs
+- `version` — the daemon version
+- `detail.system` — `os`, `os_version`, `arch`, `user`, `timezone`, `occupied_ports`, and the same two workspace fields
+- `detail.runtime` — `python` and `nodejs`, each an array of `{ver, bin, alias}`
+- `detail.utils` — the tools found on `PATH`, grouped into categories such as `editors`, `network`, and `search`
+
+`detail.system.sandbox_user` appears only where the image bakes an unprivileged account; it reports the `{name, uid, gid, home}` that account actually resolved to.
+
+`occupied_ports` is read from `/proc/net/tcp`, so it lists listening ports on Linux and is empty on every other platform.
+
+The workspace is not configurable, and there is no `--workspace` flag. `workspace_dir` is the account's home.
+
+## Capability snapshot and branching
+
+These docs call a family of related interfaces a **plane**: commands, files, terminals, code, browser, and desktop. Read the snapshot once and branch on its capability fields before calling a plane.
+
+```bash
+curl "$BASE_URL/v1/capabilities"
+```
+
+Each fact a client needs at startup is one field:
+
+| Fact | Field |
+| --- | --- |
+| The working directory of a command | `workspace_dir` |
+| The browser plane's status | `capabilities.browser.status` |
+| The Python interpreter that runs code | `capabilities.code_interpreter.default_python` |
+| The desktop plane's status | `capabilities.computer.status` |
+| Why a plane is not `ready` | that plane's `missing` |
+
+The snapshot is organized in groups:
+
+| Group | Fields |
+| --- | --- |
+| `files` | Twelve flags, one per file operation |
+| `exec` | `shell`, `bash`, `pty` |
+| `bins` | Resolved binaries: `bash`, `sh`, `ps`, and on Windows `powershell` and `cmd` |
+| `code_interpreter` | `status`, `backend`, `javascript_backend`, `jupyter_backend`, `kinds`, `default_python`, `default_node`, `python_kernels`, `endpoint` |
+| `browser` | `status`, `executable`, `executable_source`, `process`, `cdp`, `cdp_endpoint` |
+| `computer` | `status`, `provider`, `display`, `screenshot`, `actions`, `clipboard`, `recording`, `accessibility`, `resolution` |
+
+Three entries carry a probed status: `browser` (the browser plane), `computer` (the desktop plane), and `code_interpreter` (the code plane). Each has `status`, `missing`, and `warnings`. `missing` names what keeps the plane from `ready`; `warnings` explains a partial answer. `status` is:
+
+- `ready` — the plane responds normally
+- `degraded` — the dependencies are present, but the plane does not respond, as with a browser executable whose CDP port is silent
+- `absent` — nothing to work with; `code_interpreter` uses this and `ready` only
+
+On a host without a browser, the browser plane looks like this:
+
+```json
+"browser": {
+  "cdp": false,
+  "cdp_endpoint": "http://127.0.0.1:9222",
+  "executable": null,
+  "executable_source": null,
+  "missing": [
+    "browser executable",
+    "cdp"
+  ],
+  "process": true,
+  "status": "absent",
+  "warnings": [
+    "browser process detected but CDP is unreachable"
+  ]
+}
+```
+
+Read the snapshot and branch on it:
+
+<ApiV2>
+
+`Aio` is the envelope-aware helper from [Examples](/daemon/examples):
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sb = Aio(BASE_URL)
+
+info = sb.get("/v2/sandbox")
+caps = info["capabilities"]
+
+print(info["workspace_dir"], info["version"])
+# /Users/USER 0.9.1
+statuses = {name: caps[name]["status"]
+            for name in ("browser", "code_interpreter", "computer")}
+print(statuses)
+
+if caps["browser"]["status"] != "ready":
+    print("browser unusable:", caps["browser"]["missing"])
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const sb = new Aio(BASE_URL);
+
+const info = await sb.get("/v2/sandbox");
+const caps = info.capabilities;
+
+console.log(info.workspace_dir, info.version);
+// /Users/USER 0.9.1
+const statuses = Object.fromEntries(
+  ["browser", "code_interpreter", "computer"].map((n) => [n, caps[n].status]),
+);
+console.log(statuses);
+
+if (caps.browser.status !== "ready") {
+  console.log("browser unusable:", caps.browser.missing);
+}
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import httpx
+
+info = httpx.get(f"{BASE_URL}/v1/sandbox").json()
+caps = httpx.get(f"{BASE_URL}/v1/capabilities").json()["data"]
+
+print(info["workspace_dir"], info["version"])
+# /Users/USER 0.9.1
+statuses = {name: caps[name]["status"]
+            for name in ("browser", "code_interpreter", "computer")}
+print(statuses)
+
+if caps["browser"]["status"] != "ready":
+    print("browser unusable:", caps["browser"]["missing"])
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const client = new SandboxClient({ environment: BASE_URL });
+
+const info = (await client.sandbox.getContext()) as any;
+const caps = await fetch(`${BASE_URL}/v1/capabilities`)
+  .then((r) => r.json())
+  .then((body) => body.data);
+
+console.log(info.body.workspace_dir, info.body.version);
+// /Users/USER 0.9.1
+const statuses = Object.fromEntries(
+  ["browser", "code_interpreter", "computer"].map((n) => [n, caps[n].status]),
+);
+console.log(statuses);
+```
+
+</Tab>
+</Tabs>
+
+The Python SDK reads `/v1/sandbox` over HTTP here; which SDK calls need that is listed in [1.x SDK compatibility](/daemon/start/migration#1x-sdk-compatibility).
+
+</ApiV1>
+
+A plane whose backend is absent keeps its routes and answers `503`, with a `hint` for the fix:
+
+```json
+{
+  "data": null,
+  "hint": "Ensure the browser capability is ready (GET /v1/capabilities).",
+  "message": "Browser screenshot unavailable: list targets: error sending request for url (http://127.0.0.1:9222/json/list)",
+  "success": false
+}
+```
+
+Branch on the snapshot rather than on a `404`: an absent plane still routes, so the status code alone cannot tell a missing backend from a wrong path.
+
+Results are cached for 5 s, and the daemon probes once at startup, so the first read has a snapshot. A stale snapshot returns immediately and a new probe runs in the background. `GET /v1/capabilities?refresh=true` waits for the new probe; `GET /v2/sandbox` never re-probes on demand, so a forced re-probe goes through `/v1/capabilities`. The browser probe is a single `GET /json/version` with a 300 ms budget.
+
+## Installed packages
+
+The daemon lists the globally installed Python and Node.js packages.
+
+<ApiV2>
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `GET /v2/sandbox/packages?lang=python` | The Python listing | `lang` is required |
+| `GET /v2/sandbox/packages?lang=nodejs` | The Node.js listing | One route for both runtimes |
+
+A request with no `lang` is a `422` naming the field: `errors[0].location` is `["query", "lang"]`. An unrecognised value is a `400` in the envelope — `unknown lang "ruby": expected python or nodejs`.
+
+</ApiV2>
+
+<ApiV1>
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `GET /v1/sandbox/packages/python` | The Python listing | One route per runtime |
+| `GET /v1/sandbox/packages/nodejs` | The Node.js listing | `sandbox.get_nodejs_packages()` in the SDK |
+
+</ApiV1>
+
+`data` is a text listing, not a structured one. Python comes from `pip list` on the interpreter the code plane resolved, one `  - name==version` line each. Node.js comes from `npm list -g --depth=0`, under a header line:
+
+```text
+Node.js Packages:
+  - agent-browser@0.34.0
+  - npm@10.5.0
+  - pnpm@7.33.7
+```
+
+The same listing is the MCP tool `sandbox_get_packages`, whose `language` argument is `python` or `nodejs` and defaults to `python`. See [MCP](/daemon/examples/mcp).

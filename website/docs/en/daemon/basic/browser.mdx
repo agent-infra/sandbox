@@ -1,0 +1,324 @@
+import { ApiV1, ApiV2 } from '@theme';
+
+# Browser API
+
+aiod attaches to an existing Chromium; it does not launch the browser. The default target is `127.0.0.1:9222`. When Chromium listens elsewhere, set `BROWSER_REMOTE_DEBUGGING_HOST` and `BROWSER_REMOTE_DEBUGGING_PORT`.
+
+Use a CDP client such as Playwright or Puppeteer, or call the REST API directly. `/v1/browser/*` and `/v2/browser/*` use the same request bodies. The exception is desktop input: v1 uses `POST /v1/browser/actions`, while v2 uses `/v2/computer`. See [**Computer Use**](/daemon/basic/display).
+
+Other removed 1.x routes are listed under [**Removed routes**](/daemon/start/migration#removed-routes).
+
+![](/architecture/aiod-browser-cdp.svg)
+
+## What it needs
+
+<ApiV2>
+
+`GET /v2/sandbox` reports the browser capability in `capabilities.browser`:
+
+</ApiV2>
+
+<ApiV1>
+
+`GET /v1/capabilities` reports it in `browser.status`:
+
+</ApiV1>
+
+| Status | When | What still answers |
+| --- | --- | --- |
+| `ready` | CDP answers on the debugging port | Every route |
+| `degraded` | A browser executable was found, CDP is unreachable | `info`, `network/requests` |
+| `absent` | Neither is there | `info`, `network/requests` |
+
+Below `ready`, the other tools are unavailable. See [Sandbox](/daemon/basic/sandbox).
+
+## Get the CDP URL
+
+`info` reports the endpoint a CDP client connects to:
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/browser/info"
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/browser/info"
+```
+
+</ApiV1>
+
+```json
+{
+  "data": {
+    "cdp_url": "ws://127.0.0.1:18091/cdp/devtools/browser/46164812-5f92-4ec5-891a-8c138aeb93a4",
+    "cdp_ui_url": null
+  }
+}
+```
+
+- `cdp_url` — the WebSocket endpoint a CDP client connects to
+- `cdp_ui_url` — the bundled DevTools page, or `null` when none is available
+
+Behind a reverse proxy, `cdp_url` uses the public address. If Chromium is temporarily unavailable, call `info` again after it recovers.
+
+Details are on [**CDP Access**](/daemon/basic/cdp).
+
+To use Playwright or Puppeteer, call `info` first and pass its `cdp_url` to the client. Runnable examples are in [Browser (CDP)](/daemon/examples/browser-cdp).
+
+## REST tools
+
+For actions that don't need a full CDP client, aiod serves a small REST set. All routes are `POST` unless noted, and return the standard `{success, message, data}` envelope. Full request and response schemas: [API Reference](/daemon/api).
+
+<ApiV2>
+
+The tools sit under `/v2/browser`:
+
+</ApiV2>
+
+<ApiV1>
+
+The tools sit under `/v1/browser`:
+
+</ApiV1>
+
+`navigate`, `evaluate`, `snapshot`, `click`, `fill`, `upload`, and `cdp` accept `tab_id`. Without it, they use the first tab. `screenshot` does not accept `tab_id` and always captures the first tab.
+
+### Navigate and evaluate
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/browser/navigate" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com", "wait_until": "load"}'
+
+curl -X POST "$BASE_URL/v2/browser/evaluate" \
+  -H "Content-Type: application/json" \
+  -d '{"expression": "document.title"}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/browser/navigate" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com", "wait_until": "load"}'
+
+curl -X POST "$BASE_URL/v1/browser/evaluate" \
+  -H "Content-Type: application/json" \
+  -d '{"expression": "document.title"}'
+```
+
+The 1.x SDK has no method for these two routes. Call them directly.
+
+</ApiV1>
+
+The request bodies are the same in v1 and v2:
+
+`navigate`:
+
+```json
+{
+  "url": "https://example.com",
+  "wait_until": "load"
+}
+```
+
+`evaluate`:
+
+```json
+{
+  "expression": "document.title"
+}
+```
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `POST navigate` | Load a URL, or move through history | Takes `url` or `history`; `url` wins if both arrive |
+| `POST evaluate` | Run JavaScript in the page's main world | Returns the value; `await_promise` waits for a Promise |
+
+- `wait_until` is `load`, `domcontentloaded`, `networkidle`, or `commit`; the default is `load`.
+- `timeout` defaults to 30 seconds; a timeout answers `503`, and the tab remains usable.
+- `history` accepts `back`, `forward`, or `reload`. `evaluate` puts the result in `data.value` and JavaScript exceptions in `data.exception`; the HTTP status remains `200`.
+
+### Take a screenshot
+
+The response body is the image:
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/browser/screenshot?format=jpeg&quality=80" -o page.jpg
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/browser/screenshot?format=jpeg&quality=80" -o page.jpg
+```
+
+</ApiV1>
+
+`format` is `png` (default), `jpeg`, or `jpg`; `quality` is 0–100 for jpeg and defaults to 85. `full_page=true` captures the whole scrollable page. PNG responses also carry `x-image-width` and `x-image-height`.
+
+### Page snapshots
+
+Call `snapshot` to get the page structure, then use a returned `ref` to act on an element:
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/browser/snapshot" \
+  -H "Content-Type: application/json" \
+  -d '{"interactive_only": true}'
+
+curl -X POST "$BASE_URL/v2/browser/click" \
+  -H "Content-Type: application/json" \
+  -d '{"ref": "e13"}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/browser/snapshot" \
+  -H "Content-Type: application/json" \
+  -d '{"interactive_only": true}'
+
+curl -X POST "$BASE_URL/v1/browser/click" \
+  -H "Content-Type: application/json" \
+  -d '{"ref": "e13"}'
+```
+
+</ApiV1>
+
+`interactive_only` keeps actionable elements. `click`, `fill`, and `upload` also accept a CSS `selector`. Take a new snapshot after each navigation; refs from the old document are no longer valid.
+
+### Tabs
+
+Tabs correspond to Chromium pages:
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `GET tabs` | List tabs | Each entry has `id`, `title`, `url`, `type` |
+| `POST tabs` | Open a tab | `url` is optional and defaults to `about:blank` |
+| `POST tabs/{tab_id}/activate` | Bring a tab to the front | Moves it to the head of the list; an unknown id is a `404` |
+| `DELETE tabs/{tab_id}` | Close a tab | An unknown id is a `404` |
+
+A new tab becomes the default target. Pass `tab_id` when an operation must stay on a specific tab; without it, the first tab is used.
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/browser/tabs"
+curl -X POST "$BASE_URL/v2/browser/tabs" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "about:blank"}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/browser/tabs"
+curl -X POST "$BASE_URL/v1/browser/tabs" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "about:blank"}'
+```
+
+</ApiV1>
+
+`POST tabs` opens `about:blank` when `url` is omitted. `screenshot` does not accept `tab_id` and always captures the first tab.
+
+### Cookies
+
+Cookies go in and out in CDP's own shape:
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `POST cookies` | Set cookies | Body is `cookies`, a list; the reply counts them |
+| `GET cookies` | Read them back | Narrows by `url` or `domain` |
+| `DELETE cookies` | Delete one, or all of them | `name` plus `url` or `domain`, or `all=true` |
+
+A cookie needs a `name` and either a `url` or a `domain` with a `path`; the other CDP fields are optional. The read route returns the values Chromium currently stores.
+
+### The request log
+
+`GET network/requests` returns a read-only request log. It starts collecting on the first call and keeps the latest 300 requests. `limit` caps the result and `clear=true` clears the buffer after reading; request interception and header rewriting are not supported.
+
+### Window size
+
+`POST config` resizes the browser window over CDP. `resolution` must be one of the supported sizes; other values answer `422`. Omitting it leaves the window unchanged.
+
+### Raw CDP command
+
+`POST cdp` sends one raw CDP command and returns its result in `data`. Use it for capabilities not covered by the REST API; for a sequence of commands, connect over CDP instead.
+
+### Error semantics
+
+| Status | When |
+| --- | --- |
+| `400` | A required parameter is missing or the body is not JSON |
+| `404` | An element or tab does not exist |
+| `422` | A parameter value is unsupported |
+| `503` | CDP is unreachable, navigation timed out, or CDP execution failed |
+
+JavaScript exceptions are not HTTP errors: `evaluate` answers `200` with `data.exception`.
+
+## Desktop actions
+
+These are real mouse and keyboard events, not page-level actions. The request is forwarded to the `computer-use` worker and answers `503` when it is not running.
+
+<ApiV2>
+
+Call `POST /v2/computer/actions`. See [Computer Use](/daemon/basic/display).
+
+</ApiV2>
+
+<ApiV1>
+
+Call `POST /v1/browser/actions`. See [Computer Use](/daemon/basic/display).
+
+</ApiV1>
+
+## MCP tools
+
+An MCP-capable agent can call browser tools through `/mcp`. The AIO image also adds page-level `browser_*` tools; a bare daemon provides only the basic browser tools.
+
+## CDP, REST tools, or MCP
+
+All three operate on the same Chromium:
+
+| Way in | Gives | Costs |
+| --- | --- | --- |
+| CDP client | Full page automation | A CDP client and WebSocket |
+| REST API | Common browser operations | One operation per request |
+| MCP | Browser operations as tools | An MCP client |
+
+Use CDP for full page automation, REST for common operations, and MCP when the agent already speaks MCP.
+
+## Human in the loop
+
+A person can watch or take over the Chromium the agent is driving. Both viewers attach to the same browser environment:
+
+| Viewer | Path | Shows |
+| --- | --- | --- |
+| noVNC | `/vnc/index.html?autoconnect=true` | The whole desktop: Chromium, dialogs, other windows |
+| DevTools | `/browser-ui`, `/cdp/devtools/*` | The current Chromium page |
+
+noVNC attaches to the desktop, not to one browser window, so the file dialog, the address bar and other application windows are all reachable, and the desktop survives a Chromium restart. The noVNC page embeds in an iframe.
+
+Person and agent share one browser state: after a login completed in noVNC, the agent's next `snapshot` reads the logged-in page.
+
+The daemon serves the API only; the image's gateway serves the noVNC and DevTools pages. Deployment and access are described on [**Computer Use**](/daemon/basic/display#human-in-the-loop).

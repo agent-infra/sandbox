@@ -1,0 +1,428 @@
+import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
+
+# File (FS)
+
+The File plane reads, writes, edits, searches, transfers, and watches files. It shares one filesystem with commands, terminals, code execution, and browser downloads: a file written through this API is immediately visible to a shell command, and vice versa.
+
+The working directory is not a confinement boundary — file calls reach anywhere the daemon's own account can. Confinement is the container or VM's job, not this API's.
+
+On the file API, `user` means something different from its meaning on commands and terminals:
+
+> On the file API, `user` only decides who owns new files and directories; on commands and terminals, it decides which account runs the process.
+
+The file API still reads and writes with the daemon's own privileges. `GET /v1/capabilities` reports the file capabilities under `files`, one flag per operation. The v1 and v2 routes side by side are in [Migration from 1.x](/daemon/start/migration#files).
+
+## Read and write files
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/fs/read?path=/tmp/demo/src/app.py&start_line=2&end_line=5"
+
+curl -X POST "$BASE_URL/v2/fs/write" \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/tmp/demo/README.md", "content": "# demo\n"}'
+```
+
+Write body:
+
+```json
+{
+  "path": "/tmp/demo/README.md",
+  "content": "# demo\n"
+}
+```
+
+Line numbers start at 0, and `end_line` is exclusive. `read` takes `path`, `start_line`, and `end_line` as query parameters; `write` takes a JSON body keyed by `path`.
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/file/read" \
+  -H "Content-Type: application/json" \
+  -d '{"file": "/tmp/demo/src/app.py", "start_line": 2, "end_line": 5}'
+
+curl -X POST "$BASE_URL/v1/file/write" \
+  -H "Content-Type: application/json" \
+  -d '{"file": "/tmp/demo/README.md", "content": "# demo\n"}'
+```
+
+The v1 write body uses `file` for the path:
+
+```json
+{
+  "file": "/tmp/demo/README.md",
+  "content": "# demo\n"
+}
+```
+
+Both take a JSON body. `read`, `write`, `replace`, and `search` key the file as `file`; the other routes use `path`.
+
+</ApiV1>
+
+The write body takes these fields:
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `content` | string, required | The content, decoded according to `encoding` |
+| `encoding` | `utf-8` (default), `base64`, `raw` | How to read `content` before writing it |
+| `append` | boolean | Add to the file instead of replacing it |
+| `leading_newline`, `trailing_newline` | boolean | Add a newline before or after the content |
+
+- A write creates the missing parent directories on the way, and answers `file` and `bytes_written`.
+- `base64` decodes `content` to bytes; `raw` writes each character as one byte. `leading_newline` and `trailing_newline` apply to `utf-8` only.
+- Reading is buffered and text-only: a directory answers `EISDIR`, a non-UTF-8 file `decode_error`, and a file over 16 MiB `file exceeds the 16 MiB buffered text limit`. Download streams instead, at any size.
+
+## Files and directories
+
+<ApiV2>
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `GET /v2/fs/stat` | One path's metadata | `follow_symlinks` picks the link or its target |
+| `GET /v2/fs/list` | Directory entries | `recursive`, `max_depth`, `show_hidden` |
+| `POST /v2/fs/edit` | Anchored edit in place | `str_replace`, `insert`, `undo_edit` |
+| `POST /v2/fs/mkdir` | Create a directory | `parents` also accepts an existing one |
+| `POST /v2/fs/copy` | Copy a file or tree | `overwrite` to replace the destination |
+| `POST /v2/fs/move` | Move or rename | Same body as `copy` |
+| `POST /v2/fs/delete` | Remove a path | `recursive` for a non-empty directory |
+
+`create` and `view` are not part of the editor route: both answer `400` naming the route that replaces them, `POST /v2/fs/write` and `GET /v2/fs/read`.
+
+</ApiV2>
+
+<ApiV1>
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `POST /v1/file/stat` | One path's metadata | `follow_symlinks` picks the link or its target |
+| `POST /v1/file/list` | Directory entries | Adds `file_types`, `include_size`, `sort_by` |
+| `POST /v1/file/str_replace_editor` | Anchored edit in place | `view`, `create`, `str_replace`, `insert`, `undo_edit` |
+| `POST /v1/file/replace` | Plain substitution | Answers `replaced_count`, no editor semantics |
+| `POST /v1/file/mkdir` | Create a directory | `parents` also accepts an existing one |
+| `POST /v1/file/copy` | Copy a file or tree | `overwrite` to replace the destination |
+| `POST /v1/file/move` | Move or rename | Same body as `copy` |
+| `POST /v1/file/delete` | Remove a path | `recursive` for a non-empty directory |
+
+</ApiV1>
+
+The editor tool applies an anchored substitution, so an edit needs neither the whole file nor a line number. It takes `command`, `path`, `old_str`, `new_str`, `insert_line` for `insert`, and `replace_mode` (`ALL`, `FIRST`, `LAST`):
+
+- `old_str` is matched verbatim, so whitespace and line endings have to agree. An anchor that is absent answers `400 old_str not found in file`; an anchor that matches twice answers `400 old_str has multiple occurrences; replace_mode is required` rather than picking one.
+- `data` carries `output` (the `cat -n` snippet the tool shows a model), `old_content` and `new_content` (the whole file before and after), and `prev_exist`. `undo_edit` restores the content the last edit replaced.
+
+Listing and `stat` return these fields:
+
+- Each `files` entry from `list` carries `name`, `path`, `is_directory`, `size`, `extension`, and `modified_time`.
+- The list envelope carries `total_count`, `file_count`, `directory_count`, and `truncated`. Results are cut off at 10,000 entries, with `truncated` set to `true`.
+- `is_hidden` appears only when it is `true`; `show_hidden` is on by default. `permissions` appears only when requested.
+- `stat` answers `path`, `size`, `permissions`, `is_directory`, `is_symlink`, and `modified_time`.
+
+Symlinks are classified by what they point at: a link to a directory counts as a directory, and a recursive listing lists the link without descending through it. `follow_symlinks: false` makes `stat` describe the link itself. Windows attributes and permissions are in [Windows](/daemon/basic/windows#files).
+
+`copy` and `move` refuse an existing destination with `already_exists` unless `overwrite` is set, so a rename can never silently clobber. `recursive` is what lets `delete` remove a non-empty directory.
+
+## Search
+
+Finding a file by name and searching inside files are two different routes.
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/fs/grep" \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/tmp/demo", "pattern": "argv", "recursive": true}'
+```
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `GET /v2/fs/search` | Find files by name | `pattern` is a glob such as `**/*.py`; answers paths |
+| `POST /v2/fs/grep` | Search file contents | Regex by default, `fixed_strings` for a literal |
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/file/grep" \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/tmp/demo", "pattern": "argv", "recursive": true}'
+```
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `POST /v1/file/find` | Find files by name | `glob` is a filename pattern; answers paths |
+| `POST /v1/file/glob` | Find files with metadata | Adds `size`, `modified_time`, `sort_by`, `files_only` |
+| `POST /v1/file/grep` | Search a tree's contents | Regex by default, `fixed_strings` for a literal |
+| `POST /v1/file/search` | Search one file with a regex | Answers `matches` and `line_numbers`, counted from 0 |
+
+</ApiV1>
+
+The `grep` body is the same in v1 and v2:
+
+```json
+{
+  "path": "/tmp/demo",
+  "pattern": "argv",
+  "recursive": true
+}
+```
+
+`grep` narrows what it reads with `include` and `exclude` globs, `type`, and `max_file_size`, and shapes the answer with `case_insensitive`, `multiline`, `context_before` and `context_after`, `max_results`, and `offset`. A match carries `file`, `line_number` counted from 1, `line_content`, and the context lines when they were asked for.
+
+Every walk is bounded and says so through `truncated`: `grep` reads at most 500 matches and skips files over 1 MiB, a metadata glob stops at 5,000 entries, and a name search stops at 10,000. Raise `max_results` where the route takes it, or narrow the root.
+
+## Transfer
+
+<ApiV2>
+
+- Upload: `POST /v2/fs/upload`
+- Download: `GET /v2/fs/download?path=...`
+
+</ApiV2>
+
+<ApiV1>
+
+- Upload: `POST /v1/file/upload`
+- Download: `GET /v1/file/download?path=...`
+
+</ApiV1>
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `upload` | Send one file in, as `multipart/form-data` | Answers `file_path`, `file_size`, `success` |
+| `download` | Stream one file out | Raw bytes, not the envelope |
+| `HEAD download` | The download's headers alone | Size and validators without the body |
+
+- An upload spools to disk instead of buffering in memory, so file size is bounded by disk, not RAM. It lands in a `.aiod-upload-<id>.part` file next to the target and is renamed over it.
+- A download streams the bytes with `Accept-Ranges`, `ETag`, and `Last-Modified`, honours a `Range` header with a `206`, and answers a missing path with `404`.
+- A download otherwise returns whatever the kernel reads while it streams; `change_policy=abort` pins the file's state at open instead, answers `409` when it had already changed, and cuts a transfer that changes under it.
+
+<UseV2 when="a whole directory has to move as one tar stream" route="GET /v2/fs/tree" />
+
+<ApiV2>
+
+Directory transfer uses a tar stream:
+
+- `GET /v2/fs/tree?path=...` exports a directory as a tar stream.
+- `PUT /v2/fs/tree?path=...` accepts a tar body and writes it to the destination directory.
+- The service extracts it in-process, without a `tar` binary. Members with `..` or an absolute path are rejected; ownership and permissions from the archive are not preserved.
+
+The response's `mode` shows how the write was applied:
+
+| `mode` | Meaning |
+| --- | --- |
+| `rename` | The destination did not exist; the staged tree takes over the destination as a whole |
+| `merge` | The destination already existed; archive entries are overlaid one by one |
+
+The limits are: a tar body of at most 4 GiB, an extracted total of at most 4 GiB, and at most 100,000 archive entries.
+
+</ApiV2>
+
+## Watch a directory
+
+Use watch to learn that a file changed. Do not poll for it. Treat events as invalidation signals, not content: reload a clean copy, or flag a conflict when unsaved edits exist. Anything that touches the tree is reported — a command, another API call, a build:
+
+![](/architecture/aiod-watch-flow.svg)
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+
+client = Sandbox(base_url="http://127.0.0.1:18091")
+watcher = client.file.watch_create(
+    path="/tmp/demo", recursive=True, debounce=200
+)["data"]["watcher_id"]
+
+client.bash.exec(command="echo 'X = 1' > /tmp/demo/util.py")
+polled = client.file.watch_poll(watcher, cursor=0, timeout=10)["data"]
+for event in polled["events"]:
+    print(event["seq"], event["type"], event["relative_path"])
+# 1 create util.py
+# 2 write util.py
+print(polled["cursor"], polled["overflow"])
+# 2 False
+client.file.watch_stop(watcher)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const client = new SandboxClient({ environment: "http://127.0.0.1:18091" });
+const created = (await client.file.watchCreate({
+  path: "/tmp/demo",
+  recursive: true,
+  debounce: 200,
+} as any)) as any;
+const watcher = created.body.data.watcher_id;
+
+await client.bash.exec({ command: "echo 'X = 1' > /tmp/demo/util.py" });
+const polled = (await client.file.watchPoll(watcher, {
+  cursor: 0,
+  timeout: 10,
+} as any)) as any;
+for (const event of polled.body.data.events) {
+  console.log(event.seq, event.type, event.relative_path);
+}
+// 1 create util.py
+// 2 write util.py
+console.log(polled.body.data.cursor, polled.body.data.overflow);
+// 2 false
+await client.file.watchStop(watcher);
+```
+
+</Tab>
+</Tabs>
+
+<ApiV2>
+
+The watcher uses the `/v2/watch` routes:
+
+- `POST /v2/watch` creates a watcher.
+- `GET /v2/watch/{id}/poll` polls events, with `cursor`, `limit`, and `timeout` as query parameters.
+- `GET /v2/watch/{id}/events` pushes events as Server-Sent Events.
+- `DELETE /v2/watch/{id}` releases a watcher.
+- `GET /v2/watch` lists the live watchers.
+
+</ApiV2>
+
+<ApiV1>
+
+The watcher uses the `/v1/file/watch` routes:
+
+- `POST /v1/file/watch` creates a watcher.
+- `POST /v1/file/watch/{id}/poll` polls events, with `cursor`, `limit`, and `timeout` in the body.
+- `GET /v1/file/watch/{id}/events` pushes events as Server-Sent Events.
+- `DELETE /v1/file/watch/{id}` releases a watcher.
+- `GET /v1/file/watch` lists the live watchers.
+- `POST /v1/file/watch/wait` blocks until one path changes. It takes `path`, `timeout` (30 s by default), and `event_types`, answers a single `event`, and returns `503 timed out waiting for file event` when nothing happened.
+
+</ApiV1>
+
+The knobs and their bounds:
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `recursive` | boolean, on by default | Watch the whole subtree |
+| `debounce` | 50–5000 ms, 300 by default | How long changes are coalesced |
+| `exclude` | array of globs | Replaces the default list, it does not extend it |
+| `include_patterns` | array of globs | Report only paths that match |
+| `limit` | 1–1000, 100 by default | Events returned by one poll |
+| `timeout` | 0–60 s, 0 by default | How long a poll waits for the first event |
+
+Every event carries these fields:
+
+- Basic information: `seq` and `type` (`create`, `write`, `remove`, `rename`, or `chmod`).
+- Paths: `path` and `relative_path`.
+- File attributes: `is_dir`, `timestamp`, `mtime`, `size`, and `inode`.
+- A `rename` event also carries the old path as `old_path`.
+
+`cursor` is the position the client has consumed. Pass the response's `cursor` straight into the next poll. If the buffer drops events before you read them, the response includes `overflow: true`. `cursor: 0` replays buffered history; the `initial_cursor` returned when the watcher is created means "from now on."
+
+Filtering and writes work as follows:
+
+- `exclude` defaults to `.git`, `node_modules`, `__pycache__`, `.venv`, `.DS_Store`, and the usual byte-code and editor leftovers. Passing `exclude` replaces that list; it does not extend it.
+- Do not exclude `*.part`: an upload reports three events on its temporary name before the `rename` on the target.
+- A write that names an owner stages through `.aiod-write-<id>.part` before reaching the target. A plain write keeps the destination's inode and creates no temporary file.
+
+Creating a watcher twice with the same configuration reuses the existing watcher. The second create answers `reused: true` with the current `initial_cursor`, and each `DELETE` releases one subscriber. Up to 128 watchers can run at once, each holding the last 10,000 events; past that, a create answers `429`. A browser UI that would rather receive pushed events than poll can request the event stream with `Accept: text/event-stream`.
+
+## Ownership identity
+
+`user` only decides who owns the files and directories created by the call. The file API always reads and writes with the daemon account's privileges.
+
+<ApiV2>
+
+Add `?user=alice` to any `/v2/fs` request that creates a file or directory, including `upload` and `PUT /v2/fs/tree`, to choose the owner.
+
+For example, create a file owned by `alice`:
+
+```json
+{
+  "path": "/tmp/report.txt",
+  "content": "report\n"
+}
+```
+
+Send this body to `POST /v2/fs/write?user=alice`.
+
+</ApiV2>
+
+<ApiV1>
+
+In v1, `sudo: true` selects the root account. Only `read`, `write`, `replace`, and `search` accept it.
+
+<UseV2 when="a file has to belong to a named account rather than root" route="POST /v2/fs/write?user=alice" />
+
+</ApiV1>
+
+Other rules:
+
+- Omit `user` to use the default owner. With `AIO_DEFAULT_USER` unset, that is the daemon's own account.
+- A missing account answers `400 no such user: alice`. A non-root daemon cannot switch owners and answers `400 cannot run as alice: aiod is running as uid 501 and only root can change identity`; it never writes silently under the wrong owner.
+- Linux only. Here `user` is an ownership identity; commands and terminals use `user` as an execution identity instead. See [Commands (Bash)](/daemon/basic/bash).
+
+## Patterns for an agent
+
+Most file work is a short sequence: locate, read the part that matters, edit in place, and let another plane run the result. Writing a file and then running a command over it is two calls, because both planes see the same disk.
+
+| Task | Call | Then |
+| --- | --- | --- |
+| Fix a `TODO` in a project | `grep` for the text | Edit with the anchor, read the range back |
+| Read a large file | `stat` for the size | Read a line range, not the whole file |
+| Hand data to a command | Write the file | Run the command; it sees the file at once |
+| Collect a build's output | Watch the output directory | Poll from the cursor, download what appeared |
+| Move a project in or out | `PUT`/`GET /v2/fs/tree` | One tar stream instead of a file at a time |
+
+[File Operations](/daemon/examples/file-ops) runs the whole story: scaffold a project, find the `TODO`, edit it, watch the directory while a command changes it, then transfer the result.
+
+## Error handling
+
+An expected filesystem failure returns the same structured `data` on both sides. What differs is the status the call is wrapped in.
+
+<ApiV2>
+
+The status carries the kind of failure, and `data.error_type` names it:
+
+| `error_type` | Status | Case |
+| --- | --- | --- |
+| `not_found` | `404` | The path does not exist |
+| `permission_denied` | `403` | The daemon's account may not touch it |
+| `already_exists` | `409` | A copy or move onto an existing destination |
+| `bad_request`, `invalid_path`, `invalid_target` | `400` | A malformed pattern, or a directory read as a file |
+| `decode_error` | `422` | A non-UTF-8 file read as text |
+| `no_space_left` | `507` | The filesystem is full |
+| everything else | `500` | An OS error with no better mapping |
+
+A malformed body or query field is `422` with an `errors` list, whose `location` starts with `body` or `query`.
+
+</ApiV2>
+
+<ApiV1>
+
+Every expected filesystem failure is `HTTP 200` with `success: false`, so the status says nothing: check `success`, then `data.error_type`. A malformed body or query field is the exception, and is `422` with an `errors` list.
+
+</ApiV1>
+
+`data` describes the failure:
+
+- `errno`, `errno_name` — the OS error number and its symbolic name, such as `ENOENT`
+- `error_type` — the kind of failure: `not_found`, `permission_denied`, `already_exists`, …
+- `exception_type` — the matching exception class name, such as `FileNotFoundError`
+- `message`, `operation`, `path` — the OS message, the operation that failed, and the path involved
+- `retryable` — whether a retry can succeed
+
+`download` is the exception on both sides: it streams bytes on success and answers `404` for a missing path. Watch routes keep the envelope but use the status for lifecycle failures: `404` for an unknown watcher, `400` for a `debounce` or `limit` outside its bounds, `429` at the watcher limit, `503` for a `wait` that timed out.
+
+## Related
+
+- [Error Handling](/daemon/basic/error-handling) — the envelope, the status conventions, and the other planes
+- [Commands (Bash)](/daemon/basic/bash) — the plane that sees the files this one writes
+- [File Operations](/daemon/examples/file-ops) — the whole surface in one runnable example

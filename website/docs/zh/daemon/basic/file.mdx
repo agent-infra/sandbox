@@ -1,0 +1,464 @@
+import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
+
+# File（文件）
+
+文件 API 负责文件的读取、写入、编辑、搜索、传输和监听。
+
+它与 command、terminal、代码执行和浏览器下载共享同一个文件系统。通过文件 API 写入的文件可以立即被 shell 命令看到，反过来也一样。
+
+工作目录不是隔离边界。文件调用可以访问 daemon 账户有权限访问的任意路径，隔离由容器或虚拟机负责。
+
+在文件 API 中，`user` 与 command 和 terminal 中的含义不同：
+
+> 文件 API 中的 `user` 只决定新建文件和目录归谁所有；command 和 terminal 中的 `user` 决定进程以哪个账户运行。
+
+文件 API 仍以 daemon 自身的权限读写文件。`GET /v1/capabilities` 在 `files` 下报告文件能力，每个操作一个标记。v1 和 v2 路由的对照见 [从 1.x 迁移](/zh/daemon/start/migration#files)。
+
+## 文件读写
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/fs/read?path=/tmp/demo/src/app.py&start_line=2&end_line=5"
+
+curl -X POST "$BASE_URL/v2/fs/write" \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/tmp/demo/README.md", "content": "# demo\n"}'
+```
+
+写入请求体示例：
+
+```json
+{
+  "path": "/tmp/demo/README.md",
+  "content": "# demo\n"
+}
+```
+
+行号从 0 开始，`end_line` 不包含在范围内。`read` 用 query 参数接收 `path`、`start_line`、`end_line`；`write` 用 JSON body，路径字段是 `path`。
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/file/read" \
+  -H "Content-Type: application/json" \
+  -d '{"file": "/tmp/demo/src/app.py", "start_line": 2, "end_line": 5}'
+
+curl -X POST "$BASE_URL/v1/file/write" \
+  -H "Content-Type: application/json" \
+  -d '{"file": "/tmp/demo/README.md", "content": "# demo\n"}'
+```
+
+v1 的写入请求体使用 `file` 指定路径：
+
+```json
+{
+  "file": "/tmp/demo/README.md",
+  "content": "# demo\n"
+}
+```
+
+两者都用 JSON body。`read`、`write`、`replace`、`search` 的路径字段是 `file`，其余路由用 `path`。
+
+</ApiV1>
+
+写入 body 的字段：
+
+| 字段 | 取值 | 含义 |
+| --- | --- | --- |
+| `content` | 字符串，必填 | 内容，按 `encoding` 解码后写入 |
+| `encoding` | `utf-8`（默认）、`base64`、`raw` | 写入前如何解析 `content` |
+| `append` | 布尔 | 追加而不是覆盖 |
+| `leading_newline`、`trailing_newline` | 布尔 | 在内容前面或后面补一个换行 |
+
+- 写入会顺带创建缺失的父目录，返回 `file` 和 `bytes_written`。
+- `base64` 先把 `content` 解码成字节，`raw` 把每个字符当一个字节写。`leading_newline` 和 `trailing_newline` 只在 `utf-8` 下生效。
+- 读取接口带缓冲，只支持文本：读目录返回 `EISDIR`，读非 UTF-8 文件返回 `decode_error`，读超过 16 MiB 的文件返回 `file exceeds the 16 MiB buffered text limit`。下载使用流式传输，不受此上限约束。
+
+## 文件与目录
+
+<ApiV2>
+
+| 路由 | 用途 | 说明 |
+| --- | --- | --- |
+| `GET /v2/fs/stat` | 单个路径的元信息 | `follow_symlinks` 决定看链接还是看目标 |
+| `GET /v2/fs/list` | 列目录 | `recursive`、`max_depth`、`show_hidden` |
+| `POST /v2/fs/edit` | 带锚点的原地编辑 | `str_replace`、`insert`、`undo_edit` |
+| `POST /v2/fs/mkdir` | 创建目录 | `parents` 也接受已存在的目录 |
+| `POST /v2/fs/copy` | 复制文件或目录树 | `overwrite` 才会覆盖目标 |
+| `POST /v2/fs/move` | 移动或重命名 | body 与 `copy` 相同 |
+| `POST /v2/fs/delete` | 删除路径 | 非空目录需要 `recursive` |
+
+编辑路由不包含 `create` 和 `view`：两者都返回 `400`，并指出替代它们的路由 `POST /v2/fs/write` 和 `GET /v2/fs/read`。
+
+</ApiV2>
+
+<ApiV1>
+
+| 路由 | 用途 | 说明 |
+| --- | --- | --- |
+| `POST /v1/file/stat` | 单个路径的元信息 | `follow_symlinks` 决定看链接还是看目标 |
+| `POST /v1/file/list` | 列目录 | 多出 `file_types`、`include_size`、`sort_by` |
+| `POST /v1/file/str_replace_editor` | 带锚点的原地编辑 | `view`、`create`、`str_replace`、`insert`、`undo_edit` |
+| `POST /v1/file/replace` | 普通替换 | 返回 `replaced_count`，没有编辑器语义 |
+| `POST /v1/file/mkdir` | 创建目录 | `parents` 也接受已存在的目录 |
+| `POST /v1/file/copy` | 复制文件或目录树 | `overwrite` 才会覆盖目标 |
+| `POST /v1/file/move` | 移动或重命名 | body 与 `copy` 相同 |
+| `POST /v1/file/delete` | 删除路径 | 非空目录需要 `recursive` |
+
+</ApiV1>
+
+编辑器工具按锚点替换文本。调用时不需要上传整个文件，也不需要提供行号。
+
+请求需要这些字段：`command`、`path`、`old_str`、`new_str`、`insert_line` 和 `replace_mode`（`ALL`、`FIRST`、`LAST`）。
+
+- `old_str` 必须逐字匹配，空白和换行符也必须一致。
+  找不到锚点时返回 `400 old_str not found in file`；匹配到多处时返回 `400 old_str has multiple occurrences; replace_mode is required`，不会自动选择其中一处。
+- `data` 里有 `output`（工具给模型看的 `cat -n` 片段）、`old_content` 和 `new_content`（改动前后的完整文件）以及 `prev_exist`。`undo_edit` 会把上一次编辑替换掉的内容恢复回来。
+
+目录列表和 `stat` 的返回字段如下：
+
+- `list` 返回的每个 `files` 条目包含 `name`、`path`、`is_directory`、`size`、`extension` 和 `modified_time`。
+- 列表外层包含 `total_count`、`file_count`、`directory_count` 和 `truncated`。结果超过 10,000 条时会截断，并将 `truncated` 设为 `true`。
+- `is_hidden` 只在值为 `true` 时返回；`show_hidden` 默认开启。`permissions` 只有在请求时才会返回。
+- `stat` 返回 `path`、`size`、`permissions`、`is_directory`、`is_symlink` 和 `modified_time`。
+
+符号链接按指向的目标归类：指向目录的链接算目录，递归列目录时会列出该链接，但不会继续进入链接目标。
+
+`follow_symlinks: false` 会让 `stat` 描述链接本身。Windows 上的属性和权限见 [Windows](/zh/daemon/basic/windows#files)。
+
+`copy` 和 `move` 遇到已存在的目标会返回 `already_exists`，除非带上 `overwrite`，所以重命名不会悄悄覆盖东西。`delete` 要删非空目录必须带 `recursive`。
+
+## 搜索
+
+按文件名找文件和在文件内容里搜是两类不同的路由。
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/fs/grep" \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/tmp/demo", "pattern": "argv", "recursive": true}'
+```
+
+| 路由 | 用途 | 说明 |
+| --- | --- | --- |
+| `GET /v2/fs/search` | 按文件名找文件 | `pattern` 是 `**/*.py` 这样的 glob，返回路径列表 |
+| `POST /v2/fs/grep` | 搜文件内容 | 默认按正则，`fixed_strings` 按字面量 |
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/file/grep" \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/tmp/demo", "pattern": "argv", "recursive": true}'
+```
+
+| 路由 | 用途 | 说明 |
+| --- | --- | --- |
+| `POST /v1/file/find` | 按文件名找文件 | `glob` 是文件名模式，返回路径列表 |
+| `POST /v1/file/glob` | 找文件并带元信息 | 多出 `size`、`modified_time`、`sort_by`、`files_only` |
+| `POST /v1/file/grep` | 搜一棵目录树的内容 | 默认按正则，`fixed_strings` 按字面量 |
+| `POST /v1/file/search` | 用正则搜单个文件 | 返回 `matches` 和 `line_numbers`，行号从 0 开始 |
+
+</ApiV1>
+
+`grep` 的请求体在 v1 和 v2 中相同：
+
+```json
+{
+  "path": "/tmp/demo",
+  "pattern": "argv",
+  "recursive": true
+}
+```
+
+`grep` 可以用 `include`、`exclude`、`type` 和 `max_file_size` 缩小搜索范围。
+
+用 `case_insensitive`、`multiline`、`context_before`、`context_after`、`max_results` 和 `offset` 控制匹配方式及返回内容。
+
+每条匹配包含 `file`、从 1 开始的 `line_number` 和 `line_content`。请求上下文时，结果还会包含相邻行。
+
+每种搜索都有结果上限，超过上限时会将 `truncated` 设为 `true`：
+
+- `grep` 最多返回 500 条匹配，并跳过超过 1 MiB 的文件。
+- 带元信息的 glob 最多返回 5,000 条结果。
+- 按名称搜索最多返回 10,000 条结果。
+
+如果路由支持，可以增大 `max_results`，也可以缩小搜索根目录。
+
+## 文件传输
+
+<ApiV2>
+
+- 上传：`POST /v2/fs/upload`
+- 下载：`GET /v2/fs/download?path=...`
+
+</ApiV2>
+
+<ApiV1>
+
+- 上传：`POST /v1/file/upload`
+- 下载：`GET /v1/file/download?path=...`
+
+</ApiV1>
+
+| 路由 | 用途 | 说明 |
+| --- | --- | --- |
+| `upload` | 用 `multipart/form-data` 传入一个文件 | 返回 `file_path`、`file_size`、`success` |
+| `download` | 流式取出一个文件 | 返回原始字节，不是统一返回结构 |
+| `HEAD download` | 只取下载的响应头 | 获取大小和校验字段，不传 body |
+
+- 上传内容直接写入磁盘，不在内存中缓冲，因此文件大小受磁盘容量而不是内存限制。内容先写入目标旁边的 `.aiod-upload-<id>.part`，再重命名为目标文件。
+- 下载流式返回字节，带 `Accept-Ranges`、`ETag`、`Last-Modified`，支持 `Range` 请求头并返回 `206`，路径不存在返回 `404`。
+- 默认情况下，下载返回的是流式读取过程中内核读到的内容；`change_policy=abort` 会在打开时固定文件状态，文件此前已变化返回 `409`，传输过程中变化则中断传输。
+
+<UseV2 when="需要把整个目录当成一个 tar 流搬运" route="GET /v2/fs/tree" />
+
+<ApiV2>
+
+目录传输使用 tar 流：
+
+- `GET /v2/fs/tree?path=...` 将目录导出为 tar 流。
+- `PUT /v2/fs/tree?path=...` 接收 tar 请求体，并将内容写入目标目录。
+- 服务在进程内解包，不调用 `tar` 二进制。归档中包含 `..` 或绝对路径的成员会被拒绝；归档中的属主和权限不会保留。
+
+响应中的 `mode` 表示写入方式：
+
+| `mode` | 含义 |
+| --- | --- |
+| `rename` | 目标目录原本不存在，服务会把暂存目录整体移到目标路径 |
+| `merge` | 目标目录已经存在，归档中的条目会逐个覆盖进去 |
+
+还有以下限制：tar 请求体不能超过 4 GiB；解包后的总大小不能超过 4 GiB；归档中的条目不能超过 100,000 个。
+
+</ApiV2>
+
+## 监听文件变化
+
+要监听文件变化，请使用 watch，而不是反复读取目录。
+
+watch 只报告“内容可能已经变化”，不返回文件内容。收到事件后，请重新读取文件；如果本地有未保存的修改，则提示冲突。
+
+命令、其他 API 调用和构建过程对这棵目录树的修改都会产生事件：
+
+![](/architecture/aiod-watch-flow.svg)
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+
+client = Sandbox(base_url="http://127.0.0.1:18091")
+watcher = client.file.watch_create(
+    path="/tmp/demo", recursive=True, debounce=200
+)["data"]["watcher_id"]
+
+client.bash.exec(command="echo 'X = 1' > /tmp/demo/util.py")
+polled = client.file.watch_poll(watcher, cursor=0, timeout=10)["data"]
+for event in polled["events"]:
+    print(event["seq"], event["type"], event["relative_path"])
+# 1 create util.py
+# 2 write util.py
+print(polled["cursor"], polled["overflow"])
+# 2 False
+client.file.watch_stop(watcher)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const client = new SandboxClient({ environment: "http://127.0.0.1:18091" });
+const created = (await client.file.watchCreate({
+  path: "/tmp/demo",
+  recursive: true,
+  debounce: 200,
+} as any)) as any;
+const watcher = created.body.data.watcher_id;
+
+await client.bash.exec({ command: "echo 'X = 1' > /tmp/demo/util.py" });
+const polled = (await client.file.watchPoll(watcher, {
+  cursor: 0,
+  timeout: 10,
+} as any)) as any;
+for (const event of polled.body.data.events) {
+  console.log(event.seq, event.type, event.relative_path);
+}
+// 1 create util.py
+// 2 write util.py
+console.log(polled.body.data.cursor, polled.body.data.overflow);
+// 2 false
+await client.file.watchStop(watcher);
+```
+
+</Tab>
+</Tabs>
+
+<ApiV2>
+
+监听器使用 `/v2/watch` 路由：
+
+- `POST /v2/watch` 创建监听器。
+- `GET /v2/watch/{id}/poll` 轮询事件，通过 query 参数传入 `cursor`、`limit` 和 `timeout`。
+- `GET /v2/watch/{id}/events` 通过 Server-Sent Events 推送事件。
+- `DELETE /v2/watch/{id}` 释放监听器。
+- `GET /v2/watch` 列出仍在运行的监听器。
+
+</ApiV2>
+
+<ApiV1>
+
+监听器使用 `/v1/file/watch` 路由：
+
+- `POST /v1/file/watch` 创建监听器。
+- `POST /v1/file/watch/{id}/poll` 轮询事件，在 body 中传入 `cursor`、`limit` 和 `timeout`。
+- `GET /v1/file/watch/{id}/events` 通过 Server-Sent Events 推送事件。
+- `DELETE /v1/file/watch/{id}` 释放监听器。
+- `GET /v1/file/watch` 列出仍在运行的监听器。
+- `POST /v1/file/watch/wait` 阻塞等待指定路径发生变化。它接收 `path`、`timeout`（默认 30 秒）和 `event_types`，返回单个 `event`；超时且没有事件时返回 `503 timed out waiting for file event`。
+
+</ApiV1>
+
+各项参数和取值范围：
+
+| 字段 | 取值 | 含义 |
+| --- | --- | --- |
+| `recursive` | 布尔，默认开 | 监听整棵子树 |
+| `debounce` | 50–5000 毫秒，默认 300 | 变更合并的时间窗口 |
+| `exclude` | glob 数组 | 替换默认列表，不是在它基础上追加 |
+| `include_patterns` | glob 数组 | 只报告匹配到的路径 |
+| `limit` | 1–1000，默认 100 | 单次 poll 返回的事件数 |
+| `timeout` | 0–60 秒，默认 0 | 一次 poll 等待首个事件的时长 |
+
+每个事件都包含以下字段：
+
+- 基本信息：`seq`、`type`（`create`、`write`、`remove`、`rename`、`chmod`）。
+- 路径信息：`path`、`relative_path`。
+- 文件属性：`is_dir`、`timestamp`、`mtime`、`size`、`inode`。
+- `rename` 事件还会包含原路径 `old_path`。
+
+`cursor` 表示客户端已经消费到的位置。每次 poll 时，把响应中的 `cursor` 原样传给下一次请求。
+
+如果缓冲区在客户端读取前丢弃了事件，响应会包含 `overflow: true`。`cursor: 0` 会重放缓冲区中的历史事件；如果只想接收创建监听器之后的事件，应使用创建响应中的 `initial_cursor`。
+
+过滤和写入行为：
+
+- `exclude` 默认排除 `.git`、`node_modules`、`__pycache__`、`.venv`、`.DS_Store`，以及常见的字节码和编辑器临时文件。传入 `exclude` 后会替换默认列表，不会在其基础上追加。
+- 不要排除 `*.part`：上传时会先为临时文件名报告 3 个事件，最后才在目标文件上报告 `rename`。
+- 如果写入请求指定了属主，文件会先写入 `.aiod-write-<id>.part`，再进入目标路径。普通写入则直接使用目标文件的 inode，不会创建临时文件。
+
+使用完全相同的配置创建监听器时，daemon 会复用已有监听器。第二次创建会返回 `reused: true` 和当前的 `initial_cursor`。
+
+每次 `DELETE` 只释放一个订阅者。最多可同时运行 128 个监听器；每个监听器保留最近 10,000 条事件。达到上限时，创建请求返回 `429`。
+
+浏览器界面如果不想轮询，可以通过 `Accept: text/event-stream` 请求事件流。
+
+## 文件归属
+
+文件 API 始终使用 daemon 账户的权限读写文件。
+
+> `user` 只决定新建的文件和目录归谁所有；command 和 terminal 中的 `user` 决定进程以哪个账户运行。
+
+<ApiV2>
+
+支持创建文件或目录的 `/v2/fs` 请求都可以加上 `?user=alice` 指定属主，包括 `upload` 和 `PUT /v2/fs/tree`。
+
+例如，创建一个属于 `alice` 的文件：
+
+```json
+{
+  "path": "/tmp/report.txt",
+  "content": "report\n"
+}
+```
+
+请求地址为 `POST /v2/fs/write?user=alice`。
+
+</ApiV2>
+
+<ApiV1>
+
+v1 用 `sudo: true` 指定 root 账户。只有 `read`、`write`、`replace` 和 `search` 四个路由支持该参数。
+
+<UseV2 when="需要让文件属于某个具名账户而不是 root" route="POST /v2/fs/write?user=alice" />
+
+</ApiV1>
+
+其他规则如下：
+
+- 不传 `user` 时使用默认属主。未设置 `AIO_DEFAULT_USER` 时，默认属主就是 daemon 自己的账户。
+- 账户不存在时返回 `400 no such user: alice`。
+- 非 root 的 daemon 无法切换属主，会返回 `400 cannot run as alice: aiod is running as uid 501 and only root can change identity`，不会静默使用错误的属主写入。
+- 仅限 Linux。
+
+## agent 使用建议
+
+大多数文件操作都可以按下面的流程完成：定位文件，读取需要的部分，原地编辑，再交给其他 plane 处理。
+
+写入文件后再执行命令需要两次调用，因为两个 plane 共享同一个文件系统。
+
+| 任务 | 调用 | 然后 |
+| --- | --- | --- |
+| 修掉项目里的一处 `TODO` | 用 `grep` 找到那段文本 | 按锚点编辑，再读取对应行 |
+| 读一个大文件 | 用 `stat` 看大小 | 只读一段行范围，不要整个文件读 |
+| 把数据交给命令 | 写文件 | 执行命令，它可以立即读取文件 |
+| 收集构建产物 | 监听输出目录 | 从 cursor 往后 poll，下载新出现的文件 |
+| 整体搬入或搬出项目 | `PUT`/`GET /v2/fs/tree` | 一个 tar 流，而不是一个文件一个文件传 |
+
+[文件操作](/zh/daemon/examples/file-ops) 完整演示了这一流程：创建项目、找到 `TODO`、修改它、在命令修改目录时监听变更，最后传出结果。
+
+## 错误处理
+
+可预期的文件系统失败在两套接口上返回同样的结构化 `data`，区别在于外层的 HTTP 状态码。
+
+<ApiV2>
+
+状态码表示失败的类别，`data.error_type` 给出具体名字：
+
+| `error_type` | 状态码 | 场景 |
+| --- | --- | --- |
+| `not_found` | `404` | 路径不存在 |
+| `permission_denied` | `403` | daemon 账户无法访问目标路径 |
+| `already_exists` | `409` | 复制或移动到已存在的目标 |
+| `bad_request`、`invalid_path`、`invalid_target` | `400` | 模式非法，或者把目录当文件读 |
+| `decode_error` | `422` | 把非 UTF-8 文件当文本读 |
+| `no_space_left` | `507` | 文件系统满了 |
+| 其余情况 | `500` | 没有更合适映射的操作系统错误 |
+
+请求体或 query 字段格式不对是 `422`，带 `errors` 列表，其中 `location` 以 `body` 或 `query` 开头。
+
+</ApiV2>
+
+<ApiV1>
+
+可预期的文件系统失败一律返回 `HTTP 200` 和 `success: false`。
+
+判断失败类型时，先看 `success`，再看 `data.error_type`。唯一例外是请求体或 query 字段格式错误，此时返回 `422` 和 `errors` 列表。
+
+</ApiV1>
+
+`data` 描述这次失败：
+
+- `errno`、`errno_name` —— 操作系统错误码和它的符号名，比如 `ENOENT`
+- `error_type` —— 失败的类别：`not_found`、`permission_denied`、`already_exists`……
+- `exception_type` —— 对应的异常类名，比如 `FileNotFoundError`
+- `message`、`operation`、`path` —— 操作系统给的消息、失败的操作、涉及的路径
+- `retryable` —— 重试是否可能成功
+
+`download` 是两个版本中唯一直接返回字节流的文件路由；路径不存在时返回 `404`。
+
+watch 路由仍使用统一返回结构，但监听器生命周期相关的失败使用 HTTP 状态码表示：未知监听器为 `404`，`debounce` 或 `limit` 越界为 `400`，达到监听器上限为 `429`，`wait` 超时为 `503`。
+
+## 相关页面
+
+- [错误处理](/zh/daemon/basic/error-handling) —— 返回结构、状态码约定，以及其他 plane 的情况
+- [Commands（命令执行）](/zh/daemon/basic/bash) —— 读写这些文件的另一个 plane
+- [文件操作](/zh/daemon/examples/file-ops) —— 一个可运行示例覆盖整个接口面

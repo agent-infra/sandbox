@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "aiod",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 3,
+    "cellW": 180,
+    "cellH": 72,
+    "gapX": 72,
+    "gapY": 40
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Agent",
+      "sublabel": "SDK · curl · MCP",
+      "row": 1,
+      "col": 0
+    },
+    {
+      "id": "aiod",
+      "type": "backend",
+      "label": "aiod",
+      "sublabel": "tools API · /mcp",
+      "tag": ":18091",
+      "row": 1,
+      "col": 1
+    },
+    {
+      "id": "interp",
+      "type": "backend",
+      "label": "Interpreters",
+      "sublabel": "bash · python · node",
+      "row": 0,
+      "col": 2
+    },
+    {
+      "id": "chromium",
+      "type": "external",
+      "label": "Chromium",
+      "sublabel": "CDP :9222",
+      "row": 1,
+      "col": 2
+    },
+    {
+      "id": "cu",
+      "type": "backend",
+      "label": "computer-use",
+      "sublabel": "desktop · :18100",
+      "row": 2,
+      "col": 2
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Same host or container",
+      "wraps": [
+        "interp",
+        "chromium",
+        "cu"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-aiod",
+      "from": "agent",
+      "to": "aiod",
+      "label": "HTTP · WebSocket",
+      "variant": "emphasis"
+    },
+    {
+      "id": "aiod-interp",
+      "from": "aiod",
+      "to": "interp",
+      "label": "spawn"
+    },
+    {
+      "id": "aiod-chromium",
+      "from": "aiod",
+      "to": "chromium",
+      "label": "CDP",
+      "labelDy": 13
+    },
+    {
+      "id": "aiod-cu",
+      "from": "aiod",
+      "to": "cu",
+      "label": "proxy"
+    }
+  ]
+}

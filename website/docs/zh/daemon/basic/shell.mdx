@@ -1,0 +1,571 @@
+import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
+
+# Terminals（PTY）
+
+终端是一个真正的 PTY shell：有 tmux 时用 tmux，没有就用原生 PTY。会话跨调用保留工作目录、环境变量和正在运行的程序，程序运行期间也能继续接收输入。
+
+适合 REPL、交互式程序，以及 WebTerminal 界面。
+
+[命令](/zh/daemon/basic/bash) 每次调用都会启动新进程，调用结束后不会保留 shell。
+
+需要保持连接并持续使用 shell 时，可以使用 [终端](/zh/daemon/basic/shell)。
+
+如果只需执行一条命令并分别读取 stdout 和 stderr，请使用 [命令](/zh/daemon/basic/bash)。v1 和 v2 路由的对照见 [从 1.x 迁移](/zh/daemon/start/migration#terminals)。
+
+## 运行要求
+
+可以通过 `GET /v1/capabilities` 查看终端使用的 shell。shell 为 bash 或 sh 时，`exec.pty` 为 `true`；在 PowerShell 主机上，终端仍可打开，但 `exec` 不可用。
+
+## 打开一个终端
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/pty/sessions" \
+  -H "Content-Type: application/json" \
+  -d '{"cwd": "/workspace", "cols": 120, "rows": 40}'
+```
+
+请求体示例：
+
+```json
+{
+  "cwd": "/workspace",
+  "cols": 120,
+  "rows": 40
+}
+```
+
+请求体包含以下字段：
+
+| 字段 | 取值 | 含义 |
+| --- | --- | --- |
+| `id` | string | 用指定 id 创建会话；不传则自动生成 |
+| `cwd` | string | shell 的起始目录 |
+| `cols`、`rows` | integer | 终端尺寸，默认 120 x 24；要么都传，要么都不传 |
+| `retention` | `persistent`（默认）, `expiring` | 一直保留到显式删除，或空闲后回收 |
+| `user` | string | shell 的运行身份；会话存续期间固定；仅限 Linux |
+| `no_change_timeout` | seconds | 该会话中命令的静默上限，默认 120 |
+| `env` | object | 尚未实现；带上它的请求返回 `400` |
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/shell/sessions/create" \
+  -H "Content-Type: application/json" \
+  -d '{"exec_dir": "/workspace"}'
+```
+
+请求体示例：
+
+```json
+{
+  "exec_dir": "/workspace"
+}
+```
+
+请求体包含以下字段：
+
+| 字段 | 取值 | 含义 |
+| --- | --- | --- |
+| `id` | string | 用指定 id 创建会话；不传则自动生成 |
+| `exec_dir` | string | shell 的起始目录 |
+| `user` | string | shell 的运行身份；会话存续期间固定；仅限 Linux |
+| `no_change_timeout` | seconds | 该会话中命令的静默上限，默认 120 |
+| `preserve_symlinks` | boolean | 保持传入的路径，不解析符号链接 |
+
+也可以不预先创建：不带 `id` 的 `POST /v1/shell/exec` 会开一个会话并返回它的 id。
+
+<UseV2 when={'终端需要固定尺寸，或者没有 WebSocket 连接时也能调整尺寸'} route="PATCH /v2/pty/sessions/{id}" />
+
+</ApiV1>
+
+后续调用使用 `session_id` 定位终端，`working_dir` 是 shell 实际解析出的工作目录。`exec` 在 shell 当前所在的目录执行，包括在终端里敲 `cd` 进入的目录；请求里带上 `exec_dir` 才会把 shell 移过去。
+
+使用已有 id 创建时，接口会返回现有会话，不会重复创建。此时如果 `user` 与首次创建时不同，会返回 `400`；目录不存在时也返回 `400`。
+
+## 执行一条命令
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/pty/sessions/SESSION_ID/exec" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "printf shell-doc-ok"}'
+```
+
+请求体示例：
+
+```json
+{
+  "command": "printf shell-doc-ok"
+}
+```
+
+请求体包含以下字段：
+
+| 字段 | 取值 | 含义 |
+| --- | --- | --- |
+| `command` | string, required | 在提示符下敲入的那行命令 |
+| `async` | boolean | 立即返回，`status` 为 `"running"` |
+| `timeout` | seconds | 调用等待的时长；不传就一直等到命令结束 |
+| `hard_timeout` | seconds | 命令被打断的时间点 |
+| `no_change_timeout` | seconds | 多久没有新输出就打断 |
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/shell/exec" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "SESSION_ID", "command": "printf shell-doc-ok"}'
+```
+
+请求体示例：
+
+```json
+{
+  "id": "SESSION_ID",
+  "command": "printf shell-doc-ok"
+}
+```
+
+请求体包含以下字段：
+
+| 字段 | 取值 | 含义 |
+| --- | --- | --- |
+| `command` | string, required | 在提示符下敲入的那行命令 |
+| `id` | string | 在哪个会话里执行；不传就新开一个，id 不存在返回 `404` |
+| `exec_dir` | string | 新建会话时 shell 的起始目录 |
+| `async_mode` | boolean | 立即返回，`status` 为 `"running"` |
+| `timeout` | seconds | 调用等待的时长；不传就一直等到命令结束 |
+| `hard_timeout` | seconds | 命令被打断的时间点 |
+| `no_change_timeout` | seconds | 多久没有新输出就打断 |
+| `user` | string | 新建会话时 shell 的运行身份；仅限 Linux |
+| `preserve_symlinks` | boolean | 保持传入的 `exec_dir`，不解析符号链接 |
+| `strict` | boolean | `exec_dir` 用不了时直接失败，而不是忽略 |
+| `truncate` | boolean | 过长的响应做截断；默认开启 |
+
+</ApiV1>
+
+两个版本的响应是一样的：
+
+```json
+{
+  "success": true,
+  "message": "Command executed",
+  "data": {
+    "session_id": "SESSION_ID",
+    "command": "printf shell-doc-ok",
+    "status": "completed",
+    "output": "shell-doc-ok",
+    "console": [
+      {
+        "ps1": "$ ",
+        "command": "printf shell-doc-ok",
+        "output": "shell-doc-ok"
+      }
+    ],
+    "exit_code": 0
+  }
+}
+```
+
+PTY 只有一条输出流，因此 `output` 是合并后的内容。需要区分 `stdout` 和 `stderr` 时，请使用命令 API。
+
+`console` 是会话记录，每条已完成的命令占一项，最多保留最近 100 条。一个终端同时只能执行一条命令；上一条仍在运行时再次调用会返回 `400 Session already has a running command`。
+
+`status` 是命令的生命周期，只有 `completed` 时才有 `exit_code`：
+
+| `status` | 命令 | 会话是否结束 |
+| --- | --- | --- |
+| `running` | 还在跑；读屏幕跟进 | 否 |
+| `completed` | 自行退出，或被 kill | 否 |
+| `no_change_timeout` | 因为没有新输出被打断 | 否 |
+| `hard_timeout` | 在 `hard_timeout` 被打断 | 否 |
+| `terminated` | 被显式信号终止 | 是 |
+
+两个超时都会用 `^C` 打断命令，并将 `exit_code` 保持为 `null`。会话仍然打开，可以继续执行下一条命令。
+
+`no_change_timeout` 不适用于 async 命令，因为没有调用在等待它。
+
+响应超过 30,000 字节时，只保留开头和结尾各 15,000 字节，中间替换为 `[... Observation truncated due to length ...]`。v1 可以使用 `truncate: false` 关闭截断，v2 始终截断。
+
+## 路由
+
+<ApiV2>
+
+| 路由 | 用途 | 说明 |
+| --- | --- | --- |
+| `POST /v2/pty/sessions` | 打开终端 | 返回其余路由都要用的 id |
+| `GET /v2/pty/sessions` | 列出终端和池状态 | 一个响应里同时给 `sessions` 和 `stats` |
+| `GET /v2/pty/sessions/{id}` | 查看单个终端 | 目录、存活时长、状态、当前命令 |
+| `PATCH /v2/pty/sessions/{id}` | 调整尺寸或静默上限 | `cols` 和 `rows` 要一起传，否则 `400` |
+| `POST /v2/pty/sessions/{id}/exec` | 执行命令 | 每个终端同时只跑一条 |
+| `GET /v2/pty/sessions/{id}/screen` | 读屏幕 | 读取 async 命令的输出 |
+| `POST /v2/pty/sessions/{id}/input` | 往终端里输入 | 这里 `press_enter` 默认关 |
+| `POST /v2/pty/sessions/{id}/signal` | 终止命令 | 向进程组发 `SIGKILL`，并关闭会话 |
+| `DELETE /v2/pty/sessions/{id}` | 关闭终端 | id 已经没了时返回 `success: false` |
+| `GET /v2/pty/sessions/{id}/ws` | 连接终端 | `protocol`、`durable`、`restore`、`replay_bytes` |
+| `GET /v2/pty/ws` | 开一个随连接存活的 shell | 不返回 id，连接断开即销毁 |
+
+</ApiV2>
+
+<ApiV1>
+
+| 路由 | 用途 | 说明 |
+| --- | --- | --- |
+| `POST /v1/shell/sessions/create` | 打开终端 | 不带 id 的 `exec` 也会开一个 |
+| `GET /v1/shell/sessions` | 列出终端 | 以 session id 为键 |
+| `GET /v1/shell/sessions/stats` | 查看池状态 | 总数、`max_sessions`、`session_timeout` |
+| `POST /v1/shell/sessions/update` | 改会话的静默上限 | 只有 `no_change_timeout` |
+| `POST /v1/shell/exec` | 执行命令 | 每个终端同时只跑一条 |
+| `POST /v1/shell/view` | 读屏幕 | 和 v2 的 screen 返回一样 |
+| `POST /v1/shell/wait` | 阻塞到命令结束 | `seconds` 默认 30，且不低于 5 |
+| `POST /v1/shell/write` | 往终端里输入 | 这里 `press_enter` 默认开 |
+| `POST /v1/shell/kill` | 终止命令 | 向进程组发 `SIGKILL`，并关闭会话 |
+| `DELETE /v1/shell/sessions/{id}` | 关闭终端 | `DELETE /v1/shell/sessions` 关闭全部 |
+| `GET /v1/shell/terminal-url` | 生成 WebShell 链接 | 带 `session_id` 指向已有终端，不带则新开一个 |
+| `GET /v1/shell/ws` | 连接终端 | 不带 `session_id` 时新开一个并公布 id |
+
+</ApiV1>
+
+- 屏幕内容就是命令当前为止的输出：命令运行时实时更新，结束后保留最后的输出。`command` 是当前运行的命令，两条命令之间为 `null`。
+- `wait` 在命令结束或 `seconds` 到期时返回，以先发生者为准；没有运行中的命令时会立即返回。
+- `input` 会原样发送到 PTY，包括转义序列和控制字符：`\u001b` 是 ESC，`\u0003` 是 Ctrl-C。`press_enter` 会追加 Enter 键对应的回车符。
+- raw 模式的 TUI 会将单独的 `\n` 当作 Shift+Enter。不要同时在 `input` 末尾放 `\r` 并设置 `press_enter: true`，否则会发送两次 Enter。
+- 终止命令也会关闭会话，之后该 id 不再出现在列表中，再次终止会返回 `404`。如果只想打断命令并保留终端，请使用 `hard_timeout` 或 `no_change_timeout`。
+- 终端和 [文件](/zh/daemon/basic/file) 共享同一文件系统。在提示符下写入的文件可以立即通过文件 API 读取，反过来也一样。
+
+## 常见用法
+
+工作会跨越多次调用，或者程序会反问时，终端才值得开一个会话：
+
+| 场景 | 启动方式 | 然后 |
+| --- | --- | --- |
+| `printf shell-doc-ok` | exec | 直接从同一个响应里读 `output` |
+| 构建任务 | exec + `timeout` | 返回 `running` 时读屏幕直到结束 |
+| REPL | exec，async | 敲一行，读屏幕 |
+| `read -p` 这类提示 | exec，async | 回答它，末尾按 Enter |
+| 终端界面 | 连 WebSocket | 断线后带 `durable=true` 重连 |
+
+## 处理交互式输入
+
+会提问的程序用 async 启动，然后把答案敲进去：
+
+<ApiV2>
+
+`Aio` 是 [Examples](/zh/daemon/examples) 中用于解析返回结构的辅助客户端：它取出 `data`，并在 `success` 为 false 时抛错。
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import time
+
+sb = Aio(BASE_URL)
+session = sb.post("/v2/pty/sessions", cwd="/workspace")
+sid = session["session_id"]
+
+# 1. Start a program that asks a question; async returns while it waits.
+body = {"command": 'read -p "Name: " name; echo Hello $name', "async": True}
+sb.call("POST", f"/v2/pty/sessions/{sid}/exec", json=body)
+
+# 2. The prompt reaches the screen a moment after exec returns.
+time.sleep(0.3)
+screen = sb.get(f"/v2/pty/sessions/{sid}/screen")
+print(repr(screen["output"]), screen["status"])
+# 'Name: ' running
+
+# 3. Answer it, then read the screen once the command has ended.
+sb.post(f"/v2/pty/sessions/{sid}/input", input="Alice", press_enter=True)
+while sb.get(f"/v2/pty/sessions/{sid}/screen")["status"] == "running":
+    time.sleep(0.2)
+screen = sb.get(f"/v2/pty/sessions/{sid}/screen")
+print(repr(screen["output"]), screen["status"], screen["exit_code"])
+# 'Name: Alice\nHello Alice' completed 0
+
+# 4. Close the terminal.
+sb.delete(f"/v2/pty/sessions/{sid}")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const sb = new Aio(BASE_URL);
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const session = await sb.post("/v2/pty/sessions", { cwd: "/workspace" });
+const sid = session.session_id;
+
+// 1. Start a program that asks a question; async returns while it waits.
+await sb.post(`/v2/pty/sessions/${sid}/exec`, {
+  command: 'read -p "Name: " name; echo Hello $name',
+  async: true,
+});
+
+// 2. The prompt reaches the screen a moment after exec returns.
+await sleep(300);
+let screen = await sb.get(`/v2/pty/sessions/${sid}/screen`);
+console.log(JSON.stringify(screen.output), screen.status);
+// "Name: " running
+
+// 3. Answer it, then read the screen once the command has ended.
+await sb.post(`/v2/pty/sessions/${sid}/input`, {
+  input: "Alice",
+  press_enter: true,
+});
+while ((await sb.get(`/v2/pty/sessions/${sid}/screen`)).status === "running") {
+  await sleep(200);
+}
+screen = await sb.get(`/v2/pty/sessions/${sid}/screen`);
+console.log(JSON.stringify(screen.output), screen.status, screen.exit_code);
+// "Name: Alice\nHello Alice" completed 0
+
+// 4. Close the terminal.
+await sb.delete(`/v2/pty/sessions/${sid}`);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import time
+
+from agent_sandbox import Sandbox
+
+client = Sandbox(base_url=BASE_URL)
+session = client.shell.create_session(exec_dir="/workspace").data
+sid = session.session_id
+
+# 1. Start a program that asks a question; async_mode returns while it waits.
+client.shell.exec_command(
+    id=sid, command='read -p "Name: " name; echo Hello $name', async_mode=True
+)
+
+# 2. The prompt reaches the screen a moment after the call returns.
+time.sleep(0.3)
+screen = client.shell.view(id=sid).data
+print(repr(screen.output), screen.status)
+# 'Name: ' running
+
+# 3. Answer it, then wait for the command to end.
+client.shell.write_to_process(id=sid, input="Alice", press_enter=True)
+waited = client.shell.wait_for_process(id=sid, seconds=5).data
+screen = client.shell.view(id=sid).data
+print(repr(screen.output), waited.status, screen.exit_code)
+# 'Name: Alice\nHello Alice' completed 0
+
+# 4. Close the terminal.
+client.shell.cleanup_session(sid)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const client = new SandboxClient({ environment: BASE_URL });
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const session = (
+  await client.shell.createSession({ exec_dir: "/workspace" })
+).body.data!;
+const id = session.session_id;
+
+// 1. Start a program that asks a question; async_mode returns while it waits.
+await client.shell.execCommand({
+  id,
+  command: 'read -p "Name: " name; echo Hello $name',
+  async_mode: true,
+});
+
+// 2. The prompt reaches the screen a moment after the call returns.
+await sleep(300);
+let screen = (await client.shell.view({ id })).body.data!;
+console.log(JSON.stringify(screen.output), screen.status);
+// "Name: " running
+
+// 3. Answer it, then wait for the command to end.
+await client.shell.writeToProcess({ id, input: "Alice", press_enter: true });
+const waited = (
+  await client.shell.waitForProcess({ id, seconds: 5 })
+).body.data!;
+screen = (await client.shell.view({ id })).body.data!;
+console.log(JSON.stringify(screen.output), waited.status, screen.exit_code);
+// "Name: Alice\nHello Alice" completed 0
+
+// 4. Close the terminal.
+await client.shell.cleanupSession(id);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+async `exec` 刚返回就读屏幕，可能读到的还是命令行本身的回显；再读一次即可。`press_enter` 是两个路由默认值唯一不同的字段，显式传上它。
+
+## WebSocket 协议
+
+长时间运行的任务应通过 WebSocket 连接实时查看，而不是轮询。
+
+REST 和 WebSocket 共享同一个 shell，因此通过 `exec` 创建的文件可以立即在终端中看到。
+
+连接地址是 `GET /v2/pty/sessions/{id}/ws` 或 `GET /v1/shell/ws?session_id=…`。主机和端口不变，只需将协议改为 `ws://`。
+
+```json
+{"type":"ready","session_id":"…","transport":"json","backend":"tmux","resumed":false}
+{"type":"input","data":"ls\n"}
+{"type":"resize","cols":120,"rows":40}
+{"type":"ping","timestamp":<t>}
+{"type":"output","data":"…"}
+{"type":"restore_output","data":"…"}
+{"type":"pong","timestamp":<t>}
+{"type":"error","data":"…"}
+```
+
+| 方向 | type | 含义 |
+| --- | --- | --- |
+| ← 收 | `ready` | 升级成功后的第一帧 |
+| → 发 | `input` | 按键或命令文本 |
+| → 发 | `resize` | 调整 PTY 尺寸；字段缺失时按 80 x 24 处理 |
+| → 发 | `ping` | 可选的保活；守护进程不会主动 ping |
+| ← 收 | `output` | 终端输出，含 ANSI |
+| ← 收 | `restore_output` | 重连时回放的缓冲历史 |
+| ← 收 | `terminal_restored` | 回放到此结束 |
+| ← 收 | `pong` | 对 `ping` 的回应，原样返回 timestamp |
+| ← 收 | `error` | 连接或会话失败；之后连接关闭 |
+
+`input` 中必须包含 `\n`，该行才会执行。`cols` 和 `rows` 也可以放在 `data` 下。
+
+其他内容（结构不同的 JSON 或纯文本）都会作为原始输入发送给 shell。无法识别的控制帧因此会变成提示符下的一行乱码。
+
+`protocol=binary` 使用二进制帧传输原始 PTY 字节，不再发送 JSON `output` 帧；`ready` 帧仍是 JSON，并包含 `transport`。
+
+`GET /v2/pty/ws` 不创建会话。它打开的 shell 与连接同生共死，不会公布 id。
+
+`GET /v1/shell/ws` 不带 `session_id` 时也会新开终端，但会在 `ready` 之前通过 `session_id` 帧公布 id。该会话会一直保留到关闭或空闲回收。
+
+## 断线后重连
+
+连接断了，命令不会停。`durable=true` 让终端在无人连接时也保留输出，`restore=true` 在下次连接时回放：
+
+```javascript
+// BASE_URL as defined above, e.g. "http://127.0.0.1:18091"
+const WS_BASE_URL = "ws://127.0.0.1:18091"; // same host and port, ws:// scheme
+const query = "durable=true&restore=true";
+
+// 1. Open a terminal over REST, attach, and start a build.
+const create = await fetch(`${BASE_URL}/v2/pty/sessions`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: "{}",
+}).then((r) => r.json());
+const sessionId = create.data.session_id;
+
+const first = new WebSocket(
+  `${WS_BASE_URL}/v2/pty/sessions/${sessionId}/ws?${query}`,
+);
+first.onopen = () =>
+  first.send(
+    JSON.stringify({
+      type: "input",
+      data: "for i in 1 2 3 4 5 6; do echo build step $i; sleep 1; done\n",
+    }),
+  );
+
+// 2. The client goes away mid-build; the command keeps running.
+setTimeout(() => first.close(), 3000);
+
+// 3. Reattach: what was buffered arrives first, then live output.
+setTimeout(() => {
+  const again = new WebSocket(
+    `${WS_BASE_URL}/v2/pty/sessions/${sessionId}/ws?${query}`,
+  );
+  again.onmessage = (event) => console.log(event.data);
+}, 5000);
+```
+
+客户端离开期间继续跑的构建，会以三帧回来，随后恢复实时输出：
+
+```json
+{"type":"ready","session_id":"SESSION_ID","transport":"json","backend":"native","resumed":true}
+{"type":"restore_output","data":"~ $ for i in 1 2 3 4 5 6; do echo build step $i; sleep 1; done\r\nbuild step 1\r\nbuild step 2\r\nbuild step 3\r\nbuild step 4\r\nbuild step 5\r\n"}
+{"type":"terminal_restored","session_id":"SESSION_ID"}
+{"type":"output","data":"build step 6\r\n"}
+```
+
+- `resumed` —— 这条连接接管了一个已经连着的终端时为 `true`
+- `restore_output` —— 无人连接期间缓冲的全部内容；再次重连时只回放上次之后新增的部分
+- `terminal_restored` —— 回放结束，之后是实时输出
+
+`restore` 只有在同时设置 `durable` 时才生效。`replay_bytes` 限制回放快照的大小，默认 10 MiB，取值范围为 256 KiB..10 MiB。
+
+保留的输出存放在 daemon 内存中，会话关闭、终止或回收时都会丢失。
+
+未设置 `durable=true` 时，连接到已有终端的第二个 WebSocket 会收到以下错误并被拒绝：
+
+```json
+{
+  "type": "error",
+  "data": "Session already has an active WebSocket connection"
+}
+```
+
+设置 `durable=true` 后，新连接会接管终端，旧连接收到 `relay_replaced` 帧后关闭。
+
+`durable` 和 `restore` 都必须用于已有会话；匿名连接使用任意一个参数都会返回 `400`。
+
+## Human in the loop
+
+用户可以直接打开 agent 正在使用的终端。预置镜像在 `/terminal?session_id=…` 提供 WebShell 页面，通过 `/v1/shell/ws` 连接，因此页面和 agent 看到的是同一个终端，也都可以输入。
+
+`GET /v1/shell/terminal-url` 用来生成页面链接：传入 `?session_id=` 时返回已有终端的地址，id 不存在则返回 `404`；不传时会新建终端。反复调用可能留下没人使用的终端。
+
+daemon 只提供 URL 和 WebSocket，页面本身由镜像提供。浏览器和桌面的查看方式见 [Computer Use](/zh/daemon/basic/display#human-in-the-loop)。
+
+## Windows
+
+Windows 上的终端使用 PowerShell 的 ConPTY，启动的进程都在 job object 中运行。
+
+该 plane 上的命令执行返回 `501`，因为完成协议需要 POSIX shell。创建、输入、读屏幕、调整尺寸、连接和终止仍然可用。见 [Windows](/zh/daemon/basic/windows#terminal)。
+
+## 后端与上限
+
+`AIO_SHELL_BACKEND=auto`（默认）在找到可用的 tmux 时使用 tmux。
+
+只有显式创建的会话可能使用 tmux。`exec` 自动创建的会话、`retention: "expiring"` 的会话和匿名 WebSocket 打开的终端，一律使用原生 PTY。会话实际使用的后端会写在 `ready` 帧中。
+
+`AIO_SHELL_BACKEND=native` 固定使用原生 PTY；`tmux` 强制要求 tmux，找不到 tmux 二进制时返回 `503`。
+
+会话状态只保存在 daemon 内存中，aiod 重启后 id 不会保留。已经运行的 tmux server 会继续存在，其 socket 会被复用，不会重新创建。
+
+最多同时运行 20 个终端，每个终端空闲 3600 秒后自动关闭（`AIO_SHELL_MAX_SESSIONS` / `AIO_SHELL_SESSION_TIMEOUT_SECS`）。连接着 WebSocket 的终端不会被视为空闲。
+
+达到上限时，daemon 会关闭最久未使用且可以回收的终端；没有可回收终端时，创建请求返回 `400`。
+
+## 错误处理
+
+HTTP 成功只说明请求被接受。先看 `data.status` 判断命令生命周期，`status` 是 `completed` 之后再看 `exit_code`。该 plane 自身的失败：
+
+| 返回 | 场景 |
+| --- | --- |
+| `400` | 终端里已经有命令在跑；创建时带 `env`；`cols`/`rows` 只传了一个；`user` 和会话已有的不一致 |
+| `404` | 没有指定 id 的终端：已被关闭、终止或空闲回收 |
+| `422` | 请求不合法，附带 `errors` 列表 |
+| `501` | shell 不是 bash 或 sh 的机器上执行 `exec` |
+
+关闭一个已经不存在的 id 不算失败：`DELETE` 返回 `200`，`success` 为 false。见 [错误处理](/zh/daemon/basic/error-handling)。

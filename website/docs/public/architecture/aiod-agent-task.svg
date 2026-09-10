@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="774" height="476" viewBox="0 0 774 476" role="img">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap');
+
+      .g   { font-family: 'Geist', system-ui, -apple-system, 'Helvetica Neue', sans-serif; }
+      .m   { font-family: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace; }
+
+      .name    { font-size: 14px; font-weight: 600; fill: #2d3142; }
+      .sub     { font-size: 10.5px; font-weight: 400; fill: #4f5d75; }
+      .chip    { font-size: 10.5px; font-weight: 400; fill: #4f5d75; }
+      .chip-a  { font-size: 10.5px; font-weight: 500; fill: #eb6c36; }
+      .cap     { font-size: 10.5px; font-weight: 400; fill: #4f5d75; }
+      .foot    { font-size: 10.5px; font-weight: 400; fill: #2d3142; opacity: .45; }
+
+      .ico     { fill: #f5f5f5; stroke: #2d3142; stroke-width: 1.4;
+                 stroke-linecap: round; stroke-linejoin: round; }
+      .ico-l   { fill: none; stroke: #2d3142; stroke-width: 1.4;
+                 stroke-linecap: round; stroke-linejoin: round; }
+      .ico-f   { fill: none; stroke: #2d3142; stroke-width: 1.4; opacity: .4;
+                 stroke-linecap: round; stroke-linejoin: round; }
+
+      .link    { fill: none; stroke: #2d3142; stroke-width: 1.4; opacity: .45;
+                 stroke-linecap: round; stroke-linejoin: round; }
+      .rail    { fill: none; stroke: #2d3142; stroke-width: 1.2; opacity: .28;
+                 stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="774" height="512" fill="#f5f5f5"/>
+
+  <g transform="translate(0,-12)">
+
+    <!-- ── sandbox shell ─────────────────────────────────────────── -->
+    <rect x="356" y="44" width="376" height="428" rx="12"
+          fill="#2d3142" fill-opacity="0.03"
+          stroke="#2d3142" stroke-opacity="0.30" stroke-width="1.4"
+          stroke-dasharray="6 4"/>
+    <rect x="372" y="36" width="170" height="16" fill="#f5f5f5"/>
+    <text class="m cap" x="380" y="48">sandbox · one filesystem</text>
+
+    <!-- ── shared filesystem rail ────────────────────────────────── -->
+    <g>
+      <ellipse cx="516" cy="442" rx="10" ry="3.5"
+               fill="#f5f5f5" stroke="#2d3142" stroke-opacity="0.5" stroke-width="1.4"/>
+      <path d="M506,442 V454 A10,3.5 0 0 0 526,454 V442"
+            fill="none" stroke="#2d3142" stroke-opacity="0.5" stroke-width="1.4"
+            stroke-linecap="round"/>
+      <path d="M528,448 H664" fill="none"
+            stroke="#2d3142" stroke-opacity="0.35" stroke-width="1.4" stroke-linecap="round"/>
+      <path class="rail" d="M584,144 H636 Q644,144 644,152 V448"/>
+      <path class="rail" d="M584,260 H616 Q624,260 624,268 V448"/>
+      <path class="rail" d="M584,376 H596 Q604,376 604,384 V448"/>
+      <circle cx="644" cy="448" r="2" fill="#2d3142" fill-opacity="0.32"/>
+      <circle cx="624" cy="448" r="2" fill="#2d3142" fill-opacity="0.32"/>
+      <circle cx="604" cy="448" r="2" fill="#2d3142" fill-opacity="0.32"/>
+    </g>
+
+    <!-- ── gate → pictogram connectors ───────────────────────────── -->
+    <path class="link" d="M364,232 H408 Q416,232 416,224 V140 Q416,132 424,132 H524"/>
+    <path class="link" d="M364,248 H524"/>
+    <path class="link" d="M364,264 H408 Q416,264 416,272 V356 Q416,364 424,364 H524"/>
+
+    <rect x="432" y="113" width="84" height="14" fill="#eff0f0"/>
+    <text class="m chip" x="474" y="124" text-anchor="middle">write · read</text>
+    <rect x="454" y="229" width="40" height="14" fill="#eff0f0"/>
+    <text class="m chip" x="474" y="240" text-anchor="middle">exec</text>
+    <rect x="446" y="345" width="56" height="14" fill="#eff0f0"/>
+    <text class="m chip" x="474" y="356" text-anchor="middle">execute</text>
+
+    <!-- ── Files pictogram ───────────────────────────────────────── -->
+    <g>
+      <rect class="ico" x="532" y="108" width="30" height="38" rx="3"/>
+      <path class="ico" d="M547,118 H572 L580,126 V153 A3,3 0 0 1 577,156 H547
+                           A3,3 0 0 1 544,153 V121 A3,3 0 0 1 547,118 Z"/>
+      <path class="ico-l" d="M572,118 V126 H580"/>
+      <path class="ico-f" d="M552,136 H570"/>
+      <path class="ico-f" d="M552,144 H564"/>
+    </g>
+    <text class="g name" x="556" y="180" text-anchor="middle">Files</text>
+    <text class="m sub"  x="556" y="196" text-anchor="middle">/v2/fs</text>
+
+    <!-- ── Shell pictogram ───────────────────────────────────────── -->
+    <g>
+      <rect class="ico" x="532" y="226" width="48" height="44" rx="4"/>
+      <path class="ico-f" d="M532,238 H580"/>
+      <circle cx="539" cy="232" r="1.6" fill="#2d3142" fill-opacity="0.4"/>
+      <circle cx="545" cy="232" r="1.6" fill="#2d3142" fill-opacity="0.4"/>
+      <circle cx="551" cy="232" r="1.6" fill="#2d3142" fill-opacity="0.4"/>
+      <path class="ico-l" d="M541,248 L547,254 L541,260"/>
+      <path class="ico-l" d="M551,260 H563"/>
+    </g>
+    <text class="g name" x="556" y="296" text-anchor="middle">Shell</text>
+    <text class="m sub"  x="556" y="312" text-anchor="middle">/v2/commands</text>
+
+    <!-- ── Python pictogram ──────────────────────────────────────── -->
+    <g>
+      <rect class="ico" x="532" y="342" width="48" height="44" rx="5"/>
+      <path class="ico-l" d="M553,350 Q549,350 549,357 Q549,364 545,364
+                             Q549,364 549,371 Q549,378 553,378"/>
+      <path class="ico-l" d="M559,350 Q563,350 563,357 Q563,364 567,364
+                             Q563,364 563,371 Q563,378 559,378"/>
+    </g>
+    <text class="g name" x="556" y="412" text-anchor="middle">Python</text>
+    <text class="m sub"  x="556" y="428" text-anchor="middle">/v2/code</text>
+
+    <!-- ── transports ────────────────────────────────────────────── -->
+    <path d="M148,216 H272 C312,216 312,236 348,236"
+          fill="none" stroke="#2d3142" stroke-opacity="0.55" stroke-width="1.4"
+          stroke-dasharray="6 4"/>
+    <path d="M148,280 H272 C312,280 312,260 348,260"
+          fill="none" stroke="#2d3142" stroke-opacity="0.55" stroke-width="1.4"
+          stroke-dasharray="0.1 4.5" stroke-linecap="round"/>
+    <path d="M148,248 H348"
+          fill="none" stroke="#eb6c36" stroke-width="1.6" stroke-linecap="round"/>
+
+    <rect x="160" y="197" width="52" height="14" fill="#f5f5f5"/>
+    <text class="m chip" x="164" y="208">1.x SDK</text>
+    <rect x="160" y="229" width="56" height="14" fill="#f5f5f5"/>
+    <text class="m chip-a" x="164" y="240">HTTP v2</text>
+    <rect x="160" y="261" width="60" height="14" fill="#f5f5f5"/>
+    <text class="m chip" x="164" y="272">MCP /mcp</text>
+
+    <!-- ── aiod gate on the sandbox wall ─────────────────────────── -->
+    <rect x="348" y="188" width="16" height="120" rx="8" fill="#eb6c36"/>
+    <text class="g name" x="344" y="332" text-anchor="end">aiod</text>
+    <text class="m sub"  x="344" y="348" text-anchor="end">:18091</text>
+
+    <!-- ── agent ─────────────────────────────────────────────────── -->
+    <g>
+      <path class="ico" d="M94,226 H122 A8,8 0 0 1 130,234 V250 A8,8 0 0 1 122,258
+                           H108 L94,270 V258 A8,8 0 0 1 86,250 V234 A8,8 0 0 1 94,226 Z"/>
+      <path class="ico-l" d="M97,236 L103,242 L97,248"/>
+      <path class="ico-l" d="M107,248 H119"/>
+    </g>
+    <text class="g name" x="108" y="296" text-anchor="middle">Agent</text>
+    <text class="m sub"  x="108" y="312" text-anchor="middle">one task · four calls</text>
+
+    <!-- ── footnote ──────────────────────────────────────────────── -->
+
+  </g>
+</svg>

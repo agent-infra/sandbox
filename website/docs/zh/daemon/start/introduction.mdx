@@ -1,0 +1,54 @@
+import { ApiInlineV1, ApiInlineV2 } from '@theme';
+
+# 介绍
+
+`aiod` 是 AIO Sandbox 的 daemon，通过 HTTP 和 WebSocket 提供沙箱工具 API：命令、文件、终端、代码执行、浏览器控制和 MCP。
+
+最小依赖设计：
+
+- Linux 上为 musl 静态构建
+- Windows 上为原生构建
+- 可降级运行 —— 浏览器、解释器和桌面 GUI worker 都是可选后端，运行时探测
+
+Linux 构建覆盖 x86_64、arm64 和 riscv64（静态 musl）。Windows 构建覆盖 x86_64（`aiod.exe`、`computer-use.exe`）。
+
+![](/architecture/aiod-overview.svg)
+
+## daemon 能力范围
+
+- **命令** —— 以进程方式执行 shell 命令（<ApiInlineV2>`POST /v2/commands`</ApiInlineV2><ApiInlineV1>`POST /v1/bash/exec`</ApiInlineV1>）。
+  也可以打开由 PTY 支撑的持久终端（<ApiInlineV2>`/v2/pty`</ApiInlineV2><ApiInlineV1>`/v1/shell`</ApiInlineV1>）。
+- **文件** —— 读取、写入、搜索并监听磁盘上的文件（<ApiInlineV2>`/v2/fs`、`/v2/watch`</ApiInlineV2><ApiInlineV1>`/v1/file/*`</ApiInlineV1>）。
+- **代码** —— 执行 Python 或 JavaScript 代码片段，支持 sessions（<ApiInlineV2>`POST /v2/code/execute`</ApiInlineV2><ApiInlineV1>`POST /v1/code/execute`</ApiInlineV1>）。
+- **浏览器** —— 连接监听在调试端口（默认 `127.0.0.1:9222`）的 Chromium，并通过 REST 提供 navigate、click、fill、screenshot 等操作。
+  对应路由为 <ApiInlineV2>`/v2/browser/*`</ApiInlineV2><ApiInlineV1>`/v1/browser/*`</ApiInlineV1>。
+- **桌面** —— 独立的 `computer-use` worker，`/v2/computer/*` 可转发来使用 GUI 能力：覆盖截图、鼠标键盘控制、剪贴板和无障碍树。
+- **MCP** —— `POST /mcp` 把内置工具作为一个无状态 JSON-RPC 端点提供：
+  - 执行命令
+  - 执行代码
+  - 文件操作
+  - 浏览器信息
+  - 加载 skill
+
+  也可以聚合其他 MCP server。
+
+`aiod` 会自动探测浏览器、解释器和桌面 GUI worker 等可选依赖。
+
+`GET /v1/capabilities` 返回当前实际可用的能力。
+
+与同一台主机上的 1.x Python 服务相比，daemon 空闲时占用的内存更少，常见调用的耗时也有所降低，具体数据见下图。
+
+镜像启动数据可参考 [快速开始](/zh/daemon/start/quick-start#使用预构建镜像)。
+
+![](/architecture/aiod-daemon-vs-server.svg)
+
+## API plane：v1 与 v2
+
+`/v1/*` 与 1.x 的 Python 服务兼容。`/v2/*` 是当前以路径为键的端点集，供新接入使用。
+
+默认两者同时提供（`AIO_API_SURFACE=full`）。设置 `AIO_API_SURFACE=v2` 只提供现代端点集。详见 [API 参考](/zh/daemon/api)。
+
+## 相关页面
+
+- [快速开始](/zh/daemon/start/quick-start) —— 下载、启动、快速测试。
+- [从 1.x 迁移](/zh/daemon/start/migration) —— 从 1.x AIO 镜像迁移。

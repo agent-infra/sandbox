@@ -1,0 +1,289 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# MCP 调用
+
+支持 MCP 的 agent 可以直接调用沙箱内置工具，完成文件、命令、代码和浏览器操作。
+
+## 要求
+
+使用 MCP 客户端连接 `POST /mcp` 即可。每个工具都需要对应的 plane。
+
+<ApiV2>
+
+可用能力见 `GET /v2/sandbox` 返回的 `capabilities`。
+
+</ApiV2>
+
+<ApiV1>
+
+可用能力见 `GET /v1/capabilities`。
+
+</ApiV1>
+
+设置 `AIO_API_KEY` 后，需要在 `Authorization: Bearer <key>` 中携带 key。`/mcp` 不是公开路由，不带 key 会返回 `401`。
+
+## 工具列表
+
+客户端可以通过 `tools/list` 获取当前可用的工具。
+
+<Tabs groupId="sdk-lang">
+<Tab label="curl">
+
+```bash
+curl -X POST "$BASE_URL/mcp" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+</Tab>
+</Tabs>
+
+内置工具集编译进了二进制，顺序如下：
+
+| 工具 | 作用 |
+| --- | --- |
+| `sandbox_execute_bash` | 在托管会话中执行 shell 命令 |
+| `sandbox_execute_code` | 执行 Python 或 JavaScript |
+| `sandbox_file_operations` | read、write、replace、search、find、list、grep、glob |
+| `sandbox_str_replace_editor` | view、create、str_replace、insert、undo_edit |
+| `sandbox_get_context` | 沙箱版本与 home 目录 |
+| `sandbox_get_packages` | 已安装的 Python 或 Node 包 |
+| `sandbox_load_skill` | 加载一个 skill，或列出全部 |
+| `browser_get_info` | CDP url、视口大小等信息 |
+| `browser_gui_screenshot` | 整个显示器的截图 |
+| `browser_gui_execute_action` | 在显示器上执行一个 GUI 动作 |
+
+除此之外的工具都来自注册的 MCP server，所以以列表为准，不必记数量。每个条目都带自己的 JSON Schema：
+
+```json
+{
+  "description": "Execute code in Python or JavaScript runtime.",
+  "inputSchema": {
+    "properties": {
+      "code": {
+        "description": "Code to execute",
+        "type": "string"
+      },
+      "language": {
+        "description": "Programming language ('python', 'javascript')",
+        "type": "string"
+      },
+      "timeout": {
+        "description": "Execution timeout in seconds",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "code"
+    ],
+    "type": "object"
+  },
+  "name": "sandbox_execute_code"
+}
+```
+
+## 用四次工具调用完成一项任务
+
+下面用四个 JSON 请求完成一个小任务：把数字写入文件、统计行数、用 Python 求和，再读取结果。
+
+所有步骤共享同一个文件系统，因此命令和代码都能读取第 1 步写入的文件。
+
+### 1. 写入输入文件
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_file_operations",
+    "arguments": {
+      "action": "write",
+      "path": "/tmp/agent-data.txt",
+      "content": "3\n7\n12\n5\n"
+    }
+  }
+}
+```
+
+### 2. 执行命令
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_execute_bash",
+    "arguments": {
+      "cmd": "wc -l /tmp/agent-data.txt",
+      "cwd": "/tmp"
+    }
+  }
+}
+```
+
+### 3. 执行 Python 代码
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_execute_code",
+    "arguments": {
+      "language": "python",
+      "code": "nums = [int(n) for n in open(\"/tmp/agent-data.txt\").read().split()]\nopen(\"/tmp/agent-result.txt\", \"w\").write(str(sum(nums)))\nprint(\"sum written\")"
+    }
+  }
+}
+```
+
+### 4. 读取结果
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_file_operations",
+    "arguments": {
+      "action": "read",
+      "path": "/tmp/agent-result.txt"
+    }
+  }
+}
+```
+
+每个结果都包含 `content` 列表；调用失败时，`isError` 为 `true`。
+
+`content` 中的文本就是模型读到的内容，可以是文件工具返回的 JSON、命令输出或解释器的 stdout。第 1 步的完整响应如下：
+
+```json
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"action\":\"write\",\"bytes_written\":9,\"path\":\"/tmp/agent-data.txt\",\"success\":true}",
+        "type": "text"
+      }
+    ],
+    "isError": false
+  }
+}
+```
+
+`sandbox_execute_bash` 默认在同一个共享会话中执行，除非传入 `new_session`。
+
+结果中包含会话结束时的 `cwd`。在下一次调用中传回该值，agent 使用的工作目录就会与 shell 保持一致。
+
+## 调用失败时
+
+工具调用失败有两种情况，区别在于工具是否真正执行。下面分别是工具不存在和文件不存在时的请求：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_execute",
+    "arguments": {}
+  }
+}
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_file_operations",
+    "arguments": {
+      "action": "read",
+      "path": "/tmp/agent-missing.txt"
+    }
+  }
+}
+```
+
+工具名不存在、未传工具名或方法不存在，都属于 JSON-RPC 错误。响应仍然是 HTTP `200`，MCP 客户端解析的是 `error` 对象：
+
+```json
+{
+  "error": {
+    "code": -32602,
+    "message": "unknown tool: sandbox_execute"
+  },
+  "id": 1,
+  "jsonrpc": "2.0"
+}
+```
+
+工具调用失败时，仍返回 `result` 对象，但会带有 `isError: true`。文本中包含失败原因，文件 API 的结构化错误会原样返回：
+
+```json
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"action\":\"read\",\"error\":{\"errno\":2,\"errno_name\":\"ENOENT\",\"error_type\":\"not_found\",\"exception_type\":\"FileNotFoundError\",\"message\":\"Failed to read file: No such file or directory (os error 2)\",\"operation\":\"read\",\"path\":\"/tmp/agent-missing.txt\",\"retryable\":false},\"message\":\"Failed to read file: No such file or directory (os error 2)\",\"path\":\"/tmp/agent-missing.txt\",\"success\":false}",
+        "type": "text"
+      }
+    ],
+    "isError": true
+  }
+}
+```
+
+缺少参数也属于工具执行失败。例如，`sandbox_execute_bash` 不带 `cmd` 时返回 `isError: true`，文本为 `cmd is required`。
+
+没有 computer-use worker 时调用 `browser_gui_screenshot` 或 `browser_gui_execute_action`、CDP 端口不可达时调用 `browser_get_info`，以及调用已停止的上游 MCP server，也都属于这一类。
+
+## 接入其他 MCP server
+
+可通过 `EXTRA_MCP_SERVERS`（或 `--mcp-servers`）注册本机的无状态 MCP server；其工具会并入同一目录，调用会被转发。下面用第二个 daemon 演示这一点：
+
+```bash
+EXTRA_MCP_SERVERS='{"peer":{"url":"http://127.0.0.1:18091/mcp","prefix":"peer"},"gone":{"url":"http://127.0.0.1:18111/mcp","prefix":"gone"}}' \
+  aiod start --port 18092
+
+curl -X POST "http://127.0.0.1:18092/mcp" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+# → 20 tools: the 10 built-in ones, then peer_sandbox_execute_bash …
+#   peer_browser_gui_execute_action. An upstream that does not answer, like
+#   "gone" here, is simply absent from the list.
+
+curl -X POST "http://127.0.0.1:18092/mcp" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"peer_sandbox_execute_bash","arguments":{"cmd":"echo hello","cwd":"/tmp"}}}'
+
+curl -X POST "http://127.0.0.1:18092/mcp" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"gone_hello","arguments":{}}}'
+```
+
+这次运行遵循的规则：
+
+- 只接受 `127.0.0.1`、`localhost` 或 `[::1]` 上的 `http://`。启动时会跳过远程地址和 `command`（stdio）条目，并记一条警告。
+- 没有握手也没有 session，一次调用一个 POST。因此上游可以晚于 daemon 启动，下次 `tools/list` 就会看到它。
+- 带 `prefix` 时，工具以 `<prefix>_<tool>` 的形式暴露，转发时再去掉前缀。
+  不带 `prefix` 时，上游自己的工具名必须已经以 `<name>_` 开头；其余工具会被丢弃，因为无法确定路由。
+- 名字冲突时内置工具优先；两个上游冲突时，保留先注册的名称。
+
+AIO 镜像里的 `mcp-server-browser` 就是这样注册的，该镜像工具列表中的页面级 `browser_*` 导航工具由此而来。
+
+## 连接客户端
+
+支持 streamable-HTTP MCP 的客户端可以连接 `http://127.0.0.1:18091/mcp`；使用预置镜像时，连接网关的 `/mcp`。设置 key 后，通过 bearer header 发送。
+
+## 相关页面
+
+- [Agent 调用沙箱](/zh/daemon/examples/agent-call-sandbox) —— 同样的四步，走 REST
+- [错误处理](/zh/daemon/basic/error-handling) —— 返回结构、`isError` 与状态码
+- [沙箱信息与能力](/zh/daemon/basic/sandbox) —— 通过 REST 获取同样的上下文
+- [从 1.x 迁移](/zh/daemon/start/migration#mcp) —— 1.x 的 MCP 管理路由去哪了

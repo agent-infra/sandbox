@@ -1,0 +1,28 @@
+[
+  {
+    "type": "dir",
+    "label": "快速开始",
+    "name": "start"
+  },
+  "architecture",
+  {
+    "type": "dir",
+    "label": "能力",
+    "name": "basic"
+  },
+  {
+    "type": "dir",
+    "label": "部署",
+    "name": "ops"
+  },
+  {
+    "type": "dir",
+    "label": "示例",
+    "name": "examples"
+  },
+  {
+    "type": "file",
+    "name": "api",
+    "label": "API 参考"
+  }
+]

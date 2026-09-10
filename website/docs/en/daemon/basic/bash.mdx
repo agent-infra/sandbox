@@ -1,0 +1,616 @@
+import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
+
+# Commands (Bash)
+
+A command is a fresh process. Each call spawns one, and tears it down when it exits or times out. No shell is left running afterward.
+
+A **command session** persists only the working directory, the run-as identity, any environment it was created with, and retained output between calls.
+
+For a live shell that stays attached and open, use [Terminals](/daemon/basic/shell) instead. The v1 and v2 routes side by side are in [Migration from 1.x](/daemon/start/migration#commands).
+
+## Requirements
+
+Call `GET /v1/capabilities` first to see the command capabilities available on the host. The relevant fields are `exec` and `bins`:
+
+```bash
+curl "$BASE_URL/v1/capabilities"
+```
+
+Relevant fields look like this:
+
+```json
+{
+  "exec": {
+    "shell": true,
+    "bash": true,
+    "pty": true
+  },
+  "bins": {
+    "bash": "/bin/bash"
+  }
+}
+```
+
+## Run a command
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/commands" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "pwd && ls -la", "cwd": "/workspace", "timeout": 30}'
+```
+
+Request body:
+
+```json
+{
+  "command": "pwd && ls -la",
+  "cwd": "/workspace",
+  "timeout": 30
+}
+```
+
+The body takes these fields:
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `command` | string, required | The script to run; with `shell: "none"`, the program path |
+| `args` | array | argv for `shell: "none"`; rejected in shell modes |
+| `shell` | `auto`, `bash`, `sh`, `powershell`, `cmd`, `none` | Which shell wraps the command; `auto` is the platform default |
+| `cwd` | string | Working directory |
+| `env` | object | Per-command variables; they override the session's |
+| `user` | string | Account to run as; fixed on the session at first use; Linux only |
+| `session` | string | Session to run in; absent means a generated one |
+| `timeout` | seconds | How long the call waits; absent waits for the command to end |
+| `hard_timeout` | seconds | When the process is killed; absent never kills it |
+| `max_output_length` | characters | What this response carries, 50000 by default; `0` is unlimited |
+| `mode` | `sync` (default), `async` | `async` returns at once with a `command_id` |
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/bash/exec" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "pwd && ls -la", "exec_dir": "/workspace", "timeout": 30}'
+```
+
+Request body:
+
+```json
+{
+  "command": "pwd && ls -la",
+  "exec_dir": "/workspace",
+  "timeout": 30
+}
+```
+
+The body takes these fields:
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `command` | string, required | The script to run |
+| `session_id` | string | Session to run in; created on first use |
+| `exec_dir` | string | Working directory |
+| `env` | object | Per-command variables |
+| `user` | string | Account to run as; `AIO_DEFAULT_USER`, then aiod's own account, when absent |
+| `async_mode` | boolean | Return at once with `status: "running"` |
+| `timeout` | seconds | How long the call waits; absent waits for the command to end |
+| `hard_timeout` | seconds | When the process is killed; absent never kills it |
+| `max_output_length` | characters | What this response carries, 50000 by default; `0` is unlimited |
+
+<UseV2 when={'you want to pick the shell, or run a program without one (shell: "none" with args)'} route="POST /v2/commands" />
+
+</ApiV1>
+
+`data` carries the command and its result either way:
+
+- `session_id`, `command_id` — the session the command ran in and the command's own id
+- `status` — `running`, `completed`, or `timed_out`
+- `stdout`, `stderr` — each stream on its own, `null` on v1 while empty; `output` is `stdout` followed by `stderr`
+- `exit_code` — `null` until the command ends; `-1` after a kill or a hard timeout
+- `offset`, `stderr_offset` — bytes of each stream produced so far
+
+Past `max_output_length` the middle of each stream is replaced by `\n... output truncated ...\n`, while `offset` still counts everything the command produced. Only this response is shortened; a later read returns the stream whole.
+
+## Stream output as it is produced
+
+Send `Accept: application/x-ndjson` to receive one JSON object per line instead of a final result:
+
+<ApiV2>
+
+```bash
+curl -N -X POST "$BASE_URL/v2/commands" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/x-ndjson" \
+  -d '{"command": "echo one; echo two >&2; exit 3"}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -N -X POST "$BASE_URL/v1/bash/exec" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/x-ndjson" \
+  -d '{"command": "echo one; echo two >&2; exit 3"}'
+```
+
+</ApiV1>
+
+The frames for that command:
+
+```json
+{"type":"started","session_id":"SESSION_ID","command_id":"COMMAND_ID","seq":1}
+{"type":"output","stream":"stdout","data":"b25lCg==","offset":0,"seq":2}
+{"type":"output","stream":"stderr","data":"dHdvCg==","offset":0,"seq":3}
+{"type":"exit","status":"completed","exit_code":3,"stdout_offset":4,"stderr_offset":4,"seq":4}
+```
+
+- `data` — base64 of the raw bytes
+- `offset` — the chunk's position in its stream
+- `seq` — the server's frame order
+
+A `gap` frame carries `lost_from` and `resume_offset` when retention trimmed output past the reader's position; a `ping` frame follows 30 s without one. The stream ends with `exit` or `error`. Closing the connection kills a command started in sync mode, and leaves an `async` one running.
+
+## Routes
+
+<ApiV2>
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `POST /v2/commands` | Run a command | `mode: "async"` returns a `command_id` at once |
+| `GET /v2/commands/{id}` | Read a command's output | `offset`, `stderr_offset`, `wait`, `wait_timeout` |
+| `POST /v2/commands/{id}/stdin` | Write to the command's stdin | `input` goes in verbatim; no newline is added |
+| `POST /v2/commands/{id}/kill` | Signal a running command | `SIGTERM` by default, `SIGKILL` or `SIGINT` |
+| `POST /v2/commands/sessions` | Create a session | `id`, `cwd`, `env`, `user` |
+| `GET /v2/commands/sessions` | List the live sessions | Directory, command count, last use |
+| `DELETE /v2/commands/sessions/{id}` | Close a session | Ends its commands, `SIGTERM` then `SIGKILL` |
+
+</ApiV2>
+
+<ApiV1>
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `POST /v1/bash/exec` | Run a command | `async_mode: true` returns at once |
+| `POST /v1/bash/output` | Read a session's output | `session_id` required, `command_id` optional |
+| `POST /v1/bash/write` | Write to the command's stdin | `input` goes in verbatim; no newline is added |
+| `POST /v1/bash/kill` | Signal a running command | `signal`, and `command_id` when several run |
+| `POST /v1/bash/sessions/create` | Create a session | `session_id`, `exec_dir`, `user`, `snapshot_path` |
+| `GET /v1/bash/sessions` | List the live sessions | Directory, command count, last use |
+| `POST /v1/bash/sessions/{id}/close` | Close a session | Ends its commands, `SIGTERM` then `SIGKILL` |
+
+</ApiV1>
+
+Reading is incremental, and the fields are the same on both:
+
+- `offset`, `stderr_offset` — where to start in each stream; the response's own `offset` and `stderr_offset` go into the next read
+- `wait` — long-poll: the read returns as soon as new output arrives, the command ends, or `wait_timeout` (30 s by default) elapses. Without it the read returns whatever is already there
+- `stdout_start_offset`, `stderr_start_offset` — the earliest position still retained. Each stream keeps 10 MiB and is cut back to 5 MiB past that
+- `stdout_gap`, `stderr_gap` — `true` when the requested offset is older than what is retained, so the bytes in between are gone
+- `command` — `{command_id, command, status, exit_code}`
+
+A session addresses its last 100 commands; past that the oldest ids are dropped and answer `404`. `input` is capped by the 2 MiB JSON body limit, and reaches stdin exactly as sent — a line-buffered program waits for the `\n`.
+
+## Timeouts and status
+
+| Field | Absent | Present |
+| --- | --- | --- |
+| `timeout` | The call waits for the command to end | The call returns there with `status: "running"`; the command runs on |
+| `hard_timeout` | The command runs until it exits | The process is killed there and `status` becomes `timed_out` |
+
+`status` is the lifecycle, and `exit_code` only means something once the command has ended:
+
+| `status` | The command | `exit_code` |
+| --- | --- | --- |
+| `running` | Still running, addressable by `command_id` | `null` |
+| `completed` | Exited on its own, or was killed | Its own code, `-1` after a kill |
+| `timed_out` | Killed at `hard_timeout` | `-1` |
+
+Check `status` first, then `exit_code`. The wire contract also carries `pending` and `killed`, which no request produces.
+
+## Patterns for an agent
+
+Most commands finish inside the call. A long one gets a `timeout` and a second call reads the rest; a program that never exits runs in the background and is killed at the end; an interactive one is fed through stdin.
+
+| Scenario | Start | Then |
+| --- | --- | --- |
+| `ls -la` | sync | Read the result from the same response |
+| `npm install` | sync with `timeout` | On `running`, read with `wait` until it completes |
+| `npm run dev` | background | Read the startup log; kill it when done |
+| `python3 -i` | background | Write a line, read both streams |
+| a script with `input()` | background | Answer each prompt, ending with `\n` |
+
+## Sessions
+
+A `cd` inside a command does not carry over to the next one: set the directory on the request, or once on a session.
+
+- A command with no `session` gets a generated one. It is listed like any other and counts against the limit.
+- Session `env` is inherited by every command in it, and a per-command `env` wins.
+- `user` is fixed the first time a session sees it; a different value later is a `400`.
+- Closing a session ends whatever it is running: `SIGTERM`, then `SIGKILL` a moment later.
+- On v1, `snapshot_path` names an existing file that every bash command in the session sources through `BASH_ENV`; other shells ignore it.
+- Up to 50 sessions at once, each idle-closed after 3600 s (`AIO_BASH_MAX_SESSIONS` / `AIO_BASH_SESSION_TIMEOUT_SECS`). At the limit the least recently used idle session is closed to make room, and a create with every session busy is a `400`.
+
+<UseV2 when="a session should carry its own environment variables" route="POST /v2/commands/sessions" />
+
+## Run in the background
+
+Suppose the agent has generated a static site under `/workspace/site` and wants to open it in the sandbox browser before handing it over. The server has to keep running while the pages are checked, so it cannot be a normal command that returns when it exits. A dev server, a watcher, or anything else that never exits on its own is started in the background, read as its output arrives, and killed when it is no longer needed:
+
+<ApiV2>
+
+`Aio` is the envelope-aware helper from [Examples](/daemon/examples): it unwraps `data` and raises when `success` is false.
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sb = Aio(BASE_URL)
+
+# 1. A session fixes the directory and the environment for every command in it.
+session = sb.post("/v2/commands/sessions", cwd="/workspace/site",
+                  env={"PORT": "3000"})
+
+# 2. Start the server in it; async returns as soon as the process is spawned.
+started = sb.post("/v2/commands", command="python3 -u -m http.server $PORT",
+                  session=session["session_id"], mode="async")
+command_id = started["command_id"]
+
+# 3. Read what it printed; wait long-polls until output arrives.
+log = sb.get(f"/v2/commands/{command_id}", offset=0, stderr_offset=0,
+             wait=True, wait_timeout=5)
+print(log["stdout"].strip(), "|", log["command"]["status"])
+# Serving HTTP on :: port 3000 (http://[::]:3000/) ... | running
+
+# 4. Stop the command, then drop the session.
+sb.post(f"/v2/commands/{command_id}/kill", signal="SIGTERM")
+sb.delete(f"/v2/commands/sessions/{session['session_id']}")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const sb = new Aio(BASE_URL);
+
+// 1. A session fixes the directory and the environment for every command in it.
+const session = await sb.post("/v2/commands/sessions", {
+  cwd: "/workspace/site",
+  env: { PORT: "3000" },
+});
+
+// 2. Start the server in it; async returns as soon as the process is spawned.
+const started = await sb.post("/v2/commands", {
+  command: "python3 -u -m http.server $PORT",
+  session: session.session_id,
+  mode: "async",
+});
+
+// 3. Read what it printed; wait long-polls until output arrives.
+const log = await sb.get(
+  `/v2/commands/${started.command_id}?offset=0&wait=true&wait_timeout=5`,
+);
+console.log(log.stdout.trim(), "|", log.command.status);
+// Serving HTTP on :: port 3000 (http://[::]:3000/) ... | running
+
+// 4. Stop the command, then drop the session.
+await sb.post(`/v2/commands/${started.command_id}/kill`, { signal: "SIGTERM" });
+await sb.delete(`/v2/commands/sessions/${session.session_id}`);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+
+client = Sandbox(base_url=BASE_URL)
+
+# 1. A session fixes the working directory for every command in it.
+session = client.bash.create_session(exec_dir="/workspace/site").data
+
+# 2. Start the server in it; async_mode returns as soon as it is spawned.
+client.bash.exec(
+    command="python3 -u -m http.server 3000",
+    session_id=session.session_id,
+    async_mode=True,
+)
+
+# 3. Read what it printed; wait long-polls until output arrives.
+log = client.bash.output(
+    session_id=session.session_id,
+    offset=0,
+    stderr_offset=0,
+    wait=True,
+    wait_timeout=5,
+).data
+print(log.stdout.strip(), "|", log.command.status)
+# Serving HTTP on :: port 3000 (http://[::]:3000/) ... | running
+
+# 4. Stop the command, then close the session.
+client.bash.kill(session_id=session.session_id, signal="SIGTERM")
+client.bash.close_session(session.session_id)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const client = new SandboxClient({ environment: BASE_URL });
+
+// 1. A session fixes the working directory for every command in it.
+const session = (
+  await client.bash.createSession({ exec_dir: "/workspace/site" })
+).body.data!;
+
+// 2. Start the server in it; async_mode returns as soon as it is spawned.
+await client.bash.exec({
+  command: "python3 -u -m http.server 3000",
+  session_id: session.session_id,
+  async_mode: true,
+});
+
+// 3. Read what it printed; wait long-polls until output arrives.
+const log = (
+  await client.bash.output({
+    session_id: session.session_id,
+    offset: 0,
+    stderr_offset: 0,
+    wait: true,
+    wait_timeout: 5,
+  })
+).body.data!;
+console.log(log.stdout!.trim(), "|", log.command?.status);
+// Serving HTTP on :: port 3000 (http://[::]:3000/) ... | running
+
+// 4. Stop the command, then close the session.
+await client.bash.kill({ session_id: session.session_id, signal: "SIGTERM" });
+await client.bash.closeSession(session.session_id);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+After the kill the command ends as `completed`, with `exit_code: -1`. Every signal reaches the whole process tree, not just the shell that was spawned; killing a command that has already finished is a `400`. One thing to know about pipes: a program that block-buffers stdout when it is not a terminal shows nothing until it flushes or exits; Python is one, which is why the example runs it with `-u`.
+
+## Interactive programs
+
+Suppose the agent wants to try expressions one at a time and keep the interpreter's state between them, the way a person works in a Python REPL, or it has to answer a script that stops and asks a question. A REPL or a script that asks questions runs in the background and is fed through stdin. Two facts about pipes decide the shape: a line-buffered program reads nothing until the `\n` arrives, and prompts often go to `stderr`, so read both streams.
+
+<ApiV2>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sb = Aio(BASE_URL)
+
+# 1. Start Python in interactive mode (-i: stdin is a pipe, not a terminal).
+repl = sb.post("/v2/commands", command="python3 -i", mode="async")
+command_id = repl["command_id"]
+
+# 2. The banner and the first prompt arrive on stderr; read them in order.
+banner = sb.get(f"/v2/commands/{command_id}", offset=0, stderr_offset=0,
+                wait=True, wait_timeout=5)
+prompt = sb.get(f"/v2/commands/{command_id}", offset=banner["offset"],
+                stderr_offset=banner["stderr_offset"], wait=True,
+                wait_timeout=5)
+print(repr(prompt["stderr"]))   # '>>> '
+
+# 3. Send a line, then read the result.
+sb.post(f"/v2/commands/{command_id}/stdin", input="1 + 1\n")
+out = sb.get(f"/v2/commands/{command_id}", offset=prompt["offset"],
+             stderr_offset=prompt["stderr_offset"], wait=True, wait_timeout=5)
+print(repr(out["stdout"]), repr(out["stderr"]))   # '2\n' '>>> '
+
+# 4. Leave: the process ends with exit_code 0.
+sb.post(f"/v2/commands/{command_id}/stdin", input="exit()\n")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const sb = new Aio(BASE_URL);
+
+// 1. Start Python in interactive mode (-i: stdin is a pipe, not a terminal).
+const repl = await sb.post("/v2/commands", {
+  command: "python3 -i",
+  mode: "async",
+});
+const read = (offset: number, stderrOffset: number) =>
+  sb.get(
+    `/v2/commands/${repl.command_id}?offset=${offset}` +
+      `&stderr_offset=${stderrOffset}&wait=true&wait_timeout=5`,
+  );
+
+// 2. The banner and the first prompt arrive on stderr; read them in order.
+const banner = await read(0, 0);
+const prompt = await read(banner.offset, banner.stderr_offset);
+console.log(JSON.stringify(prompt.stderr));
+// ">>> "
+
+// 3. Send a line, then read the result.
+await sb.post(`/v2/commands/${repl.command_id}/stdin`, { input: "1 + 1\n" });
+const out = await read(prompt.offset, prompt.stderr_offset);
+console.log(JSON.stringify(out.stdout), JSON.stringify(out.stderr));
+// "2\n" ">>> "
+
+// 4. Leave: the process ends with exit_code 0.
+await sb.post(`/v2/commands/${repl.command_id}/stdin`, { input: "exit()\n" });
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+# 1. Start Python in interactive mode (-i: stdin is a pipe, not a terminal).
+started = client.bash.exec(command="python3 -i", async_mode=True).data
+session_id = started.session_id
+
+# 2. The banner and the first prompt arrive on stderr; read them in order.
+banner = client.bash.output(
+    session_id=session_id, offset=0, stderr_offset=0, wait=True, wait_timeout=5
+).data
+prompt = client.bash.output(
+    session_id=session_id,
+    offset=banner.offset,
+    stderr_offset=banner.stderr_offset,
+    wait=True,
+    wait_timeout=5,
+).data
+print(repr(prompt.stderr))   # '>>> '
+
+# 3. Send a line, then read the result.
+client.bash.write(session_id=session_id, input="1 + 1\n")
+out = client.bash.output(
+    session_id=session_id,
+    offset=prompt.offset,
+    stderr_offset=prompt.stderr_offset,
+    wait=True,
+    wait_timeout=5,
+).data
+print(repr(out.stdout), repr(out.stderr))   # '2\n' '>>> '
+
+# 4. Leave: the process ends with exit_code 0.
+client.bash.write(session_id=session_id, input="exit()\n")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+// 1. Start Python in interactive mode (-i: stdin is a pipe, not a terminal).
+const started = (
+  await client.bash.exec({ command: "python3 -i", async_mode: true })
+).body.data!;
+const session_id = started.session_id;
+
+// 2. The banner and the first prompt arrive on stderr; read them in order.
+const banner = (
+  await client.bash.output({
+    session_id,
+    offset: 0,
+    stderr_offset: 0,
+    wait: true,
+    wait_timeout: 5,
+  })
+).body.data!;
+const prompt = (
+  await client.bash.output({
+    session_id,
+    offset: banner.offset,
+    stderr_offset: banner.stderr_offset,
+    wait: true,
+    wait_timeout: 5,
+  })
+).body.data!;
+console.log(JSON.stringify(prompt.stderr));
+// ">>> "
+
+// 3. Send a line, then read the result.
+await client.bash.write({ session_id, input: "1 + 1\n" });
+const out = (
+  await client.bash.output({
+    session_id,
+    offset: prompt.offset,
+    stderr_offset: prompt.stderr_offset,
+    wait: true,
+    wait_timeout: 5,
+  })
+).body.data!;
+console.log(JSON.stringify(out.stdout), JSON.stringify(out.stderr));
+// "2\n" ">>> "
+
+// 4. Leave: the process ends with exit_code 0.
+await client.bash.write({ session_id, input: "exit()\n" });
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+A script that calls `input("Name: ")` is the same loop with one prompt per turn: the read returns `stdout: "Name: "` while the process blocks, the answer goes in as `"Alice\n"`, and the next read returns `Hello Alice`. `cat` and other line-buffered programs want the trailing `\n` too.
+
+## Run as a user
+
+`user` selects the execution identity: the process actually runs as that account. Files use a different model; see [File](/daemon/basic/file).
+
+<ApiV2>
+
+Add `user` to the `/v2/commands` request body:
+
+```json
+{
+  "command": "id -un",
+  "user": "alice"
+}
+```
+
+</ApiV2>
+
+<ApiV1>
+
+v1 also accepts `user` in the request body at `POST /v1/bash/exec`:
+
+```json
+{
+  "command": "id -un",
+  "user": "alice"
+}
+```
+
+</ApiV1>
+
+- Omitted: the default identity. With `AIO_DEFAULT_USER` unset, that is aiod's own account. Setting it changes the default; any other account still requires an explicit `user`.
+- The account is resolved before the process is spawned. A missing one answers `400 no such user: alice`, and a non-root aiod answers `400 cannot run as root: aiod is running as uid 501 and only root can change identity`. It never runs silently under another identity.
+- An account that maps to uid 0 is refused, even when aiod is root.
+- A failure that comes from `AIO_DEFAULT_USER` rather than the request is a `503`: the daemon is misconfigured, the call is not.
+- Linux only. On Windows, an explicit `user` is a `400`, and a configured `AIO_DEFAULT_USER` is a `503`.
+
+## Shells
+
+`auto` resolves `AIO_BASH_BIN` first, then `/bin/bash`, `/usr/bin/bash`, `/bin/sh`, `/usr/bin/sh` on Linux and macOS, and `pwsh.exe`, `powershell.exe` on Windows. A named selector never falls back: `sh` on Windows, `cmd` off Windows, and a shell that is not installed all answer `503` naming what was missing.
+
+`shell: "none"` runs a program directly — `command` is the path, `args` is its argv, and nothing is parsed or expanded. `args` in any other mode is a `400`.
+
+On Windows, `shell: "cmd"` runs a batch file under `cmd.exe /d /c` (UTF-8), and `shell: "bash"` resolves Git Bash: `AIO_BASH_BIN`, a non-WSL `bash` on `PATH`, or Git's install directories. Exit codes, kill semantics, and stdin on Windows are in [Windows](/daemon/basic/windows#commands).
+
+<UseV2 when={'you need cmd or Git Bash instead of PowerShell on Windows'} route="POST /v2/commands" />
+
+## Error handling
+
+HTTP success only means the request was accepted; the command's own outcome is `status` and then `exit_code`. The failures that belong to this plane:
+
+| Answer | When |
+| --- | --- |
+| `400` | Killing or writing to a command that is not running; `args` without `shell: "none"`; a `user` the daemon cannot switch to; a session that is already busy at the limit |
+| `404` | An unknown `command_id` or `session_id`, or one that retention has dropped |
+| `422` | A malformed body, with an `errors` list naming the field |
+| `503` | No shell for the selected `shell`, or an `AIO_DEFAULT_USER` that cannot be used |
+
+`413` is the shared 2 MiB JSON body limit; large payloads belong in a file. See [Error Handling](/daemon/basic/error-handling).

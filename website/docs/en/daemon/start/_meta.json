@@ -1,0 +1,15 @@
+[
+  "introduction",
+  "quick-start",
+  {
+    "type": "file",
+    "name": "releases",
+    "label": "Releases"
+  },
+  {
+    "type": "file",
+    "name": "dashboard",
+    "label": "Dashboard"
+  },
+  "migration"
+]

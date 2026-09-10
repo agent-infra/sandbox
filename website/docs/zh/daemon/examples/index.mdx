@@ -1,0 +1,158 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# 示例
+
+这些示例都围绕一个具体任务展开：从运行中的 `aiod` 开始，调用对应的沙箱能力并验证结果。每页聚焦一项能力，代码可以直接运行。
+
+## 约定
+
+`BASE_URL` 和 API key 的用法见 [快速开始](/zh/daemon/start/quick-start)。
+
+所有 JSON 响应都使用统一的返回结构 `{"success": bool, "message": str, "data": ..., "hint": null|str}`。
+
+校验失败返回 `422`，顶层带 `errors` 列表。详见 [错误处理](/zh/daemon/basic/error-handling)。
+
+每个示例都提供 v2 和 v1 两种写法，侧栏的 API Preference 开关决定显示哪一种。
+
+v2 使用下方的 `Aio` helper；v1 使用 1.x SDK。SDK 不支持的少数调用，也会通过 helper 发送到 `/v1`。使用 helper 的示例都以 `sb = Aio(BASE_URL)` 开头。
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import httpx
+
+
+class Aio:
+    """Envelope-aware client for the v2 routes; raises on success=false."""
+
+    def __init__(self, base_url, api_key=None, timeout=120):
+        headers = {"x-api-key": api_key} if api_key else {}
+        self.http = httpx.Client(base_url=base_url, headers=headers, timeout=timeout)
+
+    def call(self, method, route, **kw):
+        body = self.http.request(method, route, **kw).json()
+        if not body.get("success"):
+            raise RuntimeError(f"{method} {route}: {body.get('message')}")
+        return body["data"]
+
+    def get(self, route, **params):
+        return self.call("GET", route, params=params)
+
+    def post(self, route, **body):
+        return self.call("POST", route, json=body)
+
+    def delete(self, route, **params):
+        return self.call("DELETE", route, params=params)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+export class Aio {
+  constructor(private base: string, private key?: string) {}
+
+  async call<T = any>(method: string, path: string, body?: unknown): Promise<T> {
+    const r = await fetch(this.base + path, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...(this.key ? { "x-api-key": this.key } : {}),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const env = await r.json();
+    if (!env.success) throw new Error(`${method} ${path}: ${env.message}`);
+    return env.data as T;
+  }
+
+  get<T = any>(path: string) { return this.call<T>("GET", path); }
+  post<T = any>(path: string, body?: unknown) { return this.call<T>("POST", path, body); }
+  delete<T = any>(path: string) { return this.call<T>("DELETE", path); }
+}
+```
+
+</Tab>
+</Tabs>
+
+`sb.post("/v2/commands", command="wc -l /tmp/x")` 发送 JSON body；`sb.get` 和 `sb.delete` 同样接收查询参数。
+
+第一个位置参数是 `route`，因此 `sb.post("/v2/fs/read", path="/tmp/x")` 可以直接这样调用。二进制路由（下载、截图）请使用 `sb.http.get(...)` 或 `fetch`，绕过返回结构校验。
+
+## 第一次调用
+
+确认 daemon 在运行，并读取它的能力：
+
+```bash
+curl "$BASE_URL/health"
+```
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/sandbox" | python3 -m json.tool
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/capabilities" | python3 -m json.tool
+```
+
+</ApiV1>
+
+缺少某项能力时，对应路由返回 `503`，但 daemon 仍然可以启动。
+
+## 示例列表
+
+| 示例 | 内容 | 所需能力 |
+| --- | --- | --- |
+| [Agent 调用沙箱](/zh/daemon/examples/agent-call-sandbox) | 写入文件、执行命令、执行 Python、读取结果 | `files`、`exec`、`code_interpreter` |
+| [MCP 调用](/zh/daemon/examples/mcp) | 同样的任务走一个 JSON-RPC 端点，以及工具错误长什么样 | `exec`、`files`、`code_interpreter` |
+| [浏览器（CDP）](/zh/daemon/examples/browser-cdp) | 用 Playwright 和 Puppeteer 驱动沙箱里的 Chromium | `browser` |
+| [Browser Use](/zh/daemon/examples/browser-use) | 在沙箱里创建一个页面，再用 REST 填写、点击、校验结果 | `browser`、`files`、`exec` |
+| [交互式终端](/zh/daemon/examples/terminal) | 用最小客户端通过 WebSocket 连接实时 PTY | `exec` 的 `pty` |
+| [代码执行](/zh/daemon/examples/code-execution) | 一次数据分析会话：写入 CSV，pandas 计算，图表以 PNG 返回 | `code_interpreter` |
+| [文件操作](/zh/daemon/examples/file-ops) | 创建项目、搜索与编辑、监听变更，以及错误处理 | `files` |
+| [Computer Use](/zh/daemon/examples/computer-use) | 导航 Chromium，并通过无障碍树点击链接 | `computer` |
+
+## 同一任务的三种调用方式
+
+[Agent 调用沙箱](/zh/daemon/examples/agent-call-sandbox) 中的四步任务有三种写法：v2 路由、1.x SDK，以及 [MCP 调用](/zh/daemon/examples/mcp) 中的 JSON-RPC 端点。
+
+三种写法的步骤、文件名和结果 `27` 都相同，区别只有传输方式。agent 可以选择框架已经支持的协议接入。
+
+## SDK
+
+两个 SDK 都对接 v1 路由（Python `agent-sandbox`、TypeScript `@agent-infra/sandbox`）：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+
+client = Sandbox(base_url="http://127.0.0.1:18091")
+# headers={"x-api-key": "<key>"} when AIO_API_KEY is set
+client.bash.exec(command="uname -a")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const client = new SandboxClient({ environment: "http://127.0.0.1:18091" });
+await client.bash.exec({ command: "uname -a" });
+```
+
+</Tab>
+</Tabs>
+
+哪些调用可用、哪些需要改用 HTTP、哪些路由已移除，见 [1.x SDK 兼容性](/zh/daemon/start/migration#1x-sdk-兼容性)。
+
+`/v2` 通过 HTTP API 调用，参考 [API 参考](/zh/daemon/api)。

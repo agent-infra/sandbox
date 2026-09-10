@@ -1,0 +1,472 @@
+import { Tab, Tabs } from '@theme';
+
+# Computer Use
+
+这个示例完成一次真实桌面操作：打开 Chromium，进入示例页面，找到链接并点击，确认窗口标题变化，最后截取屏幕。全程通过键盘和无障碍树完成，不依赖像素坐标。
+
+示例页面由文件 API 和 command plane 在沙箱中创建，因此整个流程可以离线运行，结果保持一致。
+
+本示例使用以下路由：
+
+- `/v2/computer/actions`
+- `/v2/computer/actions/batch`
+- `/v2/computer/accessibility/nodes`
+- `/v2/computer/windows`
+- `/v2/computer/screenshot`
+
+创建 fixture 还需要 `/v2/fs/write` 和 `/v2/commands`。
+
+## 要求
+
+`GET /v2/sandbox` 的 `capabilities` 中应包含 `computer`；fixture 还需要 `files` 和 `exec`。
+
+`computer-use` worker 与 `aiod` 必须运行在同一台主机上，并且该主机需要有桌面和已启动的 Chromium。
+
+Computer 镜像启动时桌面为空，请先启动浏览器：点击桌面上的 Browser 图标，或通过 exec 执行 `/opt/gem/browser-launch.sh`：
+
+- Ubuntu 桌面
+- 带 Xvfb 或 Xvnc 的虚拟机
+- Windows 交互登录会话
+
+Computer 镜像提供以上全部（见 [Computer 镜像](#computer-镜像)）。worker 未运行时，所有 `/v2/computer/*` 路由返回 `503`。
+
+fixture 使用 `python3` 启动服务，也可以替换为任意静态服务器。选择一个未被占用的端口，下面使用 `18782`。
+
+## 准备可驱动的页面
+
+先通过文件 API 写入两个 HTML 文件，再通过 command plane 启动静态服务器。`mode: "async"` 启动进程后立即返回，后续可通过 `command_id` 对该进程进行操作：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import time
+
+BASE_URL = "http://127.0.0.1:18091"
+PORT = 18782
+DIR = "/tmp/aiod-cu/site"
+sb = Aio(BASE_URL)
+
+START_HTML = """<!doctype html>
+<title>Sandbox Start</title>
+<h1>Start page</h1>
+<a href="/report.html">Open the report</a>
+"""
+
+REPORT_HTML = """<!doctype html>
+<title>Sandbox Report</title>
+<h1>Report page</h1>
+"""
+
+for name, html in [("index.html", START_HTML), ("report.html", REPORT_HTML)]:
+    print(sb.post("/v2/fs/write", path=f"{DIR}/{name}", content=html))
+
+serve = sb.post(
+    "/v2/commands",
+    command=f"python3 -m http.server {PORT} --bind 127.0.0.1 --directory {DIR}",
+    mode="async",
+)
+command_id = serve["command_id"]
+print(serve["status"], command_id)
+# → running c5e9300f-73be-406f-9fca-cf571e12838b
+
+
+def port_state() -> str:
+    probe = (f"python3 -c \"import socket; print('free' if "
+             f"socket.socket().connect_ex(('127.0.0.1', {PORT})) else 'in use')\"")
+    return sb.post("/v2/commands", command=probe)["stdout"].strip()
+
+
+while port_state() == "free":
+    time.sleep(0.2)
+print(port_state())
+# → in use
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { writeFileSync } from "node:fs";
+
+const BASE_URL = "http://127.0.0.1:18091";
+const PORT = 18782;
+const DIR = "/tmp/aiod-cu/site";
+const sb = new Aio(BASE_URL);
+
+const START_HTML = `<!doctype html>
+<title>Sandbox Start</title>
+<h1>Start page</h1>
+<a href="/report.html">Open the report</a>
+`;
+
+const REPORT_HTML = `<!doctype html>
+<title>Sandbox Report</title>
+<h1>Report page</h1>
+`;
+
+for (const [name, html] of [["index.html", START_HTML], ["report.html", REPORT_HTML]]) {
+  const written = await sb.post("/v2/fs/write", {
+    path: `${DIR}/${name}`,
+    content: html,
+  });
+  console.log(written);
+}
+
+const serve = await sb.post("/v2/commands", {
+  command: `python3 -m http.server ${PORT} --bind 127.0.0.1 --directory ${DIR}`,
+  mode: "async",
+});
+const commandId = serve.command_id;
+console.log(serve.status, commandId);
+// → running d50e3a48-4769-45ea-bf03-d61bf7f9f110
+
+async function portState(): Promise<string> {
+  const probe = `python3 -c "import socket; print('free' if `
+    + `socket.socket().connect_ex(('127.0.0.1', ${PORT})) else 'in use')"`;
+  const out = await sb.post("/v2/commands", { command: probe });
+  return out.stdout.trim();
+}
+
+while ((await portState()) === "free") {
+  await new Promise((r) => setTimeout(r, 200));
+}
+console.log(await portState());
+// → in use
+```
+
+</Tab>
+</Tabs>
+
+桌面端依靠两个页面元素定位页面：链接的无障碍名称就是链接文本，每个页面都有一个可供窗口列表轮询的标题。
+
+必须等待端口就绪。异步命令可能在进程绑定端口前就返回；如果过早导航，Chromium 会打开错误页，而不是 fixture。
+
+清理时使用同一个探针确认端口已经释放。
+
+## 导航并点击链接
+
+下面的脚本分三步完成：导航、操作无障碍节点、观察结果。
+
+脚本会沿用上一段的 `BASE_URL`、`sb`、端口和 fixture 目录。
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+def act(action: dict, screenshot: bool = False) -> dict:
+    params = {"include_screenshot": "true"} if screenshot else {}
+    return sb.http.post("/v2/computer/actions", params=params, json=action).json()
+
+
+def batch(actions: list) -> dict:
+    return sb.post("/v2/computer/actions/batch", actions=actions)
+
+
+def nodes(**query) -> list:
+    return sb.get("/v2/computer/accessibility/nodes", **query)["nodes"]
+
+
+def windows() -> list:
+    return sb.get("/v2/computer/windows")["windows"]
+
+
+def wait_for_title(fragment: str, tries: int = 40) -> str:
+    for _ in range(tries):
+        for window in windows():
+            if fragment in window["title"]:
+                return window["title"]
+        time.sleep(0.25)
+    raise TimeoutError(f"no window titled {fragment}")
+
+
+# 1. Navigate: activate Chromium, focus the address bar, type the URL, press Enter.
+chromium = next(w for w in windows() if "Chromium" in w["title"])
+batch([
+    {"action_type": "WINDOW_ACTIVATE", "window_id": chromium["window_id"]},
+    {"action_type": "WAIT", "duration": 0.5},
+    {"action_type": "HOTKEY", "keys": ["ctrl", "l"]},
+    {"action_type": "TYPING", "text": f"http://127.0.0.1:{PORT}/"},
+    {"action_type": "PRESS", "key": "enter"},
+])
+print("after navigate:", wait_for_title("Sandbox Start"))
+# → after navigate: Sandbox Start - Chromium
+
+# 2. Find the link in the accessibility tree and invoke it.
+link = nodes(role="link", name="Open the report")[0]
+print(link["role"], link["name"], link["node_id"])
+# → link Open the report a::1.30:/org/a11y/atspi/accessible/247
+act({"action_type": "NODE_INVOKE", "node_id": link["node_id"]})
+print("after click:", wait_for_title("Sandbox Report"))
+# → after click: Sandbox Report - Chromium
+
+# 3. Observe: one screenshot of the result.
+shot = sb.http.get("/v2/computer/screenshot")
+with open("report.png", "wb") as out:
+    out.write(shot.content)
+print(shot.status_code, shot.headers["x-image-width"], len(shot.content))
+# → 200 1920 115412
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+async function act(action: object, screenshot = false): Promise<any> {
+  const qs = screenshot ? "?include_screenshot=true" : "";
+  const r = await fetch(`${BASE_URL}/v2/computer/actions${qs}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(action),
+  });
+  return r.json();
+}
+
+async function batch(actions: object[]): Promise<any> {
+  return sb.post("/v2/computer/actions/batch", { actions });
+}
+
+async function nodes(query: Record<string, string>): Promise<any[]> {
+  const qs = new URLSearchParams(query);
+  return (await sb.get(`/v2/computer/accessibility/nodes?${qs}`)).nodes;
+}
+
+async function windows(): Promise<any[]> {
+  return (await sb.get("/v2/computer/windows")).windows;
+}
+
+async function waitForTitle(fragment: string, tries = 40): Promise<string> {
+  for (let i = 0; i < tries; i++) {
+    for (const w of await windows()) {
+      if (w.title.includes(fragment)) return w.title;
+    }
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  throw new Error(`no window titled ${fragment}`);
+}
+
+// 1. Navigate: activate Chromium, focus the address bar, type the URL, press Enter.
+const chromium = (await windows()).find((w) => w.title.includes("Chromium"));
+await batch([
+  { action_type: "WINDOW_ACTIVATE", window_id: chromium.window_id },
+  { action_type: "WAIT", duration: 0.5 },
+  { action_type: "HOTKEY", keys: ["ctrl", "l"] },
+  { action_type: "TYPING", text: `http://127.0.0.1:${PORT}/` },
+  { action_type: "PRESS", key: "enter" },
+]);
+console.log("after navigate:", await waitForTitle("Sandbox Start"));
+// → after navigate: Sandbox Start - Chromium
+
+// 2. Find the link in the accessibility tree and invoke it.
+const [link] = await nodes({ role: "link", name: "Open the report" });
+console.log(link.role, link.name, link.node_id);
+// → link Open the report a::1.30:/org/a11y/atspi/accessible/260
+await act({ action_type: "NODE_INVOKE", node_id: link.node_id });
+console.log("after click:", await waitForTitle("Sandbox Report"));
+// → after click: Sandbox Report - Chromium
+
+// 3. Observe: one screenshot of the result.
+const shot = await fetch(`${BASE_URL}/v2/computer/screenshot`);
+const bytes = Buffer.from(await shot.arrayBuffer());
+writeFileSync("report.png", bytes);
+console.log(shot.status, shot.headers.get("x-image-width"), bytes.length);
+// → 200 1920 115422
+```
+
+</Tab>
+</Tabs>
+
+两次页面变化都不依赖固定的 sleep。`wait_for_title` 会轮询窗口列表，直到窗口标题表明桌面已经更新；等待十秒后放弃。
+
+这里沿用前面等待端口的逻辑。截图路由直接返回图片而不是 JSON，因此通过 `sb.http` 调用。
+
+PNG 响应还包含 `x-image-width` 和 `x-image-height`。图片字节流会直接返回给调用方，不会写入沙箱。
+
+实际运行中的几点说明：
+
+- 键盘输入会发送到当前获得焦点的窗口，因此这批动作先激活 Chromium 窗口。`WINDOW_ACTIVATE` 只向窗口管理器发送请求，不等待结果；这也是脚本里唯一的 `WAIT`。
+
+如果不先激活窗口，按键不会发送到目标窗口，标题也不会变化。
+- `nodes(role=..., name=...)` 默认按子串匹配；要精确匹配传 `match="exact"`，要用模式传 `match="regex"`。
+  链接的无障碍名称就是它自己的文字——节点属性里写着 `name-from: contents`。
+- Chromium 只有以 `--force-renderer-accessibility` 启动时才暴露页面内容。
+  否则桌面树里只有面板和桌面，连浏览器都没有，按名字找链接会返回空。
+- Chromium 的地址栏在 AT-SPI 中没有可编辑文本，对它执行 `NODE_SET_VALUE` 返回 `409 node ... has neither editable text nor a value to set`。
+  输入 URL 的可靠方式是键盘路径（`HOTKEY` + `TYPING`）。
+- `node_id` 在元素存在期间有效；它所属的页面消失后，`nodes(node_id=...)` 返回 `404 node ... is gone`。
+- `windows` 返回 `{snapshot_id, windows: [{window_id, title, process_id, bounds, minimized}]}`。标题是最简单的轮询对象，提交导航后就会变化；前面的两次等待都在第一轮获得了结果。
+
+## 使用 PyAutoGUI
+
+也可以直接在同一个桌面上运行 PyAutoGUI。它使用屏幕坐标，不依赖无障碍树；窗口位置变化时，需要重新确认坐标。脚本通过 `/v2/commands` 运行，桌面已经设置好 `DISPLAY`：
+
+```python
+sb.post("/v2/commands", command="pip install --quiet pyautogui", timeout=280)
+sb.post("/v2/commands", command=f'''python3 - <<'EOF'
+import pyautogui
+
+pyautogui.hotkey("ctrl", "l")
+pyautogui.write("http://127.0.0.1:{PORT}/report.html")
+pyautogui.press("enter")
+pyautogui.screenshot("/tmp/report.png")
+EOF''')
+```
+
+需要按元素定位时，使用前面的无障碍树流程；只需要直接操作桌面时，可以使用 PyAutoGUI。
+
+## 清理资源
+
+fixture 服务器不会随着脚本结束自动停止，需要显式清理。
+
+使用 `commands/{id}/kill` 停止服务器，使用 `fs/delete` 删除目录，再通过第一段中的端口探针确认端口已经释放：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sb.post(f"/v2/commands/{command_id}/kill")
+removed = sb.post("/v2/fs/delete", path=DIR, recursive=True)
+print(removed["path"], "|", port_state())
+# → /tmp/aiod-cu/site | free
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+await sb.post(`/v2/commands/${commandId}/kill`);
+const removed = await sb.post("/v2/fs/delete", { path: DIR, recursive: true });
+console.log(removed.path, "|", await portState());
+// → Signal SIGTERM sent | Directory deleted successfully | free
+```
+
+</Tab>
+</Tabs>
+
+浏览器仍停在最后加载的页面上，桌面上没有需要复位的东西。
+
+## 检查 worker 状态
+
+`info` 返回显示器、分辨率和支持的操作：
+
+```python
+sb.http.get("/v2/computer/info").json()
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "available": true,
+    "display": ":99.0",
+    "xauthority": null,
+    "screen_resolution": {
+      "width": 1920,
+      "height": 1080
+    },
+    "capabilities": {
+      "screenshot": true,
+      "actions": true,
+      "clipboard": true,
+      "recording": true
+    },
+    "warnings": []
+  }
+}
+```
+
+像素操作前，把模型输出的坐标缩放到 `screen_resolution`。
+
+## 在一次调用中完成操作和观察
+
+`include_screenshot=true` 会在顶层 `screenshot` 字段返回操作后的画面（base64 PNG）。前面 `act` 调用中的 `screenshot` 参数就是用来开启它的：
+
+```python
+act({"action_type": "CLICK", "x": 640, "y": 400}, screenshot=True)
+```
+
+Windows 上，针对安全桌面（UAC 提示、锁屏）的输入被拒绝，返回 `403`。
+
+## 批量操作
+
+步骤之间不需要决策时，一次请求发送整段序列。在该路由上，`include_screenshot` 是与 `actions` 并列的 body 字段，而不是查询参数，因此直接由 `sb.post` 传入：
+
+```python
+sb.post("/v2/computer/actions/batch", include_screenshot=True, actions=[
+    {"action_type": "HOTKEY", "keys": ["ctrl", "l"]},
+    {"action_type": "TYPING", "text": f"http://127.0.0.1:{PORT}/"},
+    {"action_type": "PRESS", "key": "enter"},
+])
+```
+
+每批最多 50 个动作；单个 `WAIT` 最多 10 秒，所有 `WAIT` 合计最多 20 秒。
+
+某个动作失败时，批次会停止；`data.failed_index` 和 `data.error` 会说明失败位置和原因。
+
+## Agent 循环
+
+每一步一次截图、一次操作：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import base64
+
+
+def run(model) -> None:
+    frame = sb.http.get("/v2/computer/screenshot").content   # initial observation
+    while not model.done:
+        # e.g. {"action_type": "CLICK", "x": 640, "y": 400}
+        action = model.decide(frame)
+        frame = base64.b64decode(act(action, screenshot=True)["screenshot"])
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+async function run(model: any): Promise<void> {
+  const r = await fetch(`${BASE_URL}/v2/computer/screenshot`);
+  let frame = new Uint8Array(await r.arrayBuffer()); // initial observation
+  while (!model.done) {
+    const action = model.decide(frame); // e.g. { action_type: "CLICK", x: 640, y: 400 }
+    const result = await act(action, true);
+    frame = Buffer.from(result.screenshot, "base64");
+  }
+}
+```
+
+</Tab>
+</Tabs>
+
+每步只看一帧的模型，应在桌面稳定后再截图。如果循环可以检查标题或节点，请按前面的流程轮询。
+
+## 录屏
+
+通过同一个路由开始和停止：
+
+```python
+sb.post(
+    "/v2/computer/record", action="start", save_path="/workspace/recordings/session.mp4"
+)
+sb.post("/v2/computer/record", action="stop")
+```
+
+用 [文件 API](/zh/daemon/examples/file-ops) 取回文件。
+
+## Computer 镜像
+
+预构建的 Computer 镜像提供：
+
+- `DISPLAY=:99` 上的 XFCE 桌面
+- 与 `aiod` 并行运行的 `computer-use` worker
+- 供 AT-SPI 使用的会话 D-Bus
+- 以 `--force-renderer-accessibility` 启动的 Chromium
+- `/vnc` 上的 noVNC
+
+## 相关页面
+
+- [Computer Use](/zh/daemon/basic/display) —— 完整参考、动作列表、默认值，以及 `501`/`503` 的区别
+- [Browser Use](/zh/daemon/examples/browser-use) —— 同样的 fixture 写法，用 REST 而不是桌面驱动页面
+- [浏览器（CDP）](/zh/daemon/examples/browser-cdp) —— 通过 CDP 而不是桌面驱动同一个浏览器

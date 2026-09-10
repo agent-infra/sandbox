@@ -1,0 +1,72 @@
+[
+  {
+    "type": "section-header",
+    "label": "Core API"
+  },
+  "sandbox",
+  {
+    "type": "file",
+    "name": "bash",
+    "label": "Bash (Commands)"
+  },
+  {
+    "type": "file",
+    "name": "shell",
+    "label": "Shell (PTY)"
+  },
+  {
+    "type": "file",
+    "name": "file",
+    "label": "File (FS)"
+  },
+  "error-handling",
+  {
+    "type": "section-header",
+    "label": "Browser"
+  },
+  {
+    "type": "file",
+    "name": "browser",
+    "label": "Browser API"
+  },
+  {
+    "type": "file",
+    "name": "cdp",
+    "label": "CDP Access"
+  },
+  {
+    "type": "section-header",
+    "label": "Desktop"
+  },
+  {
+    "type": "file",
+    "name": "display",
+    "label": "Computer Use"
+  },
+  {
+    "type": "section-header",
+    "label": "Code"
+  },
+  {
+    "type": "file",
+    "name": "code",
+    "label": "Code Interpreter"
+  },
+  {
+    "type": "file",
+    "name": "nodejs",
+    "label": "Node.js"
+  },
+  {
+    "type": "file",
+    "name": "jupyter",
+    "label": "Jupyter"
+  },
+  {
+    "type": "section-header",
+    "label": "Access & Ops"
+  },
+  "authentication",
+  "observability",
+  "windows"
+]

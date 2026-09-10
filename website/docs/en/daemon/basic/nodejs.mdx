@@ -1,0 +1,125 @@
+import { Tab, Tabs } from '@theme';
+
+# Node.js
+
+`/v1/nodejs/execute` is aiod's JavaScript execution route: scripts, JSON processing, web tooling, JS-based automation.
+
+It always runs on the daemon's native REPL, a process spawned directly, needing only `node` on `PATH`. No external service is required.
+
+The same execution is also reachable by language, not just by route. Pass `language: "javascript"` (or `"node"`) to [`POST /v2/code/execute`](/daemon/basic/code). There is no separate `/v2/nodejs`.
+
+## What it needs
+
+`node` on `PATH`. `GET /v1/capabilities` confirms it: `code_interpreter.kinds` contains `nodejs`, `javascript_backend` is `native`, and `default_node` names the binary that will be spawned — `NODE_VERSION` or `NODE_CODE_EXEC_VERSION` choose it where several are installed.
+
+## Run a snippet
+
+A call without `session_id` keeps nothing after it returns:
+
+```bash
+curl -X POST "$BASE_URL/v1/nodejs/execute" \
+  -H "Content-Type: application/json" \
+  -d '{"code": "console.log(process.version); console.log(JSON.stringify({ ok: true }));"}'
+```
+
+Request body:
+
+```json
+{
+  "code": "console.log(process.version); console.log(JSON.stringify({ ok: true }));"
+}
+```
+
+The request fields are the same as the code plane's: `code` (required), `session_id`, `stateful`, `timeout` (1–900 s, default 30), `cwd`, `user`. The response has the same shape; this route represents an empty stream as `""` rather than `null`.
+
+`console.log` becomes a `stream` output; the cell's last expression becomes an `execute_result` with a `text/plain` value, so `globalThis.n = 41` answers with `41` even though nothing was printed.
+
+## Runtime info
+
+```bash
+curl "$BASE_URL/v1/nodejs/info"
+```
+
+`runtime_packages` and `global_packages` are always empty here. What is installed comes from [`GET /v2/sandbox/packages?lang=nodejs`](/daemon/basic/sandbox).
+
+## Sessions
+
+Pass `session_id` to keep globals across calls. Session state lives in memory: it persists within the session but is gone after `aiod` restarts.
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `POST /v1/nodejs/sessions` | Open one up front | Optional `session_id`, `cwd`, `user` |
+| `GET /v1/nodejs/sessions` | List them | Each entry has `cwd`, `state`, `max_idle_time` |
+| `GET /v1/nodejs/sessions/{id}` | Read one | An unknown id is a `404` |
+| `DELETE /v1/nodejs/sessions/{id}` | End one | Answers `deleted` |
+| `DELETE /v1/nodejs/sessions` | End all of them | Answers `cleaned_sessions` |
+
+Sessions share the native code plane's limits: up to 20 at once, idle-closed after 1800 s (`AIO_CODE_MAX_SESSIONS` / `AIO_CODE_SESSION_TIMEOUT_SECS`). One more than that is a `429`.
+
+Both SDKs cover execution and session management:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+client = Sandbox(base_url=BASE_URL)
+
+# 1. A stateless call: nothing survives it.
+run = client.nodejs.execute_code(code="console.log(1 + 1)").data
+print(run.outputs[0].text.strip())   # 2
+
+# 2. A session keeps globals between calls.
+client.nodejs.execute_code(session_id="js-repl", code="globalThis.count = 1")
+run = client.nodejs.execute_code(
+    session_id="js-repl",
+    code="globalThis.count += 1; console.log(globalThis.count)",
+).data
+print(run.stdout.strip(), run.execution_count)   # 2 2
+
+# 3. Close it.
+client.nodejs.delete_session("js-repl")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const client = new SandboxClient({ environment: BASE_URL });
+
+// 1. A stateless call: nothing survives it.
+const run = (await client.nodejs.executeCode({
+  code: "console.log(1 + 1)",
+} as any)) as any;
+console.log(run.body.data.outputs[0].text.trim());   // 2
+
+// 2. A session keeps globals between calls.
+await client.nodejs.executeCode({
+  session_id: "js-repl",
+  code: "globalThis.count = 1",
+} as any);
+const next = (await client.nodejs.executeCode({
+  session_id: "js-repl",
+  code: "globalThis.count += 1; console.log(globalThis.count)",
+} as any)) as any;
+console.log(next.body.data.stdout.trim(), next.body.data.execution_count);   // 2 2
+
+// 3. Close it.
+await client.nodejs.deleteSession("js-repl" as any);
+```
+
+</Tab>
+</Tabs>
+
+Which SDK calls reach this route unchanged is listed in [1.x SDK compatibility](/daemon/start/migration#1x-sdk-compatibility).
+
+## Errors and timeouts
+
+A throw is an `HTTP 200` with `success: false` and `status: "error"`. The `error` output carries `ename`, `evalue`, and a `traceback` whose frames name `evalmachine.<anonymous>`, since the code runs in a VM context rather than as a file.
+
+A run past its `timeout` answers `status: "timeout"` and `execution timed out after 2000ms; session state was reset` in both `stderr` and the `error` output. The daemon kills the interpreter five seconds past the deadline; the session stays open with an empty namespace.
+
+## Choosing an API
+
+- `/v1/nodejs/execute` for JavaScript-specific execution.
+- [`/v2/code/execute`](/daemon/basic/code) (or `/v1/code/execute`) when your caller picks the language dynamically.
+- [`/v1/bash/exec`](/daemon/basic/bash) or `/v2/commands` for shell commands such as `npm install`.

@@ -1,0 +1,646 @@
+import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
+
+# Commands（Bash）
+
+命令每次调用都会启动一个全新进程，命令退出或超时后进程销毁，不会留下常驻 shell。
+
+**命令会话**（command session）跨多次调用只保留工作目录、执行身份、创建时给定的环境变量和已产生的输出。
+
+需要保持连接并持续使用 shell 时，可以使用 [Terminals](/zh/daemon/basic/shell)。v1 和 v2 路由的对照见 [从 1.x 迁移](/zh/daemon/start/migration#commands)。
+
+## 运行要求
+
+先调用 `GET /v1/capabilities` 查看当前主机的命令执行能力。重点关注 `exec` 和 `bins` 字段：
+
+```bash
+curl "$BASE_URL/v1/capabilities"
+```
+
+相关字段示例：
+
+```json
+{
+  "exec": {
+    "shell": true,
+    "bash": true,
+    "pty": true
+  },
+  "bins": {
+    "bash": "/bin/bash"
+  }
+}
+```
+
+## 执行命令
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/commands" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "pwd && ls -la", "cwd": "/workspace", "timeout": 30}'
+```
+
+请求体示例：
+
+```json
+{
+  "command": "pwd && ls -la",
+  "cwd": "/workspace",
+  "timeout": 30
+}
+```
+
+请求体包含以下字段：
+
+| 字段 | 取值 | 含义 |
+| --- | --- | --- |
+| `command` | string, required | 要执行的脚本；`shell: "none"` 时是程序路径 |
+| `args` | array | `shell: "none"` 时的 argv；shell 模式下会被拒绝 |
+| `shell` | `auto`, `bash`, `sh`, `powershell`, `cmd`, `none` | 用哪个 shell 包裹命令；`auto` 是平台默认值 |
+| `cwd` | string | 工作目录 |
+| `env` | object | 单次命令的变量；会覆盖会话上的同名变量 |
+| `user` | string | 运行身份；首次使用时固定在会话上；仅限 Linux |
+| `session` | string | 运行所在的会话；不传就自动生成一个 |
+| `timeout` | seconds | 调用等待的时长；不传就一直等到命令结束 |
+| `hard_timeout` | seconds | 进程被终止的时间点；不传则永不终止 |
+| `max_output_length` | characters | 本次响应携带的字符数，默认 50000；`0` 表示不限 |
+| `mode` | `sync` (default), `async` | `async` 会立即返回并带上 `command_id` |
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/bash/exec" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "pwd && ls -la", "exec_dir": "/workspace", "timeout": 30}'
+```
+
+请求体示例：
+
+```json
+{
+  "command": "pwd && ls -la",
+  "exec_dir": "/workspace",
+  "timeout": 30
+}
+```
+
+请求体包含以下字段：
+
+| 字段 | 取值 | 含义 |
+| --- | --- | --- |
+| `command` | string, required | 要执行的脚本 |
+| `session_id` | string | 运行所在的会话；首次使用时创建 |
+| `exec_dir` | string | 工作目录 |
+| `env` | object | 单次命令的变量 |
+| `user` | string | 运行身份；不传时先看 `AIO_DEFAULT_USER`，再回退到 aiod 自己的账户 |
+| `async_mode` | boolean | 立即返回，`status` 为 `"running"` |
+| `timeout` | seconds | 调用等待的时长；不传就一直等到命令结束 |
+| `hard_timeout` | seconds | 进程被终止的时间点；不传则永不终止 |
+| `max_output_length` | characters | 本次响应携带的字符数，默认 50000；`0` 表示不限 |
+
+<UseV2 when={'选择 shell，或不经 shell 直接运行程序（shell: "none" 加 args）'} route="POST /v2/commands" />
+
+</ApiV1>
+
+两个版本的 `data` 都包含命令及其结果：
+
+- `session_id`、`command_id` —— 命令运行所在的会话，以及命令自身的 id
+- `status` —— `running`、`completed` 或 `timed_out`
+- `stdout`、`stderr` —— 各自独立的流，v1 上为空时是 `null`；`output` 是 `stdout` 后接 `stderr`
+- `exit_code` —— 命令结束前是 `null`；被 kill 或触发 hard timeout 后是 `-1`
+- `offset`、`stderr_offset` —— 每个流已经产生的字节数
+
+超过 `max_output_length` 时，每个流的中间部分会替换为 `\n... output truncated ...\n`。
+
+`offset` 仍表示命令实际产生的全部字节数。只有当前响应被截短，后续读取仍可获得完整流。
+
+## 流式输出
+
+设置 `Accept: application/x-ndjson` 后，输出按行到达，每行一个 JSON 对象，不再等到命令结束才返回最终结果：
+
+<ApiV2>
+
+```bash
+curl -N -X POST "$BASE_URL/v2/commands" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/x-ndjson" \
+  -d '{"command": "echo one; echo two >&2; exit 3"}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -N -X POST "$BASE_URL/v1/bash/exec" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/x-ndjson" \
+  -d '{"command": "echo one; echo two >&2; exit 3"}'
+```
+
+</ApiV1>
+
+这条命令对应的帧：
+
+```json
+{"type":"started","session_id":"SESSION_ID","command_id":"COMMAND_ID","seq":1}
+{"type":"output","stream":"stdout","data":"b25lCg==","offset":0,"seq":2}
+{"type":"output","stream":"stderr","data":"dHdvCg==","offset":0,"seq":3}
+{"type":"exit","status":"completed","exit_code":3,"stdout_offset":4,"stderr_offset":4,"seq":4}
+```
+
+- `data` —— 原始字节的 base64
+- `offset` —— 这块数据在所属流里的位置
+- `seq` —— 服务端的帧序号
+
+如果请求读取位置之后的输出已经被保留上限裁掉，服务会发送带 `lost_from` 和 `resume_offset` 的 `gap` 帧。
+
+连续 30 秒没有帧时，服务会发送一个 `ping`。
+
+流以 `exit` 或 `error` 帧结束。连接断开时，同步模式启动的命令会被终止，async 模式启动的命令会继续运行。
+
+## 路由
+
+<ApiV2>
+
+| 路由 | 用途 | 说明 |
+| --- | --- | --- |
+| `POST /v2/commands` | 执行命令 | `mode: "async"` 立即返回 `command_id` |
+| `GET /v2/commands/{id}` | 读取命令输出 | `offset`、`stderr_offset`、`wait`、`wait_timeout` |
+| `POST /v2/commands/{id}/stdin` | 写入命令的 stdin | `input` 原样送达，不补换行 |
+| `POST /v2/commands/{id}/kill` | 给运行中的命令发信号 | 默认 `SIGTERM`，也可以 `SIGKILL` 或 `SIGINT` |
+| `POST /v2/commands/sessions` | 创建会话 | `id`、`cwd`、`env`、`user` |
+| `GET /v2/commands/sessions` | 列出存活的会话 | 工作目录、命令数、最近使用时间 |
+| `DELETE /v2/commands/sessions/{id}` | 关闭会话 | 结束会话里的命令，先 `SIGTERM` 后 `SIGKILL` |
+
+</ApiV2>
+
+<ApiV1>
+
+| 路由 | 用途 | 说明 |
+| --- | --- | --- |
+| `POST /v1/bash/exec` | 执行命令 | `async_mode: true` 立即返回 |
+| `POST /v1/bash/output` | 读取会话的输出 | 必传 `session_id`，`command_id` 可选 |
+| `POST /v1/bash/write` | 写入命令的 stdin | `input` 原样送达，不补换行 |
+| `POST /v1/bash/kill` | 给运行中的命令发信号 | `signal`；多条命令在跑时要带 `command_id` |
+| `POST /v1/bash/sessions/create` | 创建会话 | `session_id`、`exec_dir`、`user`、`snapshot_path` |
+| `GET /v1/bash/sessions` | 列出存活的会话 | 工作目录、命令数、最近使用时间 |
+| `POST /v1/bash/sessions/{id}/close` | 关闭会话 | 结束会话里的命令，先 `SIGTERM` 后 `SIGKILL` |
+
+</ApiV1>
+
+两个版本都按增量方式读取，字段相同：
+
+- `offset`、`stderr_offset` —— 各个流的读取起点；把响应中的值传给下一次读取
+- `wait` —— 长轮询：有新输出、命令结束或 `wait_timeout`（默认 30 秒）到期时返回。不传则立即返回当前内容
+- `stdout_start_offset`、`stderr_start_offset` —— 目前仍保留的最早位置。每个流保留 10 MiB，超过后回收到 5 MiB
+- `stdout_gap`、`stderr_gap` —— 请求的 offset 比保留下来的还早时为 `true`，中间那段已经没有了
+- `command` —— `{command_id, command, status, exit_code}`
+
+一个会话最多按 id 保留最近 100 条命令。更早的 id 会被丢弃，再读取时返回 `404`。
+
+`input` 受 2 MiB JSON 请求体上限约束，并会原样写入 stdin。
+
+按行缓冲的程序要等收到 `\n` 才会读取输入。
+
+## 超时与状态
+
+| 字段 | 不传 | 传了 |
+| --- | --- | --- |
+| `timeout` | 调用一直等到命令结束 | 调用在该时刻返回，`status` 是 `running`，命令继续跑 |
+| `hard_timeout` | 命令持续运行，直到退出 | 进程在该时刻被终止，`status` 变为 `timed_out` |
+
+`status` 是命令的生命周期，`exit_code` 只有在命令结束之后才有意义：
+
+| `status` | 命令 | `exit_code` |
+| --- | --- | --- |
+| `running` | 还在跑，可以用 `command_id` 继续读 | `null` |
+| `completed` | 自行退出，或被 kill | 自身的退出码；被 kill 后是 `-1` |
+| `timed_out` | 在 `hard_timeout` 被终止 | `-1` |
+
+先看 `status`，再看 `exit_code`。协议里还有 `pending` 和 `killed` 两个取值，任何请求都不会产生它们。
+
+## 常见用法
+
+大多数命令会在一次调用内结束。
+
+长时间运行的命令可以设置 `timeout`，再通过后续调用读取输出。不会自行退出的程序应在后台运行，不再需要时将其终止；交互式程序则通过 stdin 输入。
+
+| 场景 | 启动方式 | 然后 |
+| --- | --- | --- |
+| `ls -la` | 同步 | 直接从响应里读结果 |
+| `npm install` | 同步 + `timeout` | 返回 `running` 时用 `wait` 读到结束 |
+| `npm run dev` | 后台 | 读启动日志，完成后 kill |
+| `python3 -i` | 后台 | 写一行，读两个流 |
+| 带 `input()` 的脚本 | 后台 | 逐个回答提示，末尾带 `\n` |
+
+## 会话
+
+命令里的 `cd` 不会带到下一条命令：改目录要在请求上设置，或者在会话上设置一次。
+
+- 不带 `session` 的命令会自动获得一个会话。它和其他会话一样出现在列表中，也会占用配额。
+- 会话上的 `env` 被其中每条命令继承，单条命令的 `env` 优先。
+- `user` 在会话中第一次出现时固定；之后再传不同的值返回 `400`。
+- 关闭会话会结束它正在跑的命令：先 `SIGTERM`，稍后 `SIGKILL`。
+- v1 的 `snapshot_path` 指向一个已存在的文件，会话中的每条 bash 命令都会通过 `BASH_ENV` 加载该文件；其他 shell 不读取这个变量。
+- 同一时间最多 50 个会话。每个会话空闲 3600 秒后自动关闭（`AIO_BASH_MAX_SESSIONS` / `AIO_BASH_SESSION_TIMEOUT_SECS`）。
+  达到上限时，daemon 会先关闭最久未使用的空闲会话。如果所有会话都在运行命令，创建请求返回 `400`。
+
+<UseV2 when="让会话携带自己的环境变量" route="POST /v2/commands/sessions" />
+
+## 后台运行
+
+假设 agent 已经在 `/workspace/site` 下生成了一个静态站点，想先在沙箱浏览器里打开检查再交付。检查期间服务器必须一直运行，所以它不能是一条执行完就返回的普通命令。开发服务器、watcher 或任何不会自行退出的程序，都在后台启动：边产生输出边读取，不再需要时终止：
+
+<ApiV2>
+
+`Aio` 是 [Examples](/zh/daemon/examples) 中用于解析返回结构的辅助客户端：它取出 `data`，并在 `success` 为 false 时抛错。
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sb = Aio(BASE_URL)
+
+# 1. A session fixes the directory and the environment for every command in it.
+session = sb.post("/v2/commands/sessions", cwd="/workspace/site",
+                  env={"PORT": "3000"})
+
+# 2. Start the server in it; async returns as soon as the process is spawned.
+started = sb.post("/v2/commands", command="python3 -u -m http.server $PORT",
+                  session=session["session_id"], mode="async")
+command_id = started["command_id"]
+
+# 3. Read what it printed; wait long-polls until output arrives.
+log = sb.get(f"/v2/commands/{command_id}", offset=0, stderr_offset=0,
+             wait=True, wait_timeout=5)
+print(log["stdout"].strip(), "|", log["command"]["status"])
+# Serving HTTP on :: port 3000 (http://[::]:3000/) ... | running
+
+# 4. Stop the command, then drop the session.
+sb.post(f"/v2/commands/{command_id}/kill", signal="SIGTERM")
+sb.delete(f"/v2/commands/sessions/{session['session_id']}")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const sb = new Aio(BASE_URL);
+
+// 1. A session fixes the directory and the environment for every command in it.
+const session = await sb.post("/v2/commands/sessions", {
+  cwd: "/workspace/site",
+  env: { PORT: "3000" },
+});
+
+// 2. Start the server in it; async returns as soon as the process is spawned.
+const started = await sb.post("/v2/commands", {
+  command: "python3 -u -m http.server $PORT",
+  session: session.session_id,
+  mode: "async",
+});
+
+// 3. Read what it printed; wait long-polls until output arrives.
+const log = await sb.get(
+  `/v2/commands/${started.command_id}?offset=0&wait=true&wait_timeout=5`,
+);
+console.log(log.stdout.trim(), "|", log.command.status);
+// Serving HTTP on :: port 3000 (http://[::]:3000/) ... | running
+
+// 4. Stop the command, then drop the session.
+await sb.post(`/v2/commands/${started.command_id}/kill`, { signal: "SIGTERM" });
+await sb.delete(`/v2/commands/sessions/${session.session_id}`);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+
+client = Sandbox(base_url=BASE_URL)
+
+# 1. A session fixes the working directory for every command in it.
+session = client.bash.create_session(exec_dir="/workspace/site").data
+
+# 2. Start the server in it; async_mode returns as soon as it is spawned.
+client.bash.exec(
+    command="python3 -u -m http.server 3000",
+    session_id=session.session_id,
+    async_mode=True,
+)
+
+# 3. Read what it printed; wait long-polls until output arrives.
+log = client.bash.output(
+    session_id=session.session_id,
+    offset=0,
+    stderr_offset=0,
+    wait=True,
+    wait_timeout=5,
+).data
+print(log.stdout.strip(), "|", log.command.status)
+# Serving HTTP on :: port 3000 (http://[::]:3000/) ... | running
+
+# 4. Stop the command, then close the session.
+client.bash.kill(session_id=session.session_id, signal="SIGTERM")
+client.bash.close_session(session.session_id)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const client = new SandboxClient({ environment: BASE_URL });
+
+// 1. A session fixes the working directory for every command in it.
+const session = (
+  await client.bash.createSession({ exec_dir: "/workspace/site" })
+).body.data!;
+
+// 2. Start the server in it; async_mode returns as soon as it is spawned.
+await client.bash.exec({
+  command: "python3 -u -m http.server 3000",
+  session_id: session.session_id,
+  async_mode: true,
+});
+
+// 3. Read what it printed; wait long-polls until output arrives.
+const log = (
+  await client.bash.output({
+    session_id: session.session_id,
+    offset: 0,
+    stderr_offset: 0,
+    wait: true,
+    wait_timeout: 5,
+  })
+).body.data!;
+console.log(log.stdout!.trim(), "|", log.command?.status);
+// Serving HTTP on :: port 3000 (http://[::]:3000/) ... | running
+
+// 4. Stop the command, then close the session.
+await client.bash.kill({ session_id: session.session_id, signal: "SIGTERM" });
+await client.bash.closeSession(session.session_id);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+kill 之后，命令以 `completed` 结束，`exit_code` 为 `-1`。信号会发送给整个进程树，而不只是启动它的 shell。
+
+给已经结束的命令发信号时返回 `400`。
+
+还要注意管道缓冲：stdout 不是终端时，按块缓冲的程序在 flush 或退出前可能没有输出。Python 就是这种程序，因此示例使用 `-u` 启动。
+
+## 交互式程序
+
+假设 agent 想像人在 Python REPL 里那样，一次试一个表达式并让解释器保留中间状态，或者要回答一个中途停下来提问的脚本。REPL 或会提问的脚本应在后台运行，通过 stdin 输入。
+
+按行缓冲的程序要等 `\n` 到达才会读取输入；提示符通常写入 `stderr`，因此需要同时读取两个流。
+
+<ApiV2>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sb = Aio(BASE_URL)
+
+# 1. Start Python in interactive mode (-i: stdin is a pipe, not a terminal).
+repl = sb.post("/v2/commands", command="python3 -i", mode="async")
+command_id = repl["command_id"]
+
+# 2. The banner and the first prompt arrive on stderr; read them in order.
+banner = sb.get(f"/v2/commands/{command_id}", offset=0, stderr_offset=0,
+                wait=True, wait_timeout=5)
+prompt = sb.get(f"/v2/commands/{command_id}", offset=banner["offset"],
+                stderr_offset=banner["stderr_offset"], wait=True,
+                wait_timeout=5)
+print(repr(prompt["stderr"]))   # '>>> '
+
+# 3. Send a line, then read the result.
+sb.post(f"/v2/commands/{command_id}/stdin", input="1 + 1\n")
+out = sb.get(f"/v2/commands/{command_id}", offset=prompt["offset"],
+             stderr_offset=prompt["stderr_offset"], wait=True, wait_timeout=5)
+print(repr(out["stdout"]), repr(out["stderr"]))   # '2\n' '>>> '
+
+# 4. Leave: the process ends with exit_code 0.
+sb.post(f"/v2/commands/{command_id}/stdin", input="exit()\n")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const sb = new Aio(BASE_URL);
+
+// 1. Start Python in interactive mode (-i: stdin is a pipe, not a terminal).
+const repl = await sb.post("/v2/commands", {
+  command: "python3 -i",
+  mode: "async",
+});
+const read = (offset: number, stderrOffset: number) =>
+  sb.get(
+    `/v2/commands/${repl.command_id}?offset=${offset}` +
+      `&stderr_offset=${stderrOffset}&wait=true&wait_timeout=5`,
+  );
+
+// 2. The banner and the first prompt arrive on stderr; read them in order.
+const banner = await read(0, 0);
+const prompt = await read(banner.offset, banner.stderr_offset);
+console.log(JSON.stringify(prompt.stderr));
+// ">>> "
+
+// 3. Send a line, then read the result.
+await sb.post(`/v2/commands/${repl.command_id}/stdin`, { input: "1 + 1\n" });
+const out = await read(prompt.offset, prompt.stderr_offset);
+console.log(JSON.stringify(out.stdout), JSON.stringify(out.stderr));
+// "2\n" ">>> "
+
+// 4. Leave: the process ends with exit_code 0.
+await sb.post(`/v2/commands/${repl.command_id}/stdin`, { input: "exit()\n" });
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+# 1. Start Python in interactive mode (-i: stdin is a pipe, not a terminal).
+started = client.bash.exec(command="python3 -i", async_mode=True).data
+session_id = started.session_id
+
+# 2. The banner and the first prompt arrive on stderr; read them in order.
+banner = client.bash.output(
+    session_id=session_id, offset=0, stderr_offset=0, wait=True, wait_timeout=5
+).data
+prompt = client.bash.output(
+    session_id=session_id,
+    offset=banner.offset,
+    stderr_offset=banner.stderr_offset,
+    wait=True,
+    wait_timeout=5,
+).data
+print(repr(prompt.stderr))   # '>>> '
+
+# 3. Send a line, then read the result.
+client.bash.write(session_id=session_id, input="1 + 1\n")
+out = client.bash.output(
+    session_id=session_id,
+    offset=prompt.offset,
+    stderr_offset=prompt.stderr_offset,
+    wait=True,
+    wait_timeout=5,
+).data
+print(repr(out.stdout), repr(out.stderr))   # '2\n' '>>> '
+
+# 4. Leave: the process ends with exit_code 0.
+client.bash.write(session_id=session_id, input="exit()\n")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+// 1. Start Python in interactive mode (-i: stdin is a pipe, not a terminal).
+const started = (
+  await client.bash.exec({ command: "python3 -i", async_mode: true })
+).body.data!;
+const session_id = started.session_id;
+
+// 2. The banner and the first prompt arrive on stderr; read them in order.
+const banner = (
+  await client.bash.output({
+    session_id,
+    offset: 0,
+    stderr_offset: 0,
+    wait: true,
+    wait_timeout: 5,
+  })
+).body.data!;
+const prompt = (
+  await client.bash.output({
+    session_id,
+    offset: banner.offset,
+    stderr_offset: banner.stderr_offset,
+    wait: true,
+    wait_timeout: 5,
+  })
+).body.data!;
+console.log(JSON.stringify(prompt.stderr));
+// ">>> "
+
+// 3. Send a line, then read the result.
+await client.bash.write({ session_id, input: "1 + 1\n" });
+const out = (
+  await client.bash.output({
+    session_id,
+    offset: prompt.offset,
+    stderr_offset: prompt.stderr_offset,
+    wait: true,
+    wait_timeout: 5,
+  })
+).body.data!;
+console.log(JSON.stringify(out.stdout), JSON.stringify(out.stderr));
+// "2\n" ">>> "
+
+// 4. Leave: the process ends with exit_code 0.
+await client.bash.write({ session_id, input: "exit()\n" });
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+调用 `input("Name: ")` 的脚本会重复等待输入。
+
+进程阻塞时，读取结果为 `stdout: "Name: "`；写入 `"Alice\n"` 后，下一次读取会返回 `Hello Alice`。`cat` 这类按行缓冲的程序同样需要输入末尾的 `\n`。
+
+## 以指定用户运行
+
+`user` 决定执行身份：进程确实以该账户运行。文件 API 是另一套模型，见 [文件](/zh/daemon/basic/file)。
+
+<ApiV2>
+
+在 `/v2/commands` 的请求体中加入 `user`：
+
+```json
+{
+  "command": "id -un",
+  "user": "alice"
+}
+```
+
+</ApiV2>
+
+<ApiV1>
+
+v1 也支持在请求体中传入 `user`，对应路由为 `POST /v1/bash/exec`：
+
+```json
+{
+  "command": "id -un",
+  "user": "alice"
+}
+```
+
+</ApiV1>
+
+- 不传：默认身份。`AIO_DEFAULT_USER` 未设置时就是 aiod 自己的账户；设置后默认身份随之改变，其他账户仍需显式传 `user`。
+- 账户会在进程启动前解析。账户不存在时返回 `400 no such user: alice`。
+- 非 root 的 aiod 无法切换身份，会返回 `400 cannot run as root: aiod is running as uid 501 and only root can change identity`，不会静默使用其他身份运行。
+- 映射到 uid 0 的账户会被拒绝，即使 aiod 本身是 root。
+- 如果错误来自 `AIO_DEFAULT_USER` 而不是请求，返回 `503`：错的是守护进程配置，不是这次调用。
+- 仅限 Linux。Windows 上显式传 `user` 返回 `400`，配置了 `AIO_DEFAULT_USER` 返回 `503`。
+
+## Shell
+
+`shell: "auto"` 按以下顺序查找 shell：
+
+- 先看 `AIO_BASH_BIN`。
+- Linux 和 macOS 依次查找 `/bin/bash`、`/usr/bin/bash`、`/bin/sh`、`/usr/bin/sh`。
+- Windows 依次查找 `pwsh.exe`、`powershell.exe`。
+
+显式指定的 shell 不会回退。Windows 上指定 `sh`、非 Windows 上指定 `cmd`，或指定未安装的 shell，都会返回 `503` 并说明缺少的实现。
+
+`shell: "none"` 直接运行程序：`command` 是程序路径，`args` 是 argv，不做解析或展开。其他模式不接受 `args`，传入时返回 `400`。
+
+Windows 上，`shell: "cmd"` 会将命令作为批处理文件，在 `cmd.exe /d /c` 下以 UTF-8 执行。`shell: "bash"` 则按 `AIO_BASH_BIN`、`PATH` 中非 WSL 的 `bash`、Git 安装目录的顺序查找 Git Bash。
+
+Windows 上的退出码、终止语义和 stdin 行为见 [Windows](/zh/daemon/basic/windows#commands)。
+
+<UseV2 when={'在 Windows 上用 cmd 或 Git Bash 而不是 PowerShell'} route="POST /v2/commands" />
+
+## 错误处理
+
+HTTP 成功只说明请求被接受；命令自身的结果先看 `status`，再看 `exit_code`。该 plane 自身的失败：
+
+| 返回 | 场景 |
+| --- | --- |
+| `400` | 对没有在跑的命令 kill 或写 stdin；不配 `shell: "none"` 就传 `args`；守护进程切不过去的 `user`；会话已满且都在忙 |
+| `404` | `command_id` 或 `session_id` 不存在，或已经被回收 |
+| `422` | 请求体不合法，`errors` 列表会指出是哪个字段 |
+| `503` | 选中的 `shell` 没有可用实现，或 `AIO_DEFAULT_USER` 用不了 |
+
+`413` 是 2 MiB JSON 请求体上限，大数据应该走文件。见 [错误处理](/zh/daemon/basic/error-handling)。

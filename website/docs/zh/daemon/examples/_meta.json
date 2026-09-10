@@ -1,0 +1,42 @@
+[
+  {
+    "type": "file",
+    "name": "agent-call-sandbox",
+    "label": "Agent 调用沙箱"
+  },
+  {
+    "type": "file",
+    "name": "mcp",
+    "label": "MCP 调用"
+  },
+  {
+    "type": "file",
+    "name": "browser-cdp",
+    "label": "浏览器（CDP）"
+  },
+  {
+    "type": "file",
+    "name": "browser-use",
+    "label": "Browser Use"
+  },
+  {
+    "type": "file",
+    "name": "terminal",
+    "label": "交互式终端"
+  },
+  {
+    "type": "file",
+    "name": "code-execution",
+    "label": "代码执行"
+  },
+  {
+    "type": "file",
+    "name": "file-ops",
+    "label": "文件操作"
+  },
+  {
+    "type": "file",
+    "name": "computer-use",
+    "label": "Computer Use"
+  }
+]

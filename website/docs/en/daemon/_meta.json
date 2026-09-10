@@ -1,0 +1,28 @@
+[
+  {
+    "type": "dir",
+    "label": "Getting Started",
+    "name": "start"
+  },
+  "architecture",
+  {
+    "type": "dir",
+    "label": "Capabilities",
+    "name": "basic"
+  },
+  {
+    "type": "dir",
+    "label": "Deploy",
+    "name": "ops"
+  },
+  {
+    "type": "dir",
+    "label": "Examples",
+    "name": "examples"
+  },
+  {
+    "type": "file",
+    "name": "api",
+    "label": "API Reference"
+  }
+]

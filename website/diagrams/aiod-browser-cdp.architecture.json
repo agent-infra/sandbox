@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Browser CDP",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "locale": "en"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 3,
+    "cellW": 176,
+    "cellH": 72,
+    "gapX": 144,
+    "gapY": 56
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Agent",
+      "sublabel": "Playwright · REST",
+      "row": 1,
+      "col": 0,
+      "size": [176, 72]
+    },
+    {
+      "id": "aiod",
+      "type": "backend",
+      "label": "aiod",
+      "sublabel": "/v1/browser",
+      "row": 0,
+      "col": 1,
+      "size": [176, 72]
+    },
+    {
+      "id": "nginx",
+      "type": "backend",
+      "label": "nginx",
+      "sublabel": "/cdp/*",
+      "row": 2,
+      "col": 1,
+      "size": [176, 72]
+    },
+    {
+      "id": "chromium",
+      "type": "external",
+      "label": "Chromium",
+      "sublabel": "CDP :9222",
+      "row": 1,
+      "col": 2,
+      "size": [176, 72]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "container · VM",
+      "wraps": ["aiod", "nginx", "chromium"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-aiod",
+      "from": "agent",
+      "to": "aiod",
+      "label": "REST",
+      "variant": "emphasis"
+    },
+    {
+      "id": "aiod-chromium",
+      "from": "aiod",
+      "to": "chromium",
+      "label": "CDP"
+    },
+    {
+      "id": "agent-nginx",
+      "from": "agent",
+      "to": "nginx",
+      "label": "cdp_url",
+      "variant": "dashed"
+    },
+    {
+      "id": "nginx-chromium",
+      "from": "nginx",
+      "to": "chromium",
+      "label": "WebSocket",
+      "variant": "dashed"
+    }
+  ]
+}

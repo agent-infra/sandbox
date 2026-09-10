@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Jupyter kernels",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "locale": "en"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 3,
+    "cellW": 176,
+    "cellH": 72,
+    "gapX": 144,
+    "gapY": 56
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Agent",
+      "sublabel": "/v1/jupyter",
+      "row": 1,
+      "col": 0,
+      "size": [176, 72]
+    },
+    {
+      "id": "aiod",
+      "type": "backend",
+      "label": "aiod",
+      "sublabel": "kernel client",
+      "row": 1,
+      "col": 1,
+      "size": [176, 72]
+    },
+    {
+      "id": "s1",
+      "type": "backend",
+      "label": "ipykernel",
+      "sublabel": "session s1",
+      "row": 0,
+      "col": 2,
+      "size": [176, 72]
+    },
+    {
+      "id": "s2",
+      "type": "backend",
+      "label": "ipykernel",
+      "sublabel": "session s2",
+      "row": 1,
+      "col": 2,
+      "size": [176, 72]
+    },
+    {
+      "id": "warm",
+      "type": "backend",
+      "label": "ipykernel",
+      "sublabel": "warm · one-off",
+      "row": 2,
+      "col": 2,
+      "size": [176, 72]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "spawned by aiod",
+      "wraps": ["s1", "s2", "warm"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-aiod",
+      "from": "agent",
+      "to": "aiod",
+      "label": "HTTP",
+      "variant": "emphasis"
+    },
+    {
+      "id": "aiod-s1",
+      "from": "aiod",
+      "to": "s1",
+      "label": "ZMQ"
+    },
+    {
+      "id": "aiod-s2",
+      "from": "aiod",
+      "to": "s2"
+    },
+    {
+      "id": "aiod-warm",
+      "from": "aiod",
+      "to": "warm",
+      "variant": "dashed"
+    }
+  ]
+}
