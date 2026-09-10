@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AIO Sandbox surfaces",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "locale": "en"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 5,
+    "cellW": 176,
+    "cellH": 72,
+    "gapX": 72,
+    "gapY": 48
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Agent",
+      "sublabel": "tool calls",
+      "row": 1,
+      "col": 0,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "gateway",
+      "type": "backend",
+      "label": "nginx",
+      "row": 1,
+      "col": 1,
+      "sublabel": ":8080",
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "Browser",
+      "sublabel": "VNC · CDP",
+      "row": 0,
+      "col": 2,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "shell",
+      "type": "backend",
+      "label": "Shell",
+      "sublabel": "WebSocket",
+      "row": 0,
+      "col": 3,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "files",
+      "type": "backend",
+      "label": "Files",
+      "sublabel": "API",
+      "row": 1,
+      "col": 2,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "code",
+      "type": "backend",
+      "label": "Code",
+      "sublabel": "execute",
+      "row": 1,
+      "col": 3,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "mcp",
+      "type": "backend",
+      "label": "MCP Hub",
+      "sublabel": "tools",
+      "row": 2,
+      "col": 2,
+      "size": [
+        424,
+        72
+      ]
+    },
+    {
+      "id": "vscode",
+      "type": "frontend",
+      "label": "VSCode Server",
+      "sublabel": "code-server",
+      "row": 0,
+      "col": 4,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "preview",
+      "type": "backend",
+      "label": "Preview proxy",
+      "sublabel": "ports",
+      "row": 1,
+      "col": 4,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "services",
+      "type": "backend",
+      "label": "Services",
+      "sublabel": "processes",
+      "row": 2,
+      "col": 4,
+      "size": [
+        176,
+        72
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "AIO Sandbox",
+      "wraps": [
+        "gateway",
+        "browser",
+        "shell",
+        "files",
+        "code",
+        "mcp",
+        "vscode",
+        "preview",
+        "services"
+      ],
+      "pad": 44
+    },
+    {
+      "kind": "region",
+      "label": "agent tools",
+      "wraps": [
+        "browser",
+        "shell",
+        "files",
+        "code",
+        "mcp"
+      ],
+      "pad": 18
+    },
+    {
+      "kind": "region",
+      "label": "human surfaces",
+      "wraps": [
+        "vscode",
+        "preview",
+        "services"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-gateway",
+      "from": "agent",
+      "to": "gateway",
+      "label": "HTTP · WebSocket",
+      "variant": "emphasis",
+      "labelDy": -30
+    }
+  ]
+}

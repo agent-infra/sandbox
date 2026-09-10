@@ -74,19 +74,7 @@ Great for scenarios requiring:
 
 ## Architecture Overview
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         AIO Sandbox                         │
-├─────────────────────────────────────────────────────────────┤
-│  🌐 Browser + VNC       │  💻 VSCode Server                  │
-├─────────────────────────────────────────────────────────────┤
-│  🐚 Shell WebSocket     │  📁 File System API                │
-├─────────────────────────────────────────────────────────────┤
-│  🤖 MCP Hub Services    │  🔒 Code Execute                   │
-├─────────────────────────────────────────────────────────────┤
-│  🚀 Preview Proxy       │  📊 Service Management             │
-└─────────────────────────────────────────────────────────────┘
-```
+![](/architecture/aio-sandbox-overview.svg)
 
 ## Getting Started
 

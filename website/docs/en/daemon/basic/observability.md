@@ -85,9 +85,11 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://collector:4317 aiod start
 | `OTEL_RESOURCE_ATTRIBUTES` | unset | Extra resource attributes |
 | `OTEL_SDK_DISABLED` | unset | `true` keeps export off with an endpoint set |
 
-The signal-specific `_TRACES_` spelling of a variable wins over the generic one. Under `http/protobuf` the generic endpoint is a base URL that gets `/v1/traces` appended, while `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` is used as it stands. These variables are the only ones read: nothing is inferred, and there is no default endpoint.
+The signal-specific `_TRACES_` spelling of a variable wins over the generic one. Under `http/protobuf` the generic endpoint is a base URL that gets `/v1/traces` appended, while `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` is used as it stands.
 
-One span per request, `otel.kind` `server`, carrying `http.method` and `http.route`. W3C trace context is extracted from the request and propagated onward, so a caller's trace continues through the daemon, and `trace_id` and `span_id` appear in the JSON logs while export is on. GUI requests forwarded to computer-use carry the context too, and one trace shows the whole aiod → computer-use call.
+One span per request (`otel.kind` `server`, with `http.method` and `http.route`). Trace context propagates: a caller's trace continues through the daemon into computer-use.
+
+![](/screenshots/aiod-jaeger-trace.png)
 
 Only plaintext `http://` collectors are supported: no TLS backend is compiled in.
 

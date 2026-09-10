@@ -252,7 +252,7 @@ WebSocket 或 VNC 场景没有 header 可用，key 只能放在 URL 里，例如
 
 在镜像上，daemon 以 root 运行，`AIO_DEFAULT_USER=gem`；命令以 `gem` 执行。
 
-工作目录不是隔离边界。文件路由能触达整台主机的文件系统。隔离是容器或虚拟机的职责，不是 daemon 的。
+工作目录不是隔离边界。文件路由能触达整台主机的文件系统。隔离是沙箱的职责，不是 daemon 的。
 
 ## MCP
 

@@ -6,7 +6,7 @@ import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
 
 它与 command、terminal、代码执行和浏览器下载共享同一个文件系统。通过文件 API 写入的文件可以立即被 shell 命令看到，反过来也一样。
 
-工作目录不是隔离边界。文件调用可以访问 daemon 账户有权限访问的任意路径，隔离由容器或虚拟机负责。
+工作目录不是隔离边界。文件调用可以访问 daemon 账户有权限访问的任意路径，隔离由沙箱负责。
 
 在文件 API 中，`user` 与 command 和 terminal 中的含义不同：
 
@@ -217,7 +217,7 @@ curl -X POST "$BASE_URL/v1/file/grep" \
 - 下载流式返回字节，带 `Accept-Ranges`、`ETag`、`Last-Modified`，支持 `Range` 请求头并返回 `206`，路径不存在返回 `404`。
 - 默认情况下，下载返回的是流式读取过程中内核读到的内容；`change_policy=abort` 会在打开时固定文件状态，文件此前已变化返回 `409`，传输过程中变化则中断传输。
 
-<UseV2 when="需要把整个目录当成一个 tar 流搬运" route="GET /v2/fs/tree" />
+<UseV2 when="把整个目录当成一个 tar 流搬运" route="GET /v2/fs/tree" />
 
 <ApiV2>
 
@@ -388,7 +388,7 @@ await client.file.watchStop(watcher);
 
 v1 用 `sudo: true` 指定 root 账户。只有 `read`、`write`、`replace` 和 `search` 四个路由支持该参数。
 
-<UseV2 when="需要让文件属于某个具名账户而不是 root" route="POST /v2/fs/write?user=alice" />
+<UseV2 when="让文件属于某个具名账户而不是 root" route="POST /v2/fs/write?user=alice" />
 
 </ApiV1>
 

@@ -11,24 +11,22 @@
     "deploy": "npm run build && npm run preview"
   },
   "dependencies": {
-    "@rspress/core": "2.0.0-beta.35",
-    "@rspress/plugin-llms": "2.0.0-beta.35",
-    "@rspress/theme-default": "2.0.0-beta.35",
+    "@rspress/core": "2.0.21",
+    "@rspress/plugin-llms": "2.0.21",
     "@scalar/api-reference-react": "0.8.6",
     "core-js": "^3.45.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@rsbuild/plugin-sass": "1.4.0",
-    "@rsbuild/plugin-svgr": "^1.3.0",
-    "@rspress/plugin-sitemap": "2.0.0-beta.35",
-    "@rspress/plugin-twoslash": "2.0.0-beta.35",
+    "@rsbuild/plugin-sass": "2.0.1",
+    "@rsbuild/plugin-svgr": "^2.0.5",
+    "@rspress/plugin-sitemap": "2.0.21",
     "@shikijs/transformers": "^3.13.0",
     "@types/node": "^18.11.17",
     "@types/react": "^19.2.14",
     "prettier": "^3.4.2",
-    "rsbuild-plugin-google-analytics": "1.0.4",
-    "rsbuild-plugin-open-graph": "1.1.0",
-    "rspress-plugin-font-open-sans": "1.0.3"
+    "rsbuild-plugin-google-analytics": "1.0.6",
+    "rsbuild-plugin-open-graph": "1.1.3",
+    "rspress-plugin-font-open-sans": "1.0.4"
   }
 }

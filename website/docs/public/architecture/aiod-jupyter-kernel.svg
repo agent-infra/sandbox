@@ -319,8 +319,8 @@ rect.c-bg-rect { fill: var(--bg); }
         <path data-edge-from="aiod" data-edge-to="warm" data-edge-key="3" data-edge-id="aiod-warm" data-composition-points="536,258;608,258;608,372;680,372" d="M 536 258 L 600 258 Q 608 258 608 266 L 608 364 Q 608 372 616 372 L 680 372" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
 
         <!-- Components -->
-        <g id="node-agent" data-node-id="agent" data-node-label="Agent" tabindex="0" role="button" aria-label="Focus Agent, /v1/jupyter, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="/v1/jupyter" data-node-context="Architecture component">
-          <title>Agent · /v1/jupyter · Architecture component</title>
+        <g id="node-agent" data-node-id="agent" data-node-label="Agent" tabindex="0" role="button" aria-label="Focus Agent, Jupyter plane, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="Jupyter plane" data-node-context="Architecture component">
+          <title>Agent · Jupyter plane · Architecture component</title>
           <rect x="40" y="208" width="176" height="72" rx="6" class="c-mask"/>
           <rect x="40" y="208" width="176" height="72" rx="6" class="c-external" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(46 214) scale(0.6875)">
@@ -328,7 +328,7 @@ rect.c-bg-rect { fill: var(--bg); }
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
           <text data-node-label="" x="128" y="242" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Agent</text>
-        <text x="128" y="258" class="t-muted" font-size="9" text-anchor="middle">/v1/jupyter</text>
+        <text x="128" y="258" class="t-muted" font-size="9" text-anchor="middle">Jupyter plane</text>
         </g>
 
         <g id="node-aiod" data-node-id="aiod" data-node-label="aiod" tabindex="0" role="button" aria-label="Focus aiod, kernel client, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="kernel client" data-node-context="Architecture component">
@@ -342,34 +342,41 @@ rect.c-bg-rect { fill: var(--bg); }
         <text x="448" y="258" class="t-muted" font-size="9" text-anchor="middle">kernel client</text>
         </g>
 
-        <g id="node-s1" data-node-id="s1" data-node-label="ipykernel" tabindex="0" role="button" aria-label="Focus ipykernel, session s1, spawned by aiod" aria-pressed="false" data-node-kind="backend" data-node-sublabel="session s1" data-node-context="spawned by aiod">
+        <g id="node-s1" data-node-id="s1" data-node-label="ipykernel" tabindex="0" role="button" aria-label="Focus ipykernel, session s1, spawned by aiod" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="session s1" data-node-context="spawned by aiod">
           <title>ipykernel · session s1 · spawned by aiod</title>
           <rect x="680" y="80" width="176" height="72" rx="6" class="c-mask"/>
-          <rect x="680" y="80" width="176" height="72" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(686 86) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          <rect x="680" y="80" width="176" height="72" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(686 86) scale(0.6875)">
+            <rect x="2" y="3" width="12" height="10" rx="2"/>
+            <path d="M2 6.5h12"/>
+            <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
+            <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
           </g>
           <text data-node-label="" x="768" y="114" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">ipykernel</text>
         <text x="768" y="130" class="t-muted" font-size="9" text-anchor="middle">session s1</text>
         </g>
 
-        <g id="node-s2" data-node-id="s2" data-node-label="ipykernel" tabindex="0" role="button" aria-label="Focus ipykernel, session s2, spawned by aiod" aria-pressed="false" data-node-kind="backend" data-node-sublabel="session s2" data-node-context="spawned by aiod">
+        <g id="node-s2" data-node-id="s2" data-node-label="ipykernel" tabindex="0" role="button" aria-label="Focus ipykernel, session s2, spawned by aiod" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="session s2" data-node-context="spawned by aiod">
           <title>ipykernel · session s2 · spawned by aiod</title>
           <rect x="680" y="208" width="176" height="72" rx="6" class="c-mask"/>
-          <rect x="680" y="208" width="176" height="72" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(686 214) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          <rect x="680" y="208" width="176" height="72" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(686 214) scale(0.6875)">
+            <rect x="2" y="3" width="12" height="10" rx="2"/>
+            <path d="M2 6.5h12"/>
+            <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
+            <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
           </g>
           <text data-node-label="" x="768" y="242" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">ipykernel</text>
         <text x="768" y="258" class="t-muted" font-size="9" text-anchor="middle">session s2</text>
         </g>
 
-        <g id="node-warm" data-node-id="warm" data-node-label="ipykernel" tabindex="0" role="button" aria-label="Focus ipykernel, warm · one-off, spawned by aiod" aria-pressed="false" data-node-kind="backend" data-node-sublabel="warm · one-off" data-node-context="spawned by aiod">
+        <g id="node-warm" data-node-id="warm" data-node-label="ipykernel" tabindex="0" role="button" aria-label="Focus ipykernel, warm · one-off, spawned by aiod" aria-pressed="false" data-node-kind="external" data-node-sublabel="warm · one-off" data-node-context="spawned by aiod">
           <title>ipykernel · warm · one-off · spawned by aiod</title>
           <rect x="680" y="336" width="176" height="72" rx="6" class="c-mask"/>
-          <rect x="680" y="336" width="176" height="72" rx="6" class="c-backend" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(686 342) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          <rect x="680" y="336" width="176" height="72" rx="6" class="c-external" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(686 342) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
           <text data-node-label="" x="768" y="370" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">ipykernel</text>
         <text x="768" y="386" class="t-muted" font-size="9" text-anchor="middle">warm · one-off</text>
@@ -396,13 +403,17 @@ rect.c-bg-rect { fill: var(--bg); }
         <!-- Legend -->
         <g data-legend="">
           <text x="40" y="460" class="t-primary" font-size="12" font-weight="650">Legend</text>
-          <g data-legend-semantic-kind="backend" data-legend-x="40" data-legend-baseline="480" data-legend-width="78">
-            <rect x="40" y="471" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
-            <text x="62" y="480" class="t-muted" font-size="10" font-weight="500">Backend</text>
+          <g data-legend-semantic-kind="frontend" data-legend-x="40" data-legend-baseline="480" data-legend-width="83">
+            <rect x="40" y="471" width="16" height="10" rx="2.5" class="c-frontend" stroke-width="1"/>
+            <text x="62" y="480" class="t-muted" font-size="10" font-weight="500">Frontend</text>
           </g>
-          <g data-legend-semantic-kind="external" data-legend-x="140" data-legend-baseline="480" data-legend-width="83">
-            <rect x="140" y="471" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
-            <text x="162" y="480" class="t-muted" font-size="10" font-weight="500">External</text>
+          <g data-legend-semantic-kind="backend" data-legend-x="145" data-legend-baseline="480" data-legend-width="78">
+            <rect x="145" y="471" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
+            <text x="167" y="480" class="t-muted" font-size="10" font-weight="500">Backend</text>
+          </g>
+          <g data-legend-semantic-kind="external" data-legend-x="245" data-legend-baseline="480" data-legend-width="83">
+            <rect x="245" y="471" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
+            <text x="267" y="480" class="t-muted" font-size="10" font-weight="500">External</text>
           </g>
         </g>
       </svg>

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Analyze a dataset in a kernel session",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "column_fit": "spread",
+    "locale": "en",
+    "viewBox": [1080, 640]
+  },
+  "participants": [
+    { "id": "agent", "type": "external", "label": "Agent" },
+    { "id": "aiod", "type": "backend", "label": "aiod", "sublabel": "files · code" },
+    { "id": "session", "type": "backend", "label": "Session", "sublabel": "analysis" },
+    { "id": "files", "type": "database", "label": "Files", "sublabel": "/tmp/analysis" }
+  ],
+  "messages": [
+    { "id": "write-csv", "from": "agent", "to": "aiod", "y": 172, "label": "write sales.csv", "variant": "emphasis" },
+    { "id": "store-csv", "from": "aiod", "to": "files", "y": 204, "label": "sales.csv", "variant": "default" },
+    { "id": "execute-load", "from": "agent", "to": "aiod", "y": 236, "label": "execute", "variant": "emphasis" },
+    { "id": "read-csv", "from": "aiod", "to": "session", "y": 268, "label": "df = read_csv()", "variant": "default" },
+    { "id": "outputs", "from": "session", "to": "agent", "y": 300, "label": "outputs[0].text", "variant": "return" },
+    { "id": "execute-plot", "from": "agent", "to": "aiod", "y": 332, "label": "execute · same session", "variant": "emphasis" },
+    { "id": "savefig", "from": "aiod", "to": "session", "y": 364, "label": "Agg · savefig()", "variant": "default" },
+    { "id": "store-png", "from": "session", "to": "files", "y": 396, "label": "plot.png", "variant": "default" },
+    { "id": "list", "from": "agent", "to": "aiod", "y": 428, "label": "list files", "variant": "emphasis" },
+    { "id": "listing", "from": "files", "to": "agent", "y": 460, "label": "files[]", "variant": "return" },
+    { "id": "download", "from": "agent", "to": "aiod", "y": 492, "label": "download plot.png", "variant": "emphasis" },
+    { "id": "bytes", "from": "files", "to": "agent", "y": 524, "label": "plot.png bytes", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "aiod", "from": 164, "to": 536, "type": "backend" },
+    { "participant": "session", "from": 262, "to": 404, "type": "backend" }
+  ]
+}

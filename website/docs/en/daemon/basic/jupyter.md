@@ -142,11 +142,11 @@ A kernel holds about 60 MB of memory. These limits are tighter than the native R
 
 ## Memory usage
 
-Measured under the same limits: 0.5 CPU and 0.5 GiB. `aiod` runs nginx and one warm kernel; the 1.x image has Jupyter on and browser/VNC off.
+Same limits (0.5 CPU, 0.5 GiB) for `aiod` and the 1.x image: `aiod` runs nginx and one warm kernel, the 1.x image has Jupyter on and browser/VNC off.
 
 ![](/architecture/aiod-jupyter-footprint.svg)
 
-The kernel footprint is similar; the difference is the surrounding services. When idle, `aiod` uses 69.8 MB, compared with 248.4 MB for the 1.x image.
+The kernel itself is similar in size; the difference is the surrounding services. Idle, `aiod` uses 69.8 MB and the 1.x image 248.4 MB.
 
 ## Related
 

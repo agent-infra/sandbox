@@ -1,8 +1,8 @@
 # Deployment & Operations
 
-`aiod` is built to run unattended under any process supervisor: one binary, no build step. It exposes a `/health` plus `/v1/capabilities` split that lets orchestration tell a live process apart from a fully ready one.
+`aiod` runs in the foreground by default and can be handed to a process supervisor to run unattended. As a single binary, it exposes `/health` and `/v1/capabilities` as health checks.
 
-This page goes in deployment order: install the binary, hand it to a supervisor, require a key, wire the two checks into orchestration, then logs, variables and troubleshooting.
+This page follows the deployment flow: install the binary, configure the supervisor and the API key, wire up the health checks, then logs, environment variables, and common troubleshooting.
 
 ## Place the binary
 

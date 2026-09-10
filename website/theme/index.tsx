@@ -1,12 +1,12 @@
-export * from '@rspress/theme-default';
+export * from '@rspress/core/theme-original';
 export { default as HomeLayout } from './components/HomeLayout';
 import { useEffect } from 'react';
 import { useI18n } from '@rspress/core/runtime';
-import { Layout as DefaultLayout } from '@rspress/theme-default';
+import { Layout as DefaultLayout } from '@rspress/core/theme-original';
 import { ApiPreferenceProvider, ApiPreferenceSwitch } from './components/ApiPreference';
 
 export { ApiV1, ApiV2, ApiInlineV1, ApiInlineV2, UseV2, useApiPreference } from './components/ApiPreference';
-import { getCustomMDXComponent as basicGetCustomMDXComponent } from '@rspress/core/theme';
+import { getCustomMDXComponent as basicGetCustomMDXComponent } from '@rspress/core/theme-original';
 import {
   LlmsContainer,
   LlmsCopyButton,

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Attach to a terminal",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "column_fit": "spread",
+    "locale": "en",
+    "viewBox": [1080, 500]
+  },
+  "participants": [
+    { "id": "agent", "type": "external", "label": "Agent" },
+    { "id": "aiod", "type": "backend", "label": "aiod", "sublabel": "terminal" },
+    { "id": "shell", "type": "backend", "label": "Shell" }
+  ],
+  "messages": [
+    { "id": "create", "from": "agent", "to": "aiod", "y": 172, "label": "create session demo-1", "variant": "emphasis" },
+    { "id": "attach", "from": "agent", "to": "aiod", "y": 212, "label": "attach", "variant": "emphasis" },
+    { "id": "ready", "from": "aiod", "to": "agent", "y": 252, "label": "ready", "variant": "return" },
+    { "id": "input", "from": "agent", "to": "aiod", "y": 292, "label": "input · uname -s", "variant": "default" },
+    { "id": "run", "from": "aiod", "to": "shell", "y": 332, "label": "uname -s", "variant": "default" },
+    { "id": "output", "from": "shell", "to": "agent", "y": 372, "label": "output · Darwin", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "aiod", "from": 164, "to": 384, "type": "backend" },
+    { "participant": "shell", "from": 324, "to": 380, "type": "backend" }
+  ]
+}

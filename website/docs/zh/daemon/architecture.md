@@ -57,7 +57,7 @@ Command 会话、PTY 会话、代码会话、保留的输出、文件 watcher �
 
 ![](/architecture/aiod-permission-model.svg)
 
-调用可以访问 daemon 账户在宿主机上有权限访问的任意位置。aiod 不提供按请求隔离的 jail、chroot 或路径白名单；如果需要限制目录或租户范围，应由容器或虚拟机负责。
+调用可以访问 daemon 账户在宿主机上有权限访问的任意位置。aiod 不提供按请求隔离的 jail、chroot 或路径白名单；如果需要限制目录或租户范围，应由沙箱负责。
 
 Windows 尚未实现 `user`，显式传入时返回 `400`。
 

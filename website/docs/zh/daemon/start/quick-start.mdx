@@ -163,7 +163,7 @@ docker run --rm -it --security-opt seccomp=unconfined --shm-size 4g \
 - `computer-use`（18100）
 - Chromium 的 CDP（9222）
 
-这三个端口都无法从容器外部直接访问。经网关可以访问：
+这三个端口都无法从沙箱外部直接访问。经网关可以访问：
 
 - 完整 API
 - `/docs` 文档界面
