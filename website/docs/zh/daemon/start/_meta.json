@@ -1,0 +1,15 @@
+[
+  "introduction",
+  "quick-start",
+  {
+    "type": "file",
+    "name": "releases",
+    "label": "发布记录"
+  },
+  {
+    "type": "file",
+    "name": "dashboard",
+    "label": "Dashboard"
+  },
+  "migration"
+]

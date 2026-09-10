@@ -5,6 +5,11 @@
     "activeMatch": "/guide/"
   },
   {
+    "text": "Daemon",
+    "link": "/daemon/start/introduction",
+    "activeMatch": "/daemon/"
+  },
+  {
     "text": "API",
     "link": "/api",
     "activeMatch": "/api/"

@@ -1,0 +1,362 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# Code Interpreter
+
+Code execution is one dispatcher across languages and backends. Send a language and a code string: the daemon routes it to a runtime and answers when the run finishes.
+
+The runtime is a native REPL, an embedded IPython kernel, or an external Jupyter-compatible server. The dispatcher picks one per language and falls back through what it finds, so a request never has to name a runtime.
+
+A **code session** keeps an interpreter process alive between calls: what one call defines, the next one sees. Without a session, each run is a one-off in a process that is discarded afterwards.
+
+For a shell command rather than a code cell, use [Commands](/daemon/basic/bash). The v1 and v2 routes side by side are in [Migration from 1.x](/daemon/start/migration#code).
+
+## What it needs
+
+`GET /v1/capabilities` describes the plane under `code_interpreter`:
+
+- `status` — `ready` once either interpreter answers, `absent` when neither does
+- `backend` — the layer that runs Python: `native`, `kernel`, or `endpoint`
+- `kinds` — `code`, `nodejs`, and `jupyter` where a kernel serves Python
+- `default_python`, `default_node` — the binaries the native tier spawns
+
+The native tier needs `python3` or `node` on `PATH`; the kernel tier also needs an importable `ipykernel`. The daemon selects an execution tier based on the runtimes available.
+
+## Run a snippet
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/code/execute" \
+  -H "Content-Type: application/json" \
+  -d '{"language": "python", "code": "print(sum([1, 2, 3]))"}'
+```
+
+Request body:
+
+```json
+{
+  "language": "python",
+  "code": "print(sum([1, 2, 3]))"
+}
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/code/execute" \
+  -H "Content-Type: application/json" \
+  -d '{"language": "python", "code": "print(sum([1, 2, 3]))"}'
+```
+
+Request body:
+
+```json
+{
+  "language": "python",
+  "code": "print(sum([1, 2, 3]))"
+}
+```
+
+</ApiV1>
+
+The body takes these fields:
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `language` | `python`, `javascript`, required | Which interpreter runs the code |
+| `code` | string, required | The code to run |
+| `session_id` | string | Session to run in; absent means a one-off |
+| `stateful` | boolean | `true` alone opens a session and returns its id |
+| `timeout` | 1–900 s (default 30) | How long the run may take |
+| `cwd` | string | Working directory; fixed when the process starts |
+| `user` | string | Account to run as; only root can switch |
+
+`language` also accepts `python3`, `node`, `nodejs`, and `js`, and a field the route does not know is ignored. A `user` this daemon cannot become is not a rejection: the run answers `HTTP 200` with `status: "error"` and a `ProcessError` output saying only root can change identity. A kernel ignores `user` and runs as the daemon's own account.
+
+`data` carries:
+
+- `language`, `code` — the resolved language and the code that ran
+- `status` — `ok`, `error`, or `timeout`
+- `outputs` — the notebook output list, one entry per thing the run produced
+- `stdout`, `stderr` — each stream on its own; empty is `""` on v2, `null` on v1
+- `exit_code` — `0` when the code completed, `1` after an error or a timeout
+- `execution_count` — the session's cell counter, from 1
+- `session_id` — the session that ran it; `null` for a one-off
+
+`status` is the outcome of the run, and `success` in the envelope follows it. An exception or a timeout inside the code is still an `HTTP 200`, with `success: false`.
+
+An empty `code` string is the one field the surfaces read differently: v2 rejects it with a `422`, v1 runs an empty cell and answers `200` with no outputs.
+
+`outputs` is the notebook output list:
+
+| `output_type` | Carries |
+| --- | --- |
+| `stream` | `name` (`stdout` or `stderr`) and `text` |
+| `execute_result` | `data` with `text/plain`: the last expression's value |
+| `display_data` | `data` with `image/png` and other mime bundles |
+| `error` | `ename`, `evalue`, `traceback` |
+
+JavaScript is the same request with another `language`: `console.log([1, 2, 3].reduce((a, b) => a + b, 0));` prints `6` the same way.
+
+<ApiV1>
+
+Two language-specific routes run the same code with their own session semantics:
+
+- [`POST /v1/jupyter/execute`](/daemon/basic/jupyter) uses a real IPython kernel, with magics and rich output.
+- [`POST /v1/nodejs/execute`](/daemon/basic/nodejs) uses the JavaScript REPL.
+
+</ApiV1>
+
+## Runtime info
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/code/info"
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/code/info"
+```
+
+</ApiV1>
+
+Both surfaces answer with the same body — which backend, languages, and limits are in effect:
+
+- `backend` — the layer that runs Python here: `native`, `kernel`, or `endpoint`
+- `kinds` — the runtimes present: `python`, `nodejs`, plus `jupyter` with a kernel
+- `languages` — what `language` accepts
+- `python`, `node` — `{available, version}` each
+- `max_sessions` — how many sessions can be open at once
+- `default_timeout`, `max_timeout` — `30` and `900`
+- `prewarmed` — how many warm processes are waiting; `0` by default
+
+## Keep variables across calls
+
+A `session_id` the daemon has not seen is created on the spot, and `stateful: true` without one returns a generated id. Session state lives in memory: it survives calls within the session, not an `aiod` restart.
+
+<ApiV2>
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `POST /v2/code/sessions` | Open one up front | `language`, plus `session_id`, `cwd`, `user` |
+| `GET /v2/code/sessions` | List them | Keyed by session id |
+| `GET /v2/code/sessions/{id}` | Read one | An unknown id is a `404` |
+| `DELETE /v2/code/sessions/{id}` | End one | An unknown id is a `200` with `deleted: false` |
+| `DELETE /v2/code/sessions` | End all of them | Answers `cleaned_sessions` |
+
+A session entry carries:
+
+- `session_id`, `language`, `cwd` — what it is and where it runs
+- `created_at`, `last_used` — milliseconds since the epoch
+- `age_seconds` — seconds since the last run
+- `max_idle_time` — milliseconds of idle time before it is closed
+- `state` — `idle` or `executing`
+
+A kernel-backed Python session is listed here too, carrying its `kernel_name` instead of a `max_idle_time`.
+
+The following example makes two calls in the same session. `Aio` is the envelope-aware helper from [Examples](/daemon/examples):
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sb = Aio(BASE_URL)
+
+# 1. Load the data once; the session keeps it.
+sb.post(
+    "/v2/code/execute",
+    language="python",
+    session_id="analysis",
+    code="import statistics\nrows = [120, 135, 150, 142, 168, 180]",
+)
+
+# 2. Ask a question about it; `rows` is still there.
+run = sb.post(
+    "/v2/code/execute",
+    language="python",
+    session_id="analysis",
+    code="print(round(statistics.mean(rows), 1))",
+)
+print(run["stdout"].strip(), run["execution_count"])   # 149.2 2
+
+# 3. Drop the session when the task is done.
+sb.delete("/v2/code/sessions/analysis")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const sb = new Aio(BASE_URL);
+
+// 1. Load the data once; the session keeps it.
+await sb.post("/v2/code/execute", {
+  language: "python",
+  session_id: "analysis",
+  code: "import statistics\nrows = [120, 135, 150, 142, 168, 180]",
+});
+
+// 2. Ask a question about it; `rows` is still there.
+const run = await sb.post("/v2/code/execute", {
+  language: "python",
+  session_id: "analysis",
+  code: "print(round(statistics.mean(rows), 1))",
+});
+console.log(run.stdout.trim(), run.execution_count);   // 149.2 2
+
+// 3. Drop the session when the task is done.
+await sb.delete("/v2/code/sessions/analysis");
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+Sessions are listed and ended per language, on the route that owns them:
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `GET /v1/nodejs/sessions` | List the JavaScript sessions | `POST` opens one up front |
+| `DELETE /v1/nodejs/sessions/{id}` | End one | Answers `deleted` |
+| [`GET /v1/jupyter/sessions`](/daemon/basic/jupyter) | List the kernel-backed Python ones | Where `ipykernel` is installed |
+| [`DELETE /v1/jupyter/sessions/{id}`](/daemon/basic/jupyter) | End one | A native Python session only idles out |
+
+Two calls sharing a session, through the SDK:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+client = Sandbox(base_url=BASE_URL)
+
+# 1. Load the data once; the session keeps it.
+client.code.execute_code(
+    language="python",
+    session_id="analysis",
+    code="import statistics\nrows = [120, 135, 150, 142, 168, 180]",
+)
+
+# 2. Ask a question about it; `rows` is still there.
+run = client.code.execute_code(
+    language="python",
+    session_id="analysis",
+    code="print(round(statistics.mean(rows), 1))",
+).data
+print(run.stdout.strip(), run.execution_count)   # 149.2 2
+
+# 3. Drop the session when the task is done.
+client.jupyter.delete_session("analysis")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const client = new SandboxClient({ environment: BASE_URL });
+
+// 1. Load the data once; the session keeps it.
+await client.code.executeCode({
+  language: "python",
+  session_id: "analysis",
+  code: "import statistics\nrows = [120, 135, 150, 142, 168, 180]",
+} as any);
+
+// 2. Ask a question about it; `rows` is still there.
+const run = (await client.code.executeCode({
+  language: "python",
+  session_id: "analysis",
+  code: "print(round(statistics.mean(rows), 1))",
+} as any)) as any;
+const data = run.body.data;
+console.log(data.stdout.trim(), data.execution_count);   // 149.2 2
+
+// 3. Drop the session when the task is done.
+await client.jupyter.deleteSession("analysis" as any);
+```
+
+</Tab>
+</Tabs>
+
+Which SDK calls reach these routes unchanged is listed in [1.x SDK compatibility](/daemon/start/migration#1x-sdk-compatibility).
+
+</ApiV1>
+
+Where a kernel serves Python, a code session and a Jupyter session with the same id are one namespace: `{"session_id": "s1"}` on the code route and on [`/v1/jupyter/execute`](/daemon/basic/jupyter) reach the same kernel, and either side can end it.
+
+## Patterns for an agent
+
+Most runs are one-offs.
+
+| Scenario | Call | Then |
+| --- | --- | --- |
+| `print(sum(...))` | one-off | Read `stdout` from the same response |
+| Iterating on a dataset | a named session | Reuse the id; the variables are still there |
+| `while True: pass` | with a `timeout` | `status: "timeout"`; see the table below |
+| An exception | any | Feed `outputs[].traceback` back to the model |
+| Ruby, Go, anything else | a command | See [More languages](#more-languages) |
+
+## Timeouts and limits
+
+A run that exceeds its `timeout` returns `status: "timeout"`. What happens next, and the resource cost, depend on the tier:
+
+| Tier | On timeout | Limits |
+| --- | --- | --- |
+| Native REPL | `execution timed out after 2000ms; session state was reset` | 20 sessions, closed after 1800 s idle |
+| Embedded kernel | A `KeyboardInterrupt`, then `execution timed out after 2000ms and was interrupted` | 5 sessions, closed after 300 s idle |
+
+The native tier kills the interpreter five seconds past the deadline, so a run that ends inside that grace still returns its output; the session stays open and its namespace starts empty again. The kernel interrupts the cell instead, and keeps both the kernel and everything defined before it.
+
+The two limits come from `AIO_CODE_MAX_SESSIONS` / `AIO_CODE_SESSION_TIMEOUT_SECS` and `AIO_KERNEL_MAX_SESSIONS` / `AIO_KERNEL_SESSION_TIMEOUT_SECS`. One session past the limit is a `429`: `Maximum number of sessions (20) reached`, or `Maximum number of kernel sessions (5) reached`. Existing sessions are never evicted.
+
+## How it picks a backend
+
+For Python, the daemon tries three backends in order:
+
+1. The external Jupyter-compatible endpoint at `AIO_JUPYTER_ENDPOINT`, if reachable
+2. An embedded kernel, if `ipykernel` is installed
+3. The native Python REPL
+
+JavaScript always runs on the native REPL and needs only `node` on `PATH`. Nothing is warmed by default: `AIO_CODE_PREWARM`, which pools native JavaScript harnesses, and `AIO_KERNEL_PREWARM` are both `0`.
+
+`AIO_CODE_BACKEND` (`auto`, `native`, or `kernel`) pins one Python backend and skips this order.
+
+![](/architecture/aiod-code-backends.svg)
+
+## More languages
+
+`language` accepts `python` (also `python3`) and `javascript` (also `node`, `nodejs`, `js`); anything else is a `422`. To support other languages, choose one of these approaches, in order of effort:
+
+- **Any interpreter, no state.** Run it through [Commands](/daemon/basic/bash), as `ruby -e "puts 1"`. Nothing to configure; you give up only session state and the notebook-shaped output.
+- **A different Python or Node.** `PYTHON_VERSION` / `NODE_VERSION` pick which `python3` / `node` on `PATH` the native tier spawns. `kernel_name` on `/v1/jupyter` picks among the installed kernels. See [Jupyter](/daemon/basic/jupyter).
+- **Add a language to the code plane.** The native tier is one small, stdlib-only harness per language, compiled into the binary (`harness.py`, `harness.js`).
+
+The daemon writes `{"code", "timeout_ms"}` lines to the harness's stdin and reads `{"stdout", "stderr", "result", "error"}` lines from its stdout, one process per session.
+
+Adding a language means writing that harness for its interpreter and registering it in the daemon's `Language` list. The HTTP surface, sessions, timeouts, and limits are shared.
+
+## Error handling
+
+An exception, a timeout, or a dead interpreter is an `HTTP 200` with `success: false` and `status` `error` or `timeout`. Only a bad request carries an error status code:
+
+| Condition | Result |
+| --- | --- |
+| Unsupported `language`, missing `code`, `timeout` outside 1–900 | `422` |
+| A `cwd` that is not a directory | `422` |
+| An empty `code` string | `422` on v2, `200` on v1 |
+| No interpreter for the language | `503`, naming what it looked for |
+| Session limit reached | `429` |
+| Unknown session id on `GET .../sessions/{id}` | `404` |
+
+A v2 refusal puts the reason in `message`: `Unsupported language 'ruby'. Supported: python, javascript`. A v1 refusal carries that same sentence in the `errors` list, one entry per rejected field, with `location: ["body", "language"]` and `type: "enum"`.
+
+See [Error Handling](/daemon/basic/error-handling) for the cross-plane conventions.

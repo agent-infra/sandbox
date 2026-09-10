@@ -1,0 +1,173 @@
+/* Daemon release page (theme/DaemonReleases.tsx). Flat tiles, one accent, no
+   nested boxes; colours come from the rspress theme tokens so both themes work. */
+.aiod-releases {
+  --aiod-radius: 10px;
+}
+.aiod-muted {
+  color: var(--rp-c-text-2);
+  font-weight: 400;
+}
+
+/* latest */
+.aiod-latest {
+  margin: 1.5rem 0 2.5rem;
+}
+.aiod-latest-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.aiod-latest-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--rp-c-brand);
+}
+.aiod-latest-version {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* platform tiles */
+.aiod-platforms {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.75rem;
+}
+.aiod-platform {
+  padding: 0.85rem 1rem 0.6rem;
+  border-radius: var(--aiod-radius);
+  background: var(--rp-c-bg-soft);
+}
+.aiod-platform-name {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.aiod-file {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+.aiod-file + .aiod-file {
+  border-top: 1px solid var(--rp-c-divider-light, var(--rp-c-divider));
+}
+.aiod-file-name {
+  font-family: var(--rp-font-family-mono, ui-monospace, monospace);
+  font-weight: 500;
+  color: var(--rp-c-brand);
+  text-decoration: none;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.aiod-file-name:hover {
+  text-decoration: underline;
+}
+.aiod-file-size {
+  color: var(--rp-c-text-2);
+  white-space: nowrap;
+}
+
+/* copy buttons */
+.aiod-copy {
+  flex: none;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--rp-c-divider);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--rp-c-text-2);
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+.aiod-copy:hover,
+.aiod-copy:focus-visible {
+  color: var(--rp-c-brand);
+  border-color: var(--rp-c-brand);
+  outline: none;
+}
+.aiod-copy-done {
+  color: var(--rp-c-brand);
+  border-color: var(--rp-c-brand);
+}
+
+/* install one-liner */
+.aiod-install {
+  margin-top: 1rem;
+}
+.aiod-install-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  color: var(--rp-c-text-2);
+  font-size: 0.9rem;
+}
+.aiod-releases .aiod-install pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--aiod-radius);
+  background: var(--rp-c-bg-soft);
+  overflow-x: auto;
+  font-size: 0.85em;
+}
+
+/* release list */
+.aiod-releases h3 small {
+  font-size: 0.7em;
+  font-weight: 400;
+  color: var(--rp-c-text-2);
+  margin-left: 0.5em;
+}
+.aiod-badge {
+  display: inline-block;
+  margin-left: 0.5em;
+  padding: 0 0.5em;
+  border-radius: 999px;
+  font-size: 0.65em;
+  font-weight: 500;
+  vertical-align: middle;
+  color: var(--rp-c-brand);
+  border: 1px solid var(--rp-c-brand);
+}
+.aiod-commit {
+  float: right;
+}
+.aiod-release {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rp-c-divider);
+}
+.aiod-release details {
+  margin: 0.5rem 0;
+}
+.aiod-release summary {
+  cursor: pointer;
+  color: var(--rp-c-text-2);
+}
+.aiod-release details[open] summary {
+  margin-bottom: 0.5rem;
+}
+.aiod-toggle {
+  display: block;
+  margin-bottom: 1rem;
+  color: var(--rp-c-text-2);
+}
+.aiod-generated,
+.aiod-error {
+  color: var(--rp-c-text-2);
+  font-size: 0.9em;
+}

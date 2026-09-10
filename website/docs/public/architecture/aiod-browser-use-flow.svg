@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 800 452" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif">
+      <defs>
+        <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- Lifelines -->
+      <line x1="88" y1="64" x2="88" y2="436" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+      <line x1="344" y1="64" x2="344" y2="436" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+      <line x1="536" y1="64" x2="536" y2="436" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+      <line x1="712" y1="64" x2="712" y2="436" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="3,3"/>
+
+      <!-- Activation: the loaded document the refs belong to -->
+      <rect x="532" y="236" width="8" height="192" rx="1" fill="rgba(45,49,66,0.08)" stroke="rgba(45,49,66,0.25)" stroke-width="0.8"/>
+
+      <!-- 1. build the page in the sandbox -->
+      <line x1="92" y1="96" x2="340" y2="96" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+      <rect x="171" y="75" width="90" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="216" y="86" fill="#2e5aa8" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">/v2/fs/write</text>
+
+      <line x1="348" y1="124" x2="708" y2="124" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="445" y="103" width="166" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="528" y="114" fill="#4f5d75" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">index.html · thanks.html</text>
+
+      <line x1="92" y1="152" x2="340" y2="152" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+      <rect x="146" y="131" width="140" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="216" y="142" fill="#2e5aa8" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">/v2/commands · async</text>
+
+      <line x1="348" y1="180" x2="708" y2="180" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="467" y="159" width="122" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="528" y="170" fill="#4f5d75" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">http.server 18780</text>
+
+      <!-- 2. navigate Chromium to it -->
+      <line x1="92" y1="216" x2="340" y2="216" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+      <rect x="146" y="195" width="140" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="216" y="206" fill="#2e5aa8" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">/v2/browser/navigate</text>
+
+      <line x1="348" y1="244" x2="532" y2="244" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="401" y="223" width="78" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="440" y="234" fill="#4f5d75" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">CDP · load</text>
+
+      <line x1="540" y1="272" x2="708" y2="272" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <rect x="585" y="251" width="78" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="624" y="262" fill="#4f5d75" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">index.html</text>
+
+      <!-- 3. read the tree, fill, click, check -->
+      <line x1="92" y1="308" x2="340" y2="308" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+      <rect x="146" y="287" width="140" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="216" y="298" fill="#2e5aa8" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">/v2/browser/snapshot</text>
+
+      <line x1="92" y1="336" x2="340" y2="336" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+      <rect x="143" y="315" width="146" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="216" y="326" fill="#2e5aa8" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">/v2/browser/fill · e6</text>
+
+      <line x1="92" y1="364" x2="340" y2="364" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+      <rect x="136" y="343" width="160" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="216" y="354" fill="#2e5aa8" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">/v2/browser/click · e14</text>
+
+      <line x1="92" y1="392" x2="340" y2="392" stroke="#2e5aa8" stroke-width="1.4" marker-end="url(#arrow-link)"/>
+      <rect x="114" y="371" width="204" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="216" y="382" fill="#2e5aa8" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">/v2/browser/evaluate · #result</text>
+
+      <line x1="532" y1="420" x2="84" y2="420" stroke="#eb6c36" stroke-width="1.4" stroke-dasharray="4,3" marker-end="url(#arrow-accent)"/>
+      <rect x="269" y="399" width="78" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="308" y="410" fill="#eb6c36" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">hello, Ada</text>
+
+      <!-- Lifeline heads -->
+      <rect x="16" y="24" width="144" height="40" rx="6" fill="#f5f5f5"/>
+      <rect x="16" y="24" width="144" height="40" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="88" y="49" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle">Agent</text>
+
+      <rect x="272" y="24" width="144" height="40" rx="6" fill="#f5f5f5"/>
+      <rect x="272" y="24" width="144" height="40" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="344" y="45" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle">aiod</text>
+      <text x="344" y="58" fill="#4f5d75" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">:18091</text>
+
+      <rect x="464" y="24" width="144" height="40" rx="6" fill="#f5f5f5"/>
+      <rect x="464" y="24" width="144" height="40" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="536" y="45" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle">Chromium</text>
+      <text x="536" y="58" fill="#4f5d75" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">CDP :9222</text>
+
+      <rect x="640" y="24" width="144" height="40" rx="6" fill="#f5f5f5"/>
+      <rect x="640" y="24" width="144" height="40" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="712" y="45" fill="#2d3142" font-size="14" font-weight="600" text-anchor="middle">Sandbox</text>
+      <text x="712" y="58" fill="#4f5d75" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">:18780</text>
+
+    </svg>

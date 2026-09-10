@@ -1,0 +1,282 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# MCP
+
+An MCP-capable agent can call the sandbox's built-in tools directly for file, command, code, and browser work.
+
+## Requirements
+
+Connect an MCP client to `POST /mcp`. Each tool still needs the plane it drives.
+
+<ApiV2>
+
+Read the available capabilities from `capabilities` in `GET /v2/sandbox`.
+
+</ApiV2>
+
+<ApiV1>
+
+Read the available capabilities from `GET /v1/capabilities`.
+
+</ApiV1>
+
+With `AIO_API_KEY` set, send the key as `Authorization: Bearer <key>`; the endpoint is not public and answers `401` without it.
+
+## The tool list
+
+Use `tools/list` to get the current tool list.
+
+<Tabs groupId="sdk-lang">
+<Tab label="curl">
+
+```bash
+curl -X POST "$BASE_URL/mcp" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+</Tab>
+</Tabs>
+
+The built-in set is compiled into the binary, in that order:
+
+| Tool | What it does |
+| --- | --- |
+| `sandbox_execute_bash` | Runs a shell command in a managed session |
+| `sandbox_execute_code` | Runs Python or JavaScript |
+| `sandbox_file_operations` | read, write, replace, search, find, list, grep, glob |
+| `sandbox_str_replace_editor` | view, create, str_replace, insert, undo_edit |
+| `sandbox_get_context` | Sandbox version and home directory |
+| `sandbox_get_packages` | Installed Python or Node packages |
+| `sandbox_load_skill` | Loads one skill, or lists them all |
+| `browser_get_info` | CDP url, viewport size, and the rest |
+| `browser_gui_screenshot` | Screenshot of the whole display |
+| `browser_gui_execute_action` | One GUI action on the display |
+
+Anything beyond these came from a registered MCP server, so read the list rather than a count. Each entry carries its own JSON Schema:
+
+```json
+{
+  "description": "Execute code in Python or JavaScript runtime.",
+  "inputSchema": {
+    "properties": {
+      "code": {
+        "description": "Code to execute",
+        "type": "string"
+      },
+      "language": {
+        "description": "Programming language ('python', 'javascript')",
+        "type": "string"
+      },
+      "timeout": {
+        "description": "Execution timeout in seconds",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "code"
+    ],
+    "type": "object"
+  },
+  "name": "sandbox_execute_code"
+}
+```
+
+## A complete workflow in four tool calls
+
+The four JSON requests below write the numbers, count the lines, sum them in Python, and read the result back.
+
+All four steps share one filesystem, so the command and code can read the file written in step 1.
+
+### 1. Write the input file
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_file_operations",
+    "arguments": {
+      "action": "write",
+      "path": "/tmp/agent-data.txt",
+      "content": "3\n7\n12\n5\n"
+    }
+  }
+}
+```
+
+### 2. Run a command
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_execute_bash",
+    "arguments": {
+      "cmd": "wc -l /tmp/agent-data.txt",
+      "cwd": "/tmp"
+    }
+  }
+}
+```
+
+### 3. Run Python code
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_execute_code",
+    "arguments": {
+      "language": "python",
+      "code": "nums = [int(n) for n in open(\"/tmp/agent-data.txt\").read().split()]\nopen(\"/tmp/agent-result.txt\", \"w\").write(str(sum(nums)))\nprint(\"sum written\")"
+    }
+  }
+}
+```
+
+### 4. Read the result
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_file_operations",
+    "arguments": {
+      "action": "read",
+      "path": "/tmp/agent-result.txt"
+    }
+  }
+}
+```
+
+Every result has a `content` list; a failed call sets `isError` to `true`. The text inside is what the model reads — the file tool's JSON, the command's output, or the interpreter's stdout. In full, step 1:
+
+```json
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"action\":\"write\",\"bytes_written\":9,\"path\":\"/tmp/agent-data.txt\",\"success\":true}",
+        "type": "text"
+      }
+    ],
+    "isError": false
+  }
+}
+```
+
+`sandbox_execute_bash` runs in one shared session unless `new_session` is set, and its result reports the `cwd` the session ended in. Pass that back on the next call and the agent's idea of the working directory stays in step with the shell's.
+
+## When a call fails
+
+There are two failure shapes, depending on whether the tool ran. The requests below show an unknown tool and a missing file:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_execute",
+    "arguments": {}
+  }
+}
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "method": "tools/call",
+  "params": {
+    "name": "sandbox_file_operations",
+    "arguments": {
+      "action": "read",
+      "path": "/tmp/agent-missing.txt"
+    }
+  }
+}
+```
+
+An unknown tool name, a missing tool name, or an unknown method is a JSON-RPC error. It still arrives on HTTP `200`; the error object is what an MCP client parses:
+
+```json
+{
+  "error": {
+    "code": -32602,
+    "message": "unknown tool: sandbox_execute"
+  },
+  "id": 1,
+  "jsonrpc": "2.0"
+}
+```
+
+A tool that ran and failed comes back as an ordinary result with `isError: true`. The text carries the reason, and the file plane passes its structured error straight through:
+
+```json
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"action\":\"read\",\"error\":{\"errno\":2,\"errno_name\":\"ENOENT\",\"error_type\":\"not_found\",\"exception_type\":\"FileNotFoundError\",\"message\":\"Failed to read file: No such file or directory (os error 2)\",\"operation\":\"read\",\"path\":\"/tmp/agent-missing.txt\",\"retryable\":false},\"message\":\"Failed to read file: No such file or directory (os error 2)\",\"path\":\"/tmp/agent-missing.txt\",\"success\":false}",
+        "type": "text"
+      }
+    ],
+    "isError": true
+  }
+}
+```
+
+A missing argument is this second kind, not the first: `sandbox_execute_bash` without `cmd` answers `isError: true` and the text `cmd is required`. So do `browser_gui_screenshot` and `browser_gui_execute_action` with no computer-use worker, `browser_get_info` with no reachable CDP port, and any call to a registered MCP server that is down.
+
+## Aggregating another MCP server
+
+`EXTRA_MCP_SERVERS` (or `--mcp-servers`) registers other MCP servers as `{"name": {"url": ..., "prefix": ...}}`. Their tools join the same catalogue, and a call to one is forwarded and its answer passed back unedited. Any stateless MCP server on loopback will do, so a second daemon is the cheapest way to see it work:
+
+```bash
+EXTRA_MCP_SERVERS='{"peer":{"url":"http://127.0.0.1:18091/mcp","prefix":"peer"},"gone":{"url":"http://127.0.0.1:18111/mcp","prefix":"gone"}}' \
+  aiod start --port 18092
+
+curl -X POST "http://127.0.0.1:18092/mcp" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+# → 20 tools: the 10 built-in ones, then peer_sandbox_execute_bash …
+#   peer_browser_gui_execute_action. An upstream that does not answer, like
+#   "gone" here, is simply absent from the list.
+
+curl -X POST "http://127.0.0.1:18092/mcp" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"peer_sandbox_execute_bash","arguments":{"cmd":"echo hello","cwd":"/tmp"}}}'
+
+curl -X POST "http://127.0.0.1:18092/mcp" -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"gone_hello","arguments":{}}}'
+```
+
+The rules behind that run:
+
+- Only `http://` on `127.0.0.1`, `localhost` or `[::1]` is accepted. Remote and `command` (stdio) entries are skipped with a warning at startup.
+- There is no handshake and no session, one POST per call, so an upstream may start after the daemon and appears on the next `tools/list`.
+- With `prefix`, tools are published as `<prefix>_<tool>` and the prefix comes off again on the way out. Without one, the server's own names must already start with `<name>_`; the rest are dropped, because nothing would say where to route them.
+- A built-in name wins a collision, and between two upstreams the first registered one keeps the name.
+
+On the AIO image `mcp-server-browser` is registered exactly this way, which is where the page-level `browser_*` navigation tools in that image's list come from.
+
+## Connecting a client
+
+Any client that supports streamable-HTTP MCP can connect to `http://127.0.0.1:18091/mcp`, or to the gateway's `/mcp` on the prebuilt images. With a key set, send it as a bearer header.
+
+## Related
+
+- [Agent Calls the Sandbox](/daemon/examples/agent-call-sandbox) — the same four steps over REST
+- [Error Handling](/daemon/basic/error-handling) — the envelope, `isError`, and the status codes
+- [Sandbox Info & Capabilities](/daemon/basic/sandbox) — the same context through REST
+- [Migration from 1.x](/daemon/start/migration#mcp) — what became of the 1.x MCP management routes

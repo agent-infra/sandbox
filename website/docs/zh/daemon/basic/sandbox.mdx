@@ -1,0 +1,272 @@
+import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
+
+# 沙箱信息与能力
+
+沙箱接口返回 aiod 的环境和当前能力。能力来自对各个子系统的探测，因此返回结果反映运行时状态，而不是固定清单。
+
+子系统缺失时，能力会降级。请求仍然成功。结果有缓存，重复轮询代价很低。
+
+v1 和 v2 路由的对照见 [从 1.x 迁移](/zh/daemon/start/migration#sandbox)。
+
+## 读取环境信息
+
+客户端的第一个请求用于获取三类信息：当前环境、已安装的运行时，以及具备后端的 plane：
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/sandbox"
+```
+
+一个对象同时包含这三类信息。`capabilities` 就是 [能力快照与分支](#能力快照与分支) 中介绍的快照，无需额外请求。
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/sandbox"
+```
+
+`data` 是纯文本摘要，`detail`、`version` 和 `workspace` 位于顶层。
+
+响应还包含 `home_dir`。它是 `workspace_dir` 的另一个名称，并会在 `detail.system` 下再出现一次；只有 v1 接口会返回该字段。
+
+这里没有 `capabilities` 字段，需要再调用一次 `GET /v1/capabilities`。
+
+<UseV2 when={'用一次请求同时取到身份、workspace 和能力'} route="GET /v2/sandbox" />
+
+</ApiV1>
+
+两种响应都包含相同的环境字段：
+
+- `workspace_dir`、`workspace` —— 同一个值的两个名字：daemon 账户的 home 目录，没指定工作目录的命令在这里运行
+- `version` —— daemon 的版本号
+- `detail.system` —— `os`、`os_version`、`arch`、`user`、`timezone`、`occupied_ports`，以及前面的两个 workspace 字段
+- `detail.runtime` —— `python` 和 `nodejs`，各是一个 `{ver, bin, alias}` 数组
+- `detail.utils` —— 在 `PATH` 上找到的工具，按 `editors`、`network`、`search` 等类别分组
+
+`detail.system.sandbox_user` 只在镜像预置了非特权账户时出现，内容为该账户实际解析到的 `{name, uid, gid, home}`。
+
+`occupied_ports` 读取 `/proc/net/tcp`。因此它只在 Linux 上列出监听端口，其他平台始终为空。
+
+workspace 不可配置，也没有 `--workspace` 参数；`workspace_dir` 就是账户的 home 目录。
+
+## 能力快照与分支
+
+文档把一组相关接口叫做 **plane**：commands（命令）、files（文件）、terminals（终端）、code（代码）、browser（浏览器）和 desktop（桌面 GUI）。
+
+调用某个 plane 前，先读取一次快照，再按能力字段分支。
+
+```bash
+curl "$BASE_URL/v1/capabilities"
+```
+
+客户端启动时需要的每一项信息都对应一个字段：
+
+| 信息 | 字段 |
+| --- | --- |
+| 命令的工作目录 | `workspace_dir` |
+| 浏览器 plane 的状态 | `capabilities.browser.status` |
+| 执行代码的 Python 解释器 | `capabilities.code_interpreter.default_python` |
+| 桌面 GUI plane 的状态 | `capabilities.computer.status` |
+| plane 未就绪的原因 | 该 plane 的 `missing` |
+
+快照的内容按组组织：
+
+| 分组 | 字段 |
+| --- | --- |
+| `files` | 十二个开关，每个文件操作一个 |
+| `exec` | `shell`、`bash`、`pty` |
+| `bins` | 解析到的二进制：`bash`、`sh`、`ps`，Windows 上还有 `powershell` 和 `cmd` |
+| `code_interpreter` | `status`、`backend`、`javascript_backend`、`jupyter_backend`、`kinds`、`default_python`、`default_node`、`python_kernels`、`endpoint` |
+| `browser` | `status`、`executable`、`executable_source`、`process`、`cdp`、`cdp_endpoint` |
+| `computer` | `status`、`provider`、`display`、`screenshot`、`actions`、`clipboard`、`recording`、`accessibility`、`resolution` |
+
+以下三个条目带状态探测：`browser`（浏览器 plane）、`computer`（桌面 GUI plane）和 `code_interpreter`（代码 plane）。它们都有 `status`、`missing` 和 `warnings` 字段。
+
+`missing` 列出未就绪的原因，`warnings` 说明能力只有部分可用的原因。`status` 的取值如下：
+
+- `ready` —— plane 可正常应答
+- `degraded` —— 依赖存在，但 plane 无法应答，例如浏览器可执行文件存在、CDP 端口不通
+- `absent` —— 完全不可用；`code_interpreter` 只用 `ready` 和 `absent` 两种
+
+没有浏览器的主机上，浏览器 plane 是这样：
+
+```json
+"browser": {
+  "cdp": false,
+  "cdp_endpoint": "http://127.0.0.1:9222",
+  "executable": null,
+  "executable_source": null,
+  "missing": [
+    "browser executable",
+    "cdp"
+  ],
+  "process": true,
+  "status": "absent",
+  "warnings": [
+    "browser process detected but CDP is unreachable"
+  ]
+}
+```
+
+读取快照并据此分支：
+
+<ApiV2>
+
+`Aio` 是 [Examples](/zh/daemon/examples) 中用于解析返回结构的辅助客户端：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sb = Aio(BASE_URL)
+
+info = sb.get("/v2/sandbox")
+caps = info["capabilities"]
+
+print(info["workspace_dir"], info["version"])
+# /Users/USER 0.9.1
+statuses = {name: caps[name]["status"]
+            for name in ("browser", "code_interpreter", "computer")}
+print(statuses)
+
+if caps["browser"]["status"] != "ready":
+    print("browser unusable:", caps["browser"]["missing"])
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const sb = new Aio(BASE_URL);
+
+const info = await sb.get("/v2/sandbox");
+const caps = info.capabilities;
+
+console.log(info.workspace_dir, info.version);
+// /Users/USER 0.9.1
+const statuses = Object.fromEntries(
+  ["browser", "code_interpreter", "computer"].map((n) => [n, caps[n].status]),
+);
+console.log(statuses);
+
+if (caps.browser.status !== "ready") {
+  console.log("browser unusable:", caps.browser.missing);
+}
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import httpx
+
+info = httpx.get(f"{BASE_URL}/v1/sandbox").json()
+caps = httpx.get(f"{BASE_URL}/v1/capabilities").json()["data"]
+
+print(info["workspace_dir"], info["version"])
+# /Users/USER 0.9.1
+statuses = {name: caps[name]["status"]
+            for name in ("browser", "code_interpreter", "computer")}
+print(statuses)
+
+if caps["browser"]["status"] != "ready":
+    print("browser unusable:", caps["browser"]["missing"])
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const client = new SandboxClient({ environment: BASE_URL });
+
+const info = (await client.sandbox.getContext()) as any;
+const caps = await fetch(`${BASE_URL}/v1/capabilities`)
+  .then((r) => r.json())
+  .then((body) => body.data);
+
+console.log(info.body.workspace_dir, info.body.version);
+// /Users/USER 0.9.1
+const statuses = Object.fromEntries(
+  ["browser", "code_interpreter", "computer"].map((n) => [n, caps[n].status]),
+);
+console.log(statuses);
+```
+
+</Tab>
+</Tabs>
+
+Python SDK 在这里直接通过 HTTP 读取 `/v1/sandbox`。
+
+其他需要直接发 HTTP 请求的 SDK 调用，见 [1.x SDK 兼容性](/zh/daemon/start/migration#1x-sdk-兼容性)。
+
+</ApiV1>
+
+后端缺失的 plane 仍然保留自己的路由，返回 `503`，并在 `hint` 里给出修复方向：
+
+```json
+{
+  "data": null,
+  "hint": "Ensure the browser capability is ready (GET /v1/capabilities).",
+  "message": "Browser screenshot unavailable: list targets: error sending request for url (http://127.0.0.1:9222/json/list)",
+  "success": false
+}
+```
+
+调用时应根据能力快照选择分支，而不是根据 `404` 判断。
+
+缺少后端的 plane 仍然保留路由，因此仅凭状态码无法区分“后端缺失”和“路径错误”。
+
+探测结果缓存 5 秒。daemon 启动时会先探测一次，因此第一次读取就能获取快照。
+
+快照过期后，接口会立即返回旧快照，并在后台重新探测。`GET /v1/capabilities?refresh=true` 会等待探测完成；`GET /v2/sandbox` 不会按请求重新探测，需要强制重测时请调用 `/v1/capabilities`。
+
+浏览器探测只调用一次 `GET /json/version`，预算为 300 ms。
+
+## 已安装的包
+
+daemon 列出全局安装的 Python 和 Node.js 包。
+
+<ApiV2>
+
+| 路由 | 作用 | 说明 |
+| --- | --- | --- |
+| `GET /v2/sandbox/packages?lang=python` | Python 清单 | `lang` 必填 |
+| `GET /v2/sandbox/packages?lang=nodejs` | Node.js 清单 | 两个运行时共用一个路由 |
+
+不传 `lang` 时返回 `422`，并在 `errors[0].location` 中指出 `["query", "lang"]`。
+
+`lang` 取值无法识别时，返回结构中的状态码为 `400`，例如 `unknown lang "ruby": expected python or nodejs`。
+
+</ApiV2>
+
+<ApiV1>
+
+| 路由 | 作用 | 说明 |
+| --- | --- | --- |
+| `GET /v1/sandbox/packages/python` | Python 清单 | 每个运行时一个路由 |
+| `GET /v1/sandbox/packages/nodejs` | Node.js 清单 | SDK 里是 `sandbox.get_nodejs_packages()` |
+
+</ApiV1>
+
+`data` 是文本清单，不是结构化数据。
+
+Python 清单来自 code plane 选中的解释器执行的 `pip list`，每行一个 `  - name==version`。Node.js 清单来自 `npm list -g --depth=0`，并带有一行表头：
+
+```text
+Node.js Packages:
+  - agent-browser@0.34.0
+  - npm@10.5.0
+  - pnpm@7.33.7
+```
+
+同样的清单也是 MCP 工具 `sandbox_get_packages`，它的 `language` 参数取 `python` 或 `nodejs`，不传即 `python`。见 [MCP](/zh/daemon/examples/mcp)。

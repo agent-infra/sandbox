@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 760 230" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif">
+      <defs>
+        <style>@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      <text x="24" y="26" fill="#2d3142" font-size="13" font-weight="600">AIO image, from docker run to ready</text>
+      <text x="24" y="41" fill="#4f5d75" font-size="10" font-family="'Geist Mono', ui-monospace, Menlo, monospace">seconds · same host, same base image</text>
+      <text x="196" y="69" fill="#2d3142" font-size="12" text-anchor="end">1.x image, API ready</text>
+      <rect x="208" y="56" width="437" height="18" rx="3" fill="rgba(79,93,117,0.35)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="653" y="69" fill="#2d3142" font-size="12" font-family="'Geist Mono', ui-monospace, Menlo, monospace">2.6 s</text>
+      <text x="196" y="99" fill="#2d3142" font-size="12" text-anchor="end">1.x image, Chromium ready</text>
+      <rect x="208" y="86" width="437" height="18" rx="3" fill="rgba(45,49,66,0.10)" stroke="#4f5d75" stroke-width="0.8" stroke-dasharray="4,3"/>
+      <text x="653" y="99" fill="#2d3142" font-size="12" font-family="'Geist Mono', ui-monospace, Menlo, monospace">2.6 s</text>
+      <text x="196" y="129" fill="#2d3142" font-size="12" text-anchor="end">aiod image, API ready</text>
+      <rect x="208" y="116" width="134" height="18" rx="3" fill="rgba(235,108,54,0.75)" stroke="#eb6c36" stroke-width="0.8"/>
+      <text x="350" y="129" fill="#2d3142" font-size="12" font-family="'Geist Mono', ui-monospace, Menlo, monospace">0.8 s</text>
+      <text x="196" y="159" fill="#2d3142" font-size="12" text-anchor="end">aiod image, Chromium ready</text>
+      <rect x="208" y="146" width="403" height="18" rx="3" fill="rgba(45,49,66,0.10)" stroke="#2d3142" stroke-width="0.8" stroke-dasharray="4,3"/>
+      <text x="619" y="159" fill="#2d3142" font-size="12" font-family="'Geist Mono', ui-monospace, Menlo, monospace">2.4 s</text>
+      <line x1="208" y1="52" x2="208" y2="176" stroke="rgba(45,49,66,0.25)" stroke-width="0.8"/>
+      <line x1="16" y1="198" x2="744" y2="198" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <text x="16" y="214" fill="#4f5d75" font-size="10.5">The 1.x gateway answers only once everything, Chromium included, is up. The aiod image is ready first; Chromium follows about 1.5 s later.</text>
+    </svg>

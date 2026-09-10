@@ -1,0 +1,137 @@
+import { Tab, Tabs } from '@theme';
+
+# Node.js
+
+`/v1/nodejs/execute` 是 aiod 的 JavaScript 执行接口：脚本、JSON 处理、前端工具链、基于 JS 的自动化。
+
+它始终运行在 daemon 的原生 REPL 上，直接启动一个进程。只要 `PATH` 中存在 `node` 即可，无需外部服务。
+
+同样的执行也可以按语言而不是按路由来调用：给 [`POST /v2/code/execute`](/zh/daemon/basic/code) 传 `language: "javascript"`（或 `"node"`）。v2 没有单独的 `/v2/nodejs`。
+
+## 运行要求
+
+`PATH` 中必须存在 `node`。
+
+可以通过 `GET /v1/capabilities` 检查：`code_interpreter.kinds` 应包含 `nodejs`，`javascript_backend` 应为 `native`，`default_node` 会指出实际使用的二进制。
+
+如果安装了多个版本，可以使用 `NODE_VERSION` 或 `NODE_CODE_EXEC_VERSION` 选择。
+
+## 执行代码
+
+不带 `session_id` 的调用，返回之后什么都不留：
+
+```bash
+curl -X POST "$BASE_URL/v1/nodejs/execute" \
+  -H "Content-Type: application/json" \
+  -d '{"code": "console.log(process.version); console.log(JSON.stringify({ ok: true }));"}'
+```
+
+请求体示例：
+
+```json
+{
+  "code": "console.log(process.version); console.log(JSON.stringify({ ok: true }));"
+}
+```
+
+请求体字段与 code plane 相同：`code`（必填）、`session_id`、`stateful`、`timeout`（1–900 秒，默认 30）、`cwd` 和 `user`。
+
+响应结构也相同，但此路由用 `""` 表示空流，而不是 `null`。
+
+`console.log` 变成一条 `stream` 输出；cell 的最后一个表达式变成带 `text/plain` 值的 `execute_result`，所以 `globalThis.n = 41` 即使没有任何打印，也会返回 `41`。
+
+## 运行时信息
+
+```bash
+curl "$BASE_URL/v1/nodejs/info"
+```
+
+这里的 `runtime_packages` 和 `global_packages` 永远是空的。装了什么包看 [`GET /v2/sandbox/packages?lang=nodejs`](/zh/daemon/basic/sandbox)。
+
+## 保留会话状态
+
+传入 `session_id` 后，可以在多次调用之间保留全局变量。
+
+会话状态保存在内存中：同一会话内会保留，但会在 `aiod` 重启后消失。
+
+| 路由 | 作用 | 说明 |
+| --- | --- | --- |
+| `POST /v1/nodejs/sessions` | 提前开一个会话 | 可选 `session_id`、`cwd`、`user` |
+| `GET /v1/nodejs/sessions` | 列出全部 | 每条带 `cwd`、`state`、`max_idle_time` |
+| `GET /v1/nodejs/sessions/{id}` | 读取一个 | 未知 id 返回 `404` |
+| `DELETE /v1/nodejs/sessions/{id}` | 结束一个 | 返回 `deleted` |
+| `DELETE /v1/nodejs/sessions` | 结束全部 | 返回 `cleaned_sessions` |
+
+会话与原生代码 plane 共用限制：最多同时运行 20 个会话，空闲 1800 秒后自动关闭（`AIO_CODE_MAX_SESSIONS` / `AIO_CODE_SESSION_TIMEOUT_SECS`）。超过上限时返回 `429`。
+
+两个 SDK 都覆盖执行和会话管理：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+client = Sandbox(base_url=BASE_URL)
+
+# 1. A stateless call: nothing survives it.
+run = client.nodejs.execute_code(code="console.log(1 + 1)").data
+print(run.outputs[0].text.strip())   # 2
+
+# 2. A session keeps globals between calls.
+client.nodejs.execute_code(session_id="js-repl", code="globalThis.count = 1")
+run = client.nodejs.execute_code(
+    session_id="js-repl",
+    code="globalThis.count += 1; console.log(globalThis.count)",
+).data
+print(run.stdout.strip(), run.execution_count)   # 2 2
+
+# 3. Close it.
+client.nodejs.delete_session("js-repl")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const client = new SandboxClient({ environment: BASE_URL });
+
+// 1. A stateless call: nothing survives it.
+const run = (await client.nodejs.executeCode({
+  code: "console.log(1 + 1)",
+} as any)) as any;
+console.log(run.body.data.outputs[0].text.trim());   // 2
+
+// 2. A session keeps globals between calls.
+await client.nodejs.executeCode({
+  session_id: "js-repl",
+  code: "globalThis.count = 1",
+} as any);
+const next = (await client.nodejs.executeCode({
+  session_id: "js-repl",
+  code: "globalThis.count += 1; console.log(globalThis.count)",
+} as any)) as any;
+console.log(next.body.data.stdout.trim(), next.body.data.execution_count);   // 2 2
+
+// 3. Close it.
+await client.nodejs.deleteSession("js-repl" as any);
+```
+
+</Tab>
+</Tabs>
+
+哪些 SDK 调用可以直接访问该路由，见 [1.x SDK 兼容性](/zh/daemon/start/migration#1x-sdk-兼容性)。
+
+## 错误与超时
+
+抛出异常时仍返回 `HTTP 200`，但 `success` 为 `false`，`status` 为 `error`。
+
+`error` 输出包含 `ename`、`evalue` 和 `traceback`。栈帧中的 `evalmachine.<anonymous>` 表示代码运行在 VM context 中，而不是作为文件执行。
+
+超过 `timeout` 时，执行结果的 `status` 为 `"timeout"`。`stderr` 和 `error` 输出中都会包含 `execution timed out after 2000ms; session state was reset`。
+
+daemon 会在超时 5 秒后终止解释器。会话仍然保留，但命名空间会被清空。
+
+## 选择接口
+
+- JavaScript 专用的执行走 `/v1/nodejs/execute`。
+- 调用方动态决定语言时走 [`/v2/code/execute`](/zh/daemon/basic/code)（或 `/v1/code/execute`）。
+- `npm install` 这类 shell 命令走 [`/v1/bash/exec`](/zh/daemon/basic/bash) 或 `/v2/commands`。

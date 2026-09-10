@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 760 236" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif">
+      <defs>
+        <style>@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+      <text x="24" y="26" fill="#2d3142" font-size="13" font-weight="600">Resident memory of the API process</text>
+      <text x="24" y="41" fill="#4f5d75" font-size="10" font-family="'Geist Mono', ui-monospace, Menlo, monospace">idle, MB</text>
+      <rect x="60" y="84" width="56" height="92" rx="3" fill="rgba(79,93,117,0.35)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="88" y="78" fill="#2d3142" font-size="12" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">120 MB</text>
+      <text x="88" y="192" fill="#4f5d75" font-size="11" text-anchor="middle">python-server</text>
+      <rect x="156" y="165" width="56" height="11" rx="3" fill="rgba(235,108,54,0.75)" stroke="#eb6c36" stroke-width="0.8"/>
+      <text x="184" y="159" fill="#2d3142" font-size="12" font-family="'Geist Mono', ui-monospace, Menlo, monospace" text-anchor="middle">14.6 MB</text>
+      <text x="184" y="192" fill="#4f5d75" font-size="11" text-anchor="middle">aiod</text>
+      <line x1="48" y1="176" x2="276" y2="176" stroke="rgba(45,49,66,0.25)" stroke-width="0.8"/>
+      <text x="330" y="26" fill="#2d3142" font-size="13" font-weight="600">Same route, p50 latency</text>
+      <text x="330" y="41" fill="#4f5d75" font-size="10" font-family="'Geist Mono', ui-monospace, Menlo, monospace">one keep-alive connection · ms · shorter is better</text>
+      <text x="466" y="70" fill="#2d3142" font-size="11.5" text-anchor="end">bash exec</text>
+      <rect x="478" y="58" width="200" height="10" rx="2" fill="rgba(79,93,117,0.35)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="684" y="67" fill="#2d3142" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace">12.6</text>
+      <rect x="478" y="70" width="37" height="10" rx="2" fill="rgba(235,108,54,0.75)" stroke="#eb6c36" stroke-width="0.8"/>
+      <text x="521" y="79" fill="#2d3142" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace">2.3</text>
+      <text x="466" y="102" fill="#2d3142" font-size="11.5" text-anchor="end">python session cell</text>
+      <rect x="478" y="90" width="170" height="10" rx="2" fill="rgba(79,93,117,0.35)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="654" y="99" fill="#2d3142" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace">10.7</text>
+      <rect x="478" y="102" width="97" height="10" rx="2" fill="rgba(235,108,54,0.75)" stroke="#eb6c36" stroke-width="0.8"/>
+      <text x="581" y="111" fill="#2d3142" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace">6.1</text>
+      <text x="466" y="134" fill="#2d3142" font-size="11.5" text-anchor="end">upload 1 MiB</text>
+      <rect x="478" y="122" width="111" height="10" rx="2" fill="rgba(79,93,117,0.35)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="595" y="131" fill="#2d3142" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace">7.0</text>
+      <rect x="478" y="134" width="46" height="10" rx="2" fill="rgba(235,108,54,0.75)" stroke="#eb6c36" stroke-width="0.8"/>
+      <text x="530" y="143" fill="#2d3142" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace">2.9</text>
+      <text x="466" y="166" fill="#2d3142" font-size="11.5" text-anchor="end">download 1 MiB</text>
+      <rect x="478" y="154" width="54" height="10" rx="2" fill="rgba(79,93,117,0.35)" stroke="#4f5d75" stroke-width="0.8"/>
+      <text x="538" y="163" fill="#2d3142" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace">3.4</text>
+      <rect x="478" y="166" width="37" height="10" rx="2" fill="rgba(235,108,54,0.75)" stroke="#eb6c36" stroke-width="0.8"/>
+      <text x="521" y="175" fill="#2d3142" font-size="10.5" font-family="'Geist Mono', ui-monospace, Menlo, monospace">2.3</text>
+      <line x1="478" y1="54" x2="478" y2="182" stroke="rgba(45,49,66,0.25)" stroke-width="0.8"/>
+      <rect x="478" y="188" width="10" height="10" rx="2" fill="rgba(79,93,117,0.35)" stroke="#4f5d75" stroke-width="0.8"/><text x="494" y="197" fill="#4f5d75" font-size="10.5">python-server (1.x)</text>
+      <rect x="620" y="188" width="10" height="10" rx="2" fill="rgba(235,108,54,0.75)" stroke="#eb6c36" stroke-width="0.8"/><text x="636" y="197" fill="#4f5d75" font-size="10.5">aiod</text>
+      <line x1="16" y1="208" x2="744" y2="208" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+      <text x="16" y="224" fill="#4f5d75" font-size="10.5">One host, one container at a time at 0.5 CPU / 0.5 GiB, N=200 per cell, 2026-08; both images on the same gateway and Docker port hop.</text>
+    </svg>

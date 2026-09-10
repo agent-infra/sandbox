@@ -1,0 +1,390 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# Code Interpreter
+
+代码 API 统一执行 Python 和 JavaScript。调用时传入语言和代码，daemon 会选择对应的运行时并返回结果。
+
+可用运行时包括原生 REPL、内嵌 IPython kernel 和外部 Jupyter 兼容服务。daemon 会根据语言和当前配置选择运行时，调用方不需要指定具体后端。
+
+**代码会话**（code session）在多次调用之间保持解释器进程存活：上一次调用定义的东西，下一次还在。不带会话时，每次执行都是一次性的，进程用完即弃。
+
+需要执行 shell 命令而不是一段代码时，用 [Commands](/zh/daemon/basic/bash)。v1 和 v2 路由的对照见 [从 1.x 迁移](/zh/daemon/start/migration#code)。
+
+## 运行要求
+
+`GET /v1/capabilities` 在 `code_interpreter` 下描述该 plane：
+
+- `status` —— 任一解释器能应答就是 `ready`，都没有时是 `absent`
+- `backend` —— 运行 Python 的是哪一层：`native`、`kernel` 或 `endpoint`
+- `kinds` —— `code`、`nodejs`，kernel 支撑 Python 时还有 `jupyter`
+- `default_python`、`default_node` —— 原生层实际启动的二进制
+
+原生层需要 `PATH` 上有 `python3` 或 `node`；kernel 层还需要能 import 的 `ipykernel`。daemon 会根据可用的运行时选择对应的执行层。
+
+## 执行代码
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/code/execute" \
+  -H "Content-Type: application/json" \
+  -d '{"language": "python", "code": "print(sum([1, 2, 3]))"}'
+```
+
+请求体示例：
+
+```json
+{
+  "language": "python",
+  "code": "print(sum([1, 2, 3]))"
+}
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/code/execute" \
+  -H "Content-Type: application/json" \
+  -d '{"language": "python", "code": "print(sum([1, 2, 3]))"}'
+```
+
+请求体示例：
+
+```json
+{
+  "language": "python",
+  "code": "print(sum([1, 2, 3]))"
+}
+```
+
+</ApiV1>
+
+请求体包含以下字段：
+
+| 字段 | 取值 | 含义 |
+| --- | --- | --- |
+| `language` | `python`, `javascript`, required | 用哪个解释器执行代码 |
+| `code` | string, required | 要执行的代码 |
+| `session_id` | string | 运行所在的会话；不传即一次性执行 |
+| `stateful` | boolean | 只传 `true` 会开一个会话并返回其 id |
+| `timeout` | 1–900 s (default 30) | 这次执行最长可以跑多久 |
+| `cwd` | string | 工作目录；在进程启动时固定 |
+| `user` | string | 运行身份；只有 root 才能切换 |
+
+`language` 也接受 `python3`、`node`、`nodejs` 和 `js`；路由不认识的字段会被忽略。
+
+如果 daemon 无法切换到请求指定的 `user`，这不属于请求格式错误。请求仍返回 `HTTP 200`，但 `status` 为 `error`，并在 `ProcessError` 输出中说明只有 root 可以切换身份。
+
+kernel 会忽略 `user`，始终使用 daemon 自己的账户运行。
+
+`data` 包含：
+
+- `language`、`code` —— 解析出的语言，以及实际执行的代码
+- `status` —— `ok`、`error` 或 `timeout`
+- `outputs` —— notebook 输出列表，执行产生的每样东西一条
+- `stdout`、`stderr` —— 各自独立的流；为空时 v2 是 `""`，v1 是 `null`
+- `exit_code` —— 正常执行完是 `0`；报错或超时后是 `1`
+- `execution_count` —— 会话的 cell 计数器，从 1 开始
+- `session_id` —— 运行它的会话；一次性执行时是 `null`
+
+`status` 表示本次执行结果，返回结构中的 `success` 与它对应。
+
+代码抛出异常或执行超时仍返回 HTTP `200`，但 `success` 为 `false`。
+
+空的 `code` 字符串是 v1 和 v2 的一个差异：v2 返回 `422`；v1 会执行空 cell，返回 `200`，且没有输出。
+
+`outputs` 是 notebook 输出列表：
+
+| `output_type` | 携带 |
+| --- | --- |
+| `stream` | `name`（`stdout` 或 `stderr`）和 `text` |
+| `execute_result` | 带 `text/plain` 的 `data`：最后一个表达式的值 |
+| `display_data` | 带 `image/png` 等 mime bundle 的 `data` |
+| `error` | `ename`、`evalue`、`traceback` |
+
+JavaScript 就是换一个 `language` 的同样请求：`console.log([1, 2, 3].reduce((a, b) => a + b, 0));` 同样打印 `6`。
+
+<ApiV1>
+
+另有两个按语言拆分的路由，执行相同的代码，但会话语义不同：
+
+- [`POST /v1/jupyter/execute`](/zh/daemon/basic/jupyter) 使用真正的 IPython kernel，支持 magic 命令和富输出。
+- [`POST /v1/nodejs/execute`](/zh/daemon/basic/nodejs) 使用 JavaScript REPL。
+
+</ApiV1>
+
+## 运行时信息
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/code/info"
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/code/info"
+```
+
+</ApiV1>
+
+两个接口返回同一份 body —— 当前生效的后端、语言和上限：
+
+- `backend` —— 这里运行 Python 的是哪一层：`native`、`kernel` 或 `endpoint`
+- `kinds` —— 存在的运行时：`python`、`nodejs`，有 kernel 时还有 `jupyter`
+- `languages` —— `language` 接受哪些值
+- `python`、`node` —— 各是 `{available, version}`
+- `max_sessions` —— 同时最多能开多少个会话
+- `default_timeout`、`max_timeout` —— `30` 和 `900`
+- `prewarmed` —— 有多少个预热进程在等着；默认是 `0`
+
+## 在调用之间保留状态
+
+daemon 没见过的 `session_id` 会在请求时创建。只传 `stateful: true` 时，响应会返回一个生成的 id。
+
+会话状态保存在内存中：同一会话内会跨调用保留，但会在 `aiod` 重启后消失。
+
+<ApiV2>
+
+| 路由 | 作用 | 说明 |
+| --- | --- | --- |
+| `POST /v2/code/sessions` | 提前开一个会话 | 传 `language`，可选 `session_id`、`cwd`、`user` |
+| `GET /v2/code/sessions` | 列出全部 | 按会话 id 索引 |
+| `GET /v2/code/sessions/{id}` | 读取一个 | 未知 id 返回 `404` |
+| `DELETE /v2/code/sessions/{id}` | 结束一个 | 未知 id 返回 `200` 并带 `deleted: false` |
+| `DELETE /v2/code/sessions` | 结束全部 | 返回 `cleaned_sessions` |
+
+会话条目包含：
+
+- `session_id`、`language`、`cwd` —— 它是什么，在哪里运行
+- `created_at`、`last_used` —— 毫秒时间戳
+- `age_seconds` —— 距离上次执行过了多少秒
+- `max_idle_time` —— 关闭前允许空闲的毫秒数
+- `state` —— `idle` 或 `executing`
+
+kernel 支撑的 Python 会话也列在这里，带的是 `kernel_name` 而不是 `max_idle_time`。
+
+下面展示共用同一个会话的两次调用。`Aio` 是 [Examples](/zh/daemon/examples) 中用于解析返回结构的辅助客户端：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sb = Aio(BASE_URL)
+
+# 1. Load the data once; the session keeps it.
+sb.post(
+    "/v2/code/execute",
+    language="python",
+    session_id="analysis",
+    code="import statistics\nrows = [120, 135, 150, 142, 168, 180]",
+)
+
+# 2. Ask a question about it; `rows` is still there.
+run = sb.post(
+    "/v2/code/execute",
+    language="python",
+    session_id="analysis",
+    code="print(round(statistics.mean(rows), 1))",
+)
+print(run["stdout"].strip(), run["execution_count"])   # 149.2 2
+
+# 3. Drop the session when the task is done.
+sb.delete("/v2/code/sessions/analysis")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const sb = new Aio(BASE_URL);
+
+// 1. Load the data once; the session keeps it.
+await sb.post("/v2/code/execute", {
+  language: "python",
+  session_id: "analysis",
+  code: "import statistics\nrows = [120, 135, 150, 142, 168, 180]",
+});
+
+// 2. Ask a question about it; `rows` is still there.
+const run = await sb.post("/v2/code/execute", {
+  language: "python",
+  session_id: "analysis",
+  code: "print(round(statistics.mean(rows), 1))",
+});
+console.log(run.stdout.trim(), run.execution_count);   // 149.2 2
+
+// 3. Drop the session when the task is done.
+await sb.delete("/v2/code/sessions/analysis");
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+会话按语言分开列出和结束，各归各的路由：
+
+| 路由 | 作用 | 说明 |
+| --- | --- | --- |
+| `GET /v1/nodejs/sessions` | 列出 JavaScript 会话 | `POST` 可以提前开一个 |
+| `DELETE /v1/nodejs/sessions/{id}` | 结束一个 | 返回 `deleted` |
+| [`GET /v1/jupyter/sessions`](/zh/daemon/basic/jupyter) | 列出 kernel 支撑的 Python 会话 | 装了 `ipykernel` 时可用 |
+| [`DELETE /v1/jupyter/sessions/{id}`](/zh/daemon/basic/jupyter) | 结束一个 | 原生 Python 会话只能等空闲到期 |
+
+共用一个会话的两次调用，走 SDK：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+client = Sandbox(base_url=BASE_URL)
+
+# 1. Load the data once; the session keeps it.
+client.code.execute_code(
+    language="python",
+    session_id="analysis",
+    code="import statistics\nrows = [120, 135, 150, 142, 168, 180]",
+)
+
+# 2. Ask a question about it; `rows` is still there.
+run = client.code.execute_code(
+    language="python",
+    session_id="analysis",
+    code="print(round(statistics.mean(rows), 1))",
+).data
+print(run.stdout.strip(), run.execution_count)   # 149.2 2
+
+# 3. Drop the session when the task is done.
+client.jupyter.delete_session("analysis")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const client = new SandboxClient({ environment: BASE_URL });
+
+// 1. Load the data once; the session keeps it.
+await client.code.executeCode({
+  language: "python",
+  session_id: "analysis",
+  code: "import statistics\nrows = [120, 135, 150, 142, 168, 180]",
+} as any);
+
+// 2. Ask a question about it; `rows` is still there.
+const run = (await client.code.executeCode({
+  language: "python",
+  session_id: "analysis",
+  code: "print(round(statistics.mean(rows), 1))",
+} as any)) as any;
+const data = run.body.data;
+console.log(data.stdout.trim(), data.execution_count);   // 149.2 2
+
+// 3. Drop the session when the task is done.
+await client.jupyter.deleteSession("analysis" as any);
+```
+
+</Tab>
+</Tabs>
+
+哪些 SDK 调用可以直接访问这些路由，见 [1.x SDK 兼容性](/zh/daemon/start/migration#1x-sdk-兼容性)。
+
+</ApiV1>
+
+kernel 支持 Python 时，code 会话和 Jupyter 会话可以共享命名空间。两边使用同一个 `session_id`，例如 `{"session_id": "s1"}`，就会访问同一个 kernel；任一接口都可以结束该会话。
+
+## 常见用法
+
+大多数执行都是一次性的。
+
+| 场景 | 调用方式 | 然后 |
+| --- | --- | --- |
+| `print(sum(...))` | 一次性 | 直接从同一个响应里读 `stdout` |
+| 在一份数据上反复迭代 | 具名会话 | 复用同一个 id，变量都还在 |
+| `while True: pass` | 带 `timeout` | `status: "timeout"`，见下面的表 |
+| 代码抛异常 | 任意方式 | 把 `outputs[].traceback` 回喂给模型 |
+| Ruby、Go 或别的语言 | 当成命令跑 | 见 [扩展更多语言](#扩展更多语言) |
+
+## 超时与上限
+
+执行超过 `timeout` 时，返回结果中的 `status` 为 `"timeout"`。超时后的处理方式和资源开销取决于后端：
+
+| 层 | 超时后 | 上限 |
+| --- | --- | --- |
+| 原生 REPL | `execution timed out after 2000ms; session state was reset` | 20 个会话，空闲 1800 秒后关闭 |
+| 内嵌 kernel | 先一个 `KeyboardInterrupt`，再 `execution timed out after 2000ms and was interrupted` | 5 个会话，空闲 300 秒后关闭 |
+
+原生层会在超时后再等待 5 秒，然后终止解释器。
+
+如果执行在这段时间内结束，仍然可以读取输出；会话会保留，但命名空间会重置。
+
+kernel 层只中断当前 cell，kernel 和此前定义的内容都会保留。
+
+两组上限分别由以下配置控制：
+
+- 原生 REPL：`AIO_CODE_MAX_SESSIONS`、`AIO_CODE_SESSION_TIMEOUT_SECS`
+- kernel：`AIO_KERNEL_MAX_SESSIONS`、`AIO_KERNEL_SESSION_TIMEOUT_SECS`
+
+超过对应上限时返回 `429`，已有会话不会被清除。返回消息分别是 `Maximum number of sessions (20) reached` 和 `Maximum number of kernel sessions (5) reached`。
+
+## 选择后端
+
+Python 按以下顺序选择后端：
+
+1. `AIO_JUPYTER_ENDPOINT` 指向的外部 Jupyter 兼容端点，能连通时用它
+2. 内嵌 kernel，装了 `ipykernel` 时用它
+3. daemon 原生的 Python REPL
+
+JavaScript 始终使用原生 REPL，只要 `PATH` 中存在 `node` 即可。
+
+默认不预热任何后端。`AIO_CODE_PREWARM` 和 `AIO_KERNEL_PREWARM` 的默认值都是 `0`。
+
+`AIO_CODE_BACKEND`（`auto`、`native`、`kernel`）可以固定 Python 后端，跳过上述顺序。
+
+![](/architecture/aiod-code-backends.svg)
+
+## 扩展更多语言
+
+`language` 接受 `python`（也接受 `python3`）和 `javascript`（也接受 `node`、`nodejs`、`js`），其他值返回 `422`。要运行其他语言，可以按实现成本选择以下三种方式：
+
+- **任意解释器，不保留状态。** 通过 [Commands](/zh/daemon/basic/bash) 当成命令来跑，比如 `ruby -e "puts 1"`。不需要任何配置，只是没有会话状态，输出也不是 notebook 的格式。
+- **换一个 Python 或 Node 版本。** `PYTHON_VERSION` / `NODE_VERSION` 决定原生层从 `PATH` 上选择哪个 `python3` / `node`。
+  `/v1/jupyter` 使用 `kernel_name` 从已安装的 kernel 中选择。见 [Jupyter](/zh/daemon/basic/jupyter)。
+- **为 code plane 增加语言支持。** 原生层每种语言只有一个很小的、只用标准库的 harness，编译进二进制（`harness.py`、`harness.js`）。
+
+daemon 向 harness 的 stdin 逐行写入 `{"code", "timeout_ms"}`，再从 stdout 逐行读取 `{"stdout", "stderr", "result", "error"}`。
+
+每个会话对应一个进程。
+
+新增语言时，需要为对应解释器编写这样的 harness，并在 daemon 的 `Language` 列表中登记。
+
+HTTP 接口、会话、超时和上限都可以复用现有实现。
+
+## 错误处理
+
+代码异常、执行超时和解释器进程崩溃都会返回 `HTTP 200`，并将 `success` 设为 `false`；`status` 为 `error` 或 `timeout`。
+
+只有请求本身无效时才返回错误状态码：
+
+| 情况 | 结果 |
+| --- | --- |
+| `language` 不支持、缺 `code`、`timeout` 不在 1–900 内 | `422` |
+| `cwd` 不是一个目录 | `422` |
+| 空的 `code` 字符串 | v2 返回 `422`，v1 返回 `200` |
+| 找不到对应语言的解释器 | `503`，并说明它找的是什么 |
+| 会话数达到上限 | `429` |
+| `GET .../sessions/{id}` 的会话 id 未知 | `404` |
+
+v2 拒绝请求时，原因写在 `message` 中，例如 `Unsupported language 'ruby'. Supported: python, javascript`。
+
+v1 将同样的原因放在 `errors` 列表中。每个被拒绝的字段占一项，并带有 `location: ["body", "language"]` 和 `type: "enum"`。
+
+跨接口的通用约定见 [错误处理](/zh/daemon/basic/error-handling)。

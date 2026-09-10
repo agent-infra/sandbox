@@ -17,6 +17,33 @@ import { pluginFontOpenSans } from 'rspress-plugin-font-open-sans';
 
 const siteUrl = 'https://sandbox.agent-infra.com';
 
+// The llms plugin's own mdxToMd drops import lines and unwraps JSX, but it
+// glues the v1/v2 route spans together. This does the same and separates
+// adjacent inline components with " / ".
+function mdxToPlainMarkdown() {
+  const isJsx = (n: any) => n.type === 'mdxJsxFlowElement' || n.type === 'mdxJsxTextElement';
+  const walk = (node: any) => {
+    if (!Array.isArray(node.children)) return;
+    const out: any[] = [];
+    let prevJsx = false;
+    for (const child of node.children) {
+      if (child.type === 'mdxjsEsm') continue;
+      if (isJsx(child)) {
+        walk(child);
+        if (prevJsx && child.type === 'mdxJsxTextElement') out.push({ type: 'text', value: ' / ' });
+        out.push(...(child.children ?? []));
+        prevJsx = true;
+        continue;
+      }
+      prevJsx = false;
+      walk(child);
+      out.push(child);
+    }
+    node.children = out;
+  };
+  return (tree: any) => walk(tree);
+}
+
 export default defineConfig({
   root: path.join(__dirname, 'docs'),
   lang: 'en',
@@ -58,13 +85,26 @@ export default defineConfig({
     pluginSitemap({
       siteUrl,
     }),
-    pluginLlms(),
+    pluginLlms({ mdFiles: { mdxToMd: false, remarkPlugins: [mdxToPlainMarkdown] } }),
   ],
   base: process.env.BASE_URL ?? '/',
   outDir: 'doc_build',
   builderConfig: {
     html: {
       template: 'public/index.html',
+    },
+    tools: {
+      // Fast refresh only for project files. The refresh runtime is appended
+      // to every compiled module and calls Promise.resolve(); a dependency
+      // that exports its own `Promise` (@scalar/typebox) then breaks in dev.
+      bundlerChain(chain, { CHAIN_ID }) {
+        const refresh = chain.plugins.get(CHAIN_ID.PLUGIN.REACT_FAST_REFRESH);
+        if (refresh) {
+          refresh.tap(([options]) => [
+            { ...options, exclude: [...(options.exclude ?? []), /[\\/]node_modules[\\/]/] },
+          ]);
+        }
+      },
     },
     plugins: [
       pluginSass(),

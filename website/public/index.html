@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!--<?- GENERATOR ?>-->
     <!--<?- HEAD ?>-->
+    <script>
+      (function () {
+        try {
+          var q = new URLSearchParams(location.search).get('api');
+          var v = q === 'v1' || q === 'v2' ? q : localStorage.getItem('aiod-api-preference');
+          document.documentElement.dataset.api = v === 'v2' ? 'v2' : 'v1';
+        } catch (e) {
+          document.documentElement.dataset.api = 'v1';
+        }
+      })();
+    </script>
   </head>
 
   <body>
