@@ -645,11 +645,9 @@ console.log(bytes.length);
 <Tab label="Python">
 
 ```python
-shot = b"".join(client.browser.screenshot(format="jpeg", quality=80))
-with open("greeter.jpg", "wb") as out:
+shot = b"".join(client.browser.screenshot())
+with open("greeter.png", "wb") as out:
     out.write(shot)
-print(len(shot))
-# → 7382
 ```
 
 </Tab>

@@ -69,11 +69,13 @@ id 由调用方指定，因此可以直接使用任务名称作为终端的 id�
 <Tab label="Python">
 
 ```python
+from agent_sandbox import Sandbox
+
 BASE_URL = "http://127.0.0.1:18091"
 WS_BASE_URL = "ws://127.0.0.1:18091"
-sb = Aio(BASE_URL)
+client = Sandbox(base_url=BASE_URL)
 
-session_id = sb.post("/v1/shell/sessions/create")["session_id"]
+session_id = client.shell.create_session().data.session_id
 WS_URL = f"{WS_BASE_URL}/v1/shell/ws?session_id={session_id}"
 print(session_id)
 # 3c2a99fd-c16c-408b-9298-5126e1d00def
@@ -83,11 +85,13 @@ print(session_id)
 <Tab label="TypeScript">
 
 ```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
 const BASE_URL = "http://127.0.0.1:18091";
 const WS_BASE_URL = "ws://127.0.0.1:18091";
-const sb = new Aio(BASE_URL);
+const client = new SandboxClient({ environment: BASE_URL });
 
-const { session_id } = await sb.post<any>("/v1/shell/sessions/create", {});
+const { session_id } = ((await client.shell.createSession()) as any).body.data;
 const WS_URL = `${WS_BASE_URL}/v1/shell/ws?session_id=${session_id}`;
 console.log(session_id);
 // 3c2a99fd-c16c-408b-9298-5126e1d00def
@@ -242,7 +246,12 @@ setInterval(
 
 `native` 会固定使用原生 PTY。
 
-`cd` 和环境变量的改动会在会话中保持。默认最多同时运行 20 个会话，空闲 3600 秒后自动关闭；可通过 `AIO_SHELL_MAX_SESSIONS` 和 `AIO_SHELL_SESSION_TIMEOUT_SECS` 调整。
+`cd` 和环境变量的改动会在会话中保持。
+
+| | 默认 | 环境变量 |
+|---|---|---|
+| 并发会话数 | 20 | `AIO_SHELL_MAX_SESSIONS` |
+| 空闲超时 | 3600 s | `AIO_SHELL_SESSION_TIMEOUT_SECS` |
 
 按 id 创建的会话会一直存在，直到被删除：
 
@@ -260,7 +269,7 @@ setInterval(
 
 ## 断连后恢复
 
-`durable=true` 会在没有客户端连接时保留终端，让下一个套接字接管它。
+`durable=true` 会在没有客户端连接时保留终端，让下一个套接字接管它。WebSocket 因网络抖动、代理超时或客户端重启断开时，命令不会被打断；重连后补发断开期间的输出，vim、htop 这类 TUI 也能接着正常渲染。
 
 下面先运行一个耗时命令，断开套接字，再重新连接：
 
@@ -360,7 +369,7 @@ async def main():
             print(await second.recv())
 
 asyncio.run(main())
-sb.delete(f"/v1/shell/sessions/{session_id}")
+client.shell.cleanup_session(session_id)
 ```
 
 </Tab>
@@ -394,7 +403,7 @@ second.on("message", (raw) => {
   if (++seen === 4) second.close();
 });
 await wait(2000);
-await sb.delete(`/v1/shell/sessions/${session_id}`);
+await client.shell.cleanupSession(session_id);
 ```
 
 </Tab>

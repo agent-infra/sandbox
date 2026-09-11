@@ -750,7 +750,13 @@ Python on the code routes uses the first available backend:
 2. the embedded kernel, when `ipykernel` is installed
 3. the native Python REPL
 
-`AIO_CODE_BACKEND=auto|native|kernel` pins the choice. JavaScript always runs on the native REPL. `AIO_CODE_PREWARM` and `AIO_KERNEL_PREWARM` enable a warm pool; both default to `0`.
+JavaScript always runs on the native REPL.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `AIO_CODE_BACKEND` | `auto` | `native` or `kernel` pins the Python backend |
+| `AIO_CODE_PREWARM` | `0` | Warm pool size for the native REPL |
+| `AIO_KERNEL_PREWARM` | `0` | Warm pool size for kernels |
 
 ## Errors
 

@@ -1,6 +1,6 @@
 # Windows
 
-aiod 在 Windows 上是同一个二进制、同一套 API。鉴权、统一返回结构、OpenAPI 发现方式都一样。下面只列差异，全部内容都在 Windows Server 2022 + Windows PowerShell 5.1 上验证过。
+aiod 在 Windows 上使用同一个二进制和同一套 API：鉴权、返回结构、OpenAPI 都不变。本页只说明与 Linux 不同的部分，环境为 Windows Server 2022 和 Windows PowerShell 5.1。
 
 ## 与 Linux 的差异
 

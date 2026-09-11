@@ -134,11 +134,17 @@ A kernel that ignores the interrupt is terminated and its session is dropped.
 
 Output is capped at 2,000,000 characters per cell. A stream that crosses the cap keeps its head, a `stderr` stream carrying `[output truncated at 2000000 characters]` follows, and the cell's later outputs still arrive, within a further 64 KiB. Only stream text can be cut that way: a single result or image over the cap is dropped whole, leaving the note by itself.
 
-At most 5 sessions (`AIO_KERNEL_MAX_SESSIONS`), each reaped after 300 s idle (`AIO_KERNEL_SESSION_TIMEOUT_SECS`). A sixth request answers `429` with `Maximum number of kernel sessions (5) reached`. Existing sessions are never evicted.
+| | Default | Variable |
+|---|---|---|
+| Concurrent sessions | 5 | `AIO_KERNEL_MAX_SESSIONS` |
+| Idle timeout | 300 s | `AIO_KERNEL_SESSION_TIMEOUT_SECS` |
+| Warm kernels | 0 | `AIO_KERNEL_PREWARM` |
+
+A sixth request answers `429` with `Maximum number of kernel sessions (5) reached`. Existing sessions are never evicted.
 
 A kernel holds about 60 MB of memory. These limits are tighter than the native REPL's 20 sessions and 1800 s.
 
-`AIO_KERNEL_PREWARM` (default `0`) keeps that many idle kernels warm. The first cell after boot then answers in about 90 ms instead of 1.4 s. The pool fills at boot and refills in the background after each use.
+With a warm pool, the first cell after boot answers in about 90 ms instead of 1.4 s. The pool fills at boot and refills in the background after each use.
 
 ## Memory usage
 

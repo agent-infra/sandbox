@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Add aiod to an existing environment",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "locale": "en",
+    "viewBox": [
+      926,
+      420
+    ]
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Agent",
+      "sublabel": "one interface",
+      "pos": [
+        110,
+        127
+      ],
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "aiod",
+      "type": "backend",
+      "label": "aiod",
+      "sublabel": "commands · files · browser · code",
+      "pos": [
+        480,
+        125
+      ],
+      "size": [
+        304,
+        76
+      ]
+    },
+    {
+      "id": "image",
+      "type": "external",
+      "label": "Your image",
+      "sublabel": "toolchain · private SDK",
+      "pos": [
+        480,
+        237
+      ],
+      "size": [
+        142,
+        68
+      ]
+    },
+    {
+      "id": "apps",
+      "type": "external",
+      "label": "Your apps",
+      "sublabel": "enterprise apps",
+      "pos": [
+        642,
+        237
+      ],
+      "size": [
+        142,
+        68
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Existing environment · container · VM · desktop",
+      "wraps": [
+        "aiod",
+        "image",
+        "apps"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-aiod",
+      "from": "agent",
+      "to": "aiod",
+      "label": "HTTP · MCP · SDK",
+      "variant": "emphasis"
+    }
+  ]
+}

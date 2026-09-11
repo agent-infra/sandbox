@@ -13,12 +13,14 @@ then export SVG from the delivered viewer into `docs/public/architecture/<name>.
 - `aio-sandbox-overview.architecture.json` — the surfaces inside the container (Guide → Introduction).
 - `aio-agent-calls-sandbox.architecture.json` — agent outside, capabilities inside (Guide → Agent Call Sandbox vs In Sandbox).
 - `aio-agent-in-sandbox.architecture.json` — agent process inside the container (Guide → Agent Call Sandbox vs In Sandbox).
+- `aiod-existing-environment.architecture.json` — aiod added into an existing container, VM or desktop (Daemon → Introduction).
 - `aiod-watch-flow.sequence.json` — watch, poll, stop (Daemon → Files, Daemon → examples → file ops).
 - `aiod-code-execution-flow.sequence.json` — dataset in, chart out (Daemon → examples → code execution).
 - `aiod-code-backends.sequence.json` — which backend runs the code (Daemon → Code).
 - `aiod-browser-use-flow.sequence.json` — serve a page, then drive it (Daemon → examples → browser use).
 - `aiod-terminal-flow.sequence.json` — create, attach, run (Daemon → examples → terminal).
 - `aiod-terminal-reconnect.sequence.json` — reattach with and without durable (Daemon → examples → terminal).
+- `aiod-computer-action.sequence.json` — one computer action, then the accessibility tree (Daemon → Computer Use).
 
 `*.html` without a matching spec are hand-drawn SVG sources; the `<svg>` element is
 extracted verbatim into `docs/public/architecture/<name>.svg`.

@@ -12,9 +12,23 @@ The design keeps dependencies minimal:
 
 Linux builds cover x86_64, arm64, and riscv64 (static musl). Windows builds cover x86_64 (`aiod.exe`, `computer-use.exe`).
 
-![](/architecture/aiod-overview.svg)
+## Inject sandbox operations
+
+In practice, an existing VM environment already carries complex configuration, and moving it to a new sandbox image has a cost. Yet an agent or a server operating that environment still needs easy data-plane tools such as commands and files. aiod can be injected as that layer and provide the tools.
+
+![](/architecture/aiod-existing-environment.svg)
+
+**Keep the environment, add the operations.** No base image change, no move to a sandbox platform; the private SDKs, build toolchain, and enterprise applications in an existing container, VM, or desktop stay as they are, and agents get one tool interface.
+
+**Minimal core, backends as needed.** Interpreters, Chromium, and the desktop worker are optional backends; capability discovery reports each as available, not configured, or missing a dependency, and clients expose tools accordingly. No desktop or no browser is a normal deployment.
+
+**One integration for Linux and Windows.** Commands, files, and the browser in a Linux container, and commands, files, and desktop automation in a Windows VM or desktop, are exposed to agents through the same interface.
+
+**Deploys on its own, with a clear boundary.** aiod is the tool layer of AIO Sandbox and also runs standalone. It adds only the operation interface inside an environment; isolation, resource limits, and lifecycle stay with the container, VM, or platform.
 
 ## daemon capability scope
+
+![](/architecture/aiod-overview.svg)
 
 - **Commands** — runs a shell command as a process (<ApiInlineV2>`POST /v2/commands`</ApiInlineV2><ApiInlineV1>`POST /v1/bash/exec`</ApiInlineV1>), or opens a persistent PTY-backed terminal (<ApiInlineV2>`/v2/pty`</ApiInlineV2><ApiInlineV1>`/v1/shell`</ApiInlineV1>).
 - **Files** — reads, writes, searches, and watches files on disk (<ApiInlineV2>`/v2/fs`, `/v2/watch`</ApiInlineV2><ApiInlineV1>`/v1/file/*`</ApiInlineV1>).
@@ -32,15 +46,23 @@ Linux builds cover x86_64, arm64, and riscv64 (static musl). Windows builds cove
 
 `aiod` detects its optional backends, the browser, the interpreters, and the desktop GUI worker, and `GET /v1/capabilities` reports what is actually available.
 
-Against the 1.x Python server on the same host, the daemon process idles at far less memory and answers common calls faster; the chart has the numbers. Image boot figures are on [Quick Start](/daemon/start/quick-start#from-a-prebuilt-image).
+Against the 1.x Python server on the same host (0.5 CPU, 0.5 GiB, browser and VNC off on both sides; latencies are p50 over one keep-alive connection):
 
-![](/architecture/aiod-daemon-vs-server.svg)
+| | aiod | 1.x Python server |
+|---|---|---|
+| API process memory, idle | 14.6 MB | 120 MB |
+| Container memory peak under mixed load (32 clients: files plus short and long commands) | 100 MiB | 187 MiB |
+| Mixed-load throughput | 112 ops/s | 33 ops/s |
+| Image boot to API ready | 0.8 s | 2.6 s |
+| Command execution p50 | 2.3 ms | 12.6 ms |
+| Python session cell p50 (warm kernel) | 6.1 ms | 10.7 ms |
 
 ## API planes: v1 and v2
 
-`/v1/*` is compatible with the 1.x Python server. `/v2/*` is the current, path-keyed surface for new integrations.
+- `/v1/*` — stays interface-compatible with the AIO image (the 1.x Python server); see the [v1 API reference](/daemon/start/v1-api).
+- `/v2/*` — the modern surface with interfaces such as pty and command, designed with cross-platform use in mind, for new integrations; see [Migration from 1.x](/daemon/start/migration).
 
-Both are served by default (`AIO_API_SURFACE=full`). Set `AIO_API_SURFACE=v2` to serve only the modern surface. See the [API reference](/daemon/api).
+Both are served by default (`AIO_API_SURFACE=full`); `AIO_API_SURFACE=v2` serves only v2.
 
 ## Related
 
