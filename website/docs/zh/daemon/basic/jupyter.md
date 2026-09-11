@@ -148,13 +148,17 @@ kernel 的工作目录在启动时固定。请求的 `cwd` 与池里所有 kerne
 
 同一个 cell 后续产生的输出仍会返回，额外保留 64 KiB。单条结果或图片超过上限时无法截断，会直接丢弃，并只保留这条提示。
 
-最多同时运行 5 个会话（`AIO_KERNEL_MAX_SESSIONS`），每个会话空闲 300 秒后回收（`AIO_KERNEL_SESSION_TIMEOUT_SECS`）。
+| | 默认 | 环境变量 |
+|---|---|---|
+| 并发会话数 | 5 | `AIO_KERNEL_MAX_SESSIONS` |
+| 空闲超时 | 300 s | `AIO_KERNEL_SESSION_TIMEOUT_SECS` |
+| 预热 kernel 数 | 0 | `AIO_KERNEL_PREWARM` |
 
 第 6 个会话请求返回 `429`，消息为 `Maximum number of kernel sessions (5) reached`。已有会话不会被清除。
 
 一个 kernel 占用约 60 MB 内存。这两个上限比原生 REPL 的 20 个会话 / 1800 秒更紧。
 
-`AIO_KERNEL_PREWARM`（默认 `0`）保持这么多个空闲 kernel 预热。启动后的第一个 cell 因此是约 90 ms 而不是 1.4 秒。池在启动时填满，每次用掉后在后台补充。
+开启预热后，启动后的第一个 cell 约 90 ms，而不是 1.4 秒。池在启动时填满，每次用掉后在后台补充。
 
 ## 内存占用
 

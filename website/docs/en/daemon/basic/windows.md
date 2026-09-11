@@ -1,6 +1,6 @@
 # Windows
 
-aiod on Windows is the same binary and the same API. Auth, the response envelope, and OpenAPI discovery work the same way. This page covers the differences. Everything below was verified on Windows Server 2022 with Windows PowerShell 5.1.
+aiod on Windows is the same binary with the same API: auth, the response envelope, and OpenAPI are unchanged. This page covers only what differs from Linux, verified on Windows Server 2022 with Windows PowerShell 5.1.
 
 ## Differences from Linux
 

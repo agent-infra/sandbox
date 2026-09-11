@@ -48,13 +48,14 @@ html[data-api='v2'] .api-inline-v1 {
   color: inherit;
 }
 
-/* the switch stays at the top while the sidebar scrolls */
+/* The switch stays at the top while the sidebar scrolls. The sidebar has
+   20px of top padding; the card covers it so items do not show through. */
 .aiod-api-pref {
   position: sticky;
-  top: 0;
+  top: -20px;
   z-index: 10;
-  margin: 0 0 8px;
-  padding: 8px 12px 10px 24px;
+  margin: -20px 0 8px;
+  padding: 28px 12px 10px 24px;
   background: var(--rp-c-bg);
   border-bottom: 1px solid var(--rp-c-divider-light);
 }

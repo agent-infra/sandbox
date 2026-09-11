@@ -67,11 +67,13 @@ The id is yours to choose, so a caller that already has a name for the work can 
 <Tab label="Python">
 
 ```python
+from agent_sandbox import Sandbox
+
 BASE_URL = "http://127.0.0.1:18091"
 WS_BASE_URL = "ws://127.0.0.1:18091"
-sb = Aio(BASE_URL)
+client = Sandbox(base_url=BASE_URL)
 
-session_id = sb.post("/v1/shell/sessions/create")["session_id"]
+session_id = client.shell.create_session().data.session_id
 WS_URL = f"{WS_BASE_URL}/v1/shell/ws?session_id={session_id}"
 print(session_id)
 # 3c2a99fd-c16c-408b-9298-5126e1d00def
@@ -81,11 +83,13 @@ print(session_id)
 <Tab label="TypeScript">
 
 ```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
 const BASE_URL = "http://127.0.0.1:18091";
 const WS_BASE_URL = "ws://127.0.0.1:18091";
-const sb = new Aio(BASE_URL);
+const client = new SandboxClient({ environment: BASE_URL });
 
-const { session_id } = await sb.post<any>("/v1/shell/sessions/create", {});
+const { session_id } = ((await client.shell.createSession()) as any).body.data;
 const WS_URL = `${WS_BASE_URL}/v1/shell/ws?session_id=${session_id}`;
 console.log(session_id);
 // 3c2a99fd-c16c-408b-9298-5126e1d00def
@@ -232,7 +236,12 @@ A socket opened without a session id gets one anyway, and the two routes differ 
 
 `AIO_SHELL_BACKEND=auto` (default) uses tmux when present, otherwise a native PTY. Sessions survive a daemon restart only under tmux. `native` pins the native PTY.
 
-`cd` and environment changes persist for the life of a session. Limits: 20 concurrent sessions, 3600 s idle timeout (`AIO_SHELL_MAX_SESSIONS`, `AIO_SHELL_SESSION_TIMEOUT_SECS`).
+`cd` and environment changes persist for the life of a session.
+
+| | Default | Variable |
+|---|---|---|
+| Concurrent sessions | 20 | `AIO_SHELL_MAX_SESSIONS` |
+| Idle timeout | 3600 s | `AIO_SHELL_SESSION_TIMEOUT_SECS` |
 
 A session created with an id stays until it is deleted:
 
@@ -250,7 +259,9 @@ A session created with an id stays until it is deleted:
 
 ## Survive a disconnect
 
-`durable=true` keeps the terminal's half of the attachment alive while no client holds it, and lets the next socket take the terminal over. Start something slow, drop the socket, reconnect:
+`durable=true` keeps the terminal alive while no client holds it and lets the next socket take it over. A WebSocket dropped by a network flap, a proxy timeout, or a client restart no longer kills the command; the reconnect replays the output missed in between, so a TUI such as vim or htop keeps rendering correctly.
+
+Start something slow, drop the socket, reconnect:
 
 ![](/architecture/aiod-terminal-reconnect.svg)
 
@@ -348,7 +359,7 @@ async def main():
             print(await second.recv())
 
 asyncio.run(main())
-sb.delete(f"/v1/shell/sessions/{session_id}")
+client.shell.cleanup_session(session_id)
 ```
 
 </Tab>
@@ -382,7 +393,7 @@ second.on("message", (raw) => {
   if (++seen === 4) second.close();
 });
 await wait(2000);
-await sb.delete(`/v1/shell/sessions/${session_id}`);
+await client.shell.cleanupSession(session_id);
 ```
 
 </Tab>

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "One computer action",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "column_fit": "spread",
+    "locale": "en",
+    "viewBox": [1080, 640]
+  },
+  "participants": [
+    { "id": "agent", "type": "external", "label": "Agent" },
+    { "id": "aiod", "type": "backend", "label": "aiod", "sublabel": "desktop proxy" },
+    { "id": "worker", "type": "backend", "label": "computer-use", "sublabel": "worker" },
+    { "id": "desktop", "type": "frontend", "label": "Desktop", "sublabel": "X display" }
+  ],
+  "segments": [
+    { "from": 152, "to": 384, "label": "action · screenshot" },
+    { "from": 400, "to": 568, "label": "accessibility tree" }
+  ],
+  "messages": [
+    { "id": "action", "from": "agent", "to": "aiod", "y": 172, "label": "action + screenshot", "variant": "emphasis" },
+    { "id": "action-proxied", "from": "aiod", "to": "worker", "y": 204, "label": "proxied", "variant": "default" },
+    { "id": "inject", "from": "worker", "to": "desktop", "y": 236, "label": "input · xdotool / AT-SPI", "variant": "default" },
+    { "id": "capture", "from": "worker", "to": "desktop", "y": 268, "label": "capture frame", "variant": "default" },
+    { "id": "frame", "from": "desktop", "to": "worker", "y": 300, "label": "PNG", "variant": "return" },
+    { "id": "action-result", "from": "worker", "to": "aiod", "y": 332, "label": "status · screenshot", "variant": "return" },
+    { "id": "action-response", "from": "aiod", "to": "agent", "y": 364, "label": "base64 PNG", "variant": "return" },
+    { "id": "find", "from": "agent", "to": "aiod", "y": 420, "label": "find nodes · role · name", "variant": "emphasis" },
+    { "id": "find-proxied", "from": "aiod", "to": "worker", "y": 452, "label": "proxied", "variant": "default" },
+    { "id": "atspi", "from": "worker", "to": "desktop", "y": 484, "label": "AT-SPI query", "variant": "default" },
+    { "id": "nodes", "from": "desktop", "to": "worker", "y": 516, "label": "nodes", "variant": "return" },
+    { "id": "find-response", "from": "aiod", "to": "agent", "y": 548, "label": "node_id · role · name · bounds", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "aiod", "from": 164, "to": 556, "type": "backend" },
+    { "participant": "worker", "from": 196, "to": 340, "type": "backend" },
+    { "participant": "worker", "from": 444, "to": 524, "type": "backend" },
+    { "participant": "desktop", "from": 228, "to": 308, "type": "frontend" },
+    { "participant": "desktop", "from": 476, "to": 524, "type": "frontend" }
+  ]
+}

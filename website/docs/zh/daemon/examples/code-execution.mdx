@@ -760,7 +760,13 @@ code 路由上的 Python 使用第一个可用的后端：
 2. 内嵌 kernel，安装了 `ipykernel` 时
 3. 原生 Python REPL
 
-`AIO_CODE_BACKEND=auto|native|kernel` 固定选择。JavaScript 始终在原生 REPL 上执行。`AIO_CODE_PREWARM` 和 `AIO_KERNEL_PREWARM` 启用预热池，默认都是 `0`。
+JavaScript 始终在原生 REPL 上执行。
+
+| 环境变量 | 默认 | 作用 |
+|---|---|---|
+| `AIO_CODE_BACKEND` | `auto` | 设为 `native` 或 `kernel` 固定 Python 后端 |
+| `AIO_CODE_PREWARM` | `0` | 原生 REPL 预热池大小 |
+| `AIO_KERNEL_PREWARM` | `0` | kernel 预热池大小 |
 
 ## 错误
 

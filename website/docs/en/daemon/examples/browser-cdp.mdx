@@ -55,18 +55,19 @@ print(cdp_url)
 <ApiV1>
 
 ```python
+from agent_sandbox import Sandbox
+
 BASE_URL = "http://127.0.0.1:18091"
-sb = Aio(BASE_URL)
-# The 1.x Python SDK's browser.get_info rejects this body; see the migration
-# guide. The route itself answers, so the helper reads it.
-cdp_url = sb.get("/v1/browser/info")["cdp_url"]
+client = Sandbox(base_url=BASE_URL)
+
+cdp_url = client.browser.get_info().data.cdp_url
 print(cdp_url)
 # -> ws://127.0.0.1:18091/cdp/devtools/browser/9ca46b6e-ab32-46b1-8e7e-7af3d540de4b
 ```
 
 </ApiV1>
 
-The path lives under `/cdp/`, which the deployment serves, not the daemon. See [CDP Access](/daemon/basic/cdp). Which SDK calls fail against the daemon is listed in [1.x SDK compatibility](/daemon/start/migration#1x-sdk-compatibility).
+The path lives under `/cdp/`, which the deployment serves, not the daemon. See [CDP Access](/daemon/basic/cdp).
 
 ## Connect with Playwright
 

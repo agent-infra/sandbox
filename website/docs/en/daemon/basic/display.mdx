@@ -33,7 +33,7 @@ The first part of this page is the action reference an agent's tools are built o
 
 ### How the two processes connect
 
-The worker binds `AIO_COMPUTER_USE_LISTEN` (default `0.0.0.0:18100`). `aiod` reaches it at `AIO_COMPUTER_USE_URL` (default `http://127.0.0.1:18100`) and proxies the desktop routes opaquely. When the worker is down, every one of them answers `503`:
+The worker binds `AIO_COMPUTER_USE_LISTEN` (default `0.0.0.0:18100`). `aiod` reaches it at `AIO_COMPUTER_USE_URL` (default `http://127.0.0.1:18100`) and proxies the desktop routes opaquely. When the worker is not running, the computer routes answer `503`:
 
 ```json
 {
@@ -44,17 +44,38 @@ The worker binds `AIO_COMPUTER_USE_LISTEN` (default `0.0.0.0:18100`). `aiod` rea
 }
 ```
 
-Both v1 aliases answer the same way, since they reach the same worker.
-
 ![](/architecture/aiod-computer-action.svg)
 
-### What the worker needs
+### Prerequisites
 
-**Linux**: a reachable X11 display. Set `DISPLAY`, and `XAUTHORITY` if the display needs cookie authentication. `GET /v2/computer/info` reports back what it found in `display` and `xauthority`.
+**Linux**: a reachable X11 display. Set `DISPLAY`, and `XAUTHORITY` if the display needs cookie authentication. `GET /v2/computer/info` reports what it found in `display` and `xauthority`.
 
-**Windows**: an interactive logon session. `aiod` itself can run as a Session 0 SCM service.
+**Windows**: an interactive logon session. `aiod` can run as a Session 0 SCM service; `computer-use` must run in the interactive session to see the desktop and inject input.
 
-`computer-use` must run inside the interactive session to see the desktop and inject input.
+### Start the worker
+
+`computer-use` takes no flags and reads only environment variables: `DISPLAY` and `XAUTHORITY` pick the display, `AIO_COMPUTER_USE_LISTEN` sets the listen address.
+
+Linux:
+
+```bash
+DISPLAY=:99 XAUTHORITY=$HOME/.Xauthority computer-use
+curl -s http://127.0.0.1:8091/v2/computer/info
+```
+
+supervisord, as the Computer image runs it:
+
+```ini
+[program:computer-use]
+command=/usr/local/bin/computer-use
+environment=DISPLAY=":99",XAUTHORITY="/home/sandbox/.Xauthority",HOME="/home/sandbox",USER="sandbox"
+user=sandbox
+autorestart=true
+stdout_logfile=/var/log/computer-use.log
+redirect_stderr=true
+```
+
+Windows: `computer-use.exe` cannot run as a service. Register a logon-triggered scheduled task with `scripts/windows/install-computer-use.ps1`; see [Windows](/daemon/basic/windows#running-computer-use).
 
 ### Check available capabilities
 
@@ -291,8 +312,6 @@ curl -X POST "$BASE_URL/v2/computer/actions/batch" \
 
 <ApiV1>
 
-The alias takes one action per request. A sequence is that many round trips, and another caller can move the pointer between them.
-
 <UseV2 when={'a sequence has to run without anything else touching the display'} route="POST /v2/computer/actions/batch" />
 
 </ApiV1>
@@ -330,8 +349,6 @@ The window list is `{snapshot_id, windows: [{window_id, title, process_id, bound
 
 <ApiV1>
 
-None of the three has a v1 route. Writing the clipboard is an action, so `SET_CLIPBOARD` goes through the alias; reading it back does not.
-
 <UseV2 when={'you need the window list, the pointer position, or the clipboard text'} route="GET /v2/computer/windows" />
 
 </ApiV1>
@@ -366,8 +383,6 @@ A returned `node_id` stays valid as long as the element exists, across snapshots
 </ApiV2>
 
 <ApiV1>
-
-The `NODE_*` actions are in the set the alias accepts, but the handles they take come from the two v2 tree routes. v1 has neither, so there is nothing to feed them.
 
 <UseV2 when={'you want to act on an element by role and name instead of pixel coordinates'} route="GET /v2/computer/accessibility/nodes" />
 
