@@ -1,0 +1,70 @@
+import { ApiInlineV1, ApiInlineV2 } from '@theme';
+
+# Introduction
+
+`aiod` is the AIO Sandbox daemon. It serves the sandbox tools API over HTTP and WebSocket — commands, files, terminals, code execution, browser control, and MCP.
+
+The design keeps dependencies minimal:
+
+- static musl builds on Linux
+- a native Windows build
+- graceful degradation — browser, interpreters, and the desktop GUI worker are optional backends, detected at runtime
+
+Linux builds cover x86_64, arm64, and riscv64 (static musl). Windows builds cover x86_64 (`aiod.exe`, `computer-use.exe`).
+
+## Inject sandbox operations
+
+In practice, an existing VM environment already carries complex configuration, and moving it to a new sandbox image has a cost. Yet an agent or a server operating that environment still needs easy data-plane tools such as commands and files. aiod can be injected as that layer and provide the tools.
+
+![](/architecture/aiod-existing-environment.svg)
+
+**Keep the environment, add the operations.** No base image change, no move to a sandbox platform; the private SDKs, build toolchain, and enterprise applications in an existing container, VM, or desktop stay as they are, and agents get one tool interface.
+
+**Minimal core, backends as needed.** Interpreters, Chromium, and the desktop worker are optional backends; capability discovery reports each as available, not configured, or missing a dependency, and clients expose tools accordingly. No desktop or no browser is a normal deployment.
+
+**One integration for Linux and Windows.** Commands, files, and the browser in a Linux container, and commands, files, and desktop automation in a Windows VM or desktop, are exposed to agents through the same interface.
+
+**Deploys on its own, with a clear boundary.** aiod is the tool layer of AIO Sandbox and also runs standalone. It adds only the operation interface inside an environment; isolation, resource limits, and lifecycle stay with the container, VM, or platform.
+
+## daemon capability scope
+
+![](/architecture/aiod-overview.svg)
+
+- **Commands** — runs a shell command as a process (<ApiInlineV2>`POST /v2/commands`</ApiInlineV2><ApiInlineV1>`POST /v1/bash/exec`</ApiInlineV1>), or opens a persistent PTY-backed terminal (<ApiInlineV2>`/v2/pty`</ApiInlineV2><ApiInlineV1>`/v1/shell`</ApiInlineV1>).
+- **Files** — reads, writes, searches, and watches files on disk (<ApiInlineV2>`/v2/fs`, `/v2/watch`</ApiInlineV2><ApiInlineV1>`/v1/file/*`</ApiInlineV1>).
+- **Code** — executes Python or JavaScript snippets, with optional sessions (<ApiInlineV2>`POST /v2/code/execute`</ApiInlineV2><ApiInlineV1>`POST /v1/code/execute`</ApiInlineV1>).
+- **Browser** — connects to a Chromium listening on its debug port (default `127.0.0.1:9222`) and exposes navigate, click, fill, screenshot, and more over REST (<ApiInlineV2>`/v2/browser/*`</ApiInlineV2><ApiInlineV1>`/v1/browser/*`</ApiInlineV1>).
+- **Desktop** — a separate `computer-use` worker; `/v2/computer/*` is proxied to it for GUI control: screenshots, mouse and keyboard, clipboard, and the accessibility tree.
+- **MCP** — `POST /mcp` serves the built-in tools as one stateless JSON-RPC endpoint:
+  - run a command
+  - run code
+  - file operations
+  - browser info
+  - load a skill
+
+  It can also aggregate other MCP servers.
+
+`aiod` detects its optional backends, the browser, the interpreters, and the desktop GUI worker, and `GET /v1/capabilities` reports what is actually available.
+
+Against the 1.x Python server on the same host (0.5 CPU, 0.5 GiB, browser and VNC off on both sides; latencies are p50 over one keep-alive connection):
+
+| | aiod | 1.x Python server |
+|---|---|---|
+| API process memory, idle | 14.6 MB | 120 MB |
+| Container memory peak under mixed load (32 clients: files plus short and long commands) | 100 MiB | 187 MiB |
+| Mixed-load throughput | 112 ops/s | 33 ops/s |
+| Image boot to API ready | 0.8 s | 2.6 s |
+| Command execution p50 | 2.3 ms | 12.6 ms |
+| Python session cell p50 (warm kernel) | 6.1 ms | 10.7 ms |
+
+## API planes: v1 and v2
+
+- `/v1/*` — stays interface-compatible with the AIO image (the 1.x Python server); see the [v1 API reference](/daemon/start/v1-api).
+- `/v2/*` — the modern surface with interfaces such as pty and command, designed with cross-platform use in mind, for new integrations; see [Migration from 1.x](/daemon/start/migration).
+
+Both are served by default (`AIO_API_SURFACE=full`); `AIO_API_SURFACE=v2` serves only v2.
+
+## Related
+
+- [Quick start](/daemon/start/quick-start) — download the binary, start it, and make the first calls.
+- [Migration from 1.x](/daemon/start/migration) — for a deployment coming from a 1.x AIO image.

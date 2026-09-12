@@ -1,0 +1,866 @@
+import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
+
+# File Operations
+
+This example follows a common development task: scaffold a small project, find and fix a `TODO`, read the changed lines, then watch the directory while a command changes it and handle the error contract.
+
+This example uses these routes:
+
+<ApiV2>
+
+- Files: `/v2/fs/*`
+- Events: `/v2/watch`
+
+</ApiV2>
+
+<ApiV1>
+
+- Files and events: `/v1/file/*`
+
+</ApiV1>
+
+## Requirements
+
+<ApiV2>
+
+`GET /v2/sandbox` should include `files` in `capabilities`.
+
+</ApiV2>
+
+<ApiV1>
+
+`GET /v1/capabilities` should report `files`.
+
+</ApiV1>
+
+The file plane shares one filesystem with commands, terminals, and code execution; confinement is the sandbox's job, not the API's.
+
+<ApiV2>
+
+Most `/v2/fs/*` routes also take an optional `?user=` — the account attributed as the operation's owner, not an execution identity; the operation still runs with daemon privileges. The byte-stream routes (`download`, `tree` as a `GET`) and `/v2/watch` have no such parameter.
+
+</ApiV2>
+
+## Scaffold, search, edit
+
+Make a directory, write two files into it, list what landed, find the `TODO` by name and then by content, replace it, and read the changed lines back:
+
+<ApiV2>
+
+The shared `Aio` helper ([Conventions](/daemon/examples#conventions)) posts to a route and unwraps the envelope:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+BASE_URL = "http://127.0.0.1:18091"
+sb = Aio(BASE_URL)
+
+# 1. Scaffold: one directory, two files
+sb.post("/v2/fs/mkdir", path="/tmp/demo/src", parents=True)
+sb.post("/v2/fs/write", path="/tmp/demo/src/app.py", content=(
+    "import sys\n\n"
+    "def main():\n"
+    "    # TODO: read the input path from argv\n"
+    "    print('hello')\n\n"
+    "if __name__ == '__main__':\n"
+    "    main()\n"
+))
+sb.post("/v2/fs/write", path="/tmp/demo/README.md", content="# demo\n")
+listed = sb.get("/v2/fs/list", path="/tmp/demo", recursive=True)
+print([f["path"] for f in listed["files"]])
+
+# 2. Locate the TODO: name glob, then content grep
+found = sb.get("/v2/fs/search", path="/tmp/demo", pattern="**/*.py")
+target = found["files"][0]
+hit = sb.post("/v2/fs/grep", path=target, pattern="TODO.*")
+for m in hit["matches"]:
+    print(m["line_number"], m["line_content"])
+# 4     # TODO: read the input path from argv
+
+# 3. Edit with the editor tool; old_str matches literally
+sb.post("/v2/fs/edit", command="str_replace", path=target,
+        old_str="    # TODO: read the input path from argv\n    print('hello')",
+        new_str="    path = sys.argv[1]\n    print(open(path).read())")
+
+# 4. Read back the changed lines: 0-based, end exclusive
+result = sb.get("/v2/fs/read", path=target, start_line=2, end_line=5)
+print(result["content"])
+# def main():
+#     path = sys.argv[1]
+#     print(open(path).read())
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const BASE_URL = "http://127.0.0.1:18091";
+const sb = new Aio(BASE_URL);
+
+// 1. Scaffold: one directory, two files
+await sb.post("/v2/fs/mkdir", { path: "/tmp/demo/src", parents: true });
+await sb.post("/v2/fs/write", {
+  path: "/tmp/demo/src/app.py",
+  content:
+    "import sys\n\n" +
+    "def main():\n" +
+    "    # TODO: read the input path from argv\n" +
+    "    print('hello')\n\n" +
+    "if __name__ == '__main__':\n" +
+    "    main()\n",
+});
+await sb.post("/v2/fs/write", { path: "/tmp/demo/README.md", content: "# demo\n" });
+const listed = await sb.get<any>(
+  `/v2/fs/list?path=${encodeURIComponent("/tmp/demo")}&recursive=true`
+);
+console.log(listed.files.map((f: any) => f.path));
+
+// 2. Locate the TODO: name glob, then content grep
+const found = await sb.get<any>(
+  `/v2/fs/search?path=${encodeURIComponent("/tmp/demo")}` +
+  `&pattern=${encodeURIComponent("**/*.py")}`
+);
+const target = found.files[0];
+const hit = await sb.post<any>("/v2/fs/grep", { path: target, pattern: "TODO.*" });
+for (const m of hit.matches) console.log(m.line_number, m.line_content);
+// 4     # TODO: read the input path from argv
+
+// 3. Edit with the editor tool; old_str matches literally
+await sb.post("/v2/fs/edit", {
+  command: "str_replace",
+  path: target,
+  old_str: "    # TODO: read the input path from argv\n    print('hello')",
+  new_str: "    path = sys.argv[1]\n    print(open(path).read())",
+});
+
+// 4. Read back the changed lines: 0-based, end exclusive
+const read = await sb.get<any>(
+  `/v2/fs/read?path=${encodeURIComponent(target)}&start_line=2&end_line=5`
+);
+console.log(read.content);
+// def main():
+//     path = sys.argv[1]
+//     print(open(path).read())
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+The 1.x SDK covers every step but the directory, so the shared `Aio` helper ([Conventions](/daemon/examples#conventions)) posts that one route:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+
+BASE_URL = "http://127.0.0.1:18091"
+client = Sandbox(base_url=BASE_URL)
+sb = Aio(BASE_URL)
+
+# 1. Scaffold: one directory, two files
+# The 1.x SDK has no mkdir, so the helper posts the route itself.
+sb.post("/v1/file/mkdir", path="/tmp/demo/src", parents=True)
+client.file.write_file(file="/tmp/demo/src/app.py", content=(
+    "import sys\n\n"
+    "def main():\n"
+    "    # TODO: read the input path from argv\n"
+    "    print('hello')\n\n"
+    "if __name__ == '__main__':\n"
+    "    main()\n"
+))
+client.file.write_file(file="/tmp/demo/README.md", content="# demo\n")
+listed = client.file.list_path(path="/tmp/demo", recursive=True).data
+print([f.path for f in listed.files])
+
+# 2. Locate the TODO: name glob, then content grep
+found = client.file.glob_files(path="/tmp/demo", pattern="**/*.py").data
+target = found.files[0].path
+hit = client.file.grep_files(path=target, pattern="TODO.*").data
+for m in hit.matches:
+    print(m.line_number, m.line_content)
+# 4     # TODO: read the input path from argv
+
+# 3. Edit with the editor tool; old_str matches literally
+client.file.str_replace_editor(
+    command="str_replace", path=target,
+    old_str="    # TODO: read the input path from argv\n    print('hello')",
+    new_str="    path = sys.argv[1]\n    print(open(path).read())")
+
+# 4. Read back the changed lines: 0-based, end exclusive
+result = client.file.read_file(file=target, start_line=2, end_line=5).data
+print(result.content)
+# def main():
+#     path = sys.argv[1]
+#     print(open(path).read())
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const BASE_URL = "http://127.0.0.1:18091";
+const client = new SandboxClient({ environment: BASE_URL });
+const sb = new Aio(BASE_URL);
+
+// 1. Scaffold: one directory, two files
+// The 1.x SDK has no mkdir, so the helper posts the route itself.
+await sb.post("/v1/file/mkdir", { path: "/tmp/demo/src", parents: true });
+await client.file.writeFile({
+  file: "/tmp/demo/src/app.py",
+  content:
+    "import sys\n\n" +
+    "def main():\n" +
+    "    # TODO: read the input path from argv\n" +
+    "    print('hello')\n\n" +
+    "if __name__ == '__main__':\n" +
+    "    main()\n",
+});
+await client.file.writeFile({ file: "/tmp/demo/README.md", content: "# demo\n" });
+const listed = ((await client.file.listPath({
+  path: "/tmp/demo", recursive: true,
+})) as any).body.data;
+console.log(listed.files.map((f: any) => f.path));
+
+// 2. Locate the TODO: name glob, then content grep
+const found = ((await client.file.globFiles({
+  path: "/tmp/demo", pattern: "**/*.py",
+})) as any).body.data;
+const target = found.files[0].path;
+const hit = ((await client.file.grepFiles({
+  path: target, pattern: "TODO.*",
+})) as any).body.data;
+for (const m of hit.matches) console.log(m.line_number, m.line_content);
+// 4     # TODO: read the input path from argv
+
+// 3. Edit with the editor tool; old_str matches literally
+await client.file.strReplaceEditor({
+  command: "str_replace",
+  path: target,
+  old_str: "    # TODO: read the input path from argv\n    print('hello')",
+  new_str: "    path = sys.argv[1]\n    print(open(path).read())",
+});
+
+// 4. Read back the changed lines: 0-based, end exclusive
+const read = ((await client.file.readFile({
+  file: target, start_line: 2, end_line: 5,
+})) as any).body.data;
+console.log(read.content);
+// def main():
+//     path = sys.argv[1]
+//     print(open(path).read())
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+In v1, the editor tool exposes only the commands that do not already have another route: `str_replace`, `insert`, `undo_edit`.
+
+<ApiV2>
+
+- `view` answers `400`; use `GET /v2/fs/read` instead.
+- `create` answers `400`; use `POST /v2/fs/write` instead.
+
+</ApiV2>
+
+<ApiV1>
+
+`view` and `create` still work here.
+
+</ApiV1>
+
+A `str_replace` whose `old_str` is absent answers `400 old_str not found in file`. `output` is the `cat -n` snippet the tool shows a model; `old_content` and `new_content` carry the full file before and after.
+
+The name glob and the content grep are two different routes.
+
+<ApiV2>
+- `GET /v2/fs/search`: v1's `glob` and `find` collapsed into one; returns a flat list of paths.
+- `POST /v2/fs/grep`: matches content under `path`, reports 1-based `line_number` per match, and takes optional `context_before`/`context_after`.
+</ApiV2>
+
+<ApiV1>
+- `POST /v1/file/glob`: returns an entry per match with `path` and its metadata.
+- `POST /v1/file/grep`: matches content under `path`, reports 1-based `line_number` per match, and takes optional `context_before`/`context_after`.
+- `POST /v1/file/search`: the older file-scoped, 0-based variant.
+</ApiV1>
+
+## Watch a directory
+
+A watcher records changes under a path until it is stopped.
+
+![](/architecture/aiod-watch-flow.svg)
+
+### Poll for events
+
+A poll long-polls for up to `timeout` seconds and returns a `cursor` for the next call:
+
+<ApiV2>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+watcher = sb.post("/v2/watch", path="/tmp/demo", recursive=True)
+watcher = watcher["watcher_id"]
+
+def poll(watcher_id: str, **params) -> dict:
+    return sb.get(f"/v2/watch/{watcher_id}/poll", **params)
+
+sb.post("/v2/commands", command="echo 'X = 1' > /tmp/demo/src/util.py")
+
+for e in poll(watcher, timeout=2)["events"]:
+    print(e["seq"], e["type"], e["relative_path"])
+# 1 create src/util.py
+# 2 write src/util.py
+
+sb.delete(f"/v2/watch/{watcher}")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+let watcher = (await sb.post<any>("/v2/watch", { path: "/tmp/demo", recursive: true }))
+  .watcher_id;
+
+async function poll(id: string, qs: string): Promise<any> {
+  return sb.get<any>(`/v2/watch/${id}/poll?${qs}`);
+}
+
+await sb.post("/v2/commands", { command: "echo 'X = 1' > /tmp/demo/src/util.py" });
+
+for (const e of (await poll(watcher, "timeout=2")).events) {
+  console.log(e.seq, e.type, e.relative_path);
+}
+// 1 create src/util.py
+// 2 write src/util.py
+
+await sb.delete(`/v2/watch/${watcher}`);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+watcher = client.file.watch_create(path="/tmp/demo", recursive=True)
+watcher = watcher["data"]["watcher_id"]
+
+def poll(watcher_id: str, **params) -> dict:
+    return client.file.watch_poll(watcher_id, **params)["data"]
+
+client.bash.exec(command="echo 'X = 1' > /tmp/demo/src/util.py")
+
+for e in poll(watcher, timeout=2)["events"]:
+    print(e["seq"], e["type"], e["relative_path"])
+# 1 create src/util.py
+# 2 write src/util.py
+
+client.file.watch_stop(watcher)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+let watcher = ((await client.file.watchCreate({
+  path: "/tmp/demo", recursive: true,
+})) as any).body.data.watcher_id;
+
+async function poll(id: string, params: any): Promise<any> {
+  return ((await client.file.watchPoll(id, params)) as any).body.data;
+}
+
+await client.bash.exec({ command: "echo 'X = 1' > /tmp/demo/src/util.py" });
+
+for (const e of (await poll(watcher, { timeout: 2 })).events) {
+  console.log(e.seq, e.type, e.relative_path);
+}
+// 1 create src/util.py
+// 2 write src/util.py
+
+await client.file.watchStop(watcher);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+### Filter the staging file
+
+An upload never writes the target directly: it fills a `.aiod-upload-<id>.part` file next to it, then renames that over the target. A write stages the same way through `.aiod-write-<id>.part` when an ownership identity applies, as it does on the images; without one it writes the target in place and keeps its inode. Two watchers on the same directory, one of them filtering the staging file:
+
+<ApiV2>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+plain = sb.post("/v2/watch", path="/tmp/demo", recursive=True)
+plain = plain["watcher_id"]
+filtered = sb.post("/v2/watch", path="/tmp/demo", recursive=True,
+                    exclude=["*.part"])["watcher_id"]
+
+sb.http.post(f"{BASE_URL}/v2/fs/upload",
+             files={"file": ("data.csv", b"a,b\n1,2\n")},
+             data={"path": "/tmp/demo/data.csv"})
+
+for name, w in (("plain", plain), ("filtered", filtered)):
+    print(name)
+    for e in poll(w, timeout=2)["events"]:
+        print(" ", e["seq"], e["type"], e["relative_path"])
+
+sb.delete(f"/v2/watch/{plain}")
+sb.delete(f"/v2/watch/{filtered}")
+# plain
+#   1 create .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+#   2 rename .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+#   3 write .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+#   4 rename data.csv
+# filtered
+#   1 rename data.csv
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const plain = (await sb.post<any>("/v2/watch", { path: "/tmp/demo", recursive: true }))
+  .watcher_id;
+const filtered = (
+  await sb.post<any>("/v2/watch", {
+    path: "/tmp/demo", recursive: true, exclude: ["*.part"],
+  })
+).watcher_id;
+
+const form = new FormData();
+form.append("file", new Blob(["a,b\n1,2\n"]), "data.csv");
+form.append("path", "/tmp/demo/data.csv");
+await fetch(`${BASE_URL}/v2/fs/upload`, { method: "POST", body: form });
+
+for (const [name, w] of [["plain", plain], ["filtered", filtered]]) {
+  console.log(name);
+  for (const e of (await poll(w, "timeout=2")).events) {
+    console.log(" ", e.seq, e.type, e.relative_path);
+  }
+}
+
+await sb.delete(`/v2/watch/${plain}`);
+await sb.delete(`/v2/watch/${filtered}`);
+// plain
+//   1 create .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+//   2 rename .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+//   3 write .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+//   4 rename data.csv
+// filtered
+//   1 rename data.csv
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+plain = client.file.watch_create(path="/tmp/demo", recursive=True)
+plain = plain["data"]["watcher_id"]
+filtered = client.file.watch_create(path="/tmp/demo", recursive=True,
+                                    exclude=["*.part"])["data"]["watcher_id"]
+
+client.file.upload_file(file=("data.csv", b"a,b\n1,2\n"),
+                        path="/tmp/demo/data.csv")
+
+for name, w in (("plain", plain), ("filtered", filtered)):
+    print(name)
+    for e in poll(w, timeout=2)["events"]:
+        print(" ", e["seq"], e["type"], e["relative_path"])
+
+client.file.watch_stop(plain)
+client.file.watch_stop(filtered)
+# plain
+#   1 create .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+#   2 rename .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+#   3 write .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+#   4 rename data.csv
+# filtered
+#   1 rename data.csv
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const plain = ((await client.file.watchCreate({
+  path: "/tmp/demo", recursive: true,
+})) as any).body.data.watcher_id;
+const filtered = ((await client.file.watchCreate({
+  path: "/tmp/demo", recursive: true, exclude: ["*.part"],
+})) as any).body.data.watcher_id;
+
+await client.file.uploadFile({
+  file: new File(["a,b\n1,2\n"], "data.csv"),
+  path: "/tmp/demo/data.csv",
+} as any);
+
+for (const [name, w] of [["plain", plain], ["filtered", filtered]]) {
+  console.log(name);
+  for (const e of (await poll(w, { timeout: 2 })).events) {
+    console.log(" ", e.seq, e.type, e.relative_path);
+  }
+}
+
+await client.file.watchStop(plain);
+await client.file.watchStop(filtered);
+// plain
+//   1 create .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+//   2 rename .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+//   3 write .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
+//   4 rename data.csv
+// filtered
+//   1 rename data.csv
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+`exclude` globs match single path components below the watched root, so `*.part` hides the staging file and keeps the `rename` onto the target. The list you pass replaces the default excludes rather than extending them.
+
+### Wait for the next change
+
+Pass the previous `cursor` back and the next poll returns only what came after it. With nothing new, it blocks until `timeout` runs out.
+
+The example below uses that loop to wait for a background build that writes a report and then a marker file:
+
+<ApiV2>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+watcher = sb.post("/v2/watch", path="/tmp/demo", recursive=True,
+                   exclude=["*.part"])["watcher_id"]
+sb.post("/v2/commands", mode="async", command=(
+    "sleep 1; echo report > /tmp/demo/report.txt; touch /tmp/demo/build.done"))
+
+cursor = 0
+while True:
+    page = poll(watcher, cursor=cursor, timeout=30)
+    for e in page["events"]:
+        print(e["seq"], e["type"], e["relative_path"])
+    cursor = page["cursor"]
+    if any(e["relative_path"] == "build.done" for e in page["events"]):
+        break
+# 1 create report.txt
+# 2 write report.txt
+# 3 create build.done
+
+sb.delete(f"/v2/watch/{watcher}")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+watcher = (
+  await sb.post<any>("/v2/watch", {
+    path: "/tmp/demo", recursive: true, exclude: ["*.part"],
+  })
+).watcher_id;
+await sb.post("/v2/commands", {
+  mode: "async",
+  command: "sleep 1; echo report > /tmp/demo/report.txt; touch /tmp/demo/build.done",
+});
+
+let cursor = 0;
+for (;;) {
+  const page = await poll(watcher, `cursor=${cursor}&timeout=30`);
+  for (const e of page.events) console.log(e.seq, e.type, e.relative_path);
+  cursor = page.cursor;
+  if (page.events.some((e: any) => e.relative_path === "build.done")) break;
+}
+// 1 create report.txt
+// 2 write report.txt
+// 3 create build.done
+
+await sb.delete(`/v2/watch/${watcher}`);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+watcher = client.file.watch_create(path="/tmp/demo", recursive=True,
+                                   exclude=["*.part"])["data"]["watcher_id"]
+client.bash.exec(async_mode=True, command=(
+    "sleep 1; echo report > /tmp/demo/report.txt; touch /tmp/demo/build.done"))
+
+cursor = 0
+while True:
+    page = poll(watcher, cursor=cursor, timeout=30)
+    for e in page["events"]:
+        print(e["seq"], e["type"], e["relative_path"])
+    cursor = page["cursor"]
+    if any(e["relative_path"] == "build.done" for e in page["events"]):
+        break
+# 1 create report.txt
+# 2 write report.txt
+# 3 create build.done
+
+client.file.watch_stop(watcher)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+watcher = ((await client.file.watchCreate({
+  path: "/tmp/demo", recursive: true, exclude: ["*.part"],
+})) as any).body.data.watcher_id;
+await client.bash.exec({
+  async_mode: true,
+  command: "sleep 1; echo report > /tmp/demo/report.txt; touch /tmp/demo/build.done",
+} as any);
+
+let cursor = 0;
+for (;;) {
+  const page = await poll(watcher, { cursor, timeout: 30 });
+  for (const e of page.events) console.log(e.seq, e.type, e.relative_path);
+  cursor = page.cursor;
+  if (page.events.some((e: any) => e.relative_path === "build.done")) break;
+}
+// 1 create report.txt
+// 2 write report.txt
+// 3 create build.done
+
+await client.file.watchStop(watcher);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+### Stream the events
+
+The events route pushes the same events as SSE. Every `file_change` carries the poll payload and an `id` of `<watcher_id>:<seq>`, so an `EventSource` reconnect resumes from `Last-Event-ID` instead of replaying from the start:
+
+<ApiV2>
+
+```bash
+curl -N "$BASE_URL/v2/watch/$WATCHER/events"
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -N "$BASE_URL/v1/file/watch/$WATCHER/events"
+```
+
+</ApiV1>
+
+```
+event: watch_started
+data: {"watcher_id":"7fd196bd528d"}
+
+id: 7fd196bd528d:1
+event: file_change
+data: {"seq":1,"type":"create","path":"/tmp/demo/src/util.py","relative_path":"src/util.py","is_dir":false,"timestamp":1788892055.64768,"old_path":null,"mtime":1788892055.6368937,"size":6,"inode":31524000}
+```
+
+## Transfer files
+
+`download` streams the bytes and honours `Range`; `upload` is multipart with the target in `path`:
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/fs/download?path=/tmp/demo/src/app.py" -o app.py
+curl "$BASE_URL/v2/fs/download?path=/tmp/demo/src/app.py" -H "Range: bytes=0-9"   # 206
+
+curl -F "file=@data.csv" -F "path=/tmp/demo/data.csv" "$BASE_URL/v2/fs/upload"
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/file/download?path=/tmp/demo/src/app.py" -o app.py
+curl "$BASE_URL/v1/file/download?path=/tmp/demo/src/app.py" -H "Range: bytes=0-9"   # 206
+
+curl -F "file=@data.csv" -F "path=/tmp/demo/data.csv" "$BASE_URL/v1/file/upload"
+```
+
+</ApiV1>
+
+<UseV2 when="a whole directory has to move in one request" route="GET /v2/fs/tree" />
+
+<ApiV2>
+
+`tree` streams a whole directory out as a tar archive, and `PUT` with an archive as the body puts one back:
+
+```bash
+curl "$BASE_URL/v2/fs/tree?path=/tmp/demo" -o demo.tar
+```
+
+</ApiV2>
+
+## Error contract
+
+A filesystem failure keeps the envelope: `success: false`, the message, and a structured `data` naming the errno, the error kind, the operation, the path, and whether a retry could help.
+
+<ApiV2>
+
+The helper raises on `success: false`, so reading a failing reply means going through `sb.http` instead of `sb.get`/`sb.post`:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+reply = sb.http.get("/v2/fs/read", params={"path": "/tmp/demo/missing.txt"}).json()
+print(reply["success"], reply["data"]["error_type"], reply["data"]["errno_name"])
+# False not_found ENOENT
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const res = await fetch(
+  `${BASE_URL}/v2/fs/read?path=${encodeURIComponent("/tmp/demo/missing.txt")}`
+);
+const reply = await res.json();
+console.log(reply.success, reply.data.error_type, reply.data.errno_name);
+// false not_found ENOENT
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+The SDK hands back the envelope instead of raising, so a failing reply needs no special handling:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+reply = client.file.read_file(file="/tmp/demo/missing.txt")
+print(reply.success, reply.data.error_type, reply.data.errno_name)
+# False not_found ENOENT
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const reply = ((await client.file.readFile({
+  file: "/tmp/demo/missing.txt",
+})) as any).body;
+console.log(reply.success, reply.data.error_type, reply.data.errno_name);
+// false not_found ENOENT
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+The reply on the wire is the same either way:
+
+```json
+{
+  "success": false,
+  "message": "Failed to read file: No such file or directory (os error 2)",
+  "data": {
+    "errno": 2,
+    "errno_name": "ENOENT",
+    "error_type": "not_found",
+    "exception_type": "FileNotFoundError",
+    "message": "Failed to read file: No such file or directory (os error 2)",
+    "operation": "read",
+    "path": "/tmp/demo/missing.txt",
+    "retryable": false
+  },
+  "hint": null
+}
+```
+
+<ApiV2>
+
+The HTTP status carries the kind too:
+
+| Status | `error_type` |
+| --- | --- |
+| `400` | `bad_request`, `invalid_path`, `invalid_target` |
+| `403` | `permission_denied` |
+| `404` | `not_found` |
+| `409` | `already_exists` |
+| `422` | `decode_error` |
+| `507` | `no_space_left` |
+
+A malformed JSON body answers `422` with a top-level `errors` list. A malformed query string (a required parameter missing or the wrong type) answers `400` as plain text, not the envelope.
+
+| Case | Status | Where to look |
+| --- | --- | --- |
+| Filesystem failure (missing path, permission denied, ...) | `400`/`403`/`404`/`409`/`422`/`507` by kind | `data.error_type`, `data.errno_name`, `data.retryable` |
+| Malformed JSON body (missing or mistyped field) | `422` | `errors[].location` |
+| Malformed query string (missing required param) | `400`, plain text | not the envelope |
+| `str_replace` with an absent `old_str` | `400` | `message` |
+
+</ApiV2>
+
+<ApiV1>
+
+The HTTP status stays `200` whatever the failure was, so `success` and `data.error_type` are the only things that name it. A malformed JSON body is the exception: it answers `422` with a top-level `errors` list before any handler runs.
+
+| Case | Status | Where to look |
+| --- | --- | --- |
+| Filesystem failure (missing path, permission denied, ...) | `200` | `data.error_type`, `data.errno_name`, `data.retryable` |
+| Malformed JSON body (missing or mistyped field) | `422` | `errors[].location` |
+| `str_replace` with an absent `old_str` | `200` | `message` |
+
+</ApiV1>
+
+Check the HTTP status, then `success`, then `data.error_type`.
+
+## Related
+
+- [Agent Calls the Sandbox](/daemon/examples/agent-call-sandbox) — the file API as one step in a script
+- [Interactive Terminal](/daemon/examples/terminal) — a live shell on the same filesystem
+- [Error Handling](/daemon/basic/error-handling) — the envelope and status codes across every plane
+- [File (FS)](/daemon/basic/file) — the full v2 route table and usage; the [route map](/daemon/start/migration#files) has the v1 equivalents

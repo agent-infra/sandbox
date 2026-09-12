@@ -1,0 +1,72 @@
+[
+  {
+    "type": "section-header",
+    "label": "核心 API"
+  },
+  "sandbox",
+  {
+    "type": "file",
+    "name": "bash",
+    "label": "Bash（Commands）"
+  },
+  {
+    "type": "file",
+    "name": "shell",
+    "label": "Shell（PTY）"
+  },
+  {
+    "type": "file",
+    "name": "file",
+    "label": "File（FS）"
+  },
+  "error-handling",
+  {
+    "type": "section-header",
+    "label": "浏览器"
+  },
+  {
+    "type": "file",
+    "name": "browser",
+    "label": "浏览器 API"
+  },
+  {
+    "type": "file",
+    "name": "cdp",
+    "label": "CDP 接入"
+  },
+  {
+    "type": "section-header",
+    "label": "桌面 GUI"
+  },
+  {
+    "type": "file",
+    "name": "display",
+    "label": "Computer Use"
+  },
+  {
+    "type": "section-header",
+    "label": "代码"
+  },
+  {
+    "type": "file",
+    "name": "code",
+    "label": "Code Interpreter"
+  },
+  {
+    "type": "file",
+    "name": "nodejs",
+    "label": "Node.js"
+  },
+  {
+    "type": "file",
+    "name": "jupyter",
+    "label": "Jupyter"
+  },
+  {
+    "type": "section-header",
+    "label": "接入与运维"
+  },
+  "authentication",
+  "observability",
+  "windows"
+]

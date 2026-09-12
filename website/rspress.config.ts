@@ -4,7 +4,6 @@ import { pluginSvgr } from '@rsbuild/plugin-svgr';
 import { defineConfig } from '@rspress/core';
 import { pluginLlms } from '@rspress/plugin-llms';
 import { pluginSitemap } from '@rspress/plugin-sitemap';
-import { pluginTwoslash } from '@rspress/plugin-twoslash';
 import {
   transformerNotationDiff,
   transformerNotationErrorLevel,
@@ -16,6 +15,46 @@ import { pluginOpenGraph } from 'rsbuild-plugin-open-graph';
 import { pluginFontOpenSans } from 'rspress-plugin-font-open-sans';
 
 const siteUrl = 'https://sandbox.agent-infra.com';
+
+// The llms plugin's own mdxToMd drops import lines and unwraps JSX, but it
+// glues the v1/v2 route spans together. This does the same and separates
+// adjacent inline components with " / ".
+function mdxToPlainMarkdown() {
+  const isJsx = (n: any) => n.type === 'mdxJsxFlowElement' || n.type === 'mdxJsxTextElement';
+  const walk = (node: any) => {
+    if (!Array.isArray(node.children)) return;
+    const out: any[] = [];
+    let prevJsx = false;
+    for (const child of node.children) {
+      if (child.type === 'mdxjsEsm') continue;
+      if (child.type === 'blockquote') keepAlertMarker(child);
+      if (isJsx(child)) {
+        walk(child);
+        if (prevJsx && child.type === 'mdxJsxTextElement') out.push({ type: 'text', value: ' / ' });
+        out.push(...(child.children ?? []));
+        prevJsx = true;
+        continue;
+      }
+      prevJsx = false;
+      walk(child);
+      out.push(child);
+    }
+    node.children = out;
+  };
+  return (tree: any) => walk(tree);
+}
+
+// remark-stringify would escape "> [!TIP]" to "> \[!TIP]".
+function keepAlertMarker(blockquote: any) {
+  const paragraph = blockquote.children?.[0];
+  const text = paragraph?.children?.[0];
+  const marker = text?.type === 'text' && /^\[!\w+\]/.exec(text.value);
+  if (!marker) return;
+  text.value = text.value.slice(marker[0].length);
+  paragraph.children.unshift({ type: 'html', value: marker[0] });
+}
+
+const llmsMdFiles = { mdxToMd: false, remarkPlugins: [mdxToPlainMarkdown] };
 
 export default defineConfig({
   root: path.join(__dirname, 'docs'),
@@ -53,18 +92,40 @@ export default defineConfig({
     },
   },
   plugins: [
-    pluginTwoslash(),
     pluginFontOpenSans(),
     pluginSitemap({
       siteUrl,
     }),
-    pluginLlms(),
+    // One entry per locale: a single options object only covers the default
+    // language, so zh pages had no .md files and "Copy Markdown" fetched the 404 page.
+    pluginLlms([
+      { mdFiles: llmsMdFiles },
+      {
+        mdFiles: llmsMdFiles,
+        llmsTxt: { name: 'zh/llms.txt' },
+        llmsFullTxt: { name: 'zh/llms-full.txt' },
+        include: ({ page }) => page.lang === 'zh',
+      },
+    ]),
   ],
   base: process.env.BASE_URL ?? '/',
   outDir: 'doc_build',
   builderConfig: {
     html: {
       template: 'public/index.html',
+    },
+    tools: {
+      // Fast refresh only for project files. The refresh runtime is appended
+      // to every compiled module and calls Promise.resolve(); a dependency
+      // that exports its own `Promise` (@scalar/typebox) then breaks in dev.
+      bundlerChain(chain, { CHAIN_ID }) {
+        const refresh = chain.plugins.get(CHAIN_ID.PLUGIN.REACT_FAST_REFRESH);
+        if (refresh) {
+          refresh.tap(([options]) => [
+            { ...options, exclude: [...(options.exclude ?? []), /[\\/]node_modules[\\/]/] },
+          ]);
+        }
+      },
     },
     plugins: [
       pluginSass(),

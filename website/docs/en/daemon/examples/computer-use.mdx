@@ -1,0 +1,451 @@
+import { Tab, Tabs } from '@theme';
+
+# Computer Use
+
+This example completes a real desktop task: open Chromium, reach a sample page, find and click a link, confirm the window title changed, and capture the screen. It uses the keyboard and accessibility tree throughout, with no pixel coordinates.
+
+The example page is built inside the sandbox by the file and command planes, so the whole flow runs offline and gives consistent results.
+
+The example uses these routes:
+
+- `/v2/computer/actions`
+- `/v2/computer/actions/batch`
+- `/v2/computer/accessibility/nodes`
+- `/v2/computer/windows`
+- `/v2/computer/screenshot`
+
+The fixture also uses `/v2/fs/write` and `/v2/commands`.
+
+## Requirements
+
+`GET /v2/sandbox` reports `computer` under `capabilities`, plus `files` and `exec` for the fixture. The `computer-use` worker runs next to `aiod` on a host with a desktop and a running Chromium. The Computer image starts with an empty desktop, so open the browser first, from the desktop's Browser icon or by running `/opt/gem/browser-launch.sh` through exec:
+
+- an Ubuntu desktop
+- a VM with Xvfb or Xvnc
+- a Windows interactive logon session
+
+The Computer image provides all of it (see [Preset](#preset-the-computer-image)). Every `/v2/computer/*` route answers `503` while the worker is down.
+
+The fixture serves itself with `python3`; any static server would do. Pick a port nothing else is on; `18782` is used below.
+
+## Build a page to drive
+
+Two HTML files through the file plane, then a static server through the command plane. `mode: "async"` starts the process and returns at once, leaving it addressable by `command_id`:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import time
+
+BASE_URL = "http://127.0.0.1:18091"
+PORT = 18782
+DIR = "/tmp/aiod-cu/site"
+sb = Aio(BASE_URL)
+
+START_HTML = """<!doctype html>
+<title>Sandbox Start</title>
+<h1>Start page</h1>
+<a href="/report.html">Open the report</a>
+"""
+
+REPORT_HTML = """<!doctype html>
+<title>Sandbox Report</title>
+<h1>Report page</h1>
+"""
+
+for name, html in [("index.html", START_HTML), ("report.html", REPORT_HTML)]:
+    print(sb.post("/v2/fs/write", path=f"{DIR}/{name}", content=html))
+
+serve = sb.post(
+    "/v2/commands",
+    command=f"python3 -m http.server {PORT} --bind 127.0.0.1 --directory {DIR}",
+    mode="async",
+)
+command_id = serve["command_id"]
+print(serve["status"], command_id)
+# → running c5e9300f-73be-406f-9fca-cf571e12838b
+
+
+def port_state() -> str:
+    probe = (f"python3 -c \"import socket; print('free' if "
+             f"socket.socket().connect_ex(('127.0.0.1', {PORT})) else 'in use')\"")
+    return sb.post("/v2/commands", command=probe)["stdout"].strip()
+
+
+while port_state() == "free":
+    time.sleep(0.2)
+print(port_state())
+# → in use
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { writeFileSync } from "node:fs";
+
+const BASE_URL = "http://127.0.0.1:18091";
+const PORT = 18782;
+const DIR = "/tmp/aiod-cu/site";
+const sb = new Aio(BASE_URL);
+
+const START_HTML = `<!doctype html>
+<title>Sandbox Start</title>
+<h1>Start page</h1>
+<a href="/report.html">Open the report</a>
+`;
+
+const REPORT_HTML = `<!doctype html>
+<title>Sandbox Report</title>
+<h1>Report page</h1>
+`;
+
+for (const [name, html] of [["index.html", START_HTML], ["report.html", REPORT_HTML]]) {
+  const written = await sb.post("/v2/fs/write", {
+    path: `${DIR}/${name}`,
+    content: html,
+  });
+  console.log(written);
+}
+
+const serve = await sb.post("/v2/commands", {
+  command: `python3 -m http.server ${PORT} --bind 127.0.0.1 --directory ${DIR}`,
+  mode: "async",
+});
+const commandId = serve.command_id;
+console.log(serve.status, commandId);
+// → running d50e3a48-4769-45ea-bf03-d61bf7f9f110
+
+async function portState(): Promise<string> {
+  const probe = `python3 -c "import socket; print('free' if `
+    + `socket.socket().connect_ex(('127.0.0.1', ${PORT})) else 'in use')"`;
+  const out = await sb.post("/v2/commands", { command: probe });
+  return out.stdout.trim();
+}
+
+while ((await portState()) === "free") {
+  await new Promise((r) => setTimeout(r, 200));
+}
+console.log(await portState());
+// → in use
+```
+
+</Tab>
+</Tabs>
+
+The two pages carry what the desktop is searched by: a link whose accessible name is its own text, and a title per page that the window list can be polled for.
+
+Waiting for the port matters. An async command answers before its process has bound anything, and a navigation that arrives too early lands on Chromium's error page instead of the fixture. The same probe proves the port is free again at the end.
+
+## Navigate and follow a link
+
+Three steps, one script, through the shared `Aio` helper: navigate, act on an accessibility node, observe. `BASE_URL`, `sb`, the port and the fixture directory carry over from the block above.
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+def act(action: dict, screenshot: bool = False) -> dict:
+    params = {"include_screenshot": "true"} if screenshot else {}
+    return sb.http.post("/v2/computer/actions", params=params, json=action).json()
+
+
+def batch(actions: list) -> dict:
+    return sb.post("/v2/computer/actions/batch", actions=actions)
+
+
+def nodes(**query) -> list:
+    return sb.get("/v2/computer/accessibility/nodes", **query)["nodes"]
+
+
+def windows() -> list:
+    return sb.get("/v2/computer/windows")["windows"]
+
+
+def wait_for_title(fragment: str, tries: int = 40) -> str:
+    for _ in range(tries):
+        for window in windows():
+            if fragment in window["title"]:
+                return window["title"]
+        time.sleep(0.25)
+    raise TimeoutError(f"no window titled {fragment}")
+
+
+# 1. Navigate: activate Chromium, focus the address bar, type the URL, press Enter.
+chromium = next(w for w in windows() if "Chromium" in w["title"])
+batch([
+    {"action_type": "WINDOW_ACTIVATE", "window_id": chromium["window_id"]},
+    {"action_type": "WAIT", "duration": 0.5},
+    {"action_type": "HOTKEY", "keys": ["ctrl", "l"]},
+    {"action_type": "TYPING", "text": f"http://127.0.0.1:{PORT}/"},
+    {"action_type": "PRESS", "key": "enter"},
+])
+print("after navigate:", wait_for_title("Sandbox Start"))
+# → after navigate: Sandbox Start - Chromium
+
+# 2. Find the link in the accessibility tree and invoke it.
+link = nodes(role="link", name="Open the report")[0]
+print(link["role"], link["name"], link["node_id"])
+# → link Open the report a::1.30:/org/a11y/atspi/accessible/247
+act({"action_type": "NODE_INVOKE", "node_id": link["node_id"]})
+print("after click:", wait_for_title("Sandbox Report"))
+# → after click: Sandbox Report - Chromium
+
+# 3. Observe: one screenshot of the result.
+shot = sb.http.get("/v2/computer/screenshot")
+with open("report.png", "wb") as out:
+    out.write(shot.content)
+print(shot.status_code, shot.headers["x-image-width"], len(shot.content))
+# → 200 1920 115412
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+async function act(action: object, screenshot = false): Promise<any> {
+  const qs = screenshot ? "?include_screenshot=true" : "";
+  const r = await fetch(`${BASE_URL}/v2/computer/actions${qs}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(action),
+  });
+  return r.json();
+}
+
+async function batch(actions: object[]): Promise<any> {
+  return sb.post("/v2/computer/actions/batch", { actions });
+}
+
+async function nodes(query: Record<string, string>): Promise<any[]> {
+  const qs = new URLSearchParams(query);
+  return (await sb.get(`/v2/computer/accessibility/nodes?${qs}`)).nodes;
+}
+
+async function windows(): Promise<any[]> {
+  return (await sb.get("/v2/computer/windows")).windows;
+}
+
+async function waitForTitle(fragment: string, tries = 40): Promise<string> {
+  for (let i = 0; i < tries; i++) {
+    for (const w of await windows()) {
+      if (w.title.includes(fragment)) return w.title;
+    }
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  throw new Error(`no window titled ${fragment}`);
+}
+
+// 1. Navigate: activate Chromium, focus the address bar, type the URL, press Enter.
+const chromium = (await windows()).find((w) => w.title.includes("Chromium"));
+await batch([
+  { action_type: "WINDOW_ACTIVATE", window_id: chromium.window_id },
+  { action_type: "WAIT", duration: 0.5 },
+  { action_type: "HOTKEY", keys: ["ctrl", "l"] },
+  { action_type: "TYPING", text: `http://127.0.0.1:${PORT}/` },
+  { action_type: "PRESS", key: "enter" },
+]);
+console.log("after navigate:", await waitForTitle("Sandbox Start"));
+// → after navigate: Sandbox Start - Chromium
+
+// 2. Find the link in the accessibility tree and invoke it.
+const [link] = await nodes({ role: "link", name: "Open the report" });
+console.log(link.role, link.name, link.node_id);
+// → link Open the report a::1.30:/org/a11y/atspi/accessible/260
+await act({ action_type: "NODE_INVOKE", node_id: link.node_id });
+console.log("after click:", await waitForTitle("Sandbox Report"));
+// → after click: Sandbox Report - Chromium
+
+// 3. Observe: one screenshot of the result.
+const shot = await fetch(`${BASE_URL}/v2/computer/screenshot`);
+const bytes = Buffer.from(await shot.arrayBuffer());
+writeFileSync("report.png", bytes);
+console.log(shot.status, shot.headers.get("x-image-width"), bytes.length);
+// → 200 1920 115422
+```
+
+</Tab>
+</Tabs>
+
+Neither page change is waited out with a fixed sleep. `wait_for_title` polls the window list until a title says the desktop caught up, and gives up after ten seconds — the same shape as waiting for the port above. The screenshot route answers with the image itself, not with JSON, so it goes through `sb.http`; a PNG reply also carries `x-image-width` and `x-image-height`. The bytes go to the caller, and nothing is written inside the sandbox.
+
+Notes from the run:
+
+- Keystrokes go to whatever holds focus, so the batch activates the Chromium window first. `WINDOW_ACTIVATE` asks the window manager and does not wait for the answer, which is the one `WAIT` in the script. Without the activation the keys land nowhere and the title never changes.
+- `nodes(role=..., name=...)` matches by substring by default; pass `match="exact"` for an exact name, `match="regex"` for a pattern. The link's accessible name is its own text — the node's attributes say `name-from: contents`.
+- Chromium exposes page content only when started with `--force-renderer-accessibility`. Without it the desktop tree holds the panel and the desktop and no browser at all, and the search for the link comes back empty.
+- Chromium's address bar reports no editable text to AT-SPI, so `NODE_SET_VALUE` on it answers `409 node ... has neither editable text nor a value to set`. The keyboard path (`HOTKEY` + `TYPING`) is the reliable way to enter a URL.
+- A `node_id` stays valid while the element exists; once the page it came from is gone, `nodes(node_id=...)` answers `404 node ... is gone`.
+- `windows` returns `{snapshot_id, windows: [{window_id, title, process_id, bounds, minimized}]}`. The title is the cheapest thing to poll, and it changes as soon as the navigation commits: both waits above returned on their first pass.
+
+## Use PyAutoGUI
+
+You can also run PyAutoGUI on the same desktop. It uses screen coordinates instead of the accessibility tree, so coordinates must be checked again when the window moves. Run the script through `/v2/commands`; the desktop already has `DISPLAY` set:
+
+```python
+sb.post("/v2/commands", command="pip install --quiet pyautogui", timeout=280)
+sb.post("/v2/commands", command=f'''python3 - <<'EOF'
+import pyautogui
+
+pyautogui.hotkey("ctrl", "l")
+pyautogui.write("http://127.0.0.1:{PORT}/report.html")
+pyautogui.press("enter")
+pyautogui.screenshot("/tmp/report.png")
+EOF''')
+```
+
+Use the accessibility-tree flow when an element must be located reliably; use PyAutoGUI for direct desktop input.
+
+## Clean up when done
+
+The fixture server outlives the script unless it is stopped. `commands/{id}/kill` stops it, `fs/delete` removes the directory, and the port probe from the first block confirms the port came back:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sb.post(f"/v2/commands/{command_id}/kill")
+removed = sb.post("/v2/fs/delete", path=DIR, recursive=True)
+print(removed["path"], "|", port_state())
+# → /tmp/aiod-cu/site | free
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+await sb.post(`/v2/commands/${commandId}/kill`);
+const removed = await sb.post("/v2/fs/delete", { path: DIR, recursive: true });
+console.log(removed.path, "|", await portState());
+// → Signal SIGTERM sent | Directory deleted successfully | free
+```
+
+</Tab>
+</Tabs>
+
+The browser keeps showing the last page it loaded; nothing on the desktop has to be reset.
+
+## Check the worker
+
+`info` reports the display, the resolution, and the supported operations:
+
+```python
+sb.http.get("/v2/computer/info").json()
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "available": true,
+    "display": ":99.0",
+    "xauthority": null,
+    "screen_resolution": {
+      "width": 1920,
+      "height": 1080
+    },
+    "capabilities": {
+      "screenshot": true,
+      "actions": true,
+      "clipboard": true,
+      "recording": true
+    },
+    "warnings": []
+  }
+}
+```
+
+Scale model coordinates to `screen_resolution` before a pixel action.
+
+## Act and observe in one call
+
+`include_screenshot=true` returns the post-action frame as a base64 PNG in the top-level `screenshot` field — that is what the `screenshot` flag on `act` sends:
+
+```python
+act({"action_type": "CLICK", "x": 640, "y": 400}, screenshot=True)
+```
+
+On Windows, input aimed at a secure desktop (a UAC prompt, the lock screen) is refused with `403`.
+
+## Batch actions
+
+Send a sequence in one request when no decision is needed between steps. On this route `include_screenshot` is a body field next to `actions`, not a query parameter, so `sb.post` carries it:
+
+```python
+sb.post("/v2/computer/actions/batch", include_screenshot=True, actions=[
+    {"action_type": "HOTKEY", "keys": ["ctrl", "l"]},
+    {"action_type": "TYPING", "text": f"http://127.0.0.1:{PORT}/"},
+    {"action_type": "PRESS", "key": "enter"},
+])
+```
+
+Limits: 50 actions per batch, 10 s per `WAIT`, 20 s of waiting per batch. A failed action stops the batch; `data.failed_index` and `data.error` say which and why.
+
+## Agent loop
+
+One screenshot and one action per step:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import base64
+
+
+def run(model) -> None:
+    frame = sb.http.get("/v2/computer/screenshot").content   # initial observation
+    while not model.done:
+        # e.g. {"action_type": "CLICK", "x": 640, "y": 400}
+        action = model.decide(frame)
+        frame = base64.b64decode(act(action, screenshot=True)["screenshot"])
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+async function run(model: any): Promise<void> {
+  const r = await fetch(`${BASE_URL}/v2/computer/screenshot`);
+  let frame = new Uint8Array(await r.arrayBuffer()); // initial observation
+  while (!model.done) {
+    const action = model.decide(frame); // e.g. { action_type: "CLICK", x: 640, y: 400 }
+    const result = await act(action, true);
+    frame = Buffer.from(result.screenshot, "base64");
+  }
+}
+```
+
+</Tab>
+</Tabs>
+
+A model that decides from one frame per step needs the desktop to have settled before that frame is taken; where the loop can check a title or a node instead, poll for it as the story above does.
+
+## Record the desktop
+
+Start and stop through the same route:
+
+```python
+sb.post(
+    "/v2/computer/record", action="start", save_path="/workspace/recordings/session.mp4"
+)
+sb.post("/v2/computer/record", action="stop")
+```
+
+Fetch the file with the [File API](/daemon/examples/file-ops).
+
+## Preset: the Computer image
+
+The prebuilt Computer image provides:
+
+- an XFCE desktop on `DISPLAY=:99`
+- the `computer-use` worker next to `aiod`
+- a session D-Bus for AT-SPI
+- Chromium started with `--force-renderer-accessibility`
+- noVNC at `/vnc`
+
+## Related
+
+- [Computer Use](/daemon/basic/display) — the full reference, the action list, defaults, and the `501`/`503` distinction
+- [Browser Use](/daemon/examples/browser-use) — the same fixture idiom, driving a page over REST instead of the desktop
+- [Browser (CDP)](/daemon/examples/browser-cdp) — the same browser driven over CDP instead of the desktop

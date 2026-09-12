@@ -1,0 +1,139 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# 浏览器（CDP）
+
+当 agent 需要完整的页面自动化能力时，可以把沙箱中的 Chromium 交给 Playwright 或 Puppeteer。daemon 负责返回 CDP 连接地址，客户端连接后即可驱动同一个 Chromium 实例。
+
+路由：
+
+<ApiV2>
+
+- `GET /v2/browser/info`
+
+</ApiV2>
+
+<ApiV1>
+
+- `GET /v1/browser/info`
+
+</ApiV1>
+
+不用框架的自动化——通过 REST 导航、快照、填写、点击、截图——见 [Browser Use](/zh/daemon/examples/browser-use)。
+
+## 要求
+
+<ApiV2>
+
+`GET /v2/sandbox` 的 `capabilities` 中应包含 `browser`。
+
+</ApiV2>
+
+<ApiV1>
+
+`GET /v1/capabilities` 的返回结果中应包含 `browser`。
+
+</ApiV1>
+
+主机上需要启动 Chromium，并使用 `--remote-debugging-port=9222`；daemon 必须能够连接到该实例。daemon 只负责作为 CDP 客户端连接 Chromium，不负责启动或代理它。
+
+## 获取 CDP URL
+
+`cdp_url` 是 Chromium 的 WebSocket 端点，已改写为公开 origin：
+
+<ApiV2>
+
+```python
+BASE_URL = "http://127.0.0.1:18091"
+sb = Aio(BASE_URL)
+cdp_url = sb.get("/v2/browser/info")["cdp_url"]
+print(cdp_url)
+# -> ws://127.0.0.1:18091/cdp/devtools/browser/9ca46b6e-ab32-46b1-8e7e-7af3d540de4b
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```python
+from agent_sandbox import Sandbox
+
+BASE_URL = "http://127.0.0.1:18091"
+client = Sandbox(base_url=BASE_URL)
+
+cdp_url = client.browser.get_info().data.cdp_url
+print(cdp_url)
+# -> ws://127.0.0.1:18091/cdp/devtools/browser/9ca46b6e-ab32-46b1-8e7e-7af3d540de4b
+```
+
+</ApiV1>
+
+`/cdp/` 路径由部署方提供，不是 daemon 提供。详见 [CDP 接入](/zh/daemon/basic/cdp)。
+
+## 用 Playwright 连接
+
+把 `cdp_url` 传给 `connect_over_cdp`：
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import httpx
+from playwright.sync_api import sync_playwright
+
+BASE_URL = "http://127.0.0.1:18091"
+cdp_url = httpx.get(f"{BASE_URL}/v1/browser/info").json()["data"]["cdp_url"]
+
+with sync_playwright() as p:
+    browser = p.chromium.connect_over_cdp(cdp_url)
+    page = browser.contexts[0].pages[0]
+    page.goto("https://example.com")
+    print(page.title())
+    # → Example Domain
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { chromium } from "playwright-core";
+
+const BASE_URL = "http://127.0.0.1:18091";
+const info = await fetch(`${BASE_URL}/v1/browser/info`).then((r) => r.json());
+
+const browser = await chromium.connectOverCDP(info.data.cdp_url);
+const page = browser.contexts()[0].pages()[0];
+await page.goto("https://example.com");
+console.log(await page.title());
+// → Example Domain
+```
+
+</Tab>
+</Tabs>
+
+Playwright 会保留 `/cdp/` 前缀和查询参数，因此 `cdp_url` 可以原样使用。
+
+请获取现有的 context 和 page，不要重新启动浏览器。浏览器属于沙箱，并与 daemon 自己的 REST 工具共享。
+
+## 用 Puppeteer 连接
+
+用 `browserWSEndpoint`。Puppeteer 的 `browserURL` 会丢掉路径前缀：
+
+```javascript
+import puppeteer from "puppeteer-core";
+
+const BASE_URL = "http://127.0.0.1:18091";
+
+const info = await fetch(`${BASE_URL}/v1/browser/info`).then((r) => r.json());
+const browser = await puppeteer.connect({ browserWSEndpoint: info.data.cdp_url });
+const [page] = await browser.pages();
+await page.goto("https://example.com");
+console.log(await page.title());
+// → Example Domain
+```
+
+## 相关页面
+
+- [Browser Use](/zh/daemon/examples/browser-use) —— 只用 REST 调用驱动同一个 Chromium
+- [浏览器 API](/zh/daemon/basic/browser) —— 完整的 REST 工具清单、MCP 工具与 SDK 说明
+- [CDP 接入](/zh/daemon/basic/cdp) —— 部署方如何暴露 `/cdp/*`
+- [迁移：已移除的路由](/zh/daemon/start/migration#removed-routes) —— 被 CDP 取代的页面自动化路由

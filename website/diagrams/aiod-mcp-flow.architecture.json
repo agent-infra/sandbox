@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "MCP endpoint",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "locale": "en"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 3,
+    "cellW": 176,
+    "cellH": 72,
+    "gapX": 144,
+    "gapY": 56
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Agent",
+      "sublabel": "MCP client",
+      "row": 0,
+      "col": 0,
+      "size": [176, 72]
+    },
+    {
+      "id": "aiod",
+      "type": "backend",
+      "label": "aiod",
+      "sublabel": "/mcp · JSON-RPC",
+      "row": 0,
+      "col": 1,
+      "size": [176, 72]
+    },
+    {
+      "id": "builtin",
+      "type": "backend",
+      "label": "Built-in tools",
+      "sublabel": "files · command · code",
+      "row": 0,
+      "col": 2,
+      "size": [176, 72]
+    },
+    {
+      "id": "upstream",
+      "type": "external",
+      "label": "mcp-server-browser",
+      "sublabel": "EXTRA_MCP_SERVERS",
+      "row": 1,
+      "col": 2,
+      "size": [176, 72]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "one tool list",
+      "wraps": ["builtin", "upstream"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-aiod",
+      "from": "agent",
+      "to": "aiod",
+      "label": "tools/call",
+      "variant": "emphasis"
+    },
+    {
+      "id": "aiod-builtin",
+      "from": "aiod",
+      "to": "builtin"
+    },
+    {
+      "id": "aiod-upstream",
+      "from": "aiod",
+      "to": "upstream",
+      "label": "forward",
+      "variant": "dashed"
+    }
+  ]
+}

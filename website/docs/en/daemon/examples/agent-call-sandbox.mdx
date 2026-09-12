@@ -1,0 +1,213 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# Agent Calls the Sandbox
+
+Suppose an agent gets a small task: write data into the sandbox, process it with a command and Python, then read the result back. The whole flow takes four calls on one filesystem.
+
+![](/architecture/aiod-agent-task.svg)
+
+## Requirements
+
+<ApiV2>
+
+The `capabilities` object from `GET /v2/sandbox` should include `files`, `exec`, and `code_interpreter`.
+
+</ApiV2>
+
+<ApiV1>
+
+`GET /v1/capabilities` should report `files`, `exec`, and `code_interpreter`.
+
+</ApiV1>
+
+With `AIO_API_KEY` set, send the key as a bearer token.
+
+## The loop
+
+Each step is one call. The command and the code read the file written in step 1, because every plane shares the same filesystem:
+
+<ApiV2>
+
+Every call goes through the shared `Aio` helper ([Conventions](/daemon/examples#conventions)), which unwraps the envelope to `data`.
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+BASE_URL = "http://127.0.0.1:18091"
+sb = Aio(BASE_URL)
+
+def run() -> None:
+    # 1. Write the input file.
+    sb.post("/v2/fs/write", path="/tmp/agent-data.txt", content="3\n7\n12\n5\n")
+
+    # 2. Run a command on it.
+    cmd = sb.post("/v2/commands", command="wc -l /tmp/agent-data.txt")
+    print("bash:", cmd["output"].strip(), "exit", cmd["exit_code"])
+    # bash: 4 /tmp/agent-data.txt exit 0
+
+    # 3. Execute Python that reads the file and writes a result.
+    code = (
+        "nums = [int(l) for l in open('/tmp/agent-data.txt').read().split()]\n"
+        "open('/tmp/agent-result.txt', 'w').write(str(sum(nums)))\n"
+        "print('sum written')"
+    )
+    ran = sb.post("/v2/code/execute", language="python", code=code)
+    print("code:", ran["stdout"].strip(), "status", ran["status"])
+    # code: sum written status ok
+
+    # 4. Read the result back.
+    result = sb.get("/v2/fs/read", path="/tmp/agent-result.txt")
+    print("result:", result["content"])
+    # result: 27
+
+if __name__ == "__main__":
+    run()
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const BASE_URL = "http://127.0.0.1:18091";
+const sb = new Aio(BASE_URL);
+
+async function run(): Promise<void> {
+  // 1. Write the input file.
+  await sb.post("/v2/fs/write", {
+    path: "/tmp/agent-data.txt",
+    content: "3\n7\n12\n5\n",
+  });
+
+  // 2. Run a command on it.
+  const cmd = await sb.post<any>("/v2/commands", {
+    command: "wc -l /tmp/agent-data.txt",
+  });
+  console.log("bash:", cmd.output.trim(), "exit", cmd.exit_code);
+  // bash: 4 /tmp/agent-data.txt exit 0
+
+  // 3. Execute Python that reads the file and writes a result.
+  const code =
+    "nums = [int(l) for l in open('/tmp/agent-data.txt').read().split()]\n" +
+    "open('/tmp/agent-result.txt', 'w').write(str(sum(nums)))\n" +
+    "print('sum written')";
+  const ran = await sb.post<any>("/v2/code/execute", { language: "python", code });
+  console.log("code:", ran.stdout.trim(), "status", ran.status);
+  // code: sum written status ok
+
+  // 4. Read the result back.
+  const path = "/tmp/agent-result.txt";
+  const result = await sb.get<any>(`/v2/fs/read?path=${encodeURIComponent(path)}`);
+  console.log("result:", result.content);
+  // result: 27
+}
+
+run();
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+The 1.x SDK covers all four calls; the result sits under `data`, and under `body.data` in TypeScript.
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+
+BASE_URL = "http://127.0.0.1:18091"
+client = Sandbox(base_url=BASE_URL)
+# headers={"x-api-key": "<key>"} when AIO_API_KEY is set
+
+def run() -> None:
+    # 1. Write the input file.
+    client.file.write_file(file="/tmp/agent-data.txt", content="3\n7\n12\n5\n")
+
+    # 2. Run a command on it.
+    cmd = client.bash.exec(command="wc -l /tmp/agent-data.txt").data
+    print("bash:", cmd.output.strip(), "exit", cmd.exit_code)
+    # bash: 4 /tmp/agent-data.txt exit 0
+
+    # 3. Execute Python that reads the file and writes a result.
+    code = (
+        "nums = [int(l) for l in open('/tmp/agent-data.txt').read().split()]\n"
+        "open('/tmp/agent-result.txt', 'w').write(str(sum(nums)))\n"
+        "print('sum written')"
+    )
+    ran = client.code.execute_code(language="python", code=code).data
+    print("code:", ran.stdout.strip(), "status", ran.status)
+    # code: sum written status ok
+
+    # 4. Read the result back.
+    result = client.file.read_file(file="/tmp/agent-result.txt").data
+    print("result:", result.content)
+    # result: 27
+
+if __name__ == "__main__":
+    run()
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const BASE_URL = "http://127.0.0.1:18091";
+const client = new SandboxClient({ environment: BASE_URL });
+// headers: { "x-api-key": "<key>" } when AIO_API_KEY is set
+
+async function run(): Promise<void> {
+  // 1. Write the input file.
+  await client.file.writeFile({
+    file: "/tmp/agent-data.txt",
+    content: "3\n7\n12\n5\n",
+  });
+
+  // 2. Run a command on it.
+  const cmd = (
+    (await client.bash.exec({ command: "wc -l /tmp/agent-data.txt" })) as any
+  ).body.data;
+  console.log("bash:", cmd.output.trim(), "exit", cmd.exit_code);
+  // bash: 4 /tmp/agent-data.txt exit 0
+
+  // 3. Execute Python that reads the file and writes a result.
+  const code =
+    "nums = [int(l) for l in open('/tmp/agent-data.txt').read().split()]\n" +
+    "open('/tmp/agent-result.txt', 'w').write(str(sum(nums)))\n" +
+    "print('sum written')";
+  const ran = (
+    (await client.code.executeCode({ language: "python", code } as any)) as any
+  ).body.data;
+  console.log("code:", ran.stdout.trim(), "status", ran.status);
+  // code: sum written status ok
+
+  // 4. Read the result back.
+  const result = (
+    (await client.file.readFile({ file: "/tmp/agent-result.txt" })) as any
+  ).body.data;
+  console.log("result:", result.content);
+  // result: 27
+}
+
+run();
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+Both forms print the same three lines and leave the same two files behind. `wc -l` pads its count, so `strip()` is what turns `       4 /tmp/agent-data.txt` into the line above.
+
+## Related
+
+- [MCP](/daemon/examples/mcp) — the same four steps over one JSON-RPC endpoint
+- [Code Execution](/daemon/examples/code-execution) — sessions and kernels
+- [File Operations](/daemon/examples/file-ops) — the file API and error handling
+- [Interactive Terminal](/daemon/examples/terminal) — a live shell instead of one-shot commands

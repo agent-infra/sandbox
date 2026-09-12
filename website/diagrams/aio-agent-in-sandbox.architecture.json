@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Agent inside the sandbox",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "locale": "en"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 3,
+    "cellW": 176,
+    "cellH": 64,
+    "gapX": 144,
+    "gapY": 32
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Agent process",
+      "sublabel": "local commands · files",
+      "row": 1,
+      "col": 0,
+      "size": [
+        176,
+        64
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Sandbox API",
+      "sublabel": "REST · SDK · MCP",
+      "row": 1,
+      "col": 1,
+      "size": [
+        176,
+        64
+      ]
+    },
+    {
+      "id": "shell",
+      "type": "backend",
+      "label": "Shell",
+      "sublabel": "commands · PTY",
+      "row": 0,
+      "col": 2,
+      "size": [
+        176,
+        64
+      ]
+    },
+    {
+      "id": "files",
+      "type": "backend",
+      "label": "Files",
+      "sublabel": "read · write",
+      "row": 1,
+      "col": 2,
+      "size": [
+        176,
+        64
+      ]
+    },
+    {
+      "id": "browser",
+      "type": "backend",
+      "label": "Browser",
+      "sublabel": "CDP",
+      "row": 2,
+      "col": 2,
+      "size": [
+        176,
+        64
+      ]
+    },
+    {
+      "id": "code",
+      "type": "backend",
+      "label": "Code",
+      "sublabel": "Python · Node",
+      "row": 3,
+      "col": 2,
+      "size": [
+        176,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "AIO Sandbox",
+      "wraps": [
+        "agent",
+        "api",
+        "shell",
+        "files",
+        "browser",
+        "code"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-api",
+      "from": "agent",
+      "to": "api",
+      "label": "127.0.0.1:8080",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-shell",
+      "from": "api",
+      "to": "shell"
+    },
+    {
+      "id": "api-files",
+      "from": "api",
+      "to": "files"
+    },
+    {
+      "id": "api-browser",
+      "from": "api",
+      "to": "browser"
+    },
+    {
+      "id": "api-code",
+      "from": "api",
+      "to": "code"
+    }
+  ]
+}

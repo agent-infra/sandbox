@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Permission model",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "locale": "en"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 3,
+    "cellW": 176,
+    "cellH": 72,
+    "gapX": 144,
+    "gapY": 76
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Agent",
+      "sublabel": "SDK · MCP · curl",
+      "row": 0,
+      "col": 0,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "API key",
+      "sublabel": "AIO_API_KEY",
+      "row": 0,
+      "col": 1,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "aiod",
+      "type": "backend",
+      "label": "aiod",
+      "sublabel": "AIO_DEFAULT_USER",
+      "row": 1,
+      "col": 1,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "exec",
+      "type": "backend",
+      "label": "Commands · PTY · Code",
+      "sublabel": "runs as user",
+      "row": 0,
+      "col": 2,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "files",
+      "type": "database",
+      "label": "Files",
+      "sublabel": "owned by user",
+      "row": 1,
+      "col": 2,
+      "size": [
+        176,
+        72
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "container · VM",
+      "wraps": [
+        "gate",
+        "aiod",
+        "exec",
+        "files"
+      ],
+      "pad": 40
+    },
+    {
+      "kind": "security-group",
+      "label": "per-request user",
+      "wraps": [
+        "exec",
+        "files"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-gate",
+      "from": "agent",
+      "to": "gate",
+      "label": "x-api-key",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gate-aiod",
+      "from": "gate",
+      "to": "aiod"
+    },
+    {
+      "id": "aiod-exec",
+      "from": "aiod",
+      "to": "exec",
+      "label": "execution identity"
+    },
+    {
+      "id": "aiod-files",
+      "from": "aiod",
+      "to": "files",
+      "label": "ownership identity",
+      "labelDy": 14
+    }
+  ]
+}

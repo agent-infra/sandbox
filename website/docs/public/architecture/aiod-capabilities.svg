@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 224" width="640" height="224" role="img" aria-label="aiod dependency probes and the v2 routes they enable">
+<defs><style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');
+.s { font-family: Geist, "Helvetica Neue", Arial, sans-serif; }
+.m { font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace; }
+</style></defs>
+<text class="m" x="82" y="14" font-size="10.5" fill="#4f5d75"><tspan fill="#2d3142" fill-opacity="0.55">GET </tspan>/v1/capabilities</text>
+<circle cx="86" cy="56.0" r="3.5" fill="#2d3142" fill-opacity="0.85"/>
+<text class="s" x="104" y="60.5" font-size="14" font-weight="600" fill="#2d3142" fill-opacity="1">Shell</text>
+<text class="m" x="280" y="60.5" font-size="10.5" fill="#2d3142" fill-opacity="0.6">bash · PowerShell</text>
+<text class="m" x="419" y="60.5" font-size="10.5" fill="#2d3142" fill-opacity="0.6">/v2/commands · /v2/pty</text>
+<path d="M82 80.5H557" stroke="#2d3142" stroke-opacity="0.1"/>
+<circle cx="86" cy="104.0" r="3.5" fill="#2d3142" fill-opacity="0.85"/>
+<text class="s" x="104" y="108.5" font-size="14" font-weight="600" fill="#2d3142" fill-opacity="1">Interpreters</text>
+<text class="m" x="280" y="108.5" font-size="10.5" fill="#2d3142" fill-opacity="0.6">python3 · node</text>
+<text class="m" x="419" y="108.5" font-size="10.5" fill="#2d3142" fill-opacity="0.6">/v2/code</text>
+<path d="M82 128.5H557" stroke="#2d3142" stroke-opacity="0.1"/>
+<circle cx="86" cy="152.0" r="3.5" fill="#2d3142" fill-opacity="0.85"/>
+<text class="s" x="104" y="156.5" font-size="14" font-weight="600" fill="#2d3142" fill-opacity="1">Chromium</text>
+<text class="m" x="280" y="156.5" font-size="10.5" fill="#2d3142" fill-opacity="0.6">CDP :9222</text>
+<text class="m" x="419" y="156.5" font-size="10.5" fill="#2d3142" fill-opacity="0.6">/v2/browser</text>
+<path d="M82 176.5H557" stroke="#2d3142" stroke-opacity="0.1"/>
+<circle cx="86" cy="200.0" r="3.4" fill="none" stroke="#eb6c36" stroke-width="1.4"/>
+<text class="s" x="104" y="204.5" font-size="14" font-weight="600" fill="#2d3142" fill-opacity="0.5">computer-use worker</text>
+<text class="m" x="280" y="204.5" font-size="10.5" fill="#2d3142" fill-opacity="0.38">127.0.0.1:18100</text>
+<text class="m" x="419" y="204.5" font-size="10.5" fill="#2d3142" fill-opacity="0.38">/v2/computer</text>
+<rect x="505" y="192.5" width="32" height="15" rx="3" fill="#eb6c36" fill-opacity="0.1" stroke="#eb6c36" stroke-opacity="0.4"/>
+<text class="m" x="521.0" y="203.4" font-size="9.5" font-weight="500" text-anchor="middle" fill="#eb6c36">503</text>
+</svg>

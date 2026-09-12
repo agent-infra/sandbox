@@ -1,0 +1,42 @@
+[
+  {
+    "type": "file",
+    "name": "agent-call-sandbox",
+    "label": "Agent Calls the Sandbox"
+  },
+  {
+    "type": "file",
+    "name": "mcp",
+    "label": "MCP"
+  },
+  {
+    "type": "file",
+    "name": "browser-cdp",
+    "label": "Browser (CDP)"
+  },
+  {
+    "type": "file",
+    "name": "browser-use",
+    "label": "Browser Use"
+  },
+  {
+    "type": "file",
+    "name": "terminal",
+    "label": "Interactive Terminal"
+  },
+  {
+    "type": "file",
+    "name": "code-execution",
+    "label": "Code Execution"
+  },
+  {
+    "type": "file",
+    "name": "file-ops",
+    "label": "File Operations"
+  },
+  {
+    "type": "file",
+    "name": "computer-use",
+    "label": "Computer Use"
+  }
+]

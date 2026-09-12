@@ -1,0 +1,213 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# Agent 调用沙箱
+
+假设 agent 收到一个小任务：先把数据写入沙箱，再用命令和 Python 处理，最后读回结果。整个过程只需四次调用，所有步骤共享同一个文件系统。
+
+![](/architecture/aiod-agent-task.svg)
+
+## 要求
+
+<ApiV2>
+
+`GET /v2/sandbox` 的 `capabilities` 中应包含 `files`、`exec` 和 `code_interpreter`。
+
+</ApiV2>
+
+<ApiV1>
+
+`GET /v1/capabilities` 的返回结果中应包含 `files`、`exec` 和 `code_interpreter`。
+
+</ApiV1>
+
+设置了 `AIO_API_KEY` 时，将 key 作为 bearer token 发送。
+
+## 调用循环
+
+每一步是一次调用。命令和代码都能读到第 1 步写入的文件，因为所有 plane 共享同一个文件系统：
+
+<ApiV2>
+
+每次调用都经过共享的 `Aio` helper（见 [约定](/zh/daemon/examples#约定)），它会把返回结构拆到 `data`。
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+BASE_URL = "http://127.0.0.1:18091"
+sb = Aio(BASE_URL)
+
+def run() -> None:
+    # 1. Write the input file.
+    sb.post("/v2/fs/write", path="/tmp/agent-data.txt", content="3\n7\n12\n5\n")
+
+    # 2. Run a command on it.
+    cmd = sb.post("/v2/commands", command="wc -l /tmp/agent-data.txt")
+    print("bash:", cmd["output"].strip(), "exit", cmd["exit_code"])
+    # bash: 4 /tmp/agent-data.txt exit 0
+
+    # 3. Execute Python that reads the file and writes a result.
+    code = (
+        "nums = [int(l) for l in open('/tmp/agent-data.txt').read().split()]\n"
+        "open('/tmp/agent-result.txt', 'w').write(str(sum(nums)))\n"
+        "print('sum written')"
+    )
+    ran = sb.post("/v2/code/execute", language="python", code=code)
+    print("code:", ran["stdout"].strip(), "status", ran["status"])
+    # code: sum written status ok
+
+    # 4. Read the result back.
+    result = sb.get("/v2/fs/read", path="/tmp/agent-result.txt")
+    print("result:", result["content"])
+    # result: 27
+
+if __name__ == "__main__":
+    run()
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const BASE_URL = "http://127.0.0.1:18091";
+const sb = new Aio(BASE_URL);
+
+async function run(): Promise<void> {
+  // 1. Write the input file.
+  await sb.post("/v2/fs/write", {
+    path: "/tmp/agent-data.txt",
+    content: "3\n7\n12\n5\n",
+  });
+
+  // 2. Run a command on it.
+  const cmd = await sb.post<any>("/v2/commands", {
+    command: "wc -l /tmp/agent-data.txt",
+  });
+  console.log("bash:", cmd.output.trim(), "exit", cmd.exit_code);
+  // bash: 4 /tmp/agent-data.txt exit 0
+
+  // 3. Execute Python that reads the file and writes a result.
+  const code =
+    "nums = [int(l) for l in open('/tmp/agent-data.txt').read().split()]\n" +
+    "open('/tmp/agent-result.txt', 'w').write(str(sum(nums)))\n" +
+    "print('sum written')";
+  const ran = await sb.post<any>("/v2/code/execute", { language: "python", code });
+  console.log("code:", ran.stdout.trim(), "status", ran.status);
+  // code: sum written status ok
+
+  // 4. Read the result back.
+  const path = "/tmp/agent-result.txt";
+  const result = await sb.get<any>(`/v2/fs/read?path=${encodeURIComponent(path)}`);
+  console.log("result:", result.content);
+  // result: 27
+}
+
+run();
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+四次调用 1.x SDK 都覆盖；结果放在 `data` 下，TypeScript 里是 `body.data`。
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+
+BASE_URL = "http://127.0.0.1:18091"
+client = Sandbox(base_url=BASE_URL)
+# headers={"x-api-key": "<key>"} when AIO_API_KEY is set
+
+def run() -> None:
+    # 1. Write the input file.
+    client.file.write_file(file="/tmp/agent-data.txt", content="3\n7\n12\n5\n")
+
+    # 2. Run a command on it.
+    cmd = client.bash.exec(command="wc -l /tmp/agent-data.txt").data
+    print("bash:", cmd.output.strip(), "exit", cmd.exit_code)
+    # bash: 4 /tmp/agent-data.txt exit 0
+
+    # 3. Execute Python that reads the file and writes a result.
+    code = (
+        "nums = [int(l) for l in open('/tmp/agent-data.txt').read().split()]\n"
+        "open('/tmp/agent-result.txt', 'w').write(str(sum(nums)))\n"
+        "print('sum written')"
+    )
+    ran = client.code.execute_code(language="python", code=code).data
+    print("code:", ran.stdout.strip(), "status", ran.status)
+    # code: sum written status ok
+
+    # 4. Read the result back.
+    result = client.file.read_file(file="/tmp/agent-result.txt").data
+    print("result:", result.content)
+    # result: 27
+
+if __name__ == "__main__":
+    run()
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const BASE_URL = "http://127.0.0.1:18091";
+const client = new SandboxClient({ environment: BASE_URL });
+// headers: { "x-api-key": "<key>" } when AIO_API_KEY is set
+
+async function run(): Promise<void> {
+  // 1. Write the input file.
+  await client.file.writeFile({
+    file: "/tmp/agent-data.txt",
+    content: "3\n7\n12\n5\n",
+  });
+
+  // 2. Run a command on it.
+  const cmd = (
+    (await client.bash.exec({ command: "wc -l /tmp/agent-data.txt" })) as any
+  ).body.data;
+  console.log("bash:", cmd.output.trim(), "exit", cmd.exit_code);
+  // bash: 4 /tmp/agent-data.txt exit 0
+
+  // 3. Execute Python that reads the file and writes a result.
+  const code =
+    "nums = [int(l) for l in open('/tmp/agent-data.txt').read().split()]\n" +
+    "open('/tmp/agent-result.txt', 'w').write(str(sum(nums)))\n" +
+    "print('sum written')";
+  const ran = (
+    (await client.code.executeCode({ language: "python", code } as any)) as any
+  ).body.data;
+  console.log("code:", ran.stdout.trim(), "status", ran.status);
+  // code: sum written status ok
+
+  // 4. Read the result back.
+  const result = (
+    (await client.file.readFile({ file: "/tmp/agent-result.txt" })) as any
+  ).body.data;
+  console.log("result:", result.content);
+  // result: 27
+}
+
+run();
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+两种写法打印同样三行，留下同样两个文件。`wc -l` 会给计数补空格，因此示例输出中的 `4 /tmp/agent-data.txt` 是用 `strip()` 去掉前导空格后的结果。
+
+## 相关页面
+
+- [MCP 调用](/zh/daemon/examples/mcp) —— 同样四步，走一个 JSON-RPC 端点
+- [代码执行](/zh/daemon/examples/code-execution) —— 会话与 kernel
+- [文件操作](/zh/daemon/examples/file-ops) —— 文件 API 与错误处理
+- [交互式终端](/zh/daemon/examples/terminal) —— 用实时 shell 代替一次性命令

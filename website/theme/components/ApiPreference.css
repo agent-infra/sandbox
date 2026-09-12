@@ -1,0 +1,174 @@
+/* API preference: which of a page's paired v1 / v2 blocks is shown. The
+   pre-paint script in public/index.html sets html[data-api] before render. */
+html:not([data-api='v2']) .api-v2 {
+  display: none;
+}
+html[data-api='v2'] .api-v1,
+html[data-api='v2'] .api-hint-v2 {
+  display: none;
+}
+/* Inline v1 / v2 spans inside a sentence follow the same data-api rules. */
+html:not([data-api='v2']) .api-inline-v2 {
+  display: none;
+}
+html[data-api='v2'] .api-inline-v1 {
+  display: none;
+}
+
+.api-block::before {
+  display: block;
+  text-align: right;
+  font-family: var(--rp-font-family-mono);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--rp-c-text-3);
+  margin-bottom: -0.25rem;
+}
+.api-v1::before {
+  content: 'v1';
+}
+.api-v2::before {
+  content: 'v2';
+}
+
+.api-hint-v2 {
+  border-left: 2px solid var(--rp-c-brand);
+  padding-left: 0.75rem;
+  color: var(--rp-c-text-2);
+}
+.aiod-api-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--rp-c-brand);
+}
+.aiod-api-link code {
+  color: inherit;
+}
+
+/* The switch stays at the top while the sidebar scrolls. The sidebar has
+   20px of top padding; the card covers it so items do not show through. */
+.aiod-api-pref {
+  position: sticky;
+  top: -20px;
+  z-index: 10;
+  margin: -20px 0 8px;
+  padding: 28px 12px 10px 24px;
+  background: var(--rp-c-bg);
+  border-bottom: 1px solid var(--rp-c-divider-light);
+}
+.aiod-api-pref-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rp-c-text-1);
+  margin-bottom: 8px;
+}
+.aiod-api-pref-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 11px 10px;
+  border-radius: 8px;
+  background: var(--rp-c-bg-soft);
+  line-height: 1;
+}
+.aiod-api-label {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--rp-c-text-3);
+}
+.aiod-api-label.is-active {
+  color: var(--rp-c-text-1);
+  font-weight: 600;
+}
+.aiod-api-toggle {
+  position: relative;
+  width: 30px;
+  height: 16px;
+  border-radius: 8px;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: var(--rp-c-divider);
+  transition: background 0.15s;
+}
+.aiod-api-toggle.is-v2 {
+  background: var(--rp-c-brand);
+}
+.aiod-api-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+.aiod-api-toggle.is-v2 .aiod-api-knob {
+  transform: translateX(14px);
+}
+.aiod-api-help {
+  margin-left: 2px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid var(--rp-c-text-3);
+  background: none;
+  color: var(--rp-c-text-3);
+  font-size: 10px;
+  line-height: 1;
+  padding: 0;
+  cursor: help;
+}
+.aiod-api-help:hover,
+.aiod-api-help.is-open {
+  border-color: var(--rp-c-text-2);
+  color: var(--rp-c-text-2);
+}
+
+/* the explanation, shown on hover; it spans the card so nothing clips it */
+.aiod-api-pop {
+  position: absolute;
+  z-index: 20;
+  left: 24px;
+  right: 12px;
+  top: calc(100% - 4px);
+  padding: 8px 10px;
+  border: 1px solid var(--rp-c-divider);
+  border-radius: 6px;
+  background: var(--rp-c-bg);
+  box-shadow: var(--rp-shadow-2);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--rp-c-text-2);
+}
+.aiod-api-pop::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: calc(var(--aiod-caret-left, 50%) - 24px - 4px);
+  width: 8px;
+  height: 8px;
+  background: var(--rp-c-bg);
+  border-left: 1px solid var(--rp-c-divider);
+  border-top: 1px solid var(--rp-c-divider);
+  transform: rotate(45deg);
+}
+.aiod-api-pop p {
+  margin: 0 0 4px;
+}
+.aiod-api-pop a {
+  color: var(--rp-c-text-2);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

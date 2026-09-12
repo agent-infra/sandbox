@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Watch a directory",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "column_fit": "spread",
+    "locale": "en",
+    "viewBox": [1080, 600]
+  },
+  "participants": [
+    { "id": "agent", "type": "external", "label": "Agent" },
+    { "id": "aiod", "type": "backend", "label": "aiod", "sublabel": "files · watch" },
+    { "id": "files", "type": "database", "label": "Files", "sublabel": "/tmp/demo" },
+    { "id": "command", "type": "backend", "label": "Command" }
+  ],
+  "messages": [
+    { "id": "start-watch", "from": "agent", "to": "aiod", "y": 172, "label": "watch /tmp/demo", "variant": "emphasis" },
+    { "id": "subtree", "from": "aiod", "to": "files", "y": 204, "label": "watch subtree", "variant": "default" },
+    { "id": "run", "from": "agent", "to": "aiod", "y": 236, "label": "run command", "variant": "emphasis" },
+    { "id": "spawn", "from": "aiod", "to": "command", "y": 268, "label": "spawn", "variant": "default" },
+    { "id": "write", "from": "command", "to": "files", "y": 300, "label": "writes src/util.py", "variant": "default" },
+    { "id": "notify", "from": "files", "to": "aiod", "y": 332, "label": "create · write src/util.py", "variant": "dashed" },
+    { "id": "poll-0", "from": "agent", "to": "aiod", "y": 364, "label": "poll cursor=0", "variant": "emphasis" },
+    { "id": "events-1-2", "from": "aiod", "to": "agent", "y": 396, "label": "events 1–2 · cursor 2", "variant": "return" },
+    { "id": "poll-2", "from": "agent", "to": "aiod", "y": 428, "label": "poll cursor=2 · timeout=30", "variant": "emphasis" },
+    { "id": "events-after", "from": "aiod", "to": "agent", "y": 460, "label": "events after 2", "variant": "return" },
+    { "id": "stop-watch", "from": "agent", "to": "aiod", "y": 492, "label": "stop watch", "variant": "emphasis" }
+  ],
+  "activations": [
+    { "participant": "aiod", "from": 164, "to": 504, "type": "backend" },
+    { "participant": "command", "from": 262, "to": 308, "type": "backend" }
+  ]
+}

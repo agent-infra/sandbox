@@ -1,0 +1,300 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# Quick Start
+
+`aiod` runs as a daemon and serves the sandbox tools API over HTTP.
+
+The design keeps dependencies minimal:
+
+- static musl builds
+- one binary for containers, VMs, bare metal, and Windows
+- graceful degradation when a capability is missing
+
+Examples use `{base_url}` for the daemon address: `http://127.0.0.1:18091` by default, or the gateway port on a prebuilt image. WebSocket URLs use the same host and port with `ws://` or `wss://`.
+
+> [!TIP]
+> Coming from a 1.x AIO image? See [Migration from 1.x](/daemon/start/migration).
+
+## Start the daemon
+
+Linux: install with the script, then start.
+
+```bash
+curl -fsSL https://aio-static.tos-cn-beijing.volces.com/install.sh | sh
+aiod start
+```
+
+Windows: download `aiod.exe` for your architecture from the [releases page](/daemon/start/releases) and run it. See [Windows](/daemon/basic/windows).
+
+`aiod start` binds `0.0.0.0:18091` (`--host`, `--port`, or `AIO_HOST`, `AIO_PORT`) and runs in the foreground. Keep it running with systemd, supervisord, a Windows SCM service, or as the image's `CMD`: see [Deployment](/daemon/ops/deployment).
+
+## First calls
+
+Check that the daemon is up:
+
+```bash
+BASE_URL=http://127.0.0.1:18091
+
+curl "$BASE_URL/health"
+```
+
+Ask what the environment can do: identity, directories, ports, and the probed capabilities.
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/sandbox"
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/capabilities"
+```
+
+</ApiV1>
+
+Run a command. It runs as a fresh process:
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/commands" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "uname -a"}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/bash/exec" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "uname -a"}'
+```
+
+</ApiV1>
+
+Add `"mode": "async"` to run it in the background, then re-read its output later using the returned `command_id`.
+
+Read and write a file:
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/fs/write" \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/tmp/hello.txt", "content": "hi from aiod"}'
+curl "$BASE_URL/v2/fs/read?path=/tmp/hello.txt"
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/file/write" \
+  -H "Content-Type: application/json" \
+  -d '{"file": "/tmp/hello.txt", "content": "hi from aiod"}'
+curl -X POST "$BASE_URL/v1/file/read" \
+  -H "Content-Type: application/json" \
+  -d '{"file": "/tmp/hello.txt"}'
+```
+
+</ApiV1>
+
+Execute Python:
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/code/execute" \
+  -H "Content-Type: application/json" \
+  -d '{"language": "python", "code": "1 + 1"}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/code/execute" \
+  -H "Content-Type: application/json" \
+  -d '{"language": "python", "code": "1 + 1"}'
+```
+
+</ApiV1>
+
+Without a Python interpreter on the host, this answers `503` and names what it looked for (`python3`).
+
+The switch above the sidebar picks the plane the examples show; both are served by default. The routes that behave differently between them are in [Migration from 1.x](/daemon/start/migration).
+
+## From a prebuilt image
+
+Two images ship with the daemon already inside:
+
+- **aio-daemon** — Chromium, VNC, Python and Node toolchains, behind an nginx gateway
+- **aio-computer** — AIO plus an XFCE desktop and the `computer-use` worker
+
+On the AIO image the API is ready well under a second after `docker run`, where the 1.x image took about two and a half. Chromium keeps starting in the background and is usable a second and a half later:
+
+![](/architecture/aiod-boot-to-ready.svg)
+
+Chromium needs two settings on the host side: a seccomp profile that permits its sandbox (`--security-opt seccomp=unconfined` when nothing stricter is at hand) and a larger `/dev/shm` (`--shm-size 4g`). The run commands below set both:
+
+```bash
+# AIO image
+docker run --rm -it --security-opt seccomp=unconfined --shm-size 4g \
+  -p 127.0.0.1:8091:8091 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.0
+```
+
+```bash
+# Computer image — adds an XFCE desktop and the computer-use worker
+docker run --rm -it --security-opt seccomp=unconfined --shm-size 4g \
+  -p 127.0.0.1:8091:8091 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-computer:1.0.0
+```
+
+Inside either image, nginx listens on **8091**, the only port the run command publishes. It fronts:
+
+- `aiod` on loopback port 18091
+- `computer-use` on 18100
+- Chromium's CDP on 9222
+
+None of the three is reachable directly from outside the sandbox. Through the gateway you reach:
+
+- the whole API
+- the docs UI at `/docs`
+- noVNC at `/vnc`
+- the CDP endpoints at `/cdp/json/*` and `/cdp/devtools/*`
+
+Image-only environment variables and their defaults are in [Migration from 1.x](/daemon/start/migration).
+
+## Dashboard
+
+Use the [Dashboard](/daemon/start/dashboard) to debug a daemon quickly in your browser.
+
+## SDKs
+
+Both SDKs use the v1 routes (`/v1/*`). For v2, call the HTTP API directly; see the [**API Reference**](/daemon/api).
+
+The helper the v2 examples use is defined in the [Conventions section of the examples index](/daemon/examples#conventions).
+
+Install the SDK:
+
+- Python: `pip install agent-sandbox`
+- TypeScript: `npm i @agent-infra/sandbox`
+
+Point the SDK at the daemon address. When a key is set, put it in `headers`; omit `headers` otherwise.
+
+<ApiV2>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from aio import Aio  # the helper on the examples index
+
+sb = Aio("http://127.0.0.1:18091")
+sb.post("/v2/fs/write", path="/tmp/hello.txt", content="hi from aiod")
+print(sb.get("/v2/fs/read", path="/tmp/hello.txt")["content"])
+# hi from aiod
+
+print(sb.post("/v2/commands", command="printf hello")["stdout"])
+# hello
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { Aio } from "./aio"; // the helper on the examples index
+
+const sb = new Aio("http://127.0.0.1:18091");
+await sb.post("/v2/fs/write", { path: "/tmp/hello.txt", content: "hi from aiod" });
+console.log((await sb.get("/v2/fs/read?path=/tmp/hello.txt")).content);
+// hi from aiod
+
+console.log((await sb.post("/v2/commands", { command: "printf hello" })).stdout);
+// hello
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+
+sandbox = Sandbox(
+    base_url="http://127.0.0.1:18091",
+    headers={"x-api-key": "<key>"},
+)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const sandbox = new SandboxClient({
+  environment: "http://127.0.0.1:18091",
+  headers: { "x-api-key": "<key>" },
+});
+```
+
+</Tab>
+</Tabs>
+
+Read and write a file, then run a command:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+sandbox.file.write_file(file="/tmp/hello.txt", content="hi from the SDK")
+print(sandbox.file.read_file(file="/tmp/hello.txt").data.content)
+# hi from the SDK
+
+result = sandbox.bash.exec(command="printf hello")
+print(result.data.stdout)
+# hello
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+await sandbox.file.writeFile({ file: "/tmp/hello.txt", content: "hi from the SDK" });
+const read = await sandbox.file.readFile({ file: "/tmp/hello.txt" });
+console.log(read.body.data?.content);
+// hi from the SDK
+
+const result = await sandbox.bash.exec({ command: "printf hello" });
+console.log(result.body.data?.stdout);
+// hello
+```
+
+</Tab>
+</Tabs>
+
+The Python SDK also provides `AsyncSandbox`, the same interface as `Sandbox` with asyncio methods.
+
+SDK compatibility notes are in the migration guide under [**1.x SDK compatibility**](/daemon/start/migration#1x-sdk-compatibility).
+
+</ApiV1>
+
+## Related
+
+- [Releases](/daemon/start/releases)
+- [Migration from 1.x](/daemon/start/migration)
+- [Sandbox Info & Capabilities](/daemon/basic/sandbox)

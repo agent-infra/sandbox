@@ -1,0 +1,146 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# Examples
+
+Each example starts with a concrete task against a live `aiod` daemon, exercises one sandbox capability, and checks the result. The code is runnable as written.
+
+## Conventions
+
+`BASE_URL` and the API key follow [Quick Start](/daemon/start/quick-start). Every JSON response uses the envelope `{"success": bool, "message": str, "data": ..., "hint": null|str}`; validation failures answer `422` with a top-level `errors` list. See [Error Handling](/daemon/basic/error-handling).
+
+Every example is written twice — a v2 form and a v1 form — and the API Preference switch in the sidebar picks which one you see. The v2 form calls the routes through the small `Aio` helper below; the v1 form uses the 1.x SDK (`agent_sandbox.Sandbox` in Python, `SandboxClient` from `@agent-infra/sandbox` in TypeScript), and falls back to the same helper on the `/v1` route for the few calls the SDK has no method for. Wherever the helper is used, the example starts with `sb = Aio(BASE_URL)`.
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import httpx
+
+
+class Aio:
+    """Envelope-aware client for the v2 routes; raises on success=false."""
+
+    def __init__(self, base_url, api_key=None, timeout=120):
+        headers = {"x-api-key": api_key} if api_key else {}
+        self.http = httpx.Client(base_url=base_url, headers=headers, timeout=timeout)
+
+    def call(self, method, route, **kw):
+        body = self.http.request(method, route, **kw).json()
+        if not body.get("success"):
+            raise RuntimeError(f"{method} {route}: {body.get('message')}")
+        return body["data"]
+
+    def get(self, route, **params):
+        return self.call("GET", route, params=params)
+
+    def post(self, route, **body):
+        return self.call("POST", route, json=body)
+
+    def delete(self, route, **params):
+        return self.call("DELETE", route, params=params)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+export class Aio {
+  constructor(private base: string, private key?: string) {}
+
+  async call<T = any>(method: string, path: string, body?: unknown): Promise<T> {
+    const r = await fetch(this.base + path, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...(this.key ? { "x-api-key": this.key } : {}),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const env = await r.json();
+    if (!env.success) throw new Error(`${method} ${path}: ${env.message}`);
+    return env.data as T;
+  }
+
+  get<T = any>(path: string) { return this.call<T>("GET", path); }
+  post<T = any>(path: string, body?: unknown) { return this.call<T>("POST", path, body); }
+  delete<T = any>(path: string) { return this.call<T>("DELETE", path); }
+}
+```
+
+</Tab>
+</Tabs>
+
+`sb.post("/v2/commands", command="wc -l /tmp/x")` posts a JSON body; `sb.get`/`sb.delete` take query params the same way — the first positional argument is `route`, so `sb.post("/v2/fs/read", path="/tmp/x")` works directly. Binary routes (download, screenshot) read `sb.http.get(...)` / `fetch` directly, bypassing the envelope check.
+
+## First call
+
+Confirm the daemon is up and read its capabilities:
+
+```bash
+curl "$BASE_URL/health"
+```
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/sandbox" | python3 -m json.tool
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/capabilities" | python3 -m json.tool
+```
+
+</ApiV1>
+
+A missing capability turns its own routes into `503`; the daemon still starts.
+
+## All examples
+
+| Example | Shows | Needs |
+| --- | --- | --- |
+| [Agent Calls the Sandbox](/daemon/examples/agent-call-sandbox) | Write a file, run a command, execute Python, read the result | `files`, `exec`, `code_interpreter` |
+| [MCP](/daemon/examples/mcp) | The same task through one JSON-RPC endpoint, and how tool errors look | `exec`, `files`, `code_interpreter` |
+| [Browser (CDP)](/daemon/examples/browser-cdp) | Playwright and Puppeteer against the sandbox's Chromium | `browser` |
+| [Browser Use](/daemon/examples/browser-use) | Build a page in the sandbox, then fill it, click it, and check the result | `browser`, `files`, `exec` |
+| [Interactive Terminal](/daemon/examples/terminal) | A live PTY over WebSocket from a minimal client | `exec` with `pty` |
+| [Code Execution](/daemon/examples/code-execution) | A data-analysis session: CSV in, pandas, chart back as PNG | `code_interpreter` |
+| [File Operations](/daemon/examples/file-ops) | Scaffold a project, search and edit it, watch it, and the error contract | `files` |
+| [Computer Use](/daemon/examples/computer-use) | Navigate Chromium and follow a link through the accessibility tree | `computer` |
+
+## One task, three ways
+
+The four-step task on [Agent Calls the Sandbox](/daemon/examples/agent-call-sandbox) exists in three forms: the v2 routes, the 1.x SDK, and one JSON-RPC endpoint on [MCP](/daemon/examples/mcp). The steps, the file names and the result `27` are the same in all three; only the transport changes, so an agent can use whichever protocol its framework already speaks.
+
+## SDK
+
+Both SDKs target the v1 routes (Python `agent-sandbox`, TypeScript `@agent-infra/sandbox`):
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+
+client = Sandbox(base_url="http://127.0.0.1:18091")
+# headers={"x-api-key": "<key>"} when AIO_API_KEY is set
+client.bash.exec(command="uname -a")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const client = new SandboxClient({ environment: "http://127.0.0.1:18091" });
+await client.bash.exec({ command: "uname -a" });
+```
+
+</Tab>
+</Tabs>
+
+Which calls work, which need a raw HTTP call, and which routes are gone: [1.x SDK compatibility](/daemon/start/migration#1x-sdk-compatibility). `/v2` is called through the HTTP API; see the [API Reference](/daemon/api).

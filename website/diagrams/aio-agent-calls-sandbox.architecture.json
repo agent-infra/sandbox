@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Agent calls the sandbox",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "locale": "en"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 3,
+    "cellW": 176,
+    "cellH": 72,
+    "gapX": 144,
+    "gapY": 56
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Agent",
+      "sublabel": "LLM · orchestration",
+      "row": 1,
+      "col": 0,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Sandbox API",
+      "sublabel": "REST · SDK · MCP",
+      "row": 1,
+      "col": 1,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "shell",
+      "type": "backend",
+      "label": "Shell",
+      "sublabel": "commands · PTY",
+      "row": 0,
+      "col": 2,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "files",
+      "type": "backend",
+      "label": "Files",
+      "sublabel": "read · write",
+      "row": 1,
+      "col": 2,
+      "size": [
+        176,
+        72
+      ]
+    },
+    {
+      "id": "browser",
+      "type": "backend",
+      "label": "Browser",
+      "sublabel": "CDP",
+      "row": 2,
+      "col": 2,
+      "size": [
+        176,
+        72
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "AIO Sandbox",
+      "wraps": [
+        "api",
+        "shell",
+        "files",
+        "browser"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-api",
+      "from": "agent",
+      "to": "api",
+      "label": "HTTP · :8080",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-shell",
+      "from": "api",
+      "to": "shell"
+    },
+    {
+      "id": "api-files",
+      "from": "api",
+      "to": "files"
+    },
+    {
+      "id": "api-browser",
+      "from": "api",
+      "to": "browser"
+    }
+  ]
+}

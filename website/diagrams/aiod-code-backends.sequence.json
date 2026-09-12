@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "How a run picks its backend",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "column_fit": "spread",
+    "locale": "en",
+    "viewBox": [1080, 660]
+  },
+  "participants": [
+    { "id": "agent", "type": "external", "label": "Agent" },
+    { "id": "aiod", "type": "backend", "label": "aiod", "sublabel": "code" },
+    { "id": "jupyter", "type": "cloud", "label": "Jupyter endpoint", "sublabel": "external" },
+    { "id": "kernel", "type": "backend", "label": "ipykernel", "sublabel": "spawned by aiod" },
+    { "id": "native", "type": "backend", "label": "Native REPL", "sublabel": "python3 · node" }
+  ],
+  "segments": [
+    { "from": 206, "to": 306, "label": "AIO_JUPYTER_ENDPOINT reachable" },
+    { "from": 322, "to": 422, "label": "ipykernel importable" },
+    { "from": 438, "to": 538, "label": "otherwise · every javascript request" }
+  ],
+  "messages": [
+    { "id": "execute", "from": "agent", "to": "aiod", "y": 176, "label": "execute code", "variant": "emphasis" },
+    { "id": "proxy", "from": "aiod", "to": "jupyter", "y": 232, "label": "execute · proxied", "variant": "default" },
+    { "id": "proxy-result", "from": "jupyter", "to": "aiod", "y": 276, "label": "result", "variant": "return" },
+    { "id": "zmq", "from": "aiod", "to": "kernel", "y": 348, "label": "execute_request · ZMQ", "variant": "default" },
+    { "id": "zmq-result", "from": "kernel", "to": "aiod", "y": 392, "label": "result", "variant": "return" },
+    { "id": "harness", "from": "aiod", "to": "native", "y": 464, "label": "{code, timeout_ms}", "variant": "default" },
+    { "id": "harness-result", "from": "native", "to": "aiod", "y": 508, "label": "result", "variant": "return" },
+    { "id": "response", "from": "aiod", "to": "agent", "y": 568, "label": "status · outputs · stdout", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "aiod", "from": 168, "to": 580, "type": "backend" },
+    { "participant": "jupyter", "from": 226, "to": 282, "type": "cloud" },
+    { "participant": "kernel", "from": 342, "to": 398, "type": "backend" },
+    { "participant": "native", "from": 458, "to": 514, "type": "backend" }
+  ]
+}

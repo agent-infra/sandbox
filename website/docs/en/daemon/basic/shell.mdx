@@ -1,0 +1,558 @@
+import { ApiV1, ApiV2, Tab, Tabs, UseV2 } from '@theme';
+
+# Terminals (PTY)
+
+A terminal is a real PTY shell, backed by tmux when it is present or a native PTY otherwise. The session keeps its working directory, environment, and running program alive between calls. It accepts input while that program runs.
+
+Use it for REPLs, interactive programs, and a WebTerminal UI.
+
+A [command](/daemon/basic/bash) is different: a fresh process per call, with no shell left running afterward. Use a terminal to stay attached and watch a session live. Use a command for a plain request/response with separate stdout and stderr. The v1 and v2 routes side by side are in [Migration from 1.x](/daemon/start/migration#terminals).
+
+## Requirements
+
+`GET /v1/capabilities` shows which shell the terminal will use. `exec.pty` is `true` when that shell is bash or sh; on a PowerShell host, terminals still open but `exec` is unavailable.
+
+## Open a terminal
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/pty/sessions" \
+  -H "Content-Type: application/json" \
+  -d '{"cwd": "/workspace", "cols": 120, "rows": 40}'
+```
+
+Request body:
+
+```json
+{
+  "cwd": "/workspace",
+  "cols": 120,
+  "rows": 40
+}
+```
+
+The body takes these fields:
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `id` | string | Id to create the session under; absent means a generated one |
+| `cwd` | string | Directory the shell starts in |
+| `cols`, `rows` | integer | Terminal size, 120 by 24 by default; pass both or neither |
+| `retention` | `persistent` (default), `expiring` | Kept until deleted, or reclaimed when idle |
+| `user` | string | Account the shell runs as; fixed for the session's life; Linux only |
+| `no_change_timeout` | seconds | Idle limit for commands in this session, 120 by default |
+| `env` | object | Not implemented; a request carrying it is a `400` |
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/shell/sessions/create" \
+  -H "Content-Type: application/json" \
+  -d '{"exec_dir": "/workspace"}'
+```
+
+Request body:
+
+```json
+{
+  "exec_dir": "/workspace"
+}
+```
+
+The body takes these fields:
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `id` | string | Id to create the session under; absent means a generated one |
+| `exec_dir` | string | Directory the shell starts in |
+| `user` | string | Account the shell runs as; fixed for the session's life; Linux only |
+| `no_change_timeout` | seconds | Idle limit for commands in this session, 120 by default |
+| `preserve_symlinks` | boolean | Keep the path as given instead of resolving symlinks |
+
+Creating up front is optional: `POST /v1/shell/exec` without an `id` opens a session and returns its id.
+
+<UseV2 when={'a terminal needs a set size, or a resize later without an attached WebSocket'} route="PATCH /v2/pty/sessions/{id}" />
+
+</ApiV1>
+
+Later calls use `session_id` to address the terminal, and `working_dir` is the directory the shell resolved. `exec` runs wherever the shell currently is — including a directory reached by a `cd` typed into the terminal — and an `exec_dir` on the request moves the shell there.
+
+Creating under an existing id returns that session instead of creating another. A different `user` returns `400`, as does a directory that does not exist.
+
+## Run a command
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/pty/sessions/SESSION_ID/exec" \
+  -H "Content-Type: application/json" \
+  -d '{"command": "printf shell-doc-ok"}'
+```
+
+Request body:
+
+```json
+{
+  "command": "printf shell-doc-ok"
+}
+```
+
+The body takes these fields:
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `command` | string, required | The line typed at the prompt |
+| `async` | boolean | Return at once with `status: "running"` |
+| `timeout` | seconds | How long the call waits; absent waits for the command to end |
+| `hard_timeout` | seconds | When the command is interrupted |
+| `no_change_timeout` | seconds | Interrupt after this long with no new output |
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/shell/exec" \
+  -H "Content-Type: application/json" \
+  -d '{"id": "SESSION_ID", "command": "printf shell-doc-ok"}'
+```
+
+Request body:
+
+```json
+{
+  "id": "SESSION_ID",
+  "command": "printf shell-doc-ok"
+}
+```
+
+The body takes these fields:
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `command` | string, required | The line typed at the prompt |
+| `id` | string | Session to run in; absent opens one, unknown is a `404` |
+| `exec_dir` | string | Directory the shell starts in, when the session is new |
+| `async_mode` | boolean | Return at once with `status: "running"` |
+| `timeout` | seconds | How long the call waits; absent waits for the command to end |
+| `hard_timeout` | seconds | When the command is interrupted |
+| `no_change_timeout` | seconds | Interrupt after this long with no new output |
+| `user` | string | Account the shell runs as, when the session is new; Linux only |
+| `preserve_symlinks` | boolean | Keep `exec_dir` as given instead of resolving symlinks |
+| `strict` | boolean | Fail when `exec_dir` cannot be used, instead of ignoring it |
+| `truncate` | boolean | Shorten a long response; on by default |
+
+</ApiV1>
+
+The response is the same either way:
+
+```json
+{
+  "success": true,
+  "message": "Command executed",
+  "data": {
+    "session_id": "SESSION_ID",
+    "command": "printf shell-doc-ok",
+    "status": "completed",
+    "output": "shell-doc-ok",
+    "console": [
+      {
+        "ps1": "$ ",
+        "command": "printf shell-doc-ok",
+        "output": "shell-doc-ok"
+      }
+    ],
+    "exit_code": 0
+  }
+}
+```
+
+A PTY has one output stream, so `output` is combined. Use the command API when `stdout` and `stderr` must remain separate.
+
+`console` is the session transcript, with one entry per finished command, and holds the last 100. A terminal runs one command at a time; a second call while one is running answers `400 Session already has a running command`.
+
+`status` is the command's lifecycle, and `exit_code` is set only when it is `completed`:
+
+| `status` | The command | Ends the session |
+| --- | --- | --- |
+| `running` | Still running; read the screen to follow it | no |
+| `completed` | Finished on its own | no |
+| `no_change_timeout` | Interrupted after no new output | no |
+| `hard_timeout` | Interrupted at `hard_timeout` | no |
+| `terminated` | Stopped by an explicit signal | yes |
+
+Both timeouts interrupt with `^C` and leave `exit_code` at `null`. The session stays open and takes the next command.
+
+`no_change_timeout` does not apply to an async command because no call is waiting on it. A response over 30,000 bytes keeps its first and last 15,000 bytes, with `[... Observation truncated due to length ...]` between. The v1 route can disable this with `truncate: false`; the v2 route always truncates.
+
+## Routes
+
+<ApiV2>
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `POST /v2/pty/sessions` | Open a terminal | Returns the id every other route takes |
+| `GET /v2/pty/sessions` | List terminals and pool stats | One body: `sessions` plus `stats` |
+| `GET /v2/pty/sessions/{id}` | Report one terminal | Directory, age, status, current command |
+| `PATCH /v2/pty/sessions/{id}` | Resize, or change the idle limit | `cols` and `rows` move together or it is a `400` |
+| `POST /v2/pty/sessions/{id}/exec` | Run a command | One at a time per terminal |
+| `GET /v2/pty/sessions/{id}/screen` | Read the screen | The way to follow an async command |
+| `POST /v2/pty/sessions/{id}/input` | Type into the terminal | `press_enter` is off by default here |
+| `POST /v2/pty/sessions/{id}/signal` | Stop the command | `SIGKILL` to the process group; closes the session |
+| `DELETE /v2/pty/sessions/{id}` | Close the terminal | An id that is already gone answers `success: false` |
+| `GET /v2/pty/sessions/{id}/ws` | Attach to a terminal | `protocol`, `durable`, `restore`, `replay_bytes` |
+| `GET /v2/pty/ws` | Open a socket-scoped shell | No id is announced; it dies with the socket |
+
+</ApiV2>
+
+<ApiV1>
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `POST /v1/shell/sessions/create` | Open a terminal | An `exec` with no id opens one too |
+| `GET /v1/shell/sessions` | List terminals | Keyed by session id |
+| `GET /v1/shell/sessions/stats` | Report the pool | Totals, `max_sessions`, `session_timeout` |
+| `POST /v1/shell/sessions/update` | Change a session's idle limit | `no_change_timeout` only |
+| `POST /v1/shell/exec` | Run a command | One at a time per terminal |
+| `POST /v1/shell/view` | Read the screen | Same answer as the v2 screen route |
+| `POST /v1/shell/wait` | Block until the command ends | `seconds`, 30 by default and never under 5 |
+| `POST /v1/shell/write` | Type into the terminal | `press_enter` is on by default here |
+| `POST /v1/shell/kill` | Stop the command | `SIGKILL` to the process group; closes the session |
+| `DELETE /v1/shell/sessions/{id}` | Close the terminal | `DELETE /v1/shell/sessions` closes them all |
+| `GET /v1/shell/terminal-url` | Build a WebShell link | `session_id` addresses one; without it, a fresh terminal |
+| `GET /v1/shell/ws` | Attach to a terminal | Without `session_id` it opens one and announces the id |
+
+</ApiV1>
+
+- The screen is the command's output so far: live while it runs, and the last output after it ends. `command` names the running command and is `null` between commands.
+- `wait` returns when the command ends or `seconds` elapses, whichever comes first. With nothing running, it answers immediately.
+- `input` reaches the PTY verbatim, including escape sequences and control characters: `\u001b` is ESC and `\u0003` is Ctrl-C. `press_enter` appends the carriage return sent by Enter. A raw-mode TUI treats a bare `\n` as Shift+Enter; do not combine a trailing `\r` with `press_enter: true`.
+- Stopping a command also ends the session. The id disappears from the listing, and a second stop answers `404`. To interrupt a command but keep the terminal, use `hard_timeout` or `no_change_timeout`.
+- A terminal shares the same filesystem as [File](/daemon/basic/file). A file written at the prompt is immediately readable through the file routes, and the other way around.
+
+## Common uses
+
+A terminal is worth its session when the work outlives one call, or when the program asks something back:
+
+| Scenario | Start | Then |
+| --- | --- | --- |
+| `printf shell-doc-ok` | exec | Read `output` from the same response |
+| a build | exec with `timeout` | On `running`, read the screen until it completes |
+| a REPL | exec, async | Type a line, read the screen |
+| a prompt like `read -p` | exec, async | Answer it, ending with Enter |
+| a terminal UI | attach a WebSocket | Reattach with `durable=true` after a drop |
+
+## Answer a prompt
+
+A program that asks a question runs async, and the answer is typed into it:
+
+<ApiV2>
+
+`Aio` is the envelope-aware helper from [Examples](/daemon/examples): it unwraps `data` and raises when `success` is false.
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import time
+
+sb = Aio(BASE_URL)
+session = sb.post("/v2/pty/sessions", cwd="/workspace")
+sid = session["session_id"]
+
+# 1. Start a program that asks a question; async returns while it waits.
+body = {"command": 'read -p "Name: " name; echo Hello $name', "async": True}
+sb.call("POST", f"/v2/pty/sessions/{sid}/exec", json=body)
+
+# 2. The prompt reaches the screen a moment after exec returns.
+time.sleep(0.3)
+screen = sb.get(f"/v2/pty/sessions/{sid}/screen")
+print(repr(screen["output"]), screen["status"])
+# 'Name: ' running
+
+# 3. Answer it, then read the screen once the command has ended.
+sb.post(f"/v2/pty/sessions/{sid}/input", input="Alice", press_enter=True)
+while sb.get(f"/v2/pty/sessions/{sid}/screen")["status"] == "running":
+    time.sleep(0.2)
+screen = sb.get(f"/v2/pty/sessions/{sid}/screen")
+print(repr(screen["output"]), screen["status"], screen["exit_code"])
+# 'Name: Alice\nHello Alice' completed 0
+
+# 4. Close the terminal.
+sb.delete(f"/v2/pty/sessions/{sid}")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+const sb = new Aio(BASE_URL);
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const session = await sb.post("/v2/pty/sessions", { cwd: "/workspace" });
+const sid = session.session_id;
+
+// 1. Start a program that asks a question; async returns while it waits.
+await sb.post(`/v2/pty/sessions/${sid}/exec`, {
+  command: 'read -p "Name: " name; echo Hello $name',
+  async: true,
+});
+
+// 2. The prompt reaches the screen a moment after exec returns.
+await sleep(300);
+let screen = await sb.get(`/v2/pty/sessions/${sid}/screen`);
+console.log(JSON.stringify(screen.output), screen.status);
+// "Name: " running
+
+// 3. Answer it, then read the screen once the command has ended.
+await sb.post(`/v2/pty/sessions/${sid}/input`, {
+  input: "Alice",
+  press_enter: true,
+});
+while ((await sb.get(`/v2/pty/sessions/${sid}/screen`)).status === "running") {
+  await sleep(200);
+}
+screen = await sb.get(`/v2/pty/sessions/${sid}/screen`);
+console.log(JSON.stringify(screen.output), screen.status, screen.exit_code);
+// "Name: Alice\nHello Alice" completed 0
+
+// 4. Close the terminal.
+await sb.delete(`/v2/pty/sessions/${sid}`);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV2>
+
+<ApiV1>
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import time
+
+from agent_sandbox import Sandbox
+
+client = Sandbox(base_url=BASE_URL)
+session = client.shell.create_session(exec_dir="/workspace").data
+sid = session.session_id
+
+# 1. Start a program that asks a question; async_mode returns while it waits.
+client.shell.exec_command(
+    id=sid, command='read -p "Name: " name; echo Hello $name', async_mode=True
+)
+
+# 2. The prompt reaches the screen a moment after the call returns.
+time.sleep(0.3)
+screen = client.shell.view(id=sid).data
+print(repr(screen.output), screen.status)
+# 'Name: ' running
+
+# 3. Answer it, then wait for the command to end.
+client.shell.write_to_process(id=sid, input="Alice", press_enter=True)
+waited = client.shell.wait_for_process(id=sid, seconds=5).data
+screen = client.shell.view(id=sid).data
+print(repr(screen.output), waited.status, screen.exit_code)
+# 'Name: Alice\nHello Alice' completed 0
+
+# 4. Close the terminal.
+client.shell.cleanup_session(sid)
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const client = new SandboxClient({ environment: BASE_URL });
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const session = (
+  await client.shell.createSession({ exec_dir: "/workspace" })
+).body.data!;
+const id = session.session_id;
+
+// 1. Start a program that asks a question; async_mode returns while it waits.
+await client.shell.execCommand({
+  id,
+  command: 'read -p "Name: " name; echo Hello $name',
+  async_mode: true,
+});
+
+// 2. The prompt reaches the screen a moment after the call returns.
+await sleep(300);
+let screen = (await client.shell.view({ id })).body.data!;
+console.log(JSON.stringify(screen.output), screen.status);
+// "Name: " running
+
+// 3. Answer it, then wait for the command to end.
+await client.shell.writeToProcess({ id, input: "Alice", press_enter: true });
+const waited = (
+  await client.shell.waitForProcess({ id, seconds: 5 })
+).body.data!;
+screen = (await client.shell.view({ id })).body.data!;
+console.log(JSON.stringify(screen.output), waited.status, screen.exit_code);
+// "Name: Alice\nHello Alice" completed 0
+
+// 4. Close the terminal.
+await client.shell.cleanupSession(id);
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+A screen read right after an async `exec` can still catch the command line being echoed; read it again. `press_enter` is the one field whose default differs between the two routes, so pass it explicitly.
+
+## The WebSocket protocol
+
+For long-running work, attach; do not poll. REST and the socket share the same shell: a file created through an `exec` call is immediately visible in the attached terminal. Attach to `GET /v2/pty/sessions/{id}/ws`, or `GET /v1/shell/ws?session_id=…`, on the same host and port with the `ws://` scheme.
+
+```json
+{"type":"ready","session_id":"…","transport":"json","backend":"tmux","resumed":false}
+{"type":"input","data":"ls\n"}
+{"type":"resize","cols":120,"rows":40}
+{"type":"ping","timestamp":<t>}
+{"type":"output","data":"…"}
+{"type":"restore_output","data":"…"}
+{"type":"pong","timestamp":<t>}
+{"type":"error","data":"…"}
+```
+
+| Direction | type | Meaning |
+| --- | --- | --- |
+| ← recv | `ready` | First frame after the upgrade |
+| → send | `input` | Keystrokes or command text |
+| → send | `resize` | Resize the PTY; missing fields fall back to 80 by 24 |
+| → send | `ping` | Optional keep-alive; the daemon never pings first |
+| ← recv | `output` | Terminal output, ANSI included |
+| ← recv | `restore_output` | Buffered history replayed on reattach |
+| ← recv | `terminal_restored` | The end of that replay |
+| ← recv | `pong` | Reply to a `ping`, with the timestamp echoed back |
+| ← recv | `error` | Attach or session failed; the socket closes after it |
+
+Include `\n` in `input` to run a line. `cols` and `rows` may also sit under `data`. Anything else — a JSON object of another shape, or plain text — is typed into the shell as raw input, so an unrecognised control frame becomes a line of garbage at the prompt.
+
+`protocol=binary` carries raw PTY bytes in binary frames instead of JSON `output` frames; the `ready` frame stays JSON and reports `transport`.
+
+`GET /v2/pty/ws` skips session creation. Its shell lives as long as the socket, announces no id, and is killed with it.
+
+`GET /v1/shell/ws` without a `session_id` also opens a terminal, but announces its id in a `session_id` frame before `ready`. The session stays until it is closed or idles out.
+
+## Reconnect after a drop
+
+A dropped socket does not stop the command. `durable=true` keeps the terminal's output while nothing is attached, and `restore=true` replays it on the next attach:
+
+```javascript
+// BASE_URL as defined above, e.g. "http://127.0.0.1:18091"
+const WS_BASE_URL = "ws://127.0.0.1:18091"; // same host and port, ws:// scheme
+const query = "durable=true&restore=true";
+
+// 1. Open a terminal over REST, attach, and start a build.
+const create = await fetch(`${BASE_URL}/v2/pty/sessions`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: "{}",
+}).then((r) => r.json());
+const sessionId = create.data.session_id;
+
+const first = new WebSocket(
+  `${WS_BASE_URL}/v2/pty/sessions/${sessionId}/ws?${query}`,
+);
+first.onopen = () =>
+  first.send(
+    JSON.stringify({
+      type: "input",
+      data: "for i in 1 2 3 4 5 6; do echo build step $i; sleep 1; done\n",
+    }),
+  );
+
+// 2. The client goes away mid-build; the command keeps running.
+setTimeout(() => first.close(), 3000);
+
+// 3. Reattach: what was buffered arrives first, then live output.
+setTimeout(() => {
+  const again = new WebSocket(
+    `${WS_BASE_URL}/v2/pty/sessions/${sessionId}/ws?${query}`,
+  );
+  again.onmessage = (event) => console.log(event.data);
+}, 5000);
+```
+
+The build that ran on while the client was away comes back in three frames, then live output resumes:
+
+```json
+{"type":"ready","session_id":"SESSION_ID","transport":"json","backend":"native","resumed":true}
+{"type":"restore_output","data":"~ $ for i in 1 2 3 4 5 6; do echo build step $i; sleep 1; done\r\nbuild step 1\r\nbuild step 2\r\nbuild step 3\r\nbuild step 4\r\nbuild step 5\r\n"}
+{"type":"terminal_restored","session_id":"SESSION_ID"}
+{"type":"output","data":"build step 6\r\n"}
+```
+
+- `resumed` — `true` when the socket took over a terminal that was already attached
+- `restore_output` — everything buffered while nothing was attached; a later reconnect replays only the gap since the last one
+- `terminal_restored` — the end of the replay; live output follows it
+
+`restore` works only with `durable`. `replay_bytes` bounds the replay snapshot; it defaults to 10 MiB and is clamped to 256 KiB..10 MiB.
+
+Retained output lives in daemon memory and disappears when the session is closed, killed, or reclaimed.
+
+Without `durable=true`, a second socket on an attached terminal is refused with this error:
+
+```json
+{
+  "type": "error",
+  "data": "Session already has an active WebSocket connection"
+}
+```
+
+With it, the newer socket takes over and the older one closes after a `relay_replaced` frame.
+
+Both flags need an explicit session; an anonymous connection carrying either answers `400`.
+
+## Human in the loop
+
+A person can open the terminal an agent is using. The prebuilt images serve a WebShell page at `/terminal?session_id=…`; it attaches over `/v1/shell/ws`, so both sides see one screen and can type.
+
+`GET /v1/shell/terminal-url` builds the page link. With `?session_id=` it returns the URL for an existing terminal; an unknown id is a `404`. Without it, the route creates a terminal and returns its link, so repeated calls can leave unused terminals behind.
+
+The daemon serves only the URL and socket; the page comes from the image. Browser and desktop viewers are described together on [Computer Use](/daemon/basic/display#human-in-the-loop).
+
+## Windows
+
+A terminal on Windows uses PowerShell's ConPTY, and everything it starts runs inside a job object.
+
+Running a command through this plane answers `501` because its completion protocol needs a POSIX shell. Create, input, screen, resize, attach, and signal still work. See [Windows](/daemon/basic/windows#terminal).
+
+## Backend and limits
+
+`AIO_SHELL_BACKEND=auto` (the default) picks tmux when a working tmux binary is found.
+
+Only an explicitly created session can use tmux. A session opened automatically by `exec`, a `retention: "expiring"` session, and an anonymous WebSocket terminal always use a native PTY. The `ready` frame reports the backend.
+
+`AIO_SHELL_BACKEND=native` pins native PTY. `tmux` requires tmux and answers `503` when its binary is missing.
+
+Session state lives in daemon memory, so ids do not survive an aiod restart. A running tmux server does survive, and its socket is reused rather than rebuilt.
+
+Up to 20 terminals run at once, each idle-closed after 3600 s (`AIO_SHELL_MAX_SESSIONS` / `AIO_SHELL_SESSION_TIMEOUT_SECS`). A terminal with an attached WebSocket is not idle.
+
+At the limit, the least recently used reclaimable terminal is closed to make room. When none can be reclaimed, creation answers `400`.
+
+## Error handling
+
+HTTP success only means the request was accepted. Read `data.status` for the command's lifecycle, then `exit_code` once it is `completed`. The failures that belong to this plane:
+
+| Answer | When |
+| --- | --- |
+| `400` | The terminal already has a running command; `env` at creation; one of `cols`/`rows` alone; a `user` that disagrees with the session's |
+| `404` | No terminal with that id; it was closed, signalled, or idled out |
+| `422` | A malformed request, with an `errors` list |
+| `501` | `exec` on a host whose shell is not bash or sh |
+
+Closing an id that is already gone is not one of them: `DELETE` answers `200` with `success: false`. See [Error Handling](/daemon/basic/error-handling).

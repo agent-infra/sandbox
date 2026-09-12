@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Drive a page the sandbox serves",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "column_fit": "spread",
+    "locale": "en",
+    "viewBox": [1080, 640]
+  },
+  "participants": [
+    { "id": "agent", "type": "external", "label": "Agent" },
+    { "id": "aiod", "type": "backend", "label": "aiod", "sublabel": "files · browser" },
+    { "id": "chromium", "type": "frontend", "label": "Chromium", "sublabel": "CDP :9222" },
+    { "id": "server", "type": "backend", "label": "Server", "sublabel": ":18780" }
+  ],
+  "messages": [
+    { "id": "write-pages", "from": "agent", "to": "aiod", "y": 172, "label": "write index.html · thanks.html", "variant": "emphasis" },
+    { "id": "store-pages", "from": "aiod", "to": "server", "y": 204, "label": "index.html · thanks.html", "variant": "default" },
+    { "id": "run-server", "from": "agent", "to": "aiod", "y": 236, "label": "run server", "variant": "emphasis" },
+    { "id": "http-server", "from": "aiod", "to": "server", "y": 268, "label": "http.server 18780", "variant": "default" },
+    { "id": "navigate", "from": "agent", "to": "aiod", "y": 300, "label": "navigate", "variant": "emphasis" },
+    { "id": "cdp-load", "from": "aiod", "to": "chromium", "y": 332, "label": "CDP · load", "variant": "default" },
+    { "id": "get-index", "from": "chromium", "to": "server", "y": 364, "label": "GET /index.html", "variant": "default" },
+    { "id": "snapshot", "from": "agent", "to": "aiod", "y": 396, "label": "snapshot", "variant": "emphasis" },
+    { "id": "fill", "from": "agent", "to": "aiod", "y": 428, "label": "fill e6", "variant": "emphasis" },
+    { "id": "click", "from": "agent", "to": "aiod", "y": 460, "label": "click e14", "variant": "emphasis" },
+    { "id": "evaluate", "from": "agent", "to": "aiod", "y": 492, "label": "evaluate #result", "variant": "emphasis" },
+    { "id": "result", "from": "chromium", "to": "agent", "y": 524, "label": "hello, Ada", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "aiod", "from": 164, "to": 536, "type": "backend" },
+    { "participant": "chromium", "from": 326, "to": 532, "type": "frontend" }
+  ]
+}

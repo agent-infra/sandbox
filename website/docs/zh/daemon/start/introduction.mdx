@@ -1,0 +1,74 @@
+import { ApiInlineV1, ApiInlineV2 } from '@theme';
+
+# 介绍
+
+`aiod` 是 AIO Sandbox 的 daemon，通过 HTTP 和 WebSocket 提供沙箱工具 API：命令、文件、终端、代码执行、浏览器控制和 MCP。
+
+最小依赖设计：
+
+- Linux 上为 musl 静态构建
+- Windows 上为原生构建
+- 可降级运行 —— 浏览器、解释器和桌面 GUI worker 都是可选后端，运行时探测
+
+Linux 构建覆盖 x86_64、arm64 和 riscv64（静态 musl）。Windows 构建覆盖 x86_64（`aiod.exe`、`computer-use.exe`）。
+
+## 注入沙箱操作能力
+
+在实际场景中，现存虚机环境已经有了复杂的配置逻辑，迁移到新的沙箱镜像有改造成本。但 Agent/Server 操作沙箱环境，又需要 command 和 files 等易用的数据面工具。aiod 可以直接作为注入层提供 tools 能力。
+
+![](/architecture/aiod-existing-environment.svg)
+
+**保留现有环境，补上操作能力。** 不换基础镜像，不迁入沙箱平台；已有容器、VM 或桌面里的私有 SDK、编译工具链和企业应用原样保留，同时获得统一的 Agent 工具接口。
+
+**核心最小依赖，后端按需组合。** 解释器、Chromium 和桌面 worker 都是可选后端；能力探测报告每一项是可用、未配置还是依赖缺失，客户端据此决定暴露哪些工具。没有桌面或浏览器也是正常部署。
+
+**同一套接入方式，覆盖 Linux 和 Windows。** Linux 容器中的命令、文件和浏览器，Windows VM 或桌面中的命令、文件和桌面自动化，都通过一致接口暴露给 Agent。
+
+**可独立部署，边界清晰。** aiod 是 AIO Sandbox 的工具层，也可单独部署。它只补环境内的操作接口；隔离、资源限制和生命周期仍由容器、VM 或外部平台负责。
+
+## daemon 能力范围
+
+![](/architecture/aiod-overview.svg)
+
+- **命令** —— 以进程方式执行 shell 命令（<ApiInlineV2>`POST /v2/commands`</ApiInlineV2><ApiInlineV1>`POST /v1/bash/exec`</ApiInlineV1>）。
+  也可以打开由 PTY 支撑的持久终端（<ApiInlineV2>`/v2/pty`</ApiInlineV2><ApiInlineV1>`/v1/shell`</ApiInlineV1>）。
+- **文件** —— 读取、写入、搜索并监听磁盘上的文件（<ApiInlineV2>`/v2/fs`、`/v2/watch`</ApiInlineV2><ApiInlineV1>`/v1/file/*`</ApiInlineV1>）。
+- **代码** —— 执行 Python 或 JavaScript 代码片段，支持 sessions（<ApiInlineV2>`POST /v2/code/execute`</ApiInlineV2><ApiInlineV1>`POST /v1/code/execute`</ApiInlineV1>）。
+- **浏览器** —— 连接监听在调试端口（默认 `127.0.0.1:9222`）的 Chromium，并通过 REST 提供 navigate、click、fill、screenshot 等操作。
+  对应路由为 <ApiInlineV2>`/v2/browser/*`</ApiInlineV2><ApiInlineV1>`/v1/browser/*`</ApiInlineV1>。
+- **桌面** —— 独立的 `computer-use` worker，`/v2/computer/*` 可转发来使用 GUI 能力：覆盖截图、鼠标键盘控制、剪贴板和无障碍树。
+- **MCP** —— `POST /mcp` 把内置工具作为一个无状态 JSON-RPC 端点提供：
+  - 执行命令
+  - 执行代码
+  - 文件操作
+  - 浏览器信息
+  - 加载 skill
+
+  也可以聚合其他 MCP server。
+
+`aiod` 会自动探测浏览器、解释器和桌面 GUI worker 等可选依赖。
+
+`GET /v1/capabilities` 返回当前实际可用的能力。
+
+与 1.x Python 服务相比（同一主机，0.5 CPU / 0.5 GiB，两边都关闭浏览器和 VNC；延迟为单连接 keep-alive 的 p50）：
+
+| | aiod | 1.x Python 服务 |
+|---|---|---|
+| API 进程空闲内存 | 14.6 MB | 120 MB |
+| 混合压测容器峰值内存（32 并发：文件 + 长短命令） | 100 MiB | 187 MiB |
+| 混合压测吞吐 | 112 ops/s | 33 ops/s |
+| 镜像启动到 API 就绪 | 0.8 s | 2.6 s |
+| 命令执行 p50 | 2.3 ms | 12.6 ms |
+| Python 会话执行 p50（kernel 已预热） | 6.1 ms | 10.7 ms |
+
+## API plane：v1 与 v2
+
+- `/v1/*` —— 保持与 AIO 镜像（1.x Python 服务）的接口兼容，见 [v1 API 参考](/zh/daemon/start/v1-api)。
+- `/v2/*` —— 现代端点集，提供 pty、command 等接口，对跨平台等场景的接口设计更友好，供新接入使用，见 [从 1.x 迁移](/zh/daemon/start/migration)。
+
+默认两者同时提供（`AIO_API_SURFACE=full`）；设置 `AIO_API_SURFACE=v2` 只提供 v2。
+
+## 相关页面
+
+- [快速开始](/zh/daemon/start/quick-start) —— 下载、启动、快速测试。
+- [从 1.x 迁移](/zh/daemon/start/migration) —— 从 1.x AIO 镜像迁移。

@@ -1,0 +1,332 @@
+import { ApiV1, ApiV2 } from '@theme';
+
+# 浏览器 API
+
+aiod 连接已经启动的 Chromium，不负责启动浏览器。默认连接 `127.0.0.1:9222`；如果 Chromium 在其他地址，请设置 `BROWSER_REMOTE_DEBUGGING_HOST` 和 `BROWSER_REMOTE_DEBUGGING_PORT`。
+
+可以使用 Playwright、Puppeteer 等 CDP 客户端，也可以直接调用 REST API。`/v1/browser/*` 和 `/v2/browser/*` 的请求体相同；桌面操作除外：v1 使用 `POST /v1/browser/actions`，v2 使用 `/v2/computer`。详见 [**Computer Use**](/zh/daemon/basic/display)。
+
+其他已移除的 1.x 路由见 [**已移除的路由**](/zh/daemon/start/migration#已移除的路由)。
+
+![](/architecture/aiod-browser-cdp.svg)
+
+## 运行要求
+
+<ApiV2>
+
+`GET /v2/sandbox` 返回 `capabilities.browser`：
+
+</ApiV2>
+
+<ApiV1>
+
+`GET /v1/capabilities` 返回 `browser.status`：
+
+</ApiV1>
+
+| 状态 | 何时 | 仍然可用 |
+| --- | --- | --- |
+| `ready` | 调试端口上 CDP 有应答 | 全部路由 |
+| `degraded` | 找到了浏览器可执行文件，但 CDP 不可达 | `info`、`network/requests` |
+| `absent` | 两者都没有 | `info`、`network/requests` |
+
+不是 `ready` 时，其余工具不可用。见 [Sandbox](/zh/daemon/basic/sandbox)。
+
+## 获取 CDP URL
+
+`info` 返回 CDP 客户端要连接的地址：
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/browser/info"
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/browser/info"
+```
+
+</ApiV1>
+
+```json
+{
+  "data": {
+    "cdp_url": "ws://127.0.0.1:18091/cdp/devtools/browser/46164812-5f92-4ec5-891a-8c138aeb93a4",
+    "cdp_ui_url": null
+  }
+}
+```
+
+- `cdp_url` —— CDP 客户端要连接的 WebSocket 地址
+- `cdp_ui_url` —— 内置的 DevTools 页面，没有提供时为 `null`
+
+通过反向代理访问时，`cdp_url` 会使用对外地址。Chromium 暂时不可用时，恢复后重新调用 `info`。
+
+详细配置见 [**CDP 接入**](/zh/daemon/basic/cdp)。
+
+需要使用 Playwright 或 Puppeteer 时，先调用 `info` 获取 `cdp_url`，再将它传给客户端。完整示例见 [浏览器（CDP）](/zh/daemon/examples/browser-cdp)。
+
+## REST 接口
+
+不需要完整 CDP 客户端的操作，aiod 提供一套精简 REST。除注明外均为 `POST`，返回结构都是标准的 `{success, message, data}`。完整的请求/响应结构见 [API 参考](/zh/daemon/api)。
+
+<ApiV2>
+
+这些工具挂在 `/v2/browser` 下：
+
+</ApiV2>
+
+<ApiV1>
+
+这些工具挂在 `/v1/browser` 下：
+
+</ApiV1>
+
+`navigate`、`evaluate`、`snapshot`、`click`、`fill`、`upload` 和 `cdp` 都可以通过 `tab_id` 指定标签页。
+
+不传 `tab_id` 时，操作默认作用于列表中的第一个标签页。新打开的标签页，无论由 `tabs` 还是页面自身打开，都会排在最前面。
+
+`screenshot` 不支持 `tab_id`，始终截取列表中的第一个标签页。见 [标签页](#标签页)。
+
+### 导航与脚本执行
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/browser/navigate" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com", "wait_until": "load"}'
+
+curl -X POST "$BASE_URL/v2/browser/evaluate" \
+  -H "Content-Type: application/json" \
+  -d '{"expression": "document.title"}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/browser/navigate" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com", "wait_until": "load"}'
+
+curl -X POST "$BASE_URL/v1/browser/evaluate" \
+  -H "Content-Type: application/json" \
+  -d '{"expression": "document.title"}'
+```
+
+1.x SDK 没有对应这两个路由的方法，请直接调用它们。
+
+</ApiV1>
+
+请求体示例（v1 和 v2 相同）：
+
+`navigate`：
+
+```json
+{
+  "url": "https://example.com",
+  "wait_until": "load"
+}
+```
+
+`evaluate`：
+
+```json
+{
+  "expression": "document.title"
+}
+```
+
+| 路由 | 作用 | 说明 |
+| --- | --- | --- |
+| `POST navigate` | 加载 URL，或在历史记录里移动 | 传 `url` 或 `history`；两者都传时以 `url` 为准 |
+| `POST evaluate` | 在页面主世界里执行 JavaScript | 按值返回结果；`await_promise` 会等待 Promise |
+
+- `wait_until` 可选 `load`、`domcontentloaded`、`networkidle`、`commit`，默认是 `load`。
+- `timeout` 默认 30 秒；超时返回 `503`，标签页仍可继续使用。
+- `history` 可取 `back`、`forward` 或 `reload`。`evaluate` 的结果在 `data.value` 中，JavaScript 异常在 `data.exception` 中，HTTP 状态仍为 `200`。
+
+### 截图
+
+响应体就是图片：
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/browser/screenshot?format=jpeg&quality=80" -o page.jpg
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/browser/screenshot?format=jpeg&quality=80" -o page.jpg
+```
+
+</ApiV1>
+
+`format` 可选 `png`（默认）、`jpeg` 或 `jpg`；`quality` 取值 0–100，只对 jpeg 生效，默认 85。
+
+`full_page=true` 截取整个可滚动页面，而不只是视口。PNG 响应还会带上 `x-image-width` 和 `x-image-height`。
+
+### 页面快照
+
+调用 `snapshot` 获取页面结构，再用返回的 `ref` 操作元素：
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/browser/snapshot" \
+  -H "Content-Type: application/json" \
+  -d '{"interactive_only": true}'
+
+curl -X POST "$BASE_URL/v2/browser/click" \
+  -H "Content-Type: application/json" \
+  -d '{"ref": "e13"}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/browser/snapshot" \
+  -H "Content-Type: application/json" \
+  -d '{"interactive_only": true}'
+
+curl -X POST "$BASE_URL/v1/browser/click" \
+  -H "Content-Type: application/json" \
+  -d '{"ref": "e13"}'
+```
+
+</ApiV1>
+
+`interactive_only` 只保留可操作的元素。`click`、`fill` 和 `upload` 也可以使用 CSS `selector`。每次导航后都要重新获取快照，旧的 `ref` 不再有效。
+
+### 标签页
+
+标签页对应 Chromium 的页面。
+
+| 路由 | 作用 | 说明 |
+| --- | --- | --- |
+| `GET tabs` | 列出标签页 | 每项包含 `id`、`title`、`url`、`type` |
+| `POST tabs` | 打开标签页 | `url` 可选，默认 `about:blank` |
+| `POST tabs/{tab_id}/activate` | 把标签页切到最前 | 它会移到列表最前面；未知 id 返回 `404` |
+| `DELETE tabs/{tab_id}` | 关闭标签页 | 未知 id 返回 `404` |
+
+新标签页会成为默认目标。需要固定操作对象时，传入 `tab_id`；不传时，操作列表中的第一个标签页。
+
+<ApiV2>
+
+```bash
+curl "$BASE_URL/v2/browser/tabs"
+curl -X POST "$BASE_URL/v2/browser/tabs" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "about:blank"}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl "$BASE_URL/v1/browser/tabs"
+curl -X POST "$BASE_URL/v1/browser/tabs" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "about:blank"}'
+```
+
+</ApiV1>
+
+`POST tabs` 不传 `url` 时打开 `about:blank`。`screenshot` 不支持 `tab_id`，始终截取第一个标签页。
+
+### Cookie
+
+cookie 的读写使用 CDP 定义的结构：
+
+| 路由 | 作用 | 说明 |
+| --- | --- | --- |
+| `POST cookies` | 设置 cookie | body 里的 `cookies` 是一个列表；响应返回条数 |
+| `GET cookies` | 读取 cookie | 可按 `url` 或 `domain` 收窄 |
+| `DELETE cookies` | 删除一条或全部 | `name` 配合 `url` 或 `domain`，或者 `all=true` |
+
+设置 cookie 时必须提供 `name`，以及 `url` 或 `domain` 和 `path`。其他 CDP 字段可选；读取接口返回 Chromium 当前保存的值。
+
+### 请求日志
+
+`GET network/requests` 返回页面请求的只读日志，从第一次调用后开始收集，最多保留最近 300 条。`limit` 限制返回条数，`clear=true` 在读取后清空；该接口不支持请求拦截或请求头改写。
+
+### 窗口大小
+
+`POST config` 通过 CDP 调整浏览器窗口大小。
+
+`resolution` 必须使用支持的尺寸；其他组合返回 `422`。不传 `resolution` 时不修改窗口。
+
+### 原始 CDP 命令
+
+`POST cdp` 发送一条原始 CDP 命令，并将结果放在 `data` 中。REST API 未覆盖的能力可以使用该入口；需要连续发送多条命令时，建议直接建立 CDP 连接。
+
+### 错误处理
+
+| 状态码 | 何时 |
+| --- | --- |
+| `400` | 参数缺失或请求体不是 JSON |
+| `404` | 元素或标签页不存在 |
+| `422` | 参数值不受支持 |
+| `503` | CDP 不可达、导航超时或 CDP 执行失败 |
+
+JavaScript 异常不属于 HTTP 错误：`evaluate` 仍返回 `200`，异常放在 `data.exception` 中。
+
+## 桌面操作
+
+这不是页面级操作，而是真实的鼠标和键盘事件。请求会转发给 `computer-use` worker；worker 未运行时返回 `503`。
+
+<ApiV2>
+
+调用 `POST /v2/computer/actions`。详见 [Computer Use](/zh/daemon/basic/display)。
+
+</ApiV2>
+
+<ApiV1>
+
+调用 `POST /v1/browser/actions`。详见 [Computer Use](/zh/daemon/basic/display)。
+
+</ApiV1>
+
+## MCP 工具
+
+支持 MCP 的 agent 可以通过 `/mcp` 调用浏览器工具。AIO 镜像还会提供页面级的 `browser_*` 工具；裸 daemon 只提供基础浏览器工具。
+
+## 选择调用方式
+
+三种入口操作的是同一个 Chromium：
+
+| 入口 | 提供 | 代价 |
+| --- | --- | --- |
+| CDP 客户端 | 完整的页面自动化能力 | 需要 CDP 客户端和 WebSocket |
+| REST API | 常用浏览器操作 | 一次请求执行一个操作 |
+| MCP | 以工具形式调用浏览器 | 需要 MCP 客户端 |
+
+需要完整的页面自动化时使用 CDP；只做常用操作时直接调用 REST API；已经接入 MCP 的 agent 可以使用 MCP。
+
+## Human in the loop
+
+人可以直接查看或接管 agent 正在操作的 Chromium。两种查看方式连接的是同一个浏览器环境：
+
+| 查看方式 | 地址 | 可以看到 |
+| --- | --- | --- |
+| noVNC | `/vnc/index.html?autoconnect=true` | 整个桌面，包括 Chromium、对话框和其他窗口 |
+| DevTools | `/browser-ui`、`/cdp/devtools/*` | 当前 Chromium 页面 |
+
+noVNC 连接的是整个桌面，而不是单独的浏览器窗口。因此可以操作文件选择框、地址栏和其他应用窗口。即使 Chromium 重启，桌面仍会保留。noVNC 页面也可以嵌入 iframe。
+
+人和 agent 共享同一个浏览器状态。例如，在 noVNC 中完成登录后，agent 下一次调用 `snapshot` 就能看到登录后的页面。
+
+daemon 只提供 API；noVNC 和 DevTools 页面由镜像网关提供。部署和访问方式见 [**Computer Use**](/zh/daemon/basic/display#human-in-the-loop)。

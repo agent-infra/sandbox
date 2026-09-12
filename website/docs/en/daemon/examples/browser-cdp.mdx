@@ -1,0 +1,137 @@
+import { ApiV1, ApiV2, Tab, Tabs } from '@theme';
+
+# Browser (CDP)
+
+When an agent needs full page automation, hand the sandbox's Chromium to Playwright or Puppeteer. The daemon supplies the CDP endpoint, and the client connects to and drives the same browser instance.
+
+Routes:
+
+<ApiV2>
+
+- `GET /v2/browser/info`
+
+</ApiV2>
+
+<ApiV1>
+
+- `GET /v1/browser/info`
+
+</ApiV1>
+
+For automation without a framework — navigate, snapshot, fill, click, screenshot over REST — see [Browser Use](/daemon/examples/browser-use).
+
+## Requirements
+
+<ApiV2>
+
+The `capabilities` object from `GET /v2/sandbox` should include `browser`.
+
+</ApiV2>
+
+<ApiV1>
+
+`GET /v1/capabilities` should report `browser`.
+
+</ApiV1>
+
+A Chromium started with `--remote-debugging-port=9222` must be reachable from the daemon. The daemon connects to it as a CDP client; it does not launch or proxy it.
+
+## Get the CDP URL
+
+`cdp_url` is Chromium's WebSocket endpoint rewritten to the public origin:
+
+<ApiV2>
+
+```python
+BASE_URL = "http://127.0.0.1:18091"
+sb = Aio(BASE_URL)
+cdp_url = sb.get("/v2/browser/info")["cdp_url"]
+print(cdp_url)
+# -> ws://127.0.0.1:18091/cdp/devtools/browser/9ca46b6e-ab32-46b1-8e7e-7af3d540de4b
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```python
+from agent_sandbox import Sandbox
+
+BASE_URL = "http://127.0.0.1:18091"
+client = Sandbox(base_url=BASE_URL)
+
+cdp_url = client.browser.get_info().data.cdp_url
+print(cdp_url)
+# -> ws://127.0.0.1:18091/cdp/devtools/browser/9ca46b6e-ab32-46b1-8e7e-7af3d540de4b
+```
+
+</ApiV1>
+
+The path lives under `/cdp/`, which the deployment serves, not the daemon. See [CDP Access](/daemon/basic/cdp).
+
+## Connect with Playwright
+
+Pass `cdp_url` to `connect_over_cdp`:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+import httpx
+from playwright.sync_api import sync_playwright
+
+BASE_URL = "http://127.0.0.1:18091"
+cdp_url = httpx.get(f"{BASE_URL}/v1/browser/info").json()["data"]["cdp_url"]
+
+with sync_playwright() as p:
+    browser = p.chromium.connect_over_cdp(cdp_url)
+    page = browser.contexts[0].pages[0]
+    page.goto("https://example.com")
+    print(page.title())
+    # → Example Domain
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { chromium } from "playwright-core";
+
+const BASE_URL = "http://127.0.0.1:18091";
+const info = await fetch(`${BASE_URL}/v1/browser/info`).then((r) => r.json());
+
+const browser = await chromium.connectOverCDP(info.data.cdp_url);
+const page = browser.contexts()[0].pages()[0];
+await page.goto("https://example.com");
+console.log(await page.title());
+// → Example Domain
+```
+
+</Tab>
+</Tabs>
+
+Playwright keeps the `/cdp/` prefix and any query string, so `cdp_url` works unmodified. Take the existing context and page rather than launching one: the browser belongs to the sandbox and is shared with the daemon's own REST tools.
+
+## Connect with Puppeteer
+
+Use `browserWSEndpoint`. Puppeteer's `browserURL` drops the path prefix:
+
+```javascript
+import puppeteer from "puppeteer-core";
+
+const BASE_URL = "http://127.0.0.1:18091";
+
+const info = await fetch(`${BASE_URL}/v1/browser/info`).then((r) => r.json());
+const browser = await puppeteer.connect({ browserWSEndpoint: info.data.cdp_url });
+const [page] = await browser.pages();
+await page.goto("https://example.com");
+console.log(await page.title());
+// → Example Domain
+```
+
+## Related
+
+- [Browser Use](/daemon/examples/browser-use) — the same Chromium driven by REST calls alone
+- [Browser API](/daemon/basic/browser) — the full REST tool list, MCP tools, and SDK notes
+- [CDP Access](/daemon/basic/cdp) — how a deployment exposes `/cdp/*`
+- [Migration: Removed routes](/daemon/start/migration#removed-routes) — the page automation routes CDP replaces

@@ -17,14 +17,7 @@ AIO Sandbox 支持两种常见集成模式：Agent 在沙盒外调用沙盒 API�
 
 这种模式下，Agent 运行在沙盒外部，通过 REST API、Python SDK、TypeScript SDK 或 MCP 调用沙盒能力。
 
-```text
-┌──────────────────┐         ┌──────────────────┐
-│ Agent (external) │  HTTP   │ AIO Sandbox      │
-│ - LLM / planner  │ ──────> │ - Shell          │
-│ - orchestration  │ <────── │ - File           │
-│ - credentials    │ :8080   │ - Browser        │
-└──────────────────┘         └──────────────────┘
-```
+![](/architecture/aio-agent-calls-sandbox.svg)
 
 适合以下场景：
 
@@ -152,18 +145,7 @@ await Promise.all(
 
 这种模式下，Agent 进程运行在沙盒容器内部，可以直接调用本地命令和本地 REST 端点。
 
-```text
-┌─────────────────────────────────────┐
-│ AIO Sandbox Container               │
-│ ┌─────────────────────────────────┐ │
-│ │ Agent process                   │ │
-│ │ - local commands                │ │
-│ │ - local files                   │ │
-│ │ - http://127.0.0.1:8080         │ │
-│ └─────────────────────────────────┘ │
-│ Shell / File / Browser / Code        │
-└─────────────────────────────────────┘
-```
+![](/architecture/aio-agent-in-sandbox.svg)
 
 适合以下场景：
 

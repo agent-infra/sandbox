@@ -1,0 +1,490 @@
+import { ApiV1, ApiV2, UseV2, Tab, Tabs } from '@theme';
+
+# Computer Use
+
+`computer-use` is a worker process built to drive a real desktop:
+
+- Mouse and keyboard
+- Screenshots
+- Clipboard
+- Open windows
+- The accessibility tree
+
+It runs as a process separate from `aiod`, on any host with a desktop. Examples:
+
+- An Ubuntu desktop
+- A VM with Xvfb or Xvnc
+- A Windows host with an interactive logon session
+
+`aiod` proxies its API. It does not touch the desktop itself. That process boundary keeps desktop control optional: `aiod` runs the same without a desktop present, and reaches one wherever `computer-use` is running.
+
+The desktop plane is v2-only, under `/v2/computer/*`.
+
+v1 keeps two aliases for 1.x clients:
+
+- `POST /v1/browser/actions`
+- `POST /v1/display/record`
+
+The routes side by side are in [Migration from 1.x](/daemon/start/migration#desktop).
+
+The first part of this page is the action reference an agent's tools are built on. The second covers the viewers a person uses to watch or take over the same desktop. [Browser API](/daemon/basic/browser) covers CDP-based page automation instead, and [Computer Use examples](/daemon/examples/computer-use) walks one desktop task end to end.
+
+## For agent tools
+
+### How the two processes connect
+
+The worker binds `AIO_COMPUTER_USE_LISTEN` (default `0.0.0.0:18100`). `aiod` reaches it at `AIO_COMPUTER_USE_URL` (default `http://127.0.0.1:18100`) and proxies the desktop routes opaquely. When the worker is not running, the computer routes answer `503`:
+
+```json
+{
+  "success": false,
+  "message": "computer-use worker is not available",
+  "data": null,
+  "hint": "start computer-use or set AIO_COMPUTER_USE_URL"
+}
+```
+
+![](/architecture/aiod-computer-action.svg)
+
+### Prerequisites
+
+**Linux**: a reachable X11 display. Set `DISPLAY`, and `XAUTHORITY` if the display needs cookie authentication. `GET /v2/computer/info` reports what it found in `display` and `xauthority`.
+
+**Windows**: an interactive logon session. `aiod` can run as a Session 0 SCM service; `computer-use` must run in the interactive session to see the desktop and inject input.
+
+### Start the worker
+
+`computer-use` takes no flags and reads only environment variables: `DISPLAY` and `XAUTHORITY` pick the display, `AIO_COMPUTER_USE_LISTEN` sets the listen address.
+
+Linux:
+
+```bash
+DISPLAY=:99 XAUTHORITY=$HOME/.Xauthority computer-use
+curl -s http://127.0.0.1:8091/v2/computer/info
+```
+
+supervisord, as the Computer image runs it:
+
+```ini
+[program:computer-use]
+command=/usr/local/bin/computer-use
+environment=DISPLAY=":99",XAUTHORITY="/home/sandbox/.Xauthority",HOME="/home/sandbox",USER="sandbox"
+user=sandbox
+autorestart=true
+stdout_logfile=/var/log/computer-use.log
+redirect_stderr=true
+```
+
+Windows: `computer-use.exe` cannot run as a service. Register a logon-triggered scheduled task with `scripts/windows/install-computer-use.ps1`; see [Windows](/daemon/basic/windows#running-computer-use).
+
+### Check available capabilities
+
+<ApiV2>
+
+`GET /v2/computer/info` reports the display the worker found and what it can do on it:
+
+```bash
+curl "$BASE_URL/v2/computer/info"
+```
+
+`data` is:
+
+- `available` — whether the worker reached a display
+- `display` — the display the worker found
+- `xauthority` — the `XAUTHORITY` it found
+- `screen_resolution` — `{width, height}`
+- `capabilities` — `{screenshot, actions, clipboard, recording}`
+- `warnings` — problems the probe found
+
+</ApiV2>
+
+<ApiV1>
+
+v1 has no desktop info route. The sandbox capability probe reports the plane instead:
+
+```bash
+curl "$BASE_URL/v1/capabilities"
+```
+
+`data.computer` is:
+
+- `status` — `ready`, `degraded`, or `absent`
+- `display`, `resolution` — what the worker found
+- `screenshot`, `actions`, `clipboard`, `recording`, `accessibility` — one flag per operation
+- `accessibility_backend` — `atspi`, `uia`, or `null` where none is compiled in
+- `provider`, `missing`, `warnings` — how it was found, and what is not there
+
+When no worker is running, the response is:
+
+```json
+{
+  "status": "absent",
+  "provider": null,
+  "display": null,
+  "screenshot": false,
+  "actions": false,
+  "clipboard": false,
+  "recording": false,
+  "accessibility": false,
+  "accessibility_backend": null,
+  "resolution": {
+    "width": null,
+    "height": null
+  },
+  "missing": [
+    "computer-use"
+  ],
+  "warnings": [
+    "computer-use worker probe failed: error sending request for url (http://127.0.0.1:18100/capabilities)"
+  ]
+}
+```
+
+<UseV2 when={'you need the availability and the XAUTHORITY the worker itself reports'} route="GET /v2/computer/info" />
+
+</ApiV1>
+
+### Take a screenshot
+
+<ApiV2>
+
+The response body is the image itself:
+
+```bash
+curl "$BASE_URL/v2/computer/screenshot" -o desktop.png
+```
+
+The capture is a PNG of the entire desktop: all windows, the taskbar, dialogs. The response headers carry the geometry — `x-image-width`, `x-image-height`, `x-screen-width`, `x-screen-height`.
+
+</ApiV2>
+
+<ApiV1>
+
+v1 has no desktop screenshot route. The post-action frame is the way in, and `WAIT` is the action that changes nothing:
+
+```bash
+curl -X POST "$BASE_URL/v1/browser/actions?include_screenshot=true" \
+  -H "Content-Type: application/json" \
+  -d '{"action_type": "WAIT", "duration": 0.5}'
+```
+
+`screenshot` in the response is the same desktop capture, base64 PNG. The Python SDK sends no query string on this route, so a frame taken this way needs the HTTP call. `GET /v1/browser/screenshot` is a different thing: it captures the browser page over CDP, not the desktop.
+
+<UseV2 when={'you want the capture as a PNG body, with no action attached'} route="GET /v2/computer/screenshot" />
+
+</ApiV1>
+
+### Act
+
+One action per request, addressed in screen coordinates. `?include_screenshot=true` merges the observe step into the act step:
+
+<ApiV2>
+
+```bash
+curl -X POST "$BASE_URL/v2/computer/actions" \
+  -H "Content-Type: application/json" \
+  -d '{"action_type": "CLICK", "x": 640, "y": 400}'
+
+curl -X POST "$BASE_URL/v2/computer/actions?include_screenshot=true" \
+  -H "Content-Type: application/json" \
+  -d '{"action_type": "SCROLL", "dx": 0, "dy": -3}'
+```
+
+</ApiV2>
+
+<ApiV1>
+
+```bash
+curl -X POST "$BASE_URL/v1/browser/actions" \
+  -H "Content-Type: application/json" \
+  -d '{"action_type": "CLICK", "x": 640, "y": 400}'
+
+curl -X POST "$BASE_URL/v1/browser/actions?include_screenshot=true" \
+  -H "Content-Type: application/json" \
+  -d '{"action_type": "SCROLL", "dx": 0, "dy": -3}'
+```
+
+The alias and the v2 route are one handler: same body, same response.
+
+The Python SDK sends one typed action per call:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+from agent_sandbox import Sandbox
+from agent_sandbox.browser.types.action import Action_Click
+
+client = Sandbox(base_url="http://127.0.0.1:18091")
+client.browser.execute_action(request=Action_Click(x=640, y=400))
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+import { SandboxClient } from "@agent-infra/sandbox";
+
+const client = new SandboxClient({ environment: "http://127.0.0.1:18091" });
+await client.browser.executeAction({ action_type: "CLICK", x: 640, y: 400 });
+```
+
+</Tab>
+</Tabs>
+
+Its action union covers the mouse, the keyboard, and `WAIT`. The clipboard, window, and node actions below go over HTTP on the same route, as does a post-action screenshot.
+
+</ApiV1>
+
+The action body is the same in v1 and v2. For example, click screen coordinates `(640, 400)`:
+
+```json
+{
+  "action_type": "CLICK",
+  "x": 640,
+  "y": 400
+}
+```
+
+The body describes the action directly, and `action_type` selects which action to run:
+
+| `action_type` | Required | Optional |
+| --- | --- | --- |
+| `MOVE_TO` | `x`, `y` | — |
+| `MOVE_REL` | `x_offset`, `y_offset` | — |
+| `CLICK` | — | `x`, `y`, `button`, `num_clicks` |
+| `RIGHT_CLICK` | — | `x`, `y` |
+| `DOUBLE_CLICK` | — | `x`, `y` |
+| `MOUSE_DOWN` | — | `button` |
+| `MOUSE_UP` | — | `button` |
+| `DRAG_TO` | `x`, `y` | — |
+| `DRAG_REL` | `x_offset`, `y_offset` | — |
+| `SCROLL` | — | `dx`, `dy` |
+| `TYPING` | `text` | `use_clipboard` |
+| `PRESS` | `key` | — |
+| `KEY_DOWN` | `key` | — |
+| `KEY_UP` | `key` | — |
+| `HOTKEY` | `keys` | — |
+| `WAIT` | `duration` | — |
+| `SET_CLIPBOARD` | `text` | — |
+| `WINDOW_ACTIVATE` | `window_id` | — |
+| `WINDOW_MINIMIZE` | `window_id` | — |
+| `NODE_FOCUS` | `node_id` | — |
+| `NODE_INVOKE` | `node_id` | `action` |
+| `NODE_SET_VALUE` | `node_id`, `value` | — |
+
+- `duration` is in seconds; `keys` is a list, `["ctrl", "c"]` for copy.
+- A `window_id` comes from the window list, a `node_id` from the accessibility tree; both are below.
+- Two bounds hold on every action, single or batched: a `WAIT` asks for at most 10 s, and a `SCROLL` for at most 100 notches per axis.
+- `TYPING` types ASCII text as keystrokes. Text with other characters goes through the clipboard (`use_clipboard`, default `true`), which replaces whatever the clipboard held; with `use_clipboard: false` such text is refused with 400, since keystrokes would drop the characters. Clipboard text is pasted with Shift+Insert, which terminals and GTK or Chromium windows both accept.
+- A successful `PRESS`, `HOTKEY`, or `TYPING` means the input reached the focused window, not that the application acted on it. Take a screenshot to confirm.
+- The full per-type schema is in the [API Reference](/daemon/api).
+
+The response carries `status` and `action_performed`, plus the post-action frame as base64 PNG when one was asked for. If capturing it fails, that shows up as `screenshot_error` next to the action result, not as a failed request: the action already happened.
+
+#### Batch several actions
+
+<ApiV2>
+
+A batch runs its actions in order in one request, and nothing else touches the display until it finishes:
+
+```bash
+curl -X POST "$BASE_URL/v2/computer/actions/batch" \
+  -H "Content-Type: application/json" \
+  -d '{"include_screenshot": true,
+       "actions": [
+         {"action_type": "HOTKEY", "keys": ["ctrl", "l"]},
+         {"action_type": "TYPING", "text": "example.com"},
+         {"action_type": "PRESS", "key": "enter"}
+       ]}'
+```
+
+`include_screenshot` is a body field here, not a query parameter. At most 50 actions per batch, and their `WAIT` actions total at most 20 s.
+
+`data` is:
+
+- `performed` — the actions that ran, in order
+- `failed_index`, `error` — which action stopped the batch, and why; everything before it ran
+- `status`, `reason` — `denied` and its machine-readable cause, when the host refused the input
+- `screenshot`, `screenshot_error` — the frame after the last action that ran
+
+</ApiV2>
+
+<ApiV1>
+
+<UseV2 when={'a sequence has to run without anything else touching the display'} route="POST /v2/computer/actions/batch" />
+
+</ApiV1>
+
+### Run your own automation
+
+The desktop is an ordinary X display and every command runs with `DISPLAY` set, so a script that drives the screen itself runs through `POST /v2/commands` (`/v1/bash/exec` on v1) against the same desktop the actions above use. The Computer image ships `xdotool`; pyautogui is one `pip install pyautogui` away:
+
+```python
+sb = Aio(BASE_URL)  # the helper on the examples index
+sb.post("/v2/commands", command="pip install --quiet pyautogui", timeout=280)
+sb.post("/v2/commands", command='''python3 - <<'EOF'
+import pyautogui
+pyautogui.moveTo(320, 240)
+pyautogui.click()
+pyautogui.write("hello")
+pyautogui.screenshot("/tmp/desk.png")
+EOF''')
+print(sb.get("/v2/computer/cursor"))   # {'x': 320, 'y': 240}
+```
+
+### Read the pointer, clipboard, and windows
+
+<ApiV2>
+
+| Endpoint | Purpose | Notes |
+| --- | --- | --- |
+| `GET /v2/computer/cursor` | Current pointer position | Screen coordinates |
+| `GET /v2/computer/clipboard` | Read the clipboard text | 5 s read timeout, 1 MiB size cap |
+| `GET /v2/computer/windows` | List top-level windows | Up to 200 on the xdotool code path |
+
+The window list is `{snapshot_id, windows: [{window_id, title, process_id, bounds, minimized}]}`. A `window_id` is the native window handle rather than an index into the listing, so it stays valid while the window exists; acting on a closed window fails instead of hitting whatever took its place.
+
+</ApiV2>
+
+<ApiV1>
+
+<UseV2 when={'you need the window list, the pointer position, or the clipboard text'} route="GET /v2/computer/windows" />
+
+</ApiV1>
+
+### Act through the accessibility tree
+
+<ApiV2>
+
+Two routes read the desktop's accessibility tree:
+
+- `GET /v2/computer/accessibility` returns the full tree.
+- `GET /v2/computer/accessibility/nodes` searches that tree as a flat list.
+
+Both accept queries such as `?role=button&name=Sign+in` and take the same fields:
+
+| Field | Values | Meaning |
+| --- | --- | --- |
+| `scope` | `foreground` (default), `desktop` | The active window, or every top-level window |
+| `role`, `name` | string | Keep only what matches |
+| `match` | `substring` (default), `exact`, `regex` | How `role` and `name` are compared |
+| `states` | comma-separated | States a node must all carry (`enabled,showing`) |
+| `include_offscreen` | boolean, off by default | Include nodes the backend marks as offscreen |
+| `max_depth` | 1–64, default 32 | Depth budget |
+| `max_nodes` | 1–20000, default 5000 | Node budget |
+| `timeout_ms` | 100–60000, default 5000 | Wall-clock budget for the walk |
+| `limit` | 1–1000, default 50 | `nodes` only: most nodes returned |
+
+Out-of-range values are clamped, not rejected, and `role` and `name` are compared case-insensitively in every mode. A `truncated` flag marks an answer that hit one of those budgets, so a missing node is not evidence the node is absent. On `nodes`, `?node_id=` resolves one handle and ignores the search parameters.
+
+A returned `node_id` stays valid as long as the element exists, across snapshots. It turns `404` once the element is gone — its window closed, or its application restarted. Feed it into `NODE_FOCUS`, `NODE_INVOKE`, or `NODE_SET_VALUE` actions to interact without pixel coordinates.
+
+</ApiV2>
+
+<ApiV1>
+
+<UseV2 when={'you want to act on an element by role and name instead of pixel coordinates'} route="GET /v2/computer/accessibility/nodes" />
+
+</ApiV1>
+
+Backends: AT-SPI2 (Assistive Technology Service Provider Interface) on Linux, UI Automation (UIA) on Windows. `501` means there is no backend to run here: a platform with no implementation, or a Linux image without the AT-SPI runtime. Retrying will not change that.
+
+`503` means a backend is there but could not read right now — no interactive desktop, or no focused window. Chromium and Electron apps expose their tree only when started with `--force-renderer-accessibility`.
+
+### Record the desktop
+
+<ApiV2>
+
+`POST /v2/computer/record` starts, inspects, and stops a recording: `action` is `start`, `status`, or `stop`.
+
+</ApiV2>
+
+<ApiV1>
+
+`POST /v1/display/record` is the same endpoint: `action` is `start`, `status`, or `stop`. The Python SDK covers the route and every parameter of it:
+
+<Tabs groupId="sdk-lang">
+<Tab label="Python">
+
+```python
+client.display.record(action="start", save_path="/workspace/recordings/session.mp4")
+client.display.record(action="stop")
+```
+
+</Tab>
+<Tab label="TypeScript">
+
+```ts
+await client.display.record({
+  action: "start",
+  save_path: "/workspace/recordings/session.mp4",
+});
+await client.display.record({ action: "stop" });
+```
+
+</Tab>
+</Tabs>
+
+</ApiV1>
+
+Recording is ffmpeg-based; only one runs at a time. `start` takes the capture settings:
+
+| Parameter | Range | Default |
+| --- | --- | --- |
+| `fps` | 1–60 | 30 |
+| `crf` | 0–51 (lower is higher quality) | 30 |
+| `max_duration` | up to 600 s | 60 |
+| `width`, `height` | pixels | The detected screen resolution |
+
+`save_path` is optional; without one the file lands in the temp directory as `recording_<timestamp>.mp4`. A missing parent directory is created, and one the worker cannot write to is a `400`.
+
+`data` carries:
+
+- `status` — `recording`, `stopped`, or `idle`
+- `duration` — seconds recorded so far
+- `save_path` — where the file is being written
+- `file_size_bytes` — the size after a stop
+
+Store recordings under a path the [File API](/daemon/basic/file) can reach. Stop recording before tearing down the host. That keeps the file playable.
+
+### Windows: the secure desktop
+
+Input on a secure desktop is refused with a `403` whose `data` is `{"status": "denied", "reason": "secure-desktop-or-uipi"}`. Examples: a UAC prompt, the lock screen. This is a Windows session boundary, not a bug to work around. In a batch the same refusal arrives as `status` and `reason` inside a `200`, because the actions before it really ran.
+
+### Talking to the worker directly
+
+`computer-use` also answers on its own port, without going through `aiod`:
+
+| Route | Purpose | Notes |
+| --- | --- | --- |
+| `GET /healthz` | Liveness | Public |
+| `GET /capabilities` | Desktop probe | `schema_version` 1; needs the API key if set |
+| `GET /openapi.json` | The worker's own contract | Public |
+| `GET /metrics` | Prometheus text | Needs the API key if set |
+
+Useful when deploying or health-checking the worker on its own.
+
+## Human in the loop
+
+A person steps into the same terminal, browser or desktop the agent is driving: to watch a run, to take over a login or a captcha, to hand the desktop back. Nothing in the daemon changes for that. The viewers are pages the prebuilt images serve through their gateway, and each one attaches to the object the agent already uses:
+
+![](/architecture/aiod-human-in-loop.svg)
+
+| Viewer | Path on the image | Shows |
+| --- | --- | --- |
+| noVNC | `/vnc/index.html` | The X display the worker drives; watch or take over |
+| DevTools | `/browser-ui`, `/cdp/devtools/*` | Chromium's tabs, over the same CDP the agent uses |
+| WebShell | `/terminal?session_id=…` | One PTY session; `GET /v1/shell/terminal-url` builds the link |
+| code-server | `/code-server/` | An IDE on the same filesystem; off unless `DISABLE_CODE_SERVER=false` |
+| JupyterLab | `/jupyter` | Notebooks on the same filesystem; off unless `DISABLE_JUPYTER=false` |
+
+Xvnc is both the X server and the VNC server, so a person's clicks land on the display directly and the worker sees the result in its next screenshot. The daemon serves the API only; `aiod` alone answers `404` on every path above.
+
+The prebuilt images wire this up. The AIO image runs Xvnc on `DISPLAY=:99.0` with openbox and Chromium, and serves noVNC, DevTools and the WebShell. The Computer image sets `AIO_DESKTOP=xfce` on top of it: an XFCE session takes the display, the `computer-use` worker starts next to `aiod`, a session D-Bus serves AT-SPI, and Chromium runs with `--force-renderer-accessibility` so tab contents appear in the accessibility tree.
+
+## Related
+
+- [Computer Use examples](/daemon/examples/computer-use) — one verified run: navigate, follow a link through the tree, observe
+- [Browser API](/daemon/basic/browser) — CDP-based page automation
+- [File Operations](/daemon/basic/file) — fetch recordings and downloads
