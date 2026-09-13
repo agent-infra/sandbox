@@ -636,7 +636,7 @@ Windows 上的退出码、终止语义和 stdin 行为见 [Windows](/zh/daemon/b
 
 HTTP 成功只说明请求被接受；命令自身的结果先看 `status`，再看 `exit_code`。该 plane 自身的失败：
 
-| 返回 | 场景 |
+| 状态码 | 说明 |
 | --- | --- |
 | `400` | 对没有在跑的命令 kill 或写 stdin；不配 `shell: "none"` 就传 `args`；守护进程切不过去的 `user`；会话已满且都在忙 |
 | `404` | `command_id` 或 `session_id` 不存在，或已经被回收 |

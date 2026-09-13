@@ -160,13 +160,26 @@ workload 的命令行可能命中 Defender 的机器学习模型。处置动作�
 
 ## 运行 computer-use
 
-computer-use 必须在交互登录会话中启动，通常应放在由登录触发的交互式计划任务中。
+`computer-use.exe` 必须在交互登录会话里运行，不能作为服务。下载后注册为该账号登录时触发的计划任务：
 
-仓库里的 `scripts/windows/install-computer-use.ps1` 会注册该任务，并等待 worker 的 `/healthz`。更换 `-ExeSource` 后重新运行脚本，即可切换二进制。
+```powershell
+$exe = "C:\Program Files\aiod\computer-use.exe"
+New-Item -ItemType Directory -Force (Split-Path $exe) | Out-Null
+Invoke-WebRequest https://aio-static.tos-cn-beijing.volces.com/latest/windows-x86_64/computer-use.exe -OutFile $exe
 
-ffmpeg 目录是从机器 `PATH` 解析出来的，显式注入任务环境。登录会话的环境变量是登录那一刻的快照，之后改的 `PATH` 任务看不到。
+$user = "$env:USERDOMAIN\$env:USERNAME"
+Register-ScheduledTask aio-computer-use `
+  -Action (New-ScheduledTaskAction -Execute $exe) `
+  -Trigger (New-ScheduledTaskTrigger -AtLogOn -User $user) `
+  -Principal (New-ScheduledTaskPrincipal -UserId $user -LogonType Interactive) `
+  -Settings (New-ScheduledTaskSettingsSet -RestartCount 10 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit ([TimeSpan]::Zero))
+Start-ScheduledTask aio-computer-use
+Invoke-RestMethod http://127.0.0.1:18100/healthz
+```
 
-截图和录屏都要用到 ffmpeg（gdigrab）。如果 `PATH` 里明明有目录，`where ffmpeg` 却找不到，先查 ACL。任务账户需要对 ffmpeg 目录的读和执行权限。
+换二进制时覆盖 `$exe` 后重启任务即可。监听地址用 `AIO_COMPUTER_USE_LISTEN` 改，默认 `0.0.0.0:18100`。
+
+截图和录屏依赖 ffmpeg。任务的环境变量是登录时的快照，登录后再改的 `PATH` 对任务无效；`where ffmpeg` 找不到时先查目录 ACL，任务账号需要读和执行权限。
 
 ## 验证
 

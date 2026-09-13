@@ -548,7 +548,7 @@ At the limit, the least recently used reclaimable terminal is closed to make roo
 
 HTTP success only means the request was accepted. Read `data.status` for the command's lifecycle, then `exit_code` once it is `completed`. The failures that belong to this plane:
 
-| Answer | When |
+| Status | Meaning |
 | --- | --- |
 | `400` | The terminal already has a running command; `env` at creation; one of `cols`/`rows` alone; a `user` that disagrees with the session's |
 | `404` | No terminal with that id; it was closed, signalled, or idled out |

@@ -2,7 +2,7 @@
 
 `aiod` runs in the foreground by default and can be handed to a process supervisor to run unattended. As a single binary, it exposes `/health` and `/v1/capabilities` as health checks.
 
-This page follows the deployment flow: install the binary, configure the supervisor and the API key, wire up the health checks, then logs, environment variables, and common troubleshooting.
+This page follows the deployment flow: install the binary, run it as a service, require an API key, wire up the health checks, then logs, environment variables, and troubleshooting.
 
 ## Place the binary
 
@@ -22,11 +22,19 @@ Pick the platform directory that matches the target platform: `linux-x86_64`, `l
 
 Pin `v<version>/<platform>/aiod` for a specific one. Release notes and per-file checksums are at [Daemon Releases](/daemon/start/releases).
 
-## Run under a supervisor
+Check the host before registering a service:
 
-`aiod start` stays in the foreground and has no daemonize flag: the supervisor owns restarts, logging and the environment. Use whatever already manages the host. The examples below all set the service to port `8091`.
+```bash
+aiod doctor
+```
 
-**systemd:**
+It does not start the daemon. It probes `bash`, `rg`, `tmux`, the browser process, and the CDP port, and prints one line per check. `--json` gives the machine-readable form.
+
+## Run as a service
+
+`aiod start` stays in the foreground and has no daemonize flag: restarts, logging and the environment belong to the process manager. Use whatever already manages the host. The examples below all use port `8091`.
+
+### systemd
 
 ```ini
 [Unit]
@@ -43,7 +51,9 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
-**supervisord:** the prebuilt images run aiod this way, next to nginx and Chromium:
+### supervisord
+
+The prebuilt images run aiod this way, next to nginx and Chromium:
 
 ```ini
 [program:aiod]
@@ -54,7 +64,24 @@ stdout_logfile=/var/log/aiod.log
 redirect_stderr=true
 ```
 
-**Image `CMD`:** copy the binary into any image and make it the command:
+### Windows service
+
+`aiod.exe` speaks the SCM protocol itself, and `aiod service-run` is the service entry point, so no NSSM or WinSW wrapper is involved. Register it from an elevated shell:
+
+```powershell
+$exe = "C:\Program Files\aiod\aiod.exe"
+sc.exe create aiod binPath= "`"$exe`" service-run --host 0.0.0.0 --port 18091" start= auto obj= LocalSystem
+sc.exe failure aiod reset= 86400 actions= restart/5000/restart/5000/restart/30000
+sc.exe start aiod
+```
+
+A service has no console, so logs go to `%ProgramData%\aiod\logs\aiod.log`. Firewall rules, the Defender exclusion, and the verification steps are on [Windows](/daemon/basic/windows).
+
+## Run in a container
+
+### Image CMD
+
+Copy the binary into any image and make it the command:
 
 ```dockerfile
 FROM your-base-image
@@ -65,7 +92,9 @@ EXPOSE 8091
 CMD ["aiod", "start"]
 ```
 
-**Docker Compose:** the same container with `/health` as the healthcheck:
+### Docker Compose
+
+The same container, with `/health` as the healthcheck:
 
 ```yaml
 services:
@@ -82,8 +111,6 @@ services:
       timeout: 3s
       retries: 5
 ```
-
-**Windows:** `aiod.exe` runs as a normal process or registers as an SCM service (Session 0). See [Windows](/daemon/basic/windows).
 
 The daemon always starts, even with no bash, no interpreter, no browser, and no desktop reachable. A missing capability degrades its own routes to `503`. It does not block startup.
 
@@ -157,11 +184,13 @@ Every flag has a matching environment variable (`--host`/`AIO_HOST`, `--port`/`A
 
 ## Troubleshooting
 
-- **`503` on `/v1/nodejs`, `/v1/code`, `/v2/code`** — no matching interpreter on the host. Install `python3` or `node`; `capabilities.code_interpreter.missing` says what is missing.
-- **`501` on `/v1/jupyter`** — no `ipykernel` importable and no `AIO_JUPYTER_ENDPOINT` set. Install `ipykernel`, or point `AIO_JUPYTER_ENDPOINT` at a Jupyter server.
-- **`503` on `/v1/browser/*`** — no Chromium at `BROWSER_REMOTE_DEBUGGING_HOST:PORT` (default `127.0.0.1:9222`). Start Chromium with `--remote-debugging-port=9222`.
-- **`503` on `/v2/computer/*`** — the `computer-use` worker is not reachable. Start it; check `AIO_COMPUTER_USE_URL` (default `http://127.0.0.1:18100`).
-- **Every `/v1/*` or `/v2/*` call answers `401`** — `AIO_API_KEY` is set. Send `Authorization: Bearer <key>` or `x-api-key: <key>`; `?api_key=` for WebSocket and downloads.
-- **`400` on `/v1/shell/ws` right after connecting** — `durable=true` or `restore=true` without a `session_id`. `POST /v1/shell/sessions/create`, then attach with `?session_id=<id>`.
+| Status | Meaning |
+| --- | --- |
+| `503` | On `/v1/nodejs`, `/v1/code`, `/v2/code`: no matching interpreter on the host. Install `python3` or `node`; `capabilities.code_interpreter.missing` says what is missing |
+| `501` | On `/v1/jupyter`: no `ipykernel` importable and no `AIO_JUPYTER_ENDPOINT` set. Install `ipykernel`, or point `AIO_JUPYTER_ENDPOINT` at a Jupyter server |
+| `503` | On `/v1/browser/*`: no Chromium at `BROWSER_REMOTE_DEBUGGING_HOST:PORT` (default `127.0.0.1:9222`). Start Chromium with `--remote-debugging-port=9222` |
+| `503` | On `/v2/computer/*`: the `computer-use` worker is not reachable. Start it; check `AIO_COMPUTER_USE_URL` (default `http://127.0.0.1:18100`) |
+| `401` | On every `/v1/*` or `/v2/*` call: `AIO_API_KEY` is set. Send `Authorization: Bearer <key>` or `x-api-key: <key>`; `?api_key=` for WebSocket and downloads |
+| `400` | On `/v1/shell/ws` right after connecting: `durable=true` or `restore=true` without a `session_id`. `POST /v1/shell/sessions/create`, then attach with `?session_id=<id>` |
 
 Full request/response details for every route are in the OpenAPI spec the running daemon serves: `/v1/openapi.json`, `/v2/openapi.json`. The v2 reference is also published as the [API Reference](/daemon/api). Kubernetes-specific guidance is in [Kubernetes](/daemon/ops/kubernetes).

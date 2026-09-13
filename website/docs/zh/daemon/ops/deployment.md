@@ -2,7 +2,7 @@
 
 `aiod` 默认在前台运行，可以交给进程管理器无人值守。作为独立二进制文件，它提供 `/health` 和 `/v1/capabilities` 健康检查。
 
-本页按部署流程介绍：安装二进制、配置 supervisor 和 API key、接入健康检查，以及日志、环境变量和常见排障方法。
+本页按部署流程介绍：安装二进制、作为服务运行、配置 API key、接入健康检查，以及日志、环境变量和排障。
 
 ## 安装二进制文件
 
@@ -22,11 +22,19 @@ aiod version
 
 要固定版本，请使用 `v<version>/<platform>/aiod`。发布说明与各文件校验值见 [发布记录](/zh/daemon/start/releases)。
 
-## 使用 supervisor 管理
+注册成服务之前，可以先自检一次：
 
-`aiod start` 在前台运行，没有后台化参数：重启、日志和环境都由 supervisor 负责。用宿主机已有的进程管理器即可。下面的示例统一把服务配置为 `8091` 端口。
+```bash
+aiod doctor
+```
 
-**systemd：**
+它不启动 daemon，只探测 `bash`、`rg`、`tmux`、浏览器进程和 CDP 端口，逐项输出结果。加 `--json` 得到机器可读格式。
+
+## 作为服务运行
+
+`aiod start` 在前台运行，没有后台化参数：重启、日志和环境交给进程管理器。用宿主机已有的那一个即可。下面的示例统一用 `8091` 端口。
+
+### systemd
 
 ```ini
 [Unit]
@@ -43,7 +51,9 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
-**supervisord：** 预构建镜像就是这样和 nginx、Chromium 一起运行 aiod 的：
+### supervisord
+
+预构建镜像就是这样和 nginx、Chromium 一起运行 aiod 的：
 
 ```ini
 [program:aiod]
@@ -54,7 +64,24 @@ stdout_logfile=/var/log/aiod.log
 redirect_stderr=true
 ```
 
-**镜像 `CMD`：** 将二进制文件复制到镜像中，并设为启动命令：
+### Windows 服务
+
+`aiod.exe` 自己实现了 SCM 协议，`aiod service-run` 就是服务入口，不需要 NSSM、WinSW 这类包装器。以管理员身份注册：
+
+```powershell
+$exe = "C:\Program Files\aiod\aiod.exe"
+sc.exe create aiod binPath= "`"$exe`" service-run --host 0.0.0.0 --port 18091" start= auto obj= LocalSystem
+sc.exe failure aiod reset= 86400 actions= restart/5000/restart/5000/restart/30000
+sc.exe start aiod
+```
+
+服务没有控制台，日志写到 `%ProgramData%\aiod\logs\aiod.log`。防火墙规则、Defender 例外和验证步骤见 [Windows](/zh/daemon/basic/windows)。
+
+## 在容器中运行
+
+### 镜像 CMD
+
+将二进制复制到镜像中，设为启动命令：
 
 ```dockerfile
 FROM your-base-image
@@ -65,7 +92,9 @@ EXPOSE 8091
 CMD ["aiod", "start"]
 ```
 
-**Docker Compose：** 在同一个容器中运行，并使用 `/health` 做健康检查：
+### Docker Compose
+
+用 `/health` 做健康检查：
 
 ```yaml
 services:
@@ -82,8 +111,6 @@ services:
       timeout: 3s
       retries: 5
 ```
-
-**Windows：** `aiod.exe` 可以作为普通进程运行，也可以注册为 SCM 服务（Session 0）。见 [Windows](/zh/daemon/basic/windows)。
 
 即使宿主机没有 bash、解释器、浏览器或可访问的桌面，daemon 仍会启动。
 
@@ -164,12 +191,14 @@ aiod 向 stdout 写结构化 JSON，每个请求一行。每行标记为 `HTTP_R
 
 ## 排障
 
-- **`/v1/nodejs`、`/v1/code`、`/v2/code` 返回 `503`**：宿主机没有匹配的解释器。安装 `python3` 或 `node`；`capabilities.code_interpreter.missing` 会指出缺少什么。
-- **`/v1/jupyter` 返回 `501`**：没有可导入的 `ipykernel`，也没有设置 `AIO_JUPYTER_ENDPOINT`。安装 `ipykernel`，或将 `AIO_JUPYTER_ENDPOINT` 指向 Jupyter server。
-- **`/v1/browser/*` 返回 `503`**：`BROWSER_REMOTE_DEBUGGING_HOST:PORT`（默认 `127.0.0.1:9222`）上没有 Chromium。使用 `--remote-debugging-port=9222` 启动 Chromium。
-- **`/v2/computer/*` 返回 `503`**：`computer-use` worker 不可达。启动 worker，并检查 `AIO_COMPUTER_USE_URL`（默认 `http://127.0.0.1:18100`）。
-- **所有 `/v1/*` 或 `/v2/*` 调用返回 `401`**：已设置 `AIO_API_KEY`。带上 `Authorization: Bearer <key>` 或 `x-api-key: <key>`；WebSocket 和下载请求使用 `?api_key=`。
-- **连接 `/v1/shell/ws` 后立刻返回 `400`**：设置了 `durable=true` 或 `restore=true`，但没有 `session_id`。先调用 `POST /v1/shell/sessions/create`，再使用 `?session_id=<id>` 连接。
+| 状态码 | 说明 |
+| --- | --- |
+| `503` | `/v1/nodejs`、`/v1/code`、`/v2/code`：宿主机没有匹配的解释器。安装 `python3` 或 `node`；`capabilities.code_interpreter.missing` 会指出缺少什么 |
+| `501` | `/v1/jupyter`：没有可导入的 `ipykernel`，也没有设置 `AIO_JUPYTER_ENDPOINT`。安装 `ipykernel`，或将 `AIO_JUPYTER_ENDPOINT` 指向 Jupyter server |
+| `503` | `/v1/browser/*`：`BROWSER_REMOTE_DEBUGGING_HOST:PORT`（默认 `127.0.0.1:9222`）上没有 Chromium。使用 `--remote-debugging-port=9222` 启动 Chromium |
+| `503` | `/v2/computer/*`：`computer-use` worker 不可达。启动 worker，并检查 `AIO_COMPUTER_USE_URL`（默认 `http://127.0.0.1:18100`） |
+| `401` | 所有 `/v1/*` 或 `/v2/*` 调用：已设置 `AIO_API_KEY`。带上 `Authorization: Bearer <key>` 或 `x-api-key: <key>`；WebSocket 和下载请求使用 `?api_key=` |
+| `400` | 连接 `/v1/shell/ws` 后立刻返回：设置了 `durable=true` 或 `restore=true`，但没有 `session_id`。先调用 `POST /v1/shell/sessions/create`，再使用 `?session_id=<id>` 连接 |
 
 运行中的 daemon 会通过 OpenAPI spec 提供每个路由的完整请求和响应定义：`/v1/openapi.json`、`/v2/openapi.json`。
 

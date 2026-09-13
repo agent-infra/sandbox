@@ -419,7 +419,16 @@ Every expected filesystem failure is `HTTP 200` with `success: false`, so the st
 - `message`, `operation`, `path` — the OS message, the operation that failed, and the path involved
 - `retryable` — whether a retry can succeed
 
-`download` is the exception on both sides: it streams bytes on success and answers `404` for a missing path. Watch routes keep the envelope but use the status for lifecycle failures: `404` for an unknown watcher, `400` for a `debounce` or `limit` outside its bounds, `429` at the watcher limit, `503` for a `wait` that timed out.
+`download` is the exception on both sides: it streams bytes on success and answers `404` for a missing path.
+
+Watch routes keep the envelope but use the status for lifecycle failures:
+
+| Status | Meaning |
+| --- | --- |
+| `404` | An unknown watcher |
+| `400` | A `debounce` or `limit` outside its bounds |
+| `429` | The watcher limit is reached |
+| `503` | A `wait` that timed out |
 
 ## Related
 

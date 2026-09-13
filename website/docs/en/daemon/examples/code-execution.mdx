@@ -760,12 +760,12 @@ JavaScript always runs on the native REPL.
 
 ## Errors
 
-| Condition | Result |
+| Status | Meaning |
 | --- | --- |
-| Missing or mistyped field, unsupported `language` | `422` |
-| Session not found | `404` |
-| No interpreter for the language | `503`, names what it looked for |
-| Exception or timeout in the code | `200`, `success: false`, `data.status` `error` or `timeout` |
+| `422` | Missing or mistyped field, unsupported `language` |
+| `404` | Session not found |
+| `503` | No interpreter for the language; the response names what it looked for |
+| `200` | An exception or a timeout in the code: `success: false`, `data.status` `error` or `timeout` |
 
 ## Related
 

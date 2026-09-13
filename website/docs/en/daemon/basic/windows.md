@@ -138,11 +138,26 @@ Exclude the installation directory and the runtime directory from real-time prot
 
 ## Running computer-use
 
-computer-use has to start inside the interactive logon session, so a logon-triggered, interactive scheduled task is the usual home for it. The repository's `scripts/windows/install-computer-use.ps1` registers one and waits for the worker's `/healthz`; re-running it with a new `-ExeSource` swaps the binary.
+`computer-use.exe` must run in the interactive logon session, not as a service. Download it and register a scheduled task that fires when that account logs on:
 
-The ffmpeg directory is resolved from the machine `PATH`. It is injected into the task environment explicitly. A logon session's environment is snapshotted at logon; a later `PATH` edit is invisible to the task.
+```powershell
+$exe = "C:\Program Files\aiod\computer-use.exe"
+New-Item -ItemType Directory -Force (Split-Path $exe) | Out-Null
+Invoke-WebRequest https://aio-static.tos-cn-beijing.volces.com/latest/windows-x86_64/computer-use.exe -OutFile $exe
 
-Screenshot and recording both need ffmpeg (gdigrab). If `where ffmpeg` finds nothing although `PATH` lists the directory, check the ACL. The task account needs read and execute on the ffmpeg directory.
+$user = "$env:USERDOMAIN\$env:USERNAME"
+Register-ScheduledTask aio-computer-use `
+  -Action (New-ScheduledTaskAction -Execute $exe) `
+  -Trigger (New-ScheduledTaskTrigger -AtLogOn -User $user) `
+  -Principal (New-ScheduledTaskPrincipal -UserId $user -LogonType Interactive) `
+  -Settings (New-ScheduledTaskSettingsSet -RestartCount 10 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit ([TimeSpan]::Zero))
+Start-ScheduledTask aio-computer-use
+Invoke-RestMethod http://127.0.0.1:18100/healthz
+```
+
+To swap the binary, overwrite `$exe` and restart the task. `AIO_COMPUTER_USE_LISTEN` changes the listen address, default `0.0.0.0:18100`.
+
+Screenshots and recording need ffmpeg. A task's environment is the snapshot taken at logon, so a `PATH` edit made afterwards is invisible to it; when `where ffmpeg` finds nothing, check the directory ACL first: the task account needs read and execute.
 
 ## Verify
 

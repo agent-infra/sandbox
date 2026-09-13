@@ -64,14 +64,16 @@ Validation failures answer `422` with `errors: [{location, message, type}]`, as 
 
 Status codes:
 
-- `400` — malformed request
-- `401` — missing or wrong API key
-- `403` — input denied by the OS
-- `404` — unknown route or object
-- `422` — failed validation
-- `429` — session or watcher capacity reached
-- `501` — not implemented on this daemon: a Linux-only route on Windows, or `/v1/jupyter` without `ipykernel`
-- `503` — capability unavailable right now
+| Status | Meaning |
+| --- | --- |
+| `400` | Malformed request |
+| `401` | Missing or wrong API key |
+| `403` | Input denied by the OS |
+| `404` | Unknown route or object |
+| `422` | Failed validation |
+| `429` | Session or watcher capacity reached |
+| `501` | Not implemented on this daemon: a Linux-only route on Windows, or `/v1/jupyter` without `ipykernel` |
+| `503` | Capability unavailable right now |
 
 
 ### Files

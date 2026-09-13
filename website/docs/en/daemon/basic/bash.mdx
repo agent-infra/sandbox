@@ -606,7 +606,7 @@ On Windows, `shell: "cmd"` runs a batch file under `cmd.exe /d /c` (UTF-8), and 
 
 HTTP success only means the request was accepted; the command's own outcome is `status` and then `exit_code`. The failures that belong to this plane:
 
-| Answer | When |
+| Status | Meaning |
 | --- | --- |
 | `400` | Killing or writing to a command that is not running; `args` without `shell: "none"`; a `user` the daemon cannot switch to; a session that is already busy at the limit |
 | `404` | An unknown `command_id` or `session_id`, or one that retention has dropped |

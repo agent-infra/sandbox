@@ -348,14 +348,14 @@ Adding a language means writing that harness for its interpreter and registering
 
 An exception, a timeout, or a dead interpreter is an `HTTP 200` with `success: false` and `status` `error` or `timeout`. Only a bad request carries an error status code:
 
-| Condition | Result |
+| Status | Meaning |
 | --- | --- |
-| Unsupported `language`, missing `code`, `timeout` outside 1–900 | `422` |
-| A `cwd` that is not a directory | `422` |
-| An empty `code` string | `422` on v2, `200` on v1 |
-| No interpreter for the language | `503`, naming what it looked for |
-| Session limit reached | `429` |
-| Unknown session id on `GET .../sessions/{id}` | `404` |
+| `422` | Unsupported `language`, missing `code`, `timeout` outside 1–900 |
+| `422` | A `cwd` that is not a directory |
+| `422` on v2, `200` on v1 | An empty `code` string |
+| `503` | No interpreter for the language; the response names what it looked for |
+| `429` | Session limit reached |
+| `404` | Unknown session id on `GET .../sessions/{id}` |
 
 A v2 refusal puts the reason in `message`: `Unsupported language 'ruby'. Supported: python, javascript`. A v1 refusal carries that same sentence in the `errors` list, one entry per rejected field, with `location: ["body", "language"]` and `type: "enum"`.
 

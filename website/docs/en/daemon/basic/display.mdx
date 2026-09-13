@@ -20,6 +20,16 @@ It runs as a process separate from `aiod`, on any host with a desktop. Examples:
 
 The desktop plane is v2-only, under `/v2/computer/*`.
 
+| Capability | Route | Use |
+|---|---|---|
+| Probe | `GET /v2/computer/info` | display, resolution, what it can do |
+| Screenshot | `GET /v2/computer/screenshot` | the current desktop as a PNG |
+| Action | `POST /v2/computer/actions` | mouse, keyboard, scroll, clipboard, window, node; one action per request; `?include_screenshot=true` returns a screenshot taken after it |
+| Batch | `POST /v2/computer/actions/batch` | a sequence of actions in order |
+| Cursor, clipboard, windows | `GET /v2/computer/cursor`, `/clipboard`, `/windows` | read the current state |
+| Accessibility tree | `GET /v2/computer/accessibility`, `/accessibility/nodes` | find elements by role and name |
+| Recording | `POST /v2/computer/record` | `start`, `status`, `stop` |
+
 v1 keeps two aliases for 1.x clients:
 
 - `POST /v1/browser/actions`
@@ -54,7 +64,15 @@ The worker binds `AIO_COMPUTER_USE_LISTEN` (default `0.0.0.0:18100`). `aiod` rea
 
 ### Start the worker
 
-`computer-use` takes no flags and reads only environment variables: `DISPLAY` and `XAUTHORITY` pick the display, `AIO_COMPUTER_USE_LISTEN` sets the listen address.
+`computer-use` ships with every `aiod` release; see [Releases](/daemon/start/releases). On Linux the install script installs both:
+
+```bash
+curl -fsSL https://aio-static.tos-cn-beijing.volces.com/install.sh | AIOD_WITH_COMPUTER_USE=1 sh
+```
+
+On Windows download `https://aio-static.tos-cn-beijing.volces.com/latest/windows-x86_64/computer-use.exe`.
+
+It takes no flags and reads only environment variables: `DISPLAY` and `XAUTHORITY` pick the display, `AIO_COMPUTER_USE_LISTEN` sets the listen address.
 
 Linux:
 
@@ -75,7 +93,7 @@ stdout_logfile=/var/log/computer-use.log
 redirect_stderr=true
 ```
 
-Windows: `computer-use.exe` cannot run as a service. Register a logon-triggered scheduled task with `scripts/windows/install-computer-use.ps1`; see [Windows](/daemon/basic/windows#running-computer-use).
+Windows: `computer-use.exe` cannot run as a service; register it as a logon-triggered scheduled task, see [Windows](/daemon/basic/windows#running-computer-use).
 
 ### Check available capabilities
 
@@ -154,7 +172,7 @@ The response body is the image itself:
 curl "$BASE_URL/v2/computer/screenshot" -o desktop.png
 ```
 
-The capture is a PNG of the entire desktop: all windows, the taskbar, dialogs. The response headers carry the geometry — `x-image-width`, `x-image-height`, `x-screen-width`, `x-screen-height`.
+The current desktop as a PNG, including all windows, the taskbar, and dialogs. The response headers carry the geometry — `x-image-width`, `x-image-height`, `x-screen-width`, `x-screen-height`.
 
 </ApiV2>
 
@@ -176,7 +194,7 @@ curl -X POST "$BASE_URL/v1/browser/actions?include_screenshot=true" \
 
 ### Act
 
-One action per request, addressed in screen coordinates. `?include_screenshot=true` merges the observe step into the act step:
+One action per request, in screen coordinates. With `?include_screenshot=true` the response also carries a screenshot taken after the action:
 
 <ApiV2>
 
@@ -282,6 +300,8 @@ The body describes the action directly, and `action_type` selects which action t
 
 The response carries `status` and `action_performed`, plus the post-action frame as base64 PNG when one was asked for. If capturing it fails, that shows up as `screenshot_error` next to the action result, not as a failed request: the action already happened.
 
+A Windows secure desktop (a UAC prompt, the lock screen) refuses input; see [Windows](/daemon/basic/windows).
+
 #### Batch several actions
 
 <ApiV2>
@@ -337,13 +357,19 @@ print(sb.get("/v2/computer/cursor"))   # {'x': 320, 'y': 240}
 
 <ApiV2>
 
-| Endpoint | Purpose | Notes |
+| Endpoint | Returns | Notes |
 | --- | --- | --- |
-| `GET /v2/computer/cursor` | Current pointer position | Screen coordinates |
-| `GET /v2/computer/clipboard` | Read the clipboard text | 5 s read timeout, 1 MiB size cap |
-| `GET /v2/computer/windows` | List top-level windows | Up to 200 on the xdotool code path |
+| `GET /v2/computer/cursor` | The current pointer position | Screen coordinates |
+| `GET /v2/computer/clipboard` | The clipboard text | 5 s read timeout, 1 MiB cap |
+| `GET /v2/computer/windows` | The top-level windows | Up to 200 on the xdotool code path |
 
-The window list is `{snapshot_id, windows: [{window_id, title, process_id, bounds, minimized}]}`. A `window_id` is the native window handle rather than an index into the listing, so it stays valid while the window exists; acting on a closed window fails instead of hitting whatever took its place.
+The window list:
+
+```
+{snapshot_id, windows: [{window_id, title, process_id, bounds, minimized}]}
+```
+
+A `window_id` is the native window handle, not an index into the listing. It stays valid while the window exists; acting on a closed window fails instead of hitting whatever took its place.
 
 </ApiV2>
 
@@ -371,14 +397,39 @@ Both accept queries such as `?role=button&name=Sign+in` and take the same fields
 | `match` | `substring` (default), `exact`, `regex` | How `role` and `name` are compared |
 | `states` | comma-separated | States a node must all carry (`enabled,showing`) |
 | `include_offscreen` | boolean, off by default | Include nodes the backend marks as offscreen |
-| `max_depth` | 1–64, default 32 | Depth budget |
-| `max_nodes` | 1–20000, default 5000 | Node budget |
-| `timeout_ms` | 100–60000, default 5000 | Wall-clock budget for the walk |
+| `max_depth` | 1–64, default 32 | Maximum depth |
+| `max_nodes` | 1–20000, default 5000 | Maximum nodes |
+| `timeout_ms` | 100–60000, default 5000 | Walk timeout |
 | `limit` | 1–1000, default 50 | `nodes` only: most nodes returned |
 
 Out-of-range values are clamped, not rejected, and `role` and `name` are compared case-insensitively in every mode. A `truncated` flag marks an answer that hit one of those budgets, so a missing node is not evidence the node is absent. On `nodes`, `?node_id=` resolves one handle and ignores the search parameters.
 
-A returned `node_id` stays valid as long as the element exists, across snapshots. It turns `404` once the element is gone — its window closed, or its application restarted. Feed it into `NODE_FOCUS`, `NODE_INVOKE`, or `NODE_SET_VALUE` actions to interact without pixel coordinates.
+A returned `node_id` stays valid as long as the element exists, across snapshots. It turns `404` once the element is gone — its window closed, or its application restarted.
+
+Each node carries `node_id`, `role`, and `name`, plus `bounds`, `states`, `value`, and `actions`, the action names the element advertises:
+
+```json
+{
+  "node_id": "a::1.30:/org/a11y/atspi/accessible/247",
+  "role": "link",
+  "name": "Open the report"
+}
+```
+
+Put that `node_id` in an action body to act on the element instead of pixel coordinates:
+
+```json
+{
+  "action_type": "NODE_INVOKE",
+  "node_id": "a::1.30:/org/a11y/atspi/accessible/247"
+}
+```
+
+Three node actions:
+
+- `NODE_INVOKE` without `action` runs the node's first advertised action; with one it runs that action, and a `409` lists what the element advertises instead.
+- `NODE_FOCUS` only moves focus, so a `TYPING` action can follow.
+- `NODE_SET_VALUE` takes `value` and writes it into the element's text or value; an element with neither answers `409`.
 
 </ApiV2>
 
@@ -388,15 +439,28 @@ A returned `node_id` stays valid as long as the element exists, across snapshots
 
 </ApiV1>
 
-Backends: AT-SPI2 (Assistive Technology Service Provider Interface) on Linux, UI Automation (UIA) on Windows. `501` means there is no backend to run here: a platform with no implementation, or a Linux image without the AT-SPI runtime. Retrying will not change that.
+Backends by platform: Windows uses UI Automation (UIA), built into the OS with nothing to install; Linux uses AT-SPI2 ([docs](https://docs.gtk.org/atspi2/)).
 
-`503` means a backend is there but could not read right now — no interactive desktop, or no focused window. Chromium and Electron apps expose their tree only when started with `--force-renderer-accessibility`.
+Three things make a Linux desktop readable as a tree:
+
+1. `at-spi2-core` installed: it provides the `org.a11y.Bus` D-Bus service and the bus launcher.
+2. A session D-Bus the worker finds through `DBUS_SESSION_BUS_ADDRESS`.
+3. Applications that expose their own tree. GTK and Qt apps do by default; Chromium and Electron need `--force-renderer-accessibility`.
+
+The Computer image ships `at-spi2-core`, starts a session D-Bus, and runs Chromium with that flag.
+
+Errors:
+
+| Status | Meaning |
+| --- | --- |
+| `501` | No backend to run here: a platform with no implementation, or the first two of those missing. Retrying will not change that |
+| `503` | A backend is there but could not read right now: no interactive desktop, or no focused window |
 
 ### Record the desktop
 
 <ApiV2>
 
-`POST /v2/computer/record` starts, inspects, and stops a recording: `action` is `start`, `status`, or `stop`.
+`POST /v2/computer/record` records with ffmpeg: `action` is `start`, `status`, or `stop`.
 
 </ApiV2>
 
@@ -428,7 +492,7 @@ await client.display.record({ action: "stop" });
 
 </ApiV1>
 
-Recording is ffmpeg-based; only one runs at a time. `start` takes the capture settings:
+Recording uses ffmpeg, and only one recording runs at a time. `start` takes the capture settings:
 
 | Parameter | Range | Default |
 | --- | --- | --- |
@@ -446,11 +510,7 @@ Recording is ffmpeg-based; only one runs at a time. `start` takes the capture se
 - `save_path` — where the file is being written
 - `file_size_bytes` — the size after a stop
 
-Store recordings under a path the [File API](/daemon/basic/file) can reach. Stop recording before tearing down the host. That keeps the file playable.
-
-### Windows: the secure desktop
-
-Input on a secure desktop is refused with a `403` whose `data` is `{"status": "denied", "reason": "secure-desktop-or-uipi"}`. Examples: a UAC prompt, the lock screen. This is a Windows session boundary, not a bug to work around. In a batch the same refusal arrives as `status` and `reason` inside a `200`, because the actions before it really ran.
+Store recordings under a path the [File API](/daemon/basic/file) can reach. Stop recording before tearing down the host, so the file stays playable.
 
 ### Talking to the worker directly
 

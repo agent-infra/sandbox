@@ -78,7 +78,7 @@ curl -X POST "$BASE_URL/v1/shell/sessions/create" \
 
 也可以不预先创建：不带 `id` 的 `POST /v1/shell/exec` 会开一个会话并返回它的 id。
 
-<UseV2 when={'终端需要固定尺寸，或者没有 WebSocket 连接时也能调整尺寸'} route="PATCH /v2/pty/sessions/{id}" />
+<UseV2 when={'固定终端尺寸，或在没有 WebSocket 连接时调整尺寸'} route="PATCH /v2/pty/sessions/{id}" />
 
 </ApiV1>
 
@@ -561,7 +561,7 @@ Windows 上的终端使用 PowerShell 的 ConPTY，启动的进程都在 job obj
 
 HTTP 成功只说明请求被接受。先看 `data.status` 判断命令生命周期，`status` 是 `completed` 之后再看 `exit_code`。该 plane 自身的失败：
 
-| 返回 | 场景 |
+| 状态码 | 说明 |
 | --- | --- |
 | `400` | 终端里已经有命令在跑；创建时带 `env`；`cols`/`rows` 只传了一个；`user` 和会话已有的不一致 |
 | `404` | 没有指定 id 的终端：已被关闭、终止或空闲回收 |
