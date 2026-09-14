@@ -42,14 +42,14 @@
   "license": "ISC",
   "devDependencies": {
     "@rslib/core": "^0.17.1",
-    "@types/node": "^20.19.24",
-    "@vitest/coverage-v8": "^1.0.0",
-    "@vitest/ui": "^1.0.0",
+    "@types/node": "^24.3.1",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
     "rimraf": "^5.0.0",
     "typescript": "^5.9.3",
-    "vitest": "^1.0.0"
+    "vitest": "^3.2.4"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   }
 }

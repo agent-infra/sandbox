@@ -1,0 +1,90 @@
+[
+  {
+    "action": "write",
+    "rel": ".knowledge/index.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 1,
+    "ts": 1788755080291
+  },
+  {
+    "action": "write",
+    "rel": ".knowledge/log.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 2,
+    "ts": 1788755089496
+  },
+  {
+    "action": "write",
+    "rel": ".knowledge/architecture/system-overview.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 3,
+    "ts": 1788755120717
+  },
+  {
+    "action": "write",
+    "rel": ".knowledge/architecture/component-model.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 4,
+    "ts": 1788755159037
+  },
+  {
+    "action": "write",
+    "rel": ".knowledge/architecture/runtime-and-deployment.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 5,
+    "ts": 1788755179872
+  },
+  {
+    "action": "write",
+    "rel": ".knowledge/decisions/runtime-distribution-model.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 6,
+    "ts": 1788755196521
+  },
+  {
+    "action": "write",
+    "rel": ".knowledge/decisions/sdk-generation-from-openapi.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 7,
+    "ts": 1788755214510
+  },
+  {
+    "action": "write",
+    "rel": ".knowledge/decisions/cloud-provider-abstraction.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 8,
+    "ts": 1788755229711
+  },
+  {
+    "action": "write",
+    "rel": ".knowledge/decisions/image-mirror-cd.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 9,
+    "ts": 1788755244047
+  },
+  {
+    "action": "write",
+    "rel": ".knowledge/constraints/api-contract-and-versions.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 10,
+    "ts": 1788755260905
+  },
+  {
+    "action": "write",
+    "rel": ".knowledge/runbooks/development-and-verification.md",
+    "before": null,
+    "existedBefore": false,
+    "id": 11,
+    "ts": 1788755284866
+  }
+]

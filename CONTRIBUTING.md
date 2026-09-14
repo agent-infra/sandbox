@@ -30,7 +30,7 @@ We are committed to providing a welcoming and inclusive environment for all cont
 
 ### Prerequisites
 
-- Node.js 18+ and npm/yarn for JavaScript SDK
+- Node.js 20+ (last three LTS lines — 20, 22, 24 — are supported and tested in CI) with pnpm 9 for the JavaScript SDK
 - Python 3.8+ for Python SDK
 - Git for version control
 - Docker (optional, for containerized development)
