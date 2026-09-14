@@ -6,7 +6,14 @@ The v1 surface is documented in [v1 API Reference](/daemon/start/v1-api). The v2
 
 ## Migrate with the prebuilt images
 
-Replace `ghcr.io/agent-infra/sandbox:latest` (the 1.x AIO image) with `aio-daemon`, or with `aio-computer` for GUI use. The run command keeps the 1.x flags plus `--shm-size 4g` for Chromium; the commands, the gateway port and the startup timing are in [Quick Start](/daemon/start/quick-start#from-a-prebuilt-image).
+Replace the 1.x `ghcr.io/agent-infra/sandbox:latest` with either image:
+
+| Image | Contents |
+| --- | --- |
+| `enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.1` | The daemon, Chromium, VNC, and the Python and Node toolchains behind an nginx gateway |
+| `enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-computer:1.0.1` | All of that, plus an XFCE desktop and the `computer-use` worker |
+
+The run command keeps the 1.x flags plus `--shm-size 4g` for Chromium. The commands, the gateway port and the startup timing are in [Quick Start](/daemon/start/quick-start#from-a-prebuilt-image); the image versions are on [Daemon Releases](/daemon/start/releases).
 
 Then check the client against this list:
 
@@ -293,7 +300,7 @@ The Computer image adds `AIO_DESKTOP=xfce` and `ENABLE_DBUS=true`, which starts 
 
 ## Build a custom image
 
-Two starting points cover most cases. Add layers on top of `FROM enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.0` (or `aio-computer`), or copy the `aiod` binary into any image you already have. See [Deployment](/daemon/ops/deployment).
+Two starting points cover most cases. Add layers on top of `FROM enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.1` (or `aio-computer`), or copy the `aiod` binary into any image you already have. See [Deployment](/daemon/ops/deployment).
 
 The daemon resolves tools at request time from `PATH`. Installing packages in the Dockerfile is enough:
 

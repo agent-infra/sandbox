@@ -8,4 +8,22 @@ import { DaemonReleases } from '../../../../theme/DaemonReleases';
 
 Records the changelog of each AIO daemon and computer-use release and the binary artifacts per platform. Artifacts can be verified with SHA-256 checksums. Supported platforms: Linux x86_64, arm64, riscv64, and Windows x86_64.
 
+## Binaries
+
 <DaemonReleases lang="en" />
+
+## Prebuilt images
+
+The images keep the AIO 1.x build with the Python server replaced by the daemon, and change some environment defaults and preinstalled packages. Image versions are independent of daemon versions. For Windows or anything else, build your own image from the binaries; see [Deployment & Operations](/daemon/ops/deployment).
+
+- `enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.1`
+- `enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-computer:1.0.1`
+
+The run commands are in [Quick Start](/daemon/start/quick-start#from-a-prebuilt-image).
+
+The table records image-layer changes only; the daemon's own changes are in the binaries above.
+
+| Image | daemon | Changes |
+| --- | --- | --- |
+| `1.0.1` | 0.9.2 | <ul><li>The gateway adds CORS headers to <code>/cdp/json/*</code>, so a page on another origin can read the CDP info</li><li>aio-computer starts Chromium manually, with a Browser icon on the desktop</li><li>aio-computer moves the tray and clock to the right of the panel; the input method reads <code>en</code> or <code>拼</code></li><li>The home page drops the version chip and copies the MCP URL on plain-HTTP origins</li></ul> |
+| `1.0.0` | 0.9.0 | <ul><li>The API is served by the daemon instead of the 1.x Python server; base packages unchanged from 1.x</li><li>Code Server and JupyterLab off by default, no kernel prewarm</li><li>The browser starts asynchronously and does not hold up readiness</li><li>MCP moves to the daemon's <code>/mcp</code>, with a built-in browser upstream and <code>EXTRA_MCP_SERVERS</code> for more</li></ul> |

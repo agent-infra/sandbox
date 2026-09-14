@@ -18,6 +18,13 @@ aiod 不提供 `/cdp/*`，这部分由反向代理负责。
 
 ```nginx
 location /cdp/json/ {
+    add_header Access-Control-Allow-Origin "*" always;
+    add_header Access-Control-Allow-Methods "GET, PUT, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "*" always;
+    if ($request_method = OPTIONS) {
+        return 204;
+    }
+
     rewrite ^/cdp(/.*)$ $1 break;
     proxy_pass http://127.0.0.1:9222;
     proxy_set_header Host 127.0.0.1:9222;
@@ -39,6 +46,8 @@ location ~ ^/cdp/devtools/ {
 
 第一段处理 Chromium 返回的连接信息，并将地址改成公开地址；第二段转发 DevTools 的 WebSocket 连接。
 
+Chromium 的调试端口不返回 CORS 响应头，网页从其他源读取 `/cdp/json/*` 会被浏览器拦截，所以这里由网关补上。WebSocket 不受同源策略限制，第二段不需要。
+
 `$cdp_scheme`、`$cdp_host` 和 `$cdp_prefix` 根据 `X-Forwarded-*` 请求头生成，因此即使前面还有其他代理或路径前缀，返回的 `cdp_url` 也能保持正确。
 
 ## 没有 nginx 时
@@ -46,6 +55,7 @@ location ~ ^/cdp/devtools/ {
 如果不使用镜像自带的网关，需要由自己的反向代理完成同样的配置：
 
 - 转发 `/cdp/json/*`，并改写返回内容中的连接地址；
+- 为 `/cdp/json/*` 补上 CORS 响应头；
 - 将 `/cdp/devtools/*` 转发到 Chromium 的 `9222` 端口；
 - 支持 WebSocket；
 - 正确传递 `X-Forwarded-*` 请求头。

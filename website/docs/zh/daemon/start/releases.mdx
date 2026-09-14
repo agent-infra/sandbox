@@ -8,4 +8,22 @@ import { DaemonReleases } from '../../../../theme/DaemonReleases';
 
 本页列出 AIO daemon 与 computer-use 各版本的更新日志和各平台的二进制产物，产物附 SHA-256 校验值。当前支持 Linux x86_64、arm64、riscv64 和 Windows x86_64。
 
+## 二进制
+
 <DaemonReleases lang="zh" />
+
+## 预构建镜像
+
+镜像沿用 AIO 1.x 的构建，把其中的 Python 服务换成 daemon，并调整了部分环境变量和预装软件的默认值。镜像版本与 daemon 版本相互独立。Windows 或其他环境请用二进制自行构建镜像，见 [部署与运维](/zh/daemon/ops/deployment)。
+
+- `enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.1`
+- `enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-computer:1.0.1`
+
+启动命令见 [快速开始](/zh/daemon/start/quick-start#使用预构建镜像)。
+
+下表只记录镜像层的改动，daemon 自身的变更见上面的二进制部分。
+
+| 镜像版本 | daemon | 变更 |
+| --- | --- | --- |
+| `1.0.1` | 0.9.2 | <ul><li>网关给 <code>/cdp/json/*</code> 补上 CORS 响应头，网页可以跨源读取 CDP 信息</li><li>aio-computer 改为手动启动 Chromium，桌面新增 Browser 图标</li><li>aio-computer 的托盘和时钟移到面板右侧，输入法状态显示为 <code>en</code> 或 <code>拼</code></li><li>首页去掉版本徽标，并在纯 HTTP 源下也能复制 MCP 地址</li></ul> |
+| `1.0.0` | 0.9.0 | <ul><li>API 改由 daemon 提供，基础软件包沿用 1.x</li><li>Code Server 和 JupyterLab 默认关闭，kernel 不预热</li><li>浏览器异步启动，不阻塞服务就绪</li><li>MCP 走 daemon 的 <code>/mcp</code>，内置浏览器上游，可用 <code>EXTRA_MCP_SERVERS</code> 扩展</li></ul> |

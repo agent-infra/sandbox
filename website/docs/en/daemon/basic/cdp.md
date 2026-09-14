@@ -18,6 +18,13 @@ The prebuilt images already route CDP through nginx. The relevant config:
 
 ```nginx
 location /cdp/json/ {
+    add_header Access-Control-Allow-Origin "*" always;
+    add_header Access-Control-Allow-Methods "GET, PUT, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "*" always;
+    if ($request_method = OPTIONS) {
+        return 204;
+    }
+
     rewrite ^/cdp(/.*)$ $1 break;
     proxy_pass http://127.0.0.1:9222;
     proxy_set_header Host 127.0.0.1:9222;
@@ -39,6 +46,8 @@ location ~ ^/cdp/devtools/ {
 
 The first block handles the connection info Chromium returns and rewrites its addresses to the public one. The second forwards the DevTools WebSocket connection.
 
+Chromium's debugging port sends no CORS headers, so a page on another origin is blocked from reading `/cdp/json/*` unless the gateway adds them. WebSocket is not subject to the same-origin policy, so the second block needs none.
+
 `$cdp_scheme`, `$cdp_host`, and `$cdp_prefix` come from the `X-Forwarded-*` headers, so `cdp_url` stays correct behind another proxy or a path prefix.
 
 ## Without nginx
@@ -46,6 +55,7 @@ The first block handles the connection info Chromium returns and rewrites its ad
 Without the image's gateway, your own reverse proxy has to do the same:
 
 - forward `/cdp/json/*` and rewrite the connection addresses in the response;
+- add CORS headers to `/cdp/json/*`;
 - forward `/cdp/devtools/*` to Chromium's port `9222`;
 - support WebSocket;
 - pass the `X-Forwarded-*` headers through.

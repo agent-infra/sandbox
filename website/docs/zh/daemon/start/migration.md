@@ -6,7 +6,14 @@ v1 端点集的参考文档在 [v1 API 参考](/zh/daemon/start/v1-api)。v2 端
 
 ## 用预构建镜像迁移
 
-把 `ghcr.io/agent-infra/sandbox:latest`（1.x AIO 镜像）换成 `aio-daemon`；GUI 用户可使用 `aio-computer`。run 命令沿用 1.x 的参数，只多一个给 Chromium 的 `--shm-size 4g`；启动命令、网关端口和启动耗时见 [快速开始](/zh/daemon/start/quick-start#使用预构建镜像)。
+把 1.x 的 `ghcr.io/agent-infra/sandbox:latest` 换成下面任意一个：
+
+| 镜像 | 内容 |
+| --- | --- |
+| `enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.1` | daemon、Chromium、VNC、Python 和 Node 工具链，经 nginx 网关暴露 |
+| `enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-computer:1.0.1` | 以上全部，再加 XFCE 桌面和 `computer-use` worker |
+
+run 命令沿用 1.x 的参数，只多一个给 Chromium 的 `--shm-size 4g`。启动命令、网关端口和启动耗时见 [快速开始](/zh/daemon/start/quick-start#使用预构建镜像)，各版本镜像见 [发布记录](/zh/daemon/start/releases)。
 
 然后按下面清单进行检查：
 
@@ -309,7 +316,7 @@ Computer 镜像额外带 `AIO_DESKTOP=xfce` 和 `ENABLE_DBUS=true`，后者会�
 
 ## 构建自定义镜像
 
-两种起点覆盖大多数场景。在 `FROM enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.0`（或 `aio-computer`）基础上加层，或者把 `aiod` 二进制复制进已有的任意镜像。见 [部署](/zh/daemon/ops/deployment)。
+两种起点覆盖大多数场景。在 `FROM enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.1`（或 `aio-computer`）基础上加层，或者把 `aiod` 二进制复制进已有的任意镜像。见 [部署](/zh/daemon/ops/deployment)。
 
 daemon 在请求发生时才从 `PATH` 里解析工具。在 Dockerfile 里装好对应的包就够了：
 

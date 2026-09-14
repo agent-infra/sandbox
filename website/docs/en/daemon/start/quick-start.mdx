@@ -139,6 +139,8 @@ Two images ship with the daemon already inside:
 - **aio-daemon** — Chromium, VNC, Python and Node toolchains, behind an nginx gateway
 - **aio-computer** — AIO plus an XFCE desktop and the `computer-use` worker
 
+Chromium does not start with the aio-computer container (`BROWSER_START_MODE=manual`). Launch it from the desktop's Browser icon; CDP is up a few seconds later. Until then `/v1/capabilities` reports `browser` as `degraded`, and `?refresh=true` re-probes right after launch.
+
 On the AIO image the API is ready well under a second after `docker run`, where the 1.x image took about two and a half. Chromium keeps starting in the background and is usable a second and a half later:
 
 ![](/architecture/aiod-boot-to-ready.svg)
@@ -148,13 +150,13 @@ Chromium needs two settings on the host side: a seccomp profile that permits its
 ```bash
 # AIO image
 docker run --rm -it --security-opt seccomp=unconfined --shm-size 4g \
-  -p 127.0.0.1:8091:8091 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.0
+  -p 127.0.0.1:8091:8091 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.1
 ```
 
 ```bash
 # Computer image — adds an XFCE desktop and the computer-use worker
 docker run --rm -it --security-opt seccomp=unconfined --shm-size 4g \
-  -p 127.0.0.1:8091:8091 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-computer:1.0.0
+  -p 127.0.0.1:8091:8091 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-computer:1.0.1
 ```
 
 Inside either image, nginx listens on **8091**, the only port the run command publishes. It fronts:

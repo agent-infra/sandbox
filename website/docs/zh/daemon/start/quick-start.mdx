@@ -139,6 +139,8 @@ curl -X POST "$BASE_URL/v1/code/execute" \
 - **aio-daemon** —— Chromium、VNC、Python 和 Node 工具链，经 nginx 网关暴露
 - **aio-computer** —— AIO 加上 XFCE 桌面和 `computer-use` worker
 
+aio-computer 里的 Chromium 不随容器启动（`BROWSER_START_MODE=manual`），双击桌面上的 Browser 图标启动，几秒后 CDP 可用。在此之前 `/v1/capabilities` 的 `browser` 为 `degraded`，刚启动后可加 `?refresh=true` 立即复查。
+
 在 AIO 镜像里，`docker run` 之后不到一秒 API 就绪，1.x 镜像大约要两秒半。Chromium 在后台继续启动，再过一秒半左右可用：
 
 ![](/architecture/aiod-boot-to-ready.svg)
@@ -148,13 +150,13 @@ Chromium 需要放行 sandbox 的 seccomp profile，并使用更大的 `/dev/shm
 ```bash
 # AIO image
 docker run --rm -it --security-opt seccomp=unconfined --shm-size 4g \
-  -p 127.0.0.1:8091:8091 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.0
+  -p 127.0.0.1:8091:8091 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-daemon:1.0.1
 ```
 
 ```bash
 # Computer image — adds an XFCE desktop and the computer-use worker
 docker run --rm -it --security-opt seccomp=unconfined --shm-size 4g \
-  -p 127.0.0.1:8091:8091 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-computer:1.0.0
+  -p 127.0.0.1:8091:8091 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/aio-computer:1.0.1
 ```
 
 在任一镜像内部，nginx 监听 **8091** —— 这是运行命令唯一发布的端口。它转发到：
