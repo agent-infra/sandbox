@@ -13,7 +13,7 @@ hero:
   actions:
     - theme: brand
       text: 开始使用
-      link: /zh/guide/start/introduction
+      link: /guide/start/introduction
     - theme: alt
       text: GitHub
       link: https://github.com/agent-infra/sandbox
