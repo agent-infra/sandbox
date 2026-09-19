@@ -15,6 +15,7 @@ This directory contains examples demonstrating various use cases and integration
 - [minimax-integration](./minimax-integration) - MiniMax function calling with code execution (OpenAI-compatible)
 - [langgraph-deepagents-integration](./langgraph-deepagents-integration) - LangGraph deep agent with MCP tools integration
 - [code-execute](./code-execute) - Execute code in sandbox (Jupyter and Node.js)
+- [RLTraining](./RLTraining) - GRPO reinforcement learning with sandboxed reward evaluation
 
 
 
