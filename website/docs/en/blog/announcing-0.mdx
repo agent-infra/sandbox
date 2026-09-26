@@ -475,7 +475,7 @@ screenshot = client.browser.screenshot()
 print(screenshot)
 
 # Get Browser CDP
-browser_info = client.browser.get_browser_info()
+browser_info = client.browser.get_info()
 cdp_url = browser_info.data.cdp_url # ws://
 
 # Read File
@@ -536,7 +536,7 @@ tools = [{
 }]
 
 async def link_reader(url: str, timeout_ms: int = 30_000) -> dict:
-    cdp_url = sandbox.browser.get_browser_info().cdp_url
+    cdp_url = sandbox.browser.get_info().data.cdp_url
     async with async_playwright() as p:
         browser = await p.chromium.connect_over_cdp(cdp_url)
         try:
