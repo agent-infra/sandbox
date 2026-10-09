@@ -27,7 +27,7 @@ MINIMAX_MODEL=MiniMax-M2.7-highspeed TASK="sort a list of 100 random numbers" uv
 ## What This Example Does
 
 1. Connects to MiniMax via the OpenAI-compatible endpoint (`https://api.minimax.io/v1`)
-2. Sends a natural-language task to a MiniMax model (default: **MiniMax-M2.7**, 204K context)
+2. Sends a natural-language task to a MiniMax model (default: **MiniMax-M3**, 512K context)
 3. The model generates code and calls the `run_code` tool
 4. The code is executed inside the sandbox and results are returned
 
@@ -35,10 +35,9 @@ MINIMAX_MODEL=MiniMax-M2.7-highspeed TASK="sort a list of 100 random numbers" uv
 
 | Model | Context | Notes |
 |---|---|---|
-| `MiniMax-M2.7` | 204K | Latest, recommended |
-| `MiniMax-M2.7-highspeed` | 204K | Faster, lower latency |
-| `MiniMax-M2.5` | 204K | Previous generation |
-| `MiniMax-M2.5-highspeed` | 204K | Previous generation, faster |
+| `MiniMax-M3` | 512K | Latest, recommended (default) |
+| `MiniMax-M2.7` | 204K | Previous generation |
+| `MiniMax-M2.7-highspeed` | 204K | Previous generation, faster |
 
 ## Key Features
 

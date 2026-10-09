@@ -32,7 +32,7 @@ class TestMiniMaxLiveCompletion(unittest.TestCase):
             base_url="https://api.minimax.io/v1",
         )
         response = client.chat.completions.create(
-            model="MiniMax-M2.7",
+            model="MiniMax-M3",
             messages=[{"role": "user", "content": "Reply with exactly: pong"}],
             temperature=0.01,
             max_tokens=16,
@@ -49,7 +49,7 @@ class TestMiniMaxLiveCompletion(unittest.TestCase):
             base_url="https://api.minimax.io/v1",
         )
         response = client.chat.completions.create(
-            model="MiniMax-M2.7",
+            model="MiniMax-M3",
             messages=[{"role": "user", "content": "What is 2 + 3? Use the calculator tool."}],
             tools=[{
                 "type": "function",
