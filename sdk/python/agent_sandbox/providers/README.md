@@ -21,3 +21,7 @@ sandboxes = provider.list_sandboxes("function-id")
 provider.set_sandbox_timeout("function-id", sandbox_id, 120)
 provider.delete_sandbox("function-id", sandbox_id)
 ```
+
+Provider methods raise SDK, validation, and connection exceptions when an operation
+fails, including failures while looking up APIG domains. Handle these exceptions
+with `try`/`except`; successful return values never contain an exception object.
