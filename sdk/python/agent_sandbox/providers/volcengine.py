@@ -53,16 +53,13 @@ class VolcengineProvider(BaseProvider):
         """
         Create a new sandbox instance using Volcengine VEFAAS.
         """
-        try:
-            create_request = volcenginesdkvefaas.CreateSandboxRequest(
-                function_id=function_id,
-                timeout=timeout,
-                **kwargs,
-            )
-            response = self._client.create_sandbox(create_request)
-            return response.sandbox_id
-        except Exception as exc:
-            return exc
+        create_request = volcenginesdkvefaas.CreateSandboxRequest(
+            function_id=function_id,
+            timeout=timeout,
+            **kwargs,
+        )
+        response = self._client.create_sandbox(create_request)
+        return response.sandbox_id
 
     def delete_sandbox(
         self, function_id: str, sandbox_id: str, **kwargs: typing.Any
@@ -70,15 +67,12 @@ class VolcengineProvider(BaseProvider):
         """
         Delete an existing sandbox instance.
         """
-        try:
-            delete_request = volcenginesdkvefaas.KillSandboxRequest(
-                function_id=function_id,
-                sandbox_id=sandbox_id,
-                **kwargs,
-            )
-            return self._client.kill_sandbox(delete_request)
-        except Exception as exc:
-            return exc
+        delete_request = volcenginesdkvefaas.KillSandboxRequest(
+            function_id=function_id,
+            sandbox_id=sandbox_id,
+            **kwargs,
+        )
+        return self._client.kill_sandbox(delete_request)
 
     def get_sandbox(
         self, function_id: str, sandbox_id: str, **kwargs: typing.Any
@@ -86,24 +80,21 @@ class VolcengineProvider(BaseProvider):
         """
         Get details of an existing sandbox instance.
         """
-        try:
-            include_domains = kwargs.pop("include_domains", True)
-            describe_request = volcenginesdkvefaas.DescribeSandboxRequest(
-                function_id=function_id,
-                sandbox_id=sandbox_id,
-                **kwargs,
-            )
-            response = self._client.describe_sandbox(describe_request)
+        include_domains = kwargs.pop("include_domains", True)
+        describe_request = volcenginesdkvefaas.DescribeSandboxRequest(
+            function_id=function_id,
+            sandbox_id=sandbox_id,
+            **kwargs,
+        )
+        response = self._client.describe_sandbox(describe_request)
 
-            if not include_domains:
-                return response
+        if not include_domains:
+            return response
 
-            out = response.to_dict()
-            base_domains = self.get_apig_domains(function_id)
-            out["domains"] = self._append_instance_query_struct(base_domains, sandbox_id)
-            return out
-        except Exception as exc:
-            return exc
+        out = response.to_dict()
+        base_domains = self.get_apig_domains(function_id)
+        out["domains"] = self._append_instance_query_struct(base_domains, sandbox_id)
+        return out
 
     def set_sandbox_timeout(
         self, function_id: str, sandbox_id: str, timeout: int
@@ -111,42 +102,36 @@ class VolcengineProvider(BaseProvider):
         """
         Set the timeout for an existing sandbox instance.
         """
-        try:
-            timeout_request = volcenginesdkvefaas.SetSandboxTimeoutRequest(
-                function_id=function_id,
-                sandbox_id=sandbox_id,
-                timeout=timeout,
-            )
-            return self._client.set_sandbox_timeout(timeout_request)
-        except Exception as exc:
-            return exc
+        timeout_request = volcenginesdkvefaas.SetSandboxTimeoutRequest(
+            function_id=function_id,
+            sandbox_id=sandbox_id,
+            timeout=timeout,
+        )
+        return self._client.set_sandbox_timeout(timeout_request)
 
     def list_sandboxes(self, function_id: str, **kwargs: typing.Any) -> typing.Any:
         """
         List all sandbox instances for a function.
         """
-        try:
-            list_request = volcenginesdkvefaas.ListSandboxesRequest(
-                function_id=function_id,
-                **kwargs,
+        list_request = volcenginesdkvefaas.ListSandboxesRequest(
+            function_id=function_id,
+            **kwargs,
+        )
+        response = self._client.list_sandboxes(list_request)
+
+        base_domains = self.get_apig_domains(function_id)
+        normalized = []
+        for sandbox in response.sandboxes:
+            item = sandbox.to_dict()
+            instance_id = item.get("id") or item.get("sandbox_id")
+            item["domains"] = (
+                self._append_instance_query_struct(base_domains, instance_id)
+                if instance_id
+                else base_domains
             )
-            response = self._client.list_sandboxes(list_request)
+            normalized.append(item)
 
-            base_domains = self.get_apig_domains(function_id)
-            normalized = []
-            for sandbox in response.sandboxes:
-                item = sandbox.to_dict()
-                instance_id = item.get("id") or item.get("sandbox_id")
-                item["domains"] = (
-                    self._append_instance_query_struct(base_domains, instance_id)
-                    if instance_id
-                    else base_domains
-                )
-                normalized.append(item)
-
-            return normalized
-        except Exception as exc:
-            return exc
+        return normalized
 
     def _append_instance_query_struct(
         self,
