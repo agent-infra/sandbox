@@ -137,7 +137,7 @@ describe('Fern Customizations', () => {
       const fernignorePath = path.join(SRC_DIR, '.fernignore');
       const content = fs.readFileSync(fernignorePath, 'utf-8');
 
-      const requiredEntries = ['providers', 'index.ts', 'globals.d.ts'];
+      const requiredEntries = ['providers', 'index.ts', 'globals.d.ts', 'core/fetcher/makeRequest.ts'];
       requiredEntries.forEach((entry) => {
         expect(content, `.fernignore should contain ${entry}`).toContain(entry);
       });
