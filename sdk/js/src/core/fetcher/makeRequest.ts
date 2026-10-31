@@ -27,19 +27,20 @@ export const makeRequest = async (
         signals.push(abortSignal);
     }
     const newSignals = anySignal(signals);
-    const response = await fetchFn(url, {
-        method: method,
-        headers,
-        body: requestBody,
-        signal: newSignals,
-        credentials: withCredentials ? "include" : undefined,
-        // @ts-ignore
-        duplex,
-    });
-
-    if (timeoutAbortId != null) {
-        clearTimeout(timeoutAbortId);
+    try {
+        return await fetchFn(url, {
+            method: method,
+            headers,
+            body: requestBody,
+            signal: newSignals,
+            credentials: withCredentials ? "include" : undefined,
+            // @ts-ignore
+            duplex,
+        });
+    } finally {
+        // Failed and caller-aborted requests must not leave the deadline timer alive.
+        if (timeoutAbortId != null) {
+            clearTimeout(timeoutAbortId);
+        }
     }
-
-    return response;
 };
