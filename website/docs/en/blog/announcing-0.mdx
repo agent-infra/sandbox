@@ -103,7 +103,7 @@ Prerequisites: Install [Docker](https://www.docker.com/get-started/), then start
 docker run --rm -it -p 127.0.0.1:8080:8080 ghcr.io/agent-infra/sandbox:latest
 
 # For faster access in China
-# docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+# docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.11.0
 ```
 
 ![](/images/blog/announcing-0/11.png)
@@ -417,7 +417,7 @@ In AIO, service processes (supervisord) and service routing (Nginx) are automati
 To customize services and routing on top of the AIO image, refer to the following image code:
 
 ```Dockerfile
-FROM enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+FROM enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.11.0
 
 # ----------------------
 # Install additional system dependencies (if any)
