@@ -8,13 +8,15 @@ assistant message rather than the last message (which may be a tool response).
 import os
 import sys
 import unittest
+from importlib.util import find_spec
 from unittest.mock import AsyncMock, MagicMock, patch
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-# Mock external dependencies before importing agent_loop
-sys.modules.setdefault("mcp", MagicMock())
-sys.modules.setdefault("openai", MagicMock())
+# Allow offline unit tests to run without replacing installed SDKs used by live tests.
+for dependency in ("mcp", "openai"):
+    if dependency not in sys.modules and find_spec(dependency) is None:
+        sys.modules[dependency] = MagicMock()
 
 from agent_loop import AzureOpenAIAgentLoop, OpenAIAgentLoop
 
