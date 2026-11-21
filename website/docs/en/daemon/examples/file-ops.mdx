@@ -378,23 +378,30 @@ client.file.watch_stop(watcher)
 <Tab label="TypeScript">
 
 ```ts
-let watcher = ((await client.file.watchCreate({
-  path: "/tmp/demo", recursive: true,
-})) as any).body.data.watcher_id;
-
-async function poll(id: string, params: any): Promise<any> {
-  return ((await client.file.watchPoll(id, params)) as any).body.data;
+async function startWatch(exclude?: string[]) {
+  const created = (await client.file.watchCreate({
+    path: "/tmp/demo", recursive: true, exclude,
+  })) as any;
+  // Start at initial_cursor for new changes. A cursor of 0 replays buffered history.
+  return { id: created.body.data.watcher_id, cursor: created.body.data.initial_cursor };
 }
 
+async function poll(watcher: { id: string; cursor: number }, timeout: number) {
+  const polled = (await client.file.watchPoll(watcher.id, { cursor: watcher.cursor, timeout })) as any;
+  for (const e of polled.body.data.events) {
+    console.log(e.seq, e.type, e.relative_path);
+  }
+  watcher.cursor = polled.body.data.cursor;
+  return polled.body.data.events;
+}
+
+let watcher = await startWatch();
 await client.bash.exec({ command: "echo 'X = 1' > /tmp/demo/src/util.py" });
-
-for (const e of (await poll(watcher, { timeout: 2 })).events) {
-  console.log(e.seq, e.type, e.relative_path);
-}
+await poll(watcher, 2);
 // 1 create src/util.py
 // 2 write src/util.py
 
-await client.file.watchStop(watcher);
+await client.file.watchStop(watcher.id);
 ```
 
 </Tab>
@@ -511,27 +518,21 @@ client.file.watch_stop(filtered)
 <Tab label="TypeScript">
 
 ```ts
-const plain = ((await client.file.watchCreate({
-  path: "/tmp/demo", recursive: true,
-})) as any).body.data.watcher_id;
-const filtered = ((await client.file.watchCreate({
-  path: "/tmp/demo", recursive: true, exclude: ["*.part"],
-})) as any).body.data.watcher_id;
+const plain = await startWatch();
+const filtered = await startWatch(["*.part"]);
 
 await client.file.uploadFile({
   file: new File(["a,b\n1,2\n"], "data.csv"),
   path: "/tmp/demo/data.csv",
 } as any);
 
-for (const [name, w] of [["plain", plain], ["filtered", filtered]]) {
-  console.log(name);
-  for (const e of (await poll(w, { timeout: 2 })).events) {
-    console.log(" ", e.seq, e.type, e.relative_path);
-  }
-}
+console.log("plain");
+await poll(plain, 2);
+console.log("filtered");
+await poll(filtered, 2);
 
-await client.file.watchStop(plain);
-await client.file.watchStop(filtered);
+await client.file.watchStop(plain.id);
+await client.file.watchStop(filtered.id);
 // plain
 //   1 create .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
 //   2 rename .aiod-upload-da85dbba-34b4-45cb-8364-0a72009b9cb3.part
@@ -643,26 +644,21 @@ client.file.watch_stop(watcher)
 <Tab label="TypeScript">
 
 ```ts
-watcher = ((await client.file.watchCreate({
-  path: "/tmp/demo", recursive: true, exclude: ["*.part"],
-})) as any).body.data.watcher_id;
+watcher = await startWatch(["*.part"]);
 await client.bash.exec({
   async_mode: true,
   command: "sleep 1; echo report > /tmp/demo/report.txt; touch /tmp/demo/build.done",
 } as any);
 
-let cursor = 0;
 for (;;) {
-  const page = await poll(watcher, { cursor, timeout: 30 });
-  for (const e of page.events) console.log(e.seq, e.type, e.relative_path);
-  cursor = page.cursor;
-  if (page.events.some((e: any) => e.relative_path === "build.done")) break;
+  const events = await poll(watcher, 30);
+  if (events.some((e: any) => e.relative_path === "build.done")) break;
 }
 // 1 create report.txt
 // 2 write report.txt
 // 3 create build.done
 
-await client.file.watchStop(watcher);
+await client.file.watchStop(watcher.id);
 ```
 
 </Tab>
