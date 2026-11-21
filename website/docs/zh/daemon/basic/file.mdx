@@ -283,10 +283,11 @@ const created = (await client.file.watchCreate({
   debounce: 200,
 } as any)) as any;
 const watcher = created.body.data.watcher_id;
+let cursor = created.body.data.initial_cursor;
 
 await client.bash.exec({ command: "echo 'X = 1' > /tmp/demo/util.py" });
 const polled = (await client.file.watchPoll(watcher, {
-  cursor: 0,
+  cursor,
   timeout: 10,
 } as any)) as any;
 for (const event of polled.body.data.events) {
@@ -294,7 +295,8 @@ for (const event of polled.body.data.events) {
 }
 // 1 create util.py
 // 2 write util.py
-console.log(polled.body.data.cursor, polled.body.data.overflow);
+cursor = polled.body.data.cursor;
+console.log(cursor, polled.body.data.overflow);
 // 2 false
 await client.file.watchStop(watcher);
 ```
