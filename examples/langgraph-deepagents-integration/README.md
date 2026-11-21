@@ -25,7 +25,7 @@ docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 ghc
 
 **For Users in Mainland China:**
 ```bash
-docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+docker run --security-opt seccomp=unconfined --rm -it -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.11.0
 ```
 
 More information:

@@ -21,11 +21,11 @@ docker run --security-opt seccomp=unconfined --rm -it \
 
 ### 选项 2：中国大陆用户
 
-使用我们的中国镜像以获得更快的下载速度：
+在中国大陆可使用火山引擎镜像加快下载。该镜像按标签缓存，`latest` 可能指向旧版本，因此请使用固定版本标签。
 
 ```bash
 docker run --security-opt seccomp=unconfined --rm -it \
-  -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+  -p 127.0.0.1:8080:8080 enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.11.0
 ```
 
 ### 选项 3：使用指定版本
