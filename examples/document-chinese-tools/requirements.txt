@@ -1,0 +1,8 @@
+python-docx==1.2.0
+ebooklib==0.20
+pypdf==6.16.2
+Markdown==3.10.2
+PyYAML==6.0.3
+chardet==5.2.0
+jieba==0.42.1
+opencc-python-reimplemented==0.1.7

@@ -4,6 +4,7 @@ This directory contains examples demonstrating various use cases and integration
 
 ## Table of Contents
 
+- [document-chinese-tools](./document-chinese-tools) - Extend the AIO image with document and Chinese text tools
 - [basic-file-operations](./basic-file-operations) - Core file operations (upload, read, list, download)
 - [oss-upload](./oss-upload) - Stream sandbox files to cloud storage (Volcengine TOS, AWS S3)
 - [volcengine-provider](./volcengine-provider) - Volcengine cloud provider integration

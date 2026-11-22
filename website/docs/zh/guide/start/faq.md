@@ -73,6 +73,8 @@ Chromium 默认会把文件下载到用户下载目录，例如 `/home/gem/Downl
 
 基于公开 AIO Sandbox 镜像构建自定义镜像，在 Dockerfile 中安装依赖即可。只需要启动时配置时，也可以使用 [AIO Hooks](/zh/guide/advanced/lifecycle)。
 
+完整 Dockerfile 和构建时验证脚本见[文档与中文文本处理示例](https://github.com/agent-infra/sandbox/tree/main/examples/document-chinese-tools)。
+
 ### 如何设置默认工作目录？
 
 启动容器时设置 `WORKSPACE`。详见 [工作目录](/zh/guide/advanced/workspace)。
