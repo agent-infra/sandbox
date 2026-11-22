@@ -73,6 +73,8 @@ The MCP endpoint focuses on commonly used tools by default. Prefer the documente
 
 Build a custom image from the public AIO Sandbox image and install your packages in the Dockerfile. For runtime-only setup, use lifecycle hooks described in [AIO Hooks](/guide/advanced/lifecycle).
 
+For a complete Dockerfile and build-time smoke test, see the [document and Chinese text tools example](https://github.com/agent-infra/sandbox/tree/main/examples/document-chinese-tools).
+
 ### How Do I Set A Default Workspace?
 
 Set `WORKSPACE` when starting the container. See [Workspace](/guide/advanced/workspace).
